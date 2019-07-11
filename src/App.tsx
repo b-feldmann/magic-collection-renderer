@@ -3,7 +3,7 @@ import CardInterface from './interfaces/CardInterface';
 import { SortType } from './interfaces/enums';
 import CardCollection from './components/CardCollection/CardCollection';
 import OfflineCardProvider from './components/OfflineCardProvider/OfflineCardProvider';
-import { Col, message, Modal, Row } from 'antd';
+import { Button, Col, message, Modal, Row } from 'antd';
 import CardEditor from './components/CardEditor/CardEditor';
 
 import styles from './App.module.scss';
@@ -84,7 +84,8 @@ const App: React.FC = () => {
     <OfflineCardProvider
       render={(
         cards: CardInterface[],
-        saveCard: (card: CardInterface) => void
+        saveCard: (card: CardInterface) => void,
+        addCard: () => void
       ) => {
         const mergedCards = mergeWithTmpCard(cards);
         return (
@@ -94,7 +95,9 @@ const App: React.FC = () => {
                 <CardCollection
                   cards={mergedCards}
                   sortBy={SortType.Name}
-                  editCard={id => openCardInEditor(id, mergedCards[cardEditId].name)}
+                  editCard={id =>
+                    openCardInEditor(id, mergedCards[cardEditId].name)
+                  }
                   downloadImage={id => downloadImage(id, mergedCards[id].name)}
                   downloadJson={id => downloadJson(mergedCards[id])}
                   viewCard={viewCard}
@@ -105,6 +108,14 @@ const App: React.FC = () => {
                   card={mergedCards[cardEditId]}
                   saveCard={saveCard}
                   saveTmpCard={setTmpCard}
+                />
+                <Button
+                  size="large"
+                  icon="plus"
+                  type="primary"
+                  shape="circle"
+                  onClick={addCard}
+                  className={styles.addButton}
                 />
               </Col>
             </Row>

@@ -7,7 +7,8 @@ import { CardMainType, RarityType } from '../../interfaces/enums';
 interface OfflineCardProviderInterface {
   render: (
     cards: CardInterface[],
-    saveCard: (card: CardInterface) => void
+    saveCard: (card: CardInterface) => void,
+    addCard: () => void
   ) => JSX.Element;
 }
 
@@ -171,14 +172,21 @@ const OfflineCardProvider: React.FC<OfflineCardProviderInterface> = ({
 
   const getCard = () => {};
 
-  // const childWithProp = React.Children.map(children, child => {
-  //   @ts-ignore
-  // return React.cloneElement(child, { cards, getCard });
-  // });
-  //
-  // return childWithProp;
-  // return children;
-  return <div>{render(Object.values(cards), saveCard)}</div>;
+  const addNewCard = () => {
+    const card: CardInterface = {
+      name: '',
+      rarity: RarityType.Common,
+      cardID: cards.length,
+      rowNumber: cards.length,
+      manaCost: '',
+      cardText: '',
+      cardMainType: CardMainType.Creature
+    };
+
+    saveCard(card);
+  };
+
+  return <div>{render(Object.values(cards), saveCard, addNewCard)}</div>;
 };
 
 export default OfflineCardProvider;

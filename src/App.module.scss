@@ -7,4 +7,10 @@
   }
 
   .collection {}
+
+  .addButton {
+    position: fixed;
+    bottom: 8px;
+    left: calc(100vw / 24 * 16 - 56px);
+  }
 }
