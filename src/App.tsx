@@ -3,17 +3,24 @@ import CardInterface from './interfaces/CardInterface';
 import { SortType } from './interfaces/enums';
 import CardCollection from './components/CardCollection/CardCollection';
 import OfflineCardProvider from './components/OfflineCardProvider/OfflineCardProvider';
-import { Col, message, Row } from 'antd';
+import { Col, message, Modal, Row } from 'antd';
 import CardEditor from './components/CardEditor/CardEditor';
 
 import styles from './App.module.scss';
+import './card-modal.scss';
 
 import fileDownload from 'js-file-download';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import CardRender from './components/CardRender/CardRender';
+
+const { confirm } = Modal;
 
 const App: React.FC = () => {
+  const [tmpCard, setTmpCard] = useState<CardInterface | null>(null);
   const [cardEditId, setCardEditId] = useState<number>(0);
+  const [cardViewId, setCardViewId] = useState<number>(0);
+  const [showCardModal, setShowCardModal] = useState<boolean>(false);
 
   const downloadJson = (card: CardInterface) => {
     const data = { ...card };
@@ -36,8 +43,40 @@ const App: React.FC = () => {
     }
   };
 
-  const viewCard = (card: CardInterface) => {
-    message.error('Currently not implemented :(');
+  const viewCard = (id: number) => {
+    setCardViewId(id);
+    setShowCardModal(true);
+  };
+
+  const mergeWithTmpCard = (cards: CardInterface[]) => {
+    const merged: CardInterface[] = [];
+
+    cards.forEach(card => {
+      if (tmpCard && card.cardID === tmpCard.cardID) merged.push(tmpCard);
+      else merged.push(card);
+    });
+    return merged;
+  };
+
+  const openCardInEditor = (id: number, oldCardName: string) => {
+    if (tmpCard) {
+      confirm({
+        title: `${oldCardName} has unsaved changes`,
+        okText: 'Yes discard all changes',
+        type: 'danger',
+        okType: 'danger',
+        cancelText: 'Cancel',
+        onOk() {
+          setCardEditId(id);
+          setCardViewId(id);
+          setShowCardModal(true);
+        }
+      });
+    } else {
+      setCardEditId(id);
+      setCardViewId(id);
+      setShowCardModal(true);
+    }
   };
 
   return (
@@ -46,23 +85,41 @@ const App: React.FC = () => {
       render={(
         cards: CardInterface[],
         saveCard: (card: CardInterface) => void
-      ) => (
-        <Row className={styles.app}>
-          <Col span={16} className={styles.collection}>
-            <CardCollection
-              cards={cards}
-              sortBy={SortType.Name}
-              editCard={setCardEditId}
-              downloadImage={id => downloadImage(id, cards[id].name)}
-              downloadJson={id => downloadJson(cards[id])}
-              viewCard={id => viewCard(cards[id])}
-            />
-          </Col>
-          <Col span={8} className={styles.editor}>
-            <CardEditor card={cards[cardEditId]} saveCard={saveCard} />
-          </Col>
-        </Row>
-      )}
+      ) => {
+        const mergedCards = mergeWithTmpCard(cards);
+        return (
+          <div>
+            <Row className={styles.app}>
+              <Col span={16} className={styles.collection}>
+                <CardCollection
+                  cards={mergedCards}
+                  sortBy={SortType.Name}
+                  editCard={id => openCardInEditor(id, mergedCards[cardEditId].name)}
+                  downloadImage={id => downloadImage(id, mergedCards[id].name)}
+                  downloadJson={id => downloadJson(mergedCards[id])}
+                  viewCard={viewCard}
+                />
+              </Col>
+              <Col span={8} className={styles.editor}>
+                <CardEditor
+                  card={mergedCards[cardEditId]}
+                  saveCard={saveCard}
+                  saveTmpCard={setTmpCard}
+                />
+              </Col>
+            </Row>
+            <Modal
+              wrapClassName="card-view"
+              title={`View ${mergedCards[cardViewId]}`}
+              visible={showCardModal}
+              onOk={() => setShowCardModal(false)}
+              onCancel={() => setShowCardModal(false)}
+            >
+              <CardRender {...mergedCards[cardViewId]} />
+            </Modal>
+          </div>
+        );
+      }}
     />
   );
 };

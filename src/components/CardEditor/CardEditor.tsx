@@ -4,16 +4,23 @@ import CardInterface from '../../interfaces/CardInterface';
 import styles from './styles.module.css';
 import { CardMainType, Creators, RarityType } from '../../interfaces/enums';
 import EditField from './EditField';
+import { Button, Col, Row } from 'antd';
+
+import _ from 'lodash';
 
 interface CardEditorInterface {
   card: CardInterface;
+  saveTmpCard: (card: CardInterface | null) => void;
   saveCard: (card: CardInterface) => void;
 }
 
 const CardEditor: React.FC<CardEditorInterface> = ({
   card,
-  saveCard
+  saveCard,
+  saveTmpCard
 }: CardEditorInterface) => {
+  const [contentChanged, setContentChanged] = useState<boolean>(false);
+  const [originalCard, setOriginalCard] = useState<CardInterface>(card);
   const [tmpCard, setTmpCard] = useState<CardInterface>(card);
   const [timerId, setTimerId] = useState<any>(-1);
 
@@ -26,15 +33,45 @@ const CardEditor: React.FC<CardEditorInterface> = ({
     newTmpCard[key] = value;
     setTmpCard(newTmpCard);
 
+    setContentChanged(true);
+
     clearTimeout(timerId);
     const tmpId = setTimeout(() => {
-      saveCard(newTmpCard);
+      saveTmpCard(newTmpCard);
     }, 300);
     setTimerId(tmpId);
   };
 
+  const discardChanges = () => {
+    if (!contentChanged) return;
+
+    setTmpCard(originalCard);
+    saveTmpCard(null);
+    setContentChanged(false);
+  };
+
+  const saveChanges = () => {
+    if (!contentChanged) return;
+
+    setTmpCard(originalCard);
+    saveTmpCard(null);
+    saveCard(tmpCard);
+    setContentChanged(false);
+  };
+
   useEffect(() => {
+    if (_.isEqual(originalCard, tmpCard)) {
+      saveTmpCard(null);
+      setContentChanged(false);
+    }
+  });
+
+  useEffect(() => {
+    console.log('hooks!');
     setTmpCard(card);
+    setOriginalCard(card);
+    saveTmpCard(null);
+    setContentChanged(false);
   }, [card.cardID]);
 
   const inputConfig = [
@@ -80,6 +117,28 @@ const CardEditor: React.FC<CardEditorInterface> = ({
           />
         </div>
       ))}
+      <Row>
+        <Col span={12}>
+          <Button
+            className={styles.button}
+            disabled={!contentChanged}
+            onClick={saveChanges}
+            type="primary"
+          >
+            Save Changes
+          </Button>
+        </Col>
+        <Col span={12}>
+          <Button
+            className={styles.button}
+            disabled={!contentChanged}
+            onClick={discardChanges}
+            type="danger"
+          >
+            Discard Changes
+          </Button>
+        </Col>
+      </Row>
     </div>
   );
 };
