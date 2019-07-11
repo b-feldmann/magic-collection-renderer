@@ -1,6 +1,7 @@
 import { Checkbox, Input, Select } from 'antd';
 import React from 'react';
-import styles from './styles.module.css';
+import styles from './styles.module.scss';
+import useWindowDimensions from '../../useWindowDimensions';
 
 const { TextArea } = Input;
 
@@ -16,11 +17,21 @@ interface EditFieldInterface {
 const EditField: React.FC<EditFieldInterface> = (props: EditFieldInterface) => {
   const { type, fieldKey, name, data, getValue, saveValue } = props;
 
+  const { height } = useWindowDimensions();
+
+  // console.log(height);
+  let small = false;
+  let tiny = false;
+
+  if (height < 840) small = true;
+  if (height < 710) tiny = true;
+
   if (type === 'input') {
     return (
-      <span>
+      <span className={tiny ? styles.tiny : ''}>
         <p className={styles.label}>{name}</p>
         <Input
+          size={small ? 'small' : 'default'}
           value={getValue(fieldKey)}
           onChange={e => saveValue(fieldKey, e.target.value)}
         />
@@ -30,12 +41,12 @@ const EditField: React.FC<EditFieldInterface> = (props: EditFieldInterface) => {
 
   if (type === 'area') {
     return (
-      <span>
+      <span className={tiny ? styles.tiny : ''}>
         <p className={styles.label}>{name}</p>
         <TextArea
           value={getValue(fieldKey)}
           onChange={e => saveValue(fieldKey, e.target.value)}
-          rows={4}
+          rows={small ? 2 : 4}
         />
       </span>
     );
@@ -43,12 +54,12 @@ const EditField: React.FC<EditFieldInterface> = (props: EditFieldInterface) => {
 
   if (type === 'area-small') {
     return (
-      <span>
+      <span className={tiny ? styles.tiny : ''}>
         <p className={styles.label}>{name}</p>
         <TextArea
           value={getValue(fieldKey)}
           onChange={e => saveValue(fieldKey, e.target.value)}
-          rows={2}
+          rows={small ? 1 : 2}
         />
       </span>
     );
@@ -56,21 +67,25 @@ const EditField: React.FC<EditFieldInterface> = (props: EditFieldInterface) => {
 
   if (type === 'bool') {
     return (
-      <Checkbox
-        className={styles.label}
-        checked={getValue(fieldKey)}
-        onChange={e => saveValue(fieldKey, e.target.checked)}
-      >
-        {name}
-      </Checkbox>
+      <div className={tiny ? styles.tiny : ''}>
+        <div className={styles.label}>
+          <Checkbox
+            checked={getValue(fieldKey)}
+            onChange={e => saveValue(fieldKey, e.target.checked)}
+          >
+            {name}
+          </Checkbox>
+        </div>
+      </div>
     );
   }
 
   if (type === 'select' && data) {
     return (
-      <span>
+      <span className={tiny ? styles.tiny : ''}>
         <p className={styles.label}>{name}</p>
         <Select
+          size={small ? 'small' : 'default'}
           value={getValue(fieldKey)}
           onChange={(value: string) => saveValue(fieldKey, value)}
           style={{ width: '100%' }}
@@ -85,7 +100,7 @@ const EditField: React.FC<EditFieldInterface> = (props: EditFieldInterface) => {
     );
   }
 
-  return <div></div>;
+  return <div />;
 };
 
 export default EditField;

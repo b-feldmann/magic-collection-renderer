@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import CardInterface from '../../interfaces/CardInterface';
 
-import styles from './styles.module.css';
+import styles from './styles.module.scss';
 import { CardMainType, Creators, RarityType } from '../../interfaces/enums';
 import EditField from './EditField';
 import { Button, Col, Row } from 'antd';
