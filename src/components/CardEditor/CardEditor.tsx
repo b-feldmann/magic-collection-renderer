@@ -7,6 +7,7 @@ import EditField from './EditField';
 import { Button, Col, Row } from 'antd';
 
 import _ from 'lodash';
+import useWindowDimensions from '../../useWindowDimensions';
 
 interface CardEditorInterface {
   card: CardInterface;
@@ -23,6 +24,14 @@ const CardEditor: React.FC<CardEditorInterface> = ({
   const [originalCard, setOriginalCard] = useState<CardInterface>(card);
   const [tmpCard, setTmpCard] = useState<CardInterface>(card);
   const [timerId, setTimerId] = useState<any>(-1);
+
+  const { height } = useWindowDimensions();
+
+  let small = false;
+  let tiny = false;
+
+  if (height < 840) small = true;
+  if (height < 710) tiny = true;
 
   const getValue = (key: string): any => {
     return tmpCard[key];
@@ -67,7 +76,6 @@ const CardEditor: React.FC<CardEditorInterface> = ({
   });
 
   useEffect(() => {
-    console.log('hooks!');
     setTmpCard(card);
     setOriginalCard(card);
     saveTmpCard(null);
@@ -117,9 +125,10 @@ const CardEditor: React.FC<CardEditorInterface> = ({
           />
         </div>
       ))}
-      <Row>
+      <Row className={tiny ? styles.tiny : ''}>
         <Col span={12}>
           <Button
+            size={small ? 'small' : 'default'}
             className={styles.button}
             disabled={!contentChanged}
             onClick={saveChanges}
@@ -130,6 +139,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
         </Col>
         <Col span={12}>
           <Button
+            size={small ? 'small' : 'default'}
             className={styles.button}
             disabled={!contentChanged}
             onClick={discardChanges}

@@ -19,7 +19,6 @@ const EditField: React.FC<EditFieldInterface> = (props: EditFieldInterface) => {
 
   const { height } = useWindowDimensions();
 
-  // console.log(height);
   let small = false;
   let tiny = false;
 
