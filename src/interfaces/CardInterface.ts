@@ -15,5 +15,5 @@ export default interface CardInterface {
   flavourAuthor?: string;
   cover?: string;
   creator?: string;
-  cardIndex: number;
+  cardID: number;
 }

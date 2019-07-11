@@ -7,7 +7,7 @@ import { CardMainType, RarityType } from '../../interfaces/enums';
 interface OfflineCardProviderInterface {
   render: (
     cards: CardInterface[],
-    saveCard: (key: number, card: CardInterface) => void
+    saveCard: (card: CardInterface) => void
   ) => JSX.Element;
 }
 
@@ -20,10 +20,10 @@ const murkCard: CardInterface = {
   rarity: RarityType.Common,
   creator: 'Goomy our Breath',
   manaCost: '{b}{1}',
-  cardIndex: 2,
+  cardID: 2,
   rowNumber: 2,
   cardStats: '2/1',
-  cardText: 'Flying | When ~ attacks you can tap target land.',
+  cardText: 'Flying | When ~ attacks you can untap target land.',
   flavourText: '~ the destroyer',
   cardMainType: CardMainType.Creature,
   cardSubTypes: 'Pokemon'
@@ -34,7 +34,7 @@ const skillCard: CardInterface = {
   rarity: RarityType.Uncommon,
   creator: 'Goomy our Light',
   manaCost: '{r}{3}',
-  cardIndex: 1,
+  cardID: 1,
   rowNumber: 1,
   cardText: '~ deals 3 damage to target player and each creature they control.',
   flavourText: 'Oops. I tripped.',
@@ -47,7 +47,7 @@ const necrozmaCard: CardInterface = {
   cardStats: '4/4',
   creator: 'Goomy our Breath',
   manaCost: '{b}{b}{w}{w}',
-  cardIndex: 0,
+  cardID: 0,
   rowNumber: 0,
   cardText:
     '{w}{w}: Put a +1/+1 counter on ~. | {b}{b}{t}: Remove all +1/+1 counter from ~. ~ deals 4 damage for each removed counter to target creature.',
@@ -64,7 +64,7 @@ const michaCard: CardInterface = {
   cardStats: '1/6',
   creator: 'Goomy our Hope',
   manaCost: '{u}{u}{1}',
-  cardIndex: 3,
+  cardID: 3,
   rowNumber: 3,
   cardText:
     '~ enters the battlefield with 3 "Geduldscountern". |' +
@@ -80,7 +80,7 @@ const sivirCard: CardInterface = {
   rarity: RarityType.Common,
   cardStats: '2/3',
   manaCost: '{w}{2}',
-  cardIndex: 4,
+  cardID: 4,
   rowNumber: 4,
   cardText: 'Hexproof | {w}{1}: Give a creature haste',
   cardMainType: CardMainType.Creature,
@@ -93,7 +93,7 @@ const zyraCard: CardInterface = {
   cardStats: '0/1',
   manaCost: '{g}',
   creator: 'Goomy our Light',
-  cardIndex: 5,
+  cardID: 5,
   rowNumber: 5,
   cardText:
     '{T}: put a +0/+1 counter on ~. Put a +1/+0 counter on target creature an opponent controls. Tap that creature.',
@@ -105,7 +105,7 @@ const eloCard: CardInterface = {
   name: 'Elo Land',
   rarity: RarityType.Uncommon,
   creator: 'Goomy our Hope',
-  cardIndex: 6,
+  cardID: 6,
   rowNumber: 6,
   manaCost: '',
   flavourText:
@@ -115,12 +115,26 @@ const eloCard: CardInterface = {
   cardMainType: CardMainType.Land
 };
 
+const dittoCard: CardInterface = {
+  name: 'Ditto',
+  rarity: RarityType.Rare,
+  creator: 'Goomy our Soul',
+  cardID: 7,
+  rowNumber: 7,
+  manaCost: '{2}',
+  cardStats: '0/1',
+  flavourText: 'They told me I could be anything <3',
+  cardText: '~ enters the battlefield as a copy of target creature.',
+  cardMainType: CardMainType.Creature,
+  cardSubTypes: 'Pokemon'
+};
+
 const joridCard: CardInterface = {
   name: 'Jorid, Herr der Geier und Käfer',
   rarity: RarityType.Rare,
   creator: 'Goomy our Lord',
-  cardIndex: 7,
-  rowNumber: 7,
+  cardID: 8,
+  rowNumber: 8,
   manaCost: '{b}{b}{3}',
   cardStats: '5',
   legendary: true,
@@ -130,49 +144,27 @@ const joridCard: CardInterface = {
   cardMainType: CardMainType.Planeswalker
 };
 
-const dittoCard: CardInterface = {
-  name: 'Ditto',
-  rarity: RarityType.Rare,
-  creator: 'Goomy our Soul',
-  cardIndex: 8,
-  rowNumber: 8,
-  manaCost: '{2}',
-  cardStats: '0/1',
-  flavourText: 'They told me I could be anything <3',
-  cardText: '~ enters the battlefield as a copy of target creature.',
-  cardMainType: CardMainType.Creature,
-  cardSubTypes: 'Pokemon'
-};
-
 const OfflineCardProvider: React.FC<OfflineCardProviderInterface> = ({
   render
 }: OfflineCardProviderInterface) => {
   // const dataPath = storage.getDataPath();
   // console.log(dataPath);
-  const [cards, setCards] = useState<CardInterface[]>([
-    necrozmaCard,
-    michaCard,
-    murkCard,
-    skillCard,
-    sivirCard,
-    zyraCard,
-    eloCard,
-    dittoCard,
-    joridCard
-  ]);
+  const initialState = [];
+  initialState[necrozmaCard.cardID] = necrozmaCard;
+  initialState[skillCard.cardID] = skillCard;
+  initialState[murkCard.cardID] = murkCard;
+  initialState[michaCard.cardID] = michaCard;
+  initialState[sivirCard.cardID] = sivirCard;
+  initialState[zyraCard.cardID] = zyraCard;
+  initialState[eloCard.cardID] = eloCard;
+  initialState[dittoCard.cardID] = dittoCard;
+  initialState[joridCard.cardID] = joridCard;
 
-  const saveCard = (key: number, obj: CardInterface) => {
-    const newCards: CardInterface[] = [];
+  const [cards, setCards] = useState<CardInterface[]>(initialState);
 
-    cards.forEach(card => {
-      if (card.cardIndex === key) newCards.push(obj);
-      else newCards.push(card);
-    });
-    // let duplicate = false;
-    // cards.forEach(card => {
-    //   if (card.name === obj.name) duplicate = true;
-    // });
-    // if (duplicate) return;
+  const saveCard = (obj: CardInterface) => {
+    const newCards: CardInterface[] = [...cards];
+    newCards[obj.cardID] = obj;
 
     setCards(newCards);
   };
@@ -186,7 +178,7 @@ const OfflineCardProvider: React.FC<OfflineCardProviderInterface> = ({
   //
   // return childWithProp;
   // return children;
-  return <div>{render(cards, saveCard)}</div>;
+  return <div>{render(Object.values(cards), saveCard)}</div>;
 };
 
 export default OfflineCardProvider;

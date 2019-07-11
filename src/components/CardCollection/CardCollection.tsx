@@ -8,14 +8,23 @@ import CardRender from '../CardRender/CardRender';
 import useResizeAware from 'react-resize-aware';
 
 import styles from './styles.module.css';
+import ActionHover from '../ActionHover/ActionHover';
+import PdfDownloadWrapper from '../PdfDownloadWrapper/PdfDownloadWrapper';
 
 interface CardCollectionInterface {
   cards?: CardInterface[];
   sortBy: SortType;
+  editCard: (id: number) => void;
+  downloadImage: (id: number) => void;
+  downloadJson: (id: number) => void;
+  viewCard: (id: number) => void;
 }
 
 const CardCollection: React.FC<CardCollectionInterface> = ({
-  cards = []
+  cards = [],
+  editCard,
+  downloadJson,
+  viewCard
 }: CardCollectionInterface) => {
   const [resizeListener, sizes] = useResizeAware();
 
@@ -28,11 +37,37 @@ const CardCollection: React.FC<CardCollectionInterface> = ({
     <div>
       {resizeListener}
       <Row>
-        {cards.map(card => (
-          <Col className={styles.cardBox} span={colSpan} key={card.cardIndex}>
-            <CardRender {...card} />
-          </Col>
-        ))}
+        {cards.map(card => {
+          return (
+            <Col className={styles.cardBox} span={colSpan} key={card.cardID}>
+              <PdfDownloadWrapper
+                fileName={card.name}
+                render={downloadPdf => (
+                  <ActionHover
+                    northAction={{
+                      icon: 'edit',
+                      action: () => editCard(card.cardID)
+                    }}
+                    eastAction={{
+                      icon: 'eye',
+                      action: () => viewCard(card.cardID)
+                    }}
+                    southAction={{
+                      icon: 'download',
+                      action: downloadPdf
+                    }}
+                    westAction={{
+                      icon: 'file-text',
+                      action: () => downloadJson(card.cardID)
+                    }}
+                  >
+                    <CardRender {...card} />
+                  </ActionHover>
+                )}
+              />
+            </Col>
+          );
+        })}
       </Row>
     </div>
   );

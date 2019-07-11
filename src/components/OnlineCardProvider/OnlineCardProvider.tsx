@@ -22,7 +22,7 @@ const OnlineCardProvider = ({ children }: OfflineCardProviderInterface) => {
     rarity: RarityType.Common,
     creator: 'Goomy our Breath',
     manaCost: '{b}{1}',
-    cardIndex: 2,
+    cardID: 2,
     rowNumber: 2,
     cardStats: '2/1',
     cardText: 'Flying | When ~ attacks you can tap target land.',
@@ -58,7 +58,7 @@ const OnlineCardProvider = ({ children }: OfflineCardProviderInterface) => {
     //   //   manaCost: '{0}',
     //   //   rarity: RarityType.Common,
     //   //   cardText: '',
-    //   //   cardIndex: -1,
+    //   //   cardID: -1,
     //   //   ...data
     //   // };
     //   //

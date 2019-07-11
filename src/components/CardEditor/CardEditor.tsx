@@ -1,15 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import CardInterface from '../../interfaces/CardInterface';
-
-import { Checkbox, Input, Select } from 'antd';
 
 import styles from './styles.module.css';
 import { CardMainType, Creators, RarityType } from '../../interfaces/enums';
-const { TextArea } = Input;
+import EditField from './EditField';
 
 interface CardEditorInterface {
   card: CardInterface;
-  saveCard: (key: number, card: CardInterface) => void;
+  saveCard: (card: CardInterface) => void;
 }
 
 const CardEditor: React.FC<CardEditorInterface> = ({
@@ -17,6 +15,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
   saveCard
 }: CardEditorInterface) => {
   const [tmpCard, setTmpCard] = useState<CardInterface>(card);
+  const [timerId, setTimerId] = useState<any>(-1);
 
   const getValue = (key: string): any => {
     return tmpCard[key];
@@ -26,8 +25,17 @@ const CardEditor: React.FC<CardEditorInterface> = ({
     const newTmpCard = { ...tmpCard };
     newTmpCard[key] = value;
     setTmpCard(newTmpCard);
-    saveCard(newTmpCard.cardIndex, newTmpCard);
+
+    clearTimeout(timerId);
+    const tmpId = setTimeout(() => {
+      saveCard(newTmpCard);
+    }, 300);
+    setTimerId(tmpId);
   };
+
+  useEffect(() => {
+    setTmpCard(card);
+  }, [card.cardID]);
 
   const inputConfig = [
     { key: 'name', type: 'input', name: 'Card Name' },
@@ -58,89 +66,18 @@ const CardEditor: React.FC<CardEditorInterface> = ({
     }
   ];
 
-  const buildField = (
-    key: string,
-    type: string,
-    name: string,
-    data?: string[]
-  ) => {
-    if (type === 'input') {
-      return (
-        <span>
-          <p className={styles.label}>{name}</p>
-          <Input
-            value={getValue(key)}
-            onChange={e => saveValue(key, e.target.value)}
-          />
-        </span>
-      );
-    }
-
-    if (type === 'area') {
-      return (
-        <span>
-          <p className={styles.label}>{name}</p>
-          <TextArea
-            value={getValue(key)}
-            onChange={e => saveValue(key, e.target.value)}
-            rows={4}
-          />
-        </span>
-      );
-    }
-
-    if (type === 'area-small') {
-      return (
-        <span>
-          <p className={styles.label}>{name}</p>
-          <TextArea
-            value={getValue(key)}
-            onChange={e => saveValue(key, e.target.value)}
-            rows={2}
-          />
-        </span>
-      );
-    }
-
-    if (type === 'bool') {
-      return (
-        <Checkbox
-          className={styles.label}
-          checked={getValue(key)}
-          onChange={e => saveValue(key, e.target.checked)}
-        >
-          {name}
-        </Checkbox>
-      );
-    }
-
-    if (type === 'select' && data) {
-      return (
-        <span>
-          <p className={styles.label}>{name}</p>
-          <Select
-            value={getValue(key)}
-            onChange={(value: string) => saveValue(key, value)}
-            style={{ width: '100%' }}
-          >
-            {data.map(d => (
-              <Select.Option key={`${key} + ${d}`} value={d}>
-                {d}
-              </Select.Option>
-            ))}
-          </Select>
-        </span>
-      );
-    }
-
-    return '';
-  };
-
   return (
     <div className={styles.editor}>
       {inputConfig.map(config => (
         <div key={`card-editor-key:${config.key}`}>
-          {buildField(config.key, config.type, config.name, config.data)}
+          <EditField
+            fieldKey={config.key}
+            type={config.type}
+            data={config.data}
+            name={config.name}
+            saveValue={saveValue}
+            getValue={getValue}
+          />
         </div>
       ))}
     </div>

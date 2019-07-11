@@ -32,7 +32,7 @@ import {
 const CardRender: React.FC<CardInterface> = (card: CardInterface) => {
   const { legendary, cardMainType, cardSubTypes, rarity } = card;
   const { name, manaCost, cardStats, cover, creator } = card;
-  const { cardText, flavourText, flavourAuthor, cardIndex, rowNumber } = card;
+  const { cardText, flavourText, flavourAuthor, cardID, rowNumber } = card;
 
   const [resizeListener, sizes] = useResizeAware();
 
@@ -100,6 +100,7 @@ const CardRender: React.FC<CardInterface> = (card: CardInterface) => {
     <div style={{ height: `${getHeight()}px` }}>
       {resizeListener}
       <div
+        id={`card-id-${cardID}`}
         className="card-container"
         style={{
           transform: `scale(${resizeFactor()}) translate(${margin}px)`,

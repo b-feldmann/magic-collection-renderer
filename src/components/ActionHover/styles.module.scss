@@ -1,0 +1,160 @@
+$action-offset-normal: 100px;
+$action-offset-hover: 30px;
+
+.hovereffect .overlay {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    overflow: hidden;
+    top: 0;
+    left: 0;
+}
+
+.hovereffect .target {
+    display: block;
+    position: relative;
+    -webkit-transform: scale(1);
+    -ms-transform: scale(1);
+    transform: scale(1);
+    -webkit-transition: all 0.35s;
+    transition: all 0.35s;
+}
+
+.hovereffect:hover .target {
+    -webkit-transform: scale(0.9);
+    -ms-transform: scale(0.9);
+    transform: scale(0.9);
+    filter: url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg"><filter id="filter"><feComponentTransfer color-interpolation-filters="sRGB"><feFuncR type="linear" slope="0.7" /><feFuncG type="linear" slope="0.7" /><feFuncB type="linear" slope="0.7" /></feComponentTransfer></filter></svg>#filter');
+    filter: brightness(0.7);
+    -webkit-filter: brightness(0.7);
+}
+
+.hovereffect h2 {
+    text-transform: uppercase;
+    color: #fff;
+    text-align: center;
+    font-size: 17px;
+    padding: 10px;
+    width: 100%;
+    font-weight: 100;
+}
+
+.hovereffect:hover h2 {
+    opacity: 0;
+    filter: alpha(opacity=0);
+    -webkit-transform: translate3d(-50%, -50%, 0) scale3d(0.8, 0.8, 1);
+    transform: translate3d(-50%, -50%, 0) scale3d(0.8, 0.8, 1);
+}
+
+.hovereffect .rotate {
+    -webkit-transform: rotate(-45deg);
+    -ms-transform: rotate(-45deg);
+    transform: rotate(-45deg);
+    width: 100%;
+    height: 100%;
+    top:0;
+    position: absolute;
+}
+
+.hovereffect hr {
+    width: 50%;
+    opacity: 0;
+    filter: alpha(opacity=0);
+}
+
+.hovereffect hr:nth-child(1) {
+    -webkit-transform: translate3d(-50%, -50%, 0) rotate(0deg) scale3d(0, 0, 1);
+    transform: translate3d(-50%, -50%, 0) rotate(0deg) scale3d(0, 0, 1);
+}
+
+.hovereffect hr:nth-child(2) {
+    -webkit-transform: translate3d(-50%, -50%, 0) rotate(90deg) scale3d(0, 0, 1);
+    transform: translate3d(-50%, -50%, 0) rotate(90deg) scale3d(0, 0, 1);
+}
+
+.hovereffect h2,
+.hovereffect hr {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -webkit-transition: opacity 0.35s, -webkit-transform 0.35s;
+    transition: opacity 0.35s, transform 0.35s;
+    -webkit-transform: translate3d(-50%, -50%, 0);
+    transform: translate3d(-50%, -50%, 0);
+    -webkit-transform-origin: 50%;
+    -ms-transform-origin: 50%;
+    transform-origin: 50%;
+    background-color: transparent;
+    margin: 0px;
+}
+
+.hovereffect .action {
+    z-index: 999;
+    opacity: 0;
+    filter: alpha(opacity=0);
+    -webkit-transition: opacity 0.35s, -webkit-transform 0.35s;
+    transition: opacity 0.35s, transform 0.35s;
+    color:white;
+    position: absolute;
+    top: calc(50% - 10px);
+    left: calc(50% - 10px);
+    display: inline-block;
+    font-size: 20px;
+}
+
+.hovereffect .eastAction {
+    transform: translateX(-$action-offset-normal) scale(2);
+}
+
+.hovereffect .westAction {
+    transform: translateX($action-offset-normal) scale(2);
+}
+
+.hovereffect .southAction {
+    transform: translateY($action-offset-normal) scale(2);
+}
+
+.hovereffect .northAction {
+    transform: translateY(-$action-offset-normal) scale(2);
+}
+
+.hovereffect:hover .action {
+    opacity: 1;
+    filter: alpha(opacity=100);
+}
+
+.hovereffect:hover .eastAction {
+    transform: translateX(-$action-offset-hover);
+}
+
+.hovereffect:hover .westAction {
+    transform: translateX($action-offset-hover);
+}
+
+.hovereffect:hover .southAction {
+    transform: translateY($action-offset-hover);
+}
+
+.hovereffect:hover .northAction {
+    transform: translateY(-$action-offset-hover);
+}
+
+.hovereffect .action:hover {
+    opacity: 0.6;
+    filter: alpha(opacity = 60);
+}
+
+
+.hovereffect:hover hr:nth-child(1) {
+    opacity: 1;
+    filter: alpha(opacity=100);
+    -webkit-transform: translate3d(-50%, -50%, 0) rotate(0deg) scale3d(1, 1, 1);
+    transform: translate3d(-50%, -50%, 0) rotate(0deg) scale3d(1, 1, 1);
+}
+
+.hovereffect:hover hr:nth-child(2) {
+    opacity: 1;
+    filter: alpha(opacity=100);
+    -webkit-transform: translate3d(-50%, -50%, 0) rotate(90deg) scale3d(1, 1, 1);
+    transform: translate3d(-50%, -50%, 0) rotate(90deg) scale3d(1, 1, 1);
+}
