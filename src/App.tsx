@@ -145,20 +145,16 @@ const App: React.FC = () => {
                 />
                 <div className={styles.addButton}>
                   <Button
-                    size="large"
                     icon="plus"
                     type="primary"
-                    shape="round"
                     onClick={addCard}
                     className={styles.fullWidth}
                   >
                     Add Card
                   </Button>
                   <Button
-                    size="large"
                     icon="download"
                     type="primary"
-                    shape="round"
                     onClick={() => downloadCollectionAsJson(mergedCards)}
                     className={styles.fullWidth}
                   >

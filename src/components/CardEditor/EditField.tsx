@@ -22,8 +22,8 @@ const EditField: React.FC<EditFieldInterface> = (props: EditFieldInterface) => {
   let small = false;
   let tiny = false;
 
-  if (height < 840) small = true;
-  if (height < 710) tiny = true;
+  if (height < 950) small = true;
+  if (height < 790) tiny = true;
 
   if (type === 'input') {
     return (

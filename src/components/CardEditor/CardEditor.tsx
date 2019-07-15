@@ -9,6 +9,7 @@ import { Button, Row } from 'antd';
 
 import _ from 'lodash';
 import useWindowDimensions from '../../useWindowDimensions';
+import CardFaceInterface from '../../interfaces/CardFaceInterface';
 
 interface CardEditorInterface {
   card: CardInterface;
@@ -41,17 +42,24 @@ const CardEditor: React.FC<CardEditorInterface> = ({
   const [tmpCard, setTmpCard] = useState<CardInterface>(_.cloneDeep(card));
   const [timerId, setTimerId] = useState<any>(-1);
 
+  const [editBack, setEditBack] = useState<boolean>(false);
+
   const { height } = useWindowDimensions();
 
   let small = false;
   let tiny = false;
 
-  if (height < 840) small = true;
-  if (height < 710) tiny = true;
+  if (height < 950) small = true;
+  if (height < 790) tiny = true;
+
+  const getCurrentFace = (card: CardInterface): CardFaceInterface => {
+    if (card.back && editBack) return card.back;
+    return card.front;
+  };
 
   const getValue = (key: string): any => {
     if (key === 'rarity' || key === 'creator') return tmpCard[key];
-    return tmpCard.front[key];
+    return getCurrentFace(tmpCard)[key];
   };
 
   const saveValue = (key: string, value: any) => {
@@ -59,7 +67,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
     if (key === 'rarity' || key === 'creator') {
       newTmpCard[key] = value;
     } else {
-      newTmpCard.front[key] = value;
+      getCurrentFace(newTmpCard)[key] = value;
     }
     setTmpCard(newTmpCard);
 
@@ -102,6 +110,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
   }, [tmpCard]);
 
   useEffect(() => {
+    setEditBack(false);
     setTmpCard(_.cloneDeep(card));
     setOriginalCard(_.cloneDeep(card));
     saveTmpCard(null);
@@ -145,8 +154,53 @@ const CardEditor: React.FC<CardEditorInterface> = ({
       </div>
     );
 
+  const addBackFace = () => {
+    const newTmpCard = { ...tmpCard };
+    newTmpCard.back = {
+      name: '',
+      cardText: '',
+      cardMainType: CardMainType.Creature,
+      manaCost: ''
+    };
+
+    setTmpCard(newTmpCard);
+    saveTmpCard(newTmpCard);
+    setContentChanged(true);
+  };
+
+  const deleteBackFace = () => {
+    const newTmpCard = { ...tmpCard };
+    delete newTmpCard.back;
+    setTmpCard(newTmpCard);
+    saveTmpCard(newTmpCard);
+    setContentChanged(true);
+  };
+
   return (
     <div className={styles.editor}>
+      <Row className={tiny ? styles.tiny : ''}>
+        <Button.Group
+          className={styles.smallButtonGroup}
+          size={small ? 'small' : 'default'}
+        >
+          {card.back && editBack && (
+            <Button type="ghost" onClick={() => setEditBack(false)}>
+              Edit Front Face
+            </Button>
+          )}
+          {card.back && !editBack && (
+            <Button type="ghost" onClick={() => setEditBack(true)}>
+              Edit Back Face
+            </Button>
+          )}
+          {card.back && (
+            <Button onClick={deleteBackFace} type="danger">
+              Delete Back Face
+            </Button>
+          )}
+          {!card.back && <Button onClick={addBackFace}>Add Back Face</Button>}
+        </Button.Group>
+      </Row>
       {inputConfig.map(config => (
         <div key={`card-editor-key:${config.key}`}>
           <EditField
