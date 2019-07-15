@@ -1,5 +1,5 @@
 import React, { ReactChild, useState } from 'react';
-import CardInterface from '../../interfaces/CardInterface';
+import CardFaceInterface from '../../interfaces/CardFaceInterface';
 import { CardMainType, RarityType } from '../../interfaces/enums';
 
 // const { dialog } = window.require('electron').remote;
@@ -9,15 +9,15 @@ interface OfflineCardProviderInterface {
 }
 
 interface CardCallbackFunction {
-  (card: CardInterface): void;
+  (card: CardFaceInterface): void;
 }
 
 const OnlineCardProvider = ({ children }: OfflineCardProviderInterface) => {
   // const dataPath = storage.getDataPath();
   // console.log(dataPath);
-  const [cards, setCards] = useState<CardInterface[]>([]);
+  const [cards, setCards] = useState<CardFaceInterface[]>([]);
 
-  const murkCard: CardInterface = {
+  const murkCard: CardFaceInterface = {
     name: 'Murk Murk',
     rarity: RarityType.Common,
     creator: 'Goomy our Breath',
@@ -31,7 +31,7 @@ const OnlineCardProvider = ({ children }: OfflineCardProviderInterface) => {
     cardSubTypes: 'Pokemon'
   };
 
-  const saveCard = (key: string, obj: CardInterface) => {
+  const saveCard = (key: string, obj: CardFaceInterface) => {
     // fs.writeFile('cards', obj, err => {
     //   if (err) {
     //     alert('An error ocurred creating the file ' + err.message);
@@ -51,7 +51,7 @@ const OnlineCardProvider = ({ children }: OfflineCardProviderInterface) => {
     //   // Change how to handle the file content
     //   console.log('The file content is : ' + data);
     //
-    //   // const card: CardInterface = {
+    //   // const card: CardFaceInterface = {
     //   //   rowNumber: -1,
     //   //   name: '',
     //   //   cardMainType: CardMainType.Creature,
@@ -73,7 +73,7 @@ const OnlineCardProvider = ({ children }: OfflineCardProviderInterface) => {
   // });
 
   const getAllCards = () => {
-    const allCards: CardInterface[] = [];
+    const allCards: CardFaceInterface[] = [];
 
     // storage.getAll(function(error, data) {
     //   if (error) throw error;

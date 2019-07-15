@@ -1,11 +1,7 @@
-.ant-modal-mask  {
-  width: calc(100 / 24 * 18vw);
+.ant-modal-wrap, .ant-modal-mask {
+  width: calc(100 / 24 * 18 / 24 * 20vw);
+  margin-left: calc(100 / 24 * 18 / 24 * 4vw);
 }
-
-.ant-modal-wrap {
-  width: calc(100 / 24 * 18vw);
-}
-
 
 .card-view {
   .ant-modal-header, .ant-modal-close, .ant-modal-footer {

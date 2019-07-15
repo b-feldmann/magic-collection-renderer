@@ -1,7 +1,7 @@
-import CardInterface from '../../interfaces/CardInterface';
+import CardFaceInterface from '../../interfaces/CardFaceInterface';
 import { CardMainType, ColorType } from '../../interfaces/enums';
 
-const cardToColor = (card: CardInterface): ColorType => {
+const cardToColor = (card: CardFaceInterface): ColorType => {
   let color: ColorType = ColorType.Colorless;
   if (card.cardMainType === CardMainType.Land) {
     color = ColorType.Land;

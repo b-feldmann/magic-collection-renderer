@@ -28,6 +28,16 @@ const App: React.FC = () => {
     fileDownload(JSON.stringify(data), `${card.name}.json`);
   };
 
+  const downloadCollectionAsJson = (cards: CardInterface[]) => {
+    const collectionData: object[] = [];
+
+    cards.forEach(card => {
+      collectionData.push(card);
+    });
+
+    fileDownload(JSON.stringify(collectionData), `magic-collection.json`);
+  };
+
   const downloadImage = (id: number, name: string) => {
     const toCapture: HTMLElement | null = document.querySelector(
       `#card-id-${id}`
@@ -119,14 +129,28 @@ const App: React.FC = () => {
                   saveCard={saveCard}
                   saveTmpCard={setTmpCard}
                 />
-                <Button
-                  size="large"
-                  icon="plus"
-                  type="primary"
-                  shape="circle"
-                  onClick={addCard}
-                  className={styles.addButton}
-                />
+                <div className={styles.addButton}>
+                  <Button
+                    size="large"
+                    icon="plus"
+                    type="primary"
+                    shape="round"
+                    onClick={addCard}
+                    className={styles.fullWidth}
+                  >
+                    Add Card
+                  </Button>
+                  <Button
+                    size="large"
+                    icon="download"
+                    type="primary"
+                    shape="round"
+                    onClick={() => downloadCollectionAsJson(mergedCards)}
+                    className={styles.fullWidth}
+                  >
+                    Download JSON
+                  </Button>
+                </div>
               </Col>
             </Row>
             <Modal
@@ -136,7 +160,15 @@ const App: React.FC = () => {
               onOk={() => setShowCardModal(false)}
               onCancel={() => setShowCardModal(false)}
             >
-              <CardRender {...mergedCards[cardViewId]} />
+              {mergedCards[cardViewId] && (
+                <CardRender
+                  cardID={mergedCards[cardViewId].cardID}
+                  rowNumber={mergedCards[cardViewId].rowNumber}
+                  creator={mergedCards[cardViewId].creator}
+                  rarity={mergedCards[cardViewId].rarity}
+                  {...mergedCards[cardViewId].front}
+                />
+              )}
             </Modal>
           </div>
         );

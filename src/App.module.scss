@@ -11,6 +11,12 @@
   .addButton {
     position: fixed;
     bottom: 8px;
-    left: calc(100vw / 24 * 16 - 56px);
+    left: 8px;
+    width: calc(100 / 24 * 18 / 24 * 4vw - 16px);
+  }
+
+  .fullWidth {
+    margin-top: 8px;
+    width: 100%;
   }
 }

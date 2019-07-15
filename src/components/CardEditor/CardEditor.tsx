@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+// import CardFaceInterface from '../../interfaces/CardFaceInterface';
 import CardInterface from '../../interfaces/CardInterface';
 
 import styles from './styles.module.scss';
@@ -19,10 +20,13 @@ const dummyCard: CardInterface = {
   name: '',
   cardID: -1,
   rowNumber: -1,
-  cardMainType: CardMainType.Creature,
-  manaCost: '',
   rarity: RarityType.Common,
-  cardText: ''
+  front: {
+    name: '',
+    cardMainType: CardMainType.Creature,
+    manaCost: '',
+    cardText: ''
+  }
 };
 
 const CardEditor: React.FC<CardEditorInterface> = ({
@@ -31,8 +35,10 @@ const CardEditor: React.FC<CardEditorInterface> = ({
   saveTmpCard
 }: CardEditorInterface) => {
   const [contentChanged, setContentChanged] = useState<boolean>(false);
-  const [originalCard, setOriginalCard] = useState<CardInterface>(card);
-  const [tmpCard, setTmpCard] = useState<CardInterface>(card);
+  const [originalCard, setOriginalCard] = useState<CardInterface>(
+    _.cloneDeep(card)
+  );
+  const [tmpCard, setTmpCard] = useState<CardInterface>(_.cloneDeep(card));
   const [timerId, setTimerId] = useState<any>(-1);
 
   const { height } = useWindowDimensions();
@@ -44,12 +50,17 @@ const CardEditor: React.FC<CardEditorInterface> = ({
   if (height < 710) tiny = true;
 
   const getValue = (key: string): any => {
-    return tmpCard[key];
+    if (key === 'rarity' || key === 'creator') return tmpCard[key];
+    return tmpCard.front[key];
   };
 
   const saveValue = (key: string, value: any) => {
     const newTmpCard = { ...tmpCard };
-    newTmpCard[key] = value;
+    if (key === 'rarity' || key === 'creator') {
+      newTmpCard[key] = value;
+    } else {
+      newTmpCard.front[key] = value;
+    }
     setTmpCard(newTmpCard);
 
     setContentChanged(true);
@@ -64,7 +75,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
   const discardChanges = () => {
     if (!contentChanged) return;
 
-    setTmpCard(originalCard);
+    setTmpCard(_.cloneDeep(originalCard));
     saveTmpCard(null);
     setContentChanged(false);
   };
@@ -72,22 +83,27 @@ const CardEditor: React.FC<CardEditorInterface> = ({
   const saveChanges = () => {
     if (!contentChanged) return;
 
-    setTmpCard(tmpCard);
+    setTmpCard(_.cloneDeep(tmpCard));
+    setOriginalCard(_.cloneDeep(tmpCard));
     saveTmpCard(null);
-    saveCard(tmpCard);
+    saveCard(_.cloneDeep(tmpCard));
     setContentChanged(false);
   };
 
   useEffect(() => {
-    if (_.isEqual(originalCard, tmpCard)) {
+    if (
+      _.isEqual(originalCard, tmpCard) &&
+      _.isEqual(originalCard.front, tmpCard.front) &&
+      _.isEqual(originalCard.back, tmpCard.back)
+    ) {
       saveTmpCard(null);
       setContentChanged(false);
     }
-  });
+  }, [tmpCard]);
 
   useEffect(() => {
-    setTmpCard(card);
-    setOriginalCard(card);
+    setTmpCard(_.cloneDeep(card));
+    setOriginalCard(_.cloneDeep(card));
     saveTmpCard(null);
     setContentChanged(false);
   }, [card.cardID]);
@@ -122,7 +138,12 @@ const CardEditor: React.FC<CardEditorInterface> = ({
     }
   ];
 
-  if (card.cardID === -1) return <div className={styles.noCard}>Hover over a card and click the edit icon to start the editor!</div>;
+  if (card.cardID === -1)
+    return (
+      <div className={styles.noCard}>
+        Hover over a card and click the edit icon to start the editor!
+      </div>
+    );
 
   return (
     <div className={styles.editor}>

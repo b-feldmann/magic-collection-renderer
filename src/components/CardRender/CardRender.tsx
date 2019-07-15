@@ -2,7 +2,7 @@ import React from 'react';
 // @ts-ignore
 import useResizeAware from 'react-resize-aware';
 
-import CardInterface from '../../interfaces/CardInterface';
+import CardFaceInterface from '../../interfaces/CardFaceInterface';
 
 import 'mana-font/css/mana.css';
 
@@ -30,7 +30,7 @@ import {
 } from './injectUtils';
 import cardToColor from './cardToColor';
 
-const CardRender: React.FC<CardInterface> = (card: CardInterface) => {
+const CardRender: React.FC<CardFaceInterface> = (card: CardFaceInterface) => {
   const { legendary, cardMainType, cardSubTypes, rarity } = card;
   const { name, manaCost, cardStats, cover, creator } = card;
   const { cardText, flavourText, flavourAuthor, cardID, rowNumber } = card;

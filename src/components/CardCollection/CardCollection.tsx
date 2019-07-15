@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+// import CardFaceInterface from '../../interfaces/CardFaceInterface';
 import CardInterface from '../../interfaces/CardInterface';
 import { ColorType, SortType } from '../../interfaces/enums';
 import { Col, Row } from 'antd';
@@ -39,15 +40,15 @@ const CardCollection: React.FC<CardCollectionInterface> = ({
   >({ colors: {}, rarity: {}, types: {} });
 
   const filteredCards = _.sortBy(cards, [
-    o => _.indexOf(Object.values(ColorType), cardToColor(o)),
+    o => _.indexOf(Object.values(ColorType), cardToColor(o.front)),
     'rarity',
     'cardMainType',
     o => o.name.toLowerCase()
   ]).filter(
     o =>
-      collectionFilter.colors[cardToColor(o)] &&
+      collectionFilter.colors[cardToColor(o.front)] &&
       collectionFilter.rarity[o.rarity] &&
-      collectionFilter.types[o.cardMainType]
+      collectionFilter.types[o.front.cardMainType]
   );
 
   const [resizeListener, sizes] = useResizeAware();
@@ -56,11 +57,11 @@ const CardCollection: React.FC<CardCollectionInterface> = ({
   const availableTypes: string[] = [];
   const availableRarities: string[] = [];
   cards.forEach(card => {
-    if (!availableColors.includes(cardToColor(card)))
-      availableColors.push(cardToColor(card));
+    if (!availableColors.includes(cardToColor(card.front)))
+      availableColors.push(cardToColor(card.front));
 
-    if (!availableTypes.includes(card.cardMainType))
-      availableTypes.push(card.cardMainType);
+    if (!availableTypes.includes(card.front.cardMainType))
+      availableTypes.push(card.front.cardMainType);
 
     if (!availableRarities.includes(card.rarity))
       availableRarities.push(card.rarity);
@@ -87,7 +88,7 @@ const CardCollection: React.FC<CardCollectionInterface> = ({
             availableRarities={availableRarities}
           />
         </Col>
-        <Col span={20}>
+        <Col span={20} className={styles.collection}>
           {resizeListener}
           {filteredCards.map(card => {
             return (
@@ -114,7 +115,13 @@ const CardCollection: React.FC<CardCollectionInterface> = ({
                         action: () => downloadJson(card.cardID)
                       }}
                     >
-                      <CardRender {...card} />
+                      <CardRender
+                        cardID={card.cardID}
+                        rowNumber={card.rowNumber}
+                        creator={card.creator}
+                        rarity={card.rarity}
+                        {...card.front}
+                      />
                     </ActionHover>
                   )}
                 />

@@ -1,19 +1,13 @@
-import { RarityType, CardMainType } from './enums';
+import CardFaceInterface from './CardFaceInterface';
+import { RarityType } from './enums';
 
 export default interface CardInterface {
-  [key: string]: number | string | boolean | undefined;
-  rowNumber: number;
+  [key: string]: number | string | CardFaceInterface | undefined;
   name: string;
-  legendary?: boolean;
-  cardMainType: CardMainType;
-  cardSubTypes?: string;
-  manaCost: string;
   rarity: RarityType;
-  cardText: string;
-  cardStats?: string;
-  flavourText?: string;
-  flavourAuthor?: string;
-  cover?: string;
   creator?: string;
   cardID: number;
+  front: CardFaceInterface;
+  back?: CardFaceInterface;
+  rowNumber: number;
 }
