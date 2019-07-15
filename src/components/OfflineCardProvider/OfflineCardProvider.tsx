@@ -23,6 +23,8 @@ const murkCard: CardInterface = {
     name: 'Murk Murk',
     manaCost: '{b}{1}',
     cardStats: '2/1',
+    cover:
+      'https://1.bp.blogspot.com/-buU7hvnFpyM/V2aa-ee3vEI/AAAAAAAAC_8/NBWYUXXKwiEi5d9rsz1UxE6t2VX3gusxgCLcB/s1600/murkrow_by_land_walker-d47oas7.jpg',
     cardText: 'Flying | When ~ attacks you can untap target land.',
     flavourText: '~ the destroyer',
     cardMainType: CardMainType.Creature,
