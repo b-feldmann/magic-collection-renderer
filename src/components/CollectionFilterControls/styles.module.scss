@@ -1,0 +1,14 @@
+.controls {
+    margin: 8px;
+}
+
+.controlItem {
+    //margin: 8px;
+    //float: left;
+}
+
+.controlItem > * {
+    display: block;
+    margin-left: 8px;
+    margin-top: 4px;
+}

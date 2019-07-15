@@ -122,7 +122,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
     }
   ];
 
-  if (card.cardID === -1) return <div>Hover over card and choose edit!</div>;
+  if (card.cardID === -1) return <div className={styles.noCard}>Hover over a card and click the edit icon to start the editor!</div>;
 
   return (
     <div className={styles.editor}>

@@ -1,15 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   CardMainType,
   ColorType,
   mapEnum,
   RarityType
 } from '../../interfaces/enums';
-import { Button, Checkbox, Radio, Row } from 'antd';
-// @ts-ignore
-import useResizeAware from 'react-resize-aware';
+import { Checkbox, Radio, Row } from 'antd';
 
-import styles from './styles.module.css';
+import styles from './styles.module.scss';
 
 export interface CollectionFilterInterface {
   colors: CheckBoxGroupInterface;
@@ -44,7 +42,6 @@ const CollectionFilterControls: React.FC<CollectionFilterControlsInterface> = ({
     return group;
   };
 
-  const [resizeListener, sizes] = useResizeAware();
   const [colSpanSetting, setColSpanSetting] = useState(-1);
   const [shownCardTypes, setShownCardTypes] = useState<CheckBoxGroupInterface>(
     createEnumInitState(Object.values(CardMainType))
@@ -69,18 +66,7 @@ const CollectionFilterControls: React.FC<CollectionFilterControlsInterface> = ({
 
   const updateColSpan = (nextColSpan: number) => {
     setColSpanSetting(nextColSpan);
-
-    let colSpan = 4;
-
-    if (nextColSpan === -1) {
-      if (sizes.width < 1400) colSpan = 6;
-      if (sizes.width < 1100) colSpan = 8;
-      if (sizes.width < 800) colSpan = 12;
-    } else {
-      colSpan = nextColSpan;
-    }
-
-    setCollectionColSpan(colSpan);
+    setCollectionColSpan(nextColSpan);
   };
 
   useEffect(() => {
@@ -91,13 +77,8 @@ const CollectionFilterControls: React.FC<CollectionFilterControlsInterface> = ({
     });
   }, [shownColors, shownRarities, shownCardTypes]);
 
-  useEffect(() => {
-    updateColSpan(colSpanSetting);
-  }, [sizes.width]);
-
   return (
     <div className={styles.controls}>
-      {resizeListener}
       <Row>
         <div className={styles.controlItem}>
           <h4>Cards per row</h4>
