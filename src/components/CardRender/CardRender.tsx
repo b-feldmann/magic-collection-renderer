@@ -45,6 +45,13 @@ const CardRender: React.FC<CardFaceInterface> = (card: CardFaceInterface) => {
 
   const color = cardToColor(card);
 
+  const rarityCode = () => {
+    if (rarity === RarityType.Uncommon) return 'U';
+    if (rarity === RarityType.Rare) return 'R';
+    if (rarity === RarityType.MythicRare) return 'M';
+    return 'C';
+  };
+
   const resizeFactor = (width: number) => {
     return width / 488.0;
   };
@@ -155,7 +162,7 @@ const CardRender: React.FC<CardFaceInterface> = (card: CardFaceInterface) => {
                 <div className="frame-bottom-info inner-margin">
                   <div className="fbi-left">
                     <p>
-                      {rowNumber}/184 {rarity}
+                      {rowNumber}/184 {rarityCode()}
                     </p>
                     <p>
                       EPIC &#x2022; EN
