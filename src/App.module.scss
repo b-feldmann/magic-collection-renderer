@@ -20,3 +20,36 @@
     width: 100%;
   }
 }
+
+$max-width: calc(62.5vw - 200px);
+$max-height: calc(100vh - 200px);
+$max-width-factor: $max-width / 488;
+$max-height-factor: $max-height / 680;
+$modalSingleCardWidth: calc(#{$max-height-factor} * 488);
+$modalDoubleCardWidth: calc(#{$max-width-factor} * 488);
+
+.modalCardViewWrapper {
+  width: 0px !important;
+  height: 0px !important;
+}
+
+.modalCardGroupWrapper {
+  display: flex;
+  flex-direction: row;
+  transform: translateX(-50%);
+}
+
+.modalCardGroupWrapperSingle {
+  width: $modalSingleCardWidth;
+
+  .modalCardWrapper {
+    width: 100%;
+  }
+}
+.modalCardGroupWrapperDouble {
+  width: $modalDoubleCardWidth;
+
+  .modalCardWrapper {
+    width: 50%;
+  }
+}

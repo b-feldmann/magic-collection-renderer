@@ -97,6 +97,20 @@ const App: React.FC = () => {
     }
   };
 
+  const modalBack = (card: CardInterface) => {
+    if (!card.back) return <div />;
+
+    return (
+      <CardRender
+        cardID={card.cardID}
+        rowNumber={card.rowNumber}
+        creator={card.creator}
+        rarity={card.rarity}
+        {...card.back}
+      />
+    );
+  };
+
   return (
     // @ts-ignore
     <OfflineCardProvider
@@ -148,12 +162,13 @@ const App: React.FC = () => {
                     onClick={() => downloadCollectionAsJson(mergedCards)}
                     className={styles.fullWidth}
                   >
-                    Download JSON
+                    JSON
                   </Button>
                 </div>
               </Col>
             </Row>
             <Modal
+              className={styles.modalCardViewWrapper}
               wrapClassName="card-view"
               title={`View ${mergedCards[cardViewId]}`}
               visible={showCardModal}
@@ -161,13 +176,28 @@ const App: React.FC = () => {
               onCancel={() => setShowCardModal(false)}
             >
               {mergedCards[cardViewId] && (
-                <CardRender
-                  cardID={mergedCards[cardViewId].cardID}
-                  rowNumber={mergedCards[cardViewId].rowNumber}
-                  creator={mergedCards[cardViewId].creator}
-                  rarity={mergedCards[cardViewId].rarity}
-                  {...mergedCards[cardViewId].front}
-                />
+                <div
+                  className={`${styles.modalCardGroupWrapper} ${
+                    mergedCards[cardViewId].back
+                      ? styles.modalCardGroupWrapperDouble
+                      : styles.modalCardGroupWrapperSingle
+                  }`}
+                >
+                  <div className={styles.modalCardWrapper}>
+                    <CardRender
+                      cardID={mergedCards[cardViewId].cardID}
+                      rowNumber={mergedCards[cardViewId].rowNumber}
+                      creator={mergedCards[cardViewId].creator}
+                      rarity={mergedCards[cardViewId].rarity}
+                      {...mergedCards[cardViewId].front}
+                    />
+                  </div>
+                  {mergedCards[cardViewId].back && (
+                    <div className={styles.modalCardWrapper}>
+                      {modalBack(mergedCards[cardViewId])}
+                    </div>
+                  )}
+                </div>
               )}
             </Modal>
           </div>

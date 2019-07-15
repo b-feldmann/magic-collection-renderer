@@ -172,6 +172,35 @@ const joridCard: CardInterface = {
   }
 };
 
+const inhibitorCard: CardInterface = {
+  name: 'Inhibitor // Broken Inhibitor',
+  rarity: RarityType.Rare,
+  creator: 'Goomy our Breath',
+  cardID: 9,
+  rowNumber: 9,
+  front: {
+    name: 'Inhibitor',
+    manaCost: '{4}',
+    cardText:
+      'After you play this card give the control of ~ to target opponent | If ~ leaves the battlefield transform ~ instead.',
+    flavourText: 'Try harder!',
+    cardMainType: CardMainType.Planeswalker,
+    legendary: true,
+    cardSubTypes: 'Building',
+    cardStats: '10'
+  },
+  back: {
+    name: 'Destroyed Inhibitor',
+    manaCost: '{4}',
+    cardText:
+      'At the start of your turn summon a 3/3 Super-Minion token for target opponent.',
+    flavourText: 'Free farm in da base',
+    cardMainType: CardMainType.Enchantment,
+    legendary: true,
+    cardSubTypes: 'Building'
+  }
+};
+
 const OfflineCardProvider: React.FC<OfflineCardProviderInterface> = ({
   render
 }: OfflineCardProviderInterface) => {
@@ -185,6 +214,7 @@ const OfflineCardProvider: React.FC<OfflineCardProviderInterface> = ({
   initialState[eloCard.cardID] = eloCard;
   initialState[dittoCard.cardID] = dittoCard;
   initialState[joridCard.cardID] = joridCard;
+  initialState[inhibitorCard.cardID] = inhibitorCard;
 
   const [cards, setCards] = useState<CardInterface[]>(initialState);
 

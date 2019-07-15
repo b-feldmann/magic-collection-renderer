@@ -16,7 +16,8 @@ export enum CardMainType {
   Sorcery = 'Sorcery',
   Enchantment = 'Enchantment',
   Land = 'Land',
-  Planeswalker = 'Planeswalker'
+  Planeswalker = 'Planeswalker',
+  Emblem = 'Emblem'
 }
 
 export enum RarityType {
