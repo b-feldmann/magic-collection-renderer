@@ -1,15 +1,19 @@
-import React from 'react';
+import React, { useState } from 'react';
 import CardInterface from '../../interfaces/CardInterface';
-import { SortType } from '../../interfaces/enums';
+import { ColorType, SortType } from '../../interfaces/enums';
 import { Col, Row } from 'antd';
 import CardRender from '../CardRender/CardRender';
-
-// @ts-ignore
-import useResizeAware from 'react-resize-aware';
-
 import styles from './styles.module.css';
 import ActionHover from '../ActionHover/ActionHover';
 import PdfDownloadWrapper from '../PdfDownloadWrapper/PdfDownloadWrapper';
+import CollectionFilterControls, {
+  CollectionFilterInterface
+} from '../CollectionFilterControls/CollectionFilterControls';
+import cardToColor from '../CardRender/cardToColor';
+
+import _ from 'lodash';
+
+// @ts-ignore
 
 interface CardCollectionInterface {
   cards?: CardInterface[];
@@ -18,32 +22,65 @@ interface CardCollectionInterface {
   downloadImage: (id: number) => void;
   downloadJson: (id: number) => void;
   viewCard: (id: number) => void;
+  currentEditId: number;
 }
 
 const CardCollection: React.FC<CardCollectionInterface> = ({
   cards = [],
   editCard,
   downloadJson,
-  viewCard
+  viewCard,
+  currentEditId
 }: CardCollectionInterface) => {
-  const [resizeListener, sizes] = useResizeAware();
+  const [colSpan, setColSpan] = useState<number>(6);
+  const [collectionFilter, setCollectionFilter] = useState<
+    CollectionFilterInterface
+  >({ colors: {}, rarity: {}, types: {} });
 
-  let colSpan = 4;
-  if (sizes.width < 1600) colSpan = 6;
-  if (sizes.width < 1200) colSpan = 8;
-  if (sizes.width < 800) colSpan = 12;
+  const filteredCards = _.sortBy(cards, [
+    o => _.indexOf(Object.values(ColorType), cardToColor(o)),
+    'rarity',
+    'cardMainType',
+    o => o.name.toLowerCase()
+  ]).filter(
+    o =>
+      collectionFilter.colors[cardToColor(o)] &&
+      collectionFilter.rarity[o.rarity] &&
+      collectionFilter.types[o.cardMainType]
+  );
+
+  const availableColors: string[] = [];
+  const availableTypes: string[] = [];
+  const availableRarities: string[] = [];
+  cards.forEach(card => {
+    if (!availableColors.includes(cardToColor(card)))
+      availableColors.push(cardToColor(card));
+
+    if (!availableTypes.includes(card.cardMainType))
+      availableTypes.push(card.cardMainType);
+
+    if (!availableRarities.includes(card.rarity))
+      availableRarities.push(card.rarity);
+  });
 
   return (
     <div>
-      {resizeListener}
+      <CollectionFilterControls
+        setCollectionColSpan={setColSpan}
+        setCollectionFilter={setCollectionFilter}
+        availableColors={availableColors}
+        availableTypes={availableTypes}
+        availableRarities={availableRarities}
+      />
       <Row>
-        {cards.map(card => {
+        {filteredCards.map(card => {
           return (
             <Col className={styles.cardBox} span={colSpan} key={card.cardID}>
               <PdfDownloadWrapper
                 fileName={card.name}
                 render={downloadPdf => (
                   <ActionHover
+                    active={currentEditId === card.cardID}
                     northAction={{
                       icon: 'edit',
                       action: () => editCard(card.cardID)

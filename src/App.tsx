@@ -18,8 +18,8 @@ const { confirm } = Modal;
 
 const App: React.FC = () => {
   const [tmpCard, setTmpCard] = useState<CardInterface | null>(null);
-  const [cardEditId, setCardEditId] = useState<number>(0);
-  const [cardViewId, setCardViewId] = useState<number>(0);
+  const [cardEditId, setCardEditId] = useState<number>(-1);
+  const [cardViewId, setCardViewId] = useState<number>(-1);
   const [showCardModal, setShowCardModal] = useState<boolean>(false);
 
   const downloadJson = (card: CardInterface) => {
@@ -49,6 +49,8 @@ const App: React.FC = () => {
   };
 
   const mergeWithTmpCard = (cards: CardInterface[]) => {
+    if (tmpCard && tmpCard.cardID === -1) return cards;
+
     const merged: CardInterface[] = [];
 
     cards.forEach(card => {
@@ -59,6 +61,12 @@ const App: React.FC = () => {
   };
 
   const openCardInEditor = (id: number, oldCardName: string) => {
+    if (id === cardEditId) {
+      setCardViewId(id);
+      setShowCardModal(true);
+      return;
+    }
+
     if (tmpCard) {
       confirm({
         title: `${oldCardName} has unsaved changes`,
@@ -91,19 +99,21 @@ const App: React.FC = () => {
         return (
           <div>
             <Row className={styles.app}>
-              <Col span={16} className={styles.collection}>
+              <Col span={18} className={styles.collection}>
                 <CardCollection
                   cards={mergedCards}
                   sortBy={SortType.Name}
-                  editCard={id =>
-                    openCardInEditor(id, mergedCards[cardEditId].name)
-                  }
+                  currentEditId={cardEditId}
+                  editCard={id => {
+                    if (cardEditId === -1) openCardInEditor(id, '');
+                    else openCardInEditor(id, mergedCards[cardEditId].name);
+                  }}
                   downloadImage={id => downloadImage(id, mergedCards[id].name)}
                   downloadJson={id => downloadJson(mergedCards[id])}
                   viewCard={viewCard}
                 />
               </Col>
-              <Col span={8} className={styles.editor}>
+              <Col span={6} className={styles.editor}>
                 <CardEditor
                   card={mergedCards[cardEditId]}
                   saveCard={saveCard}

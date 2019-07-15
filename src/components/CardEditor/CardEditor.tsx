@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import CardInterface from '../../interfaces/CardInterface';
 
 import styles from './styles.module.scss';
 import { CardMainType, Creators, RarityType } from '../../interfaces/enums';
 import EditField from './EditField';
-import { Button, Col, Row } from 'antd';
+import { Button, Row } from 'antd';
 
 import _ from 'lodash';
 import useWindowDimensions from '../../useWindowDimensions';
@@ -15,8 +15,18 @@ interface CardEditorInterface {
   saveCard: (card: CardInterface) => void;
 }
 
+const dummyCard: CardInterface = {
+  name: '',
+  cardID: -1,
+  rowNumber: -1,
+  cardMainType: CardMainType.Creature,
+  manaCost: '',
+  rarity: RarityType.Common,
+  cardText: ''
+};
+
 const CardEditor: React.FC<CardEditorInterface> = ({
-  card,
+  card = dummyCard,
   saveCard,
   saveTmpCard
 }: CardEditorInterface) => {
@@ -62,7 +72,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
   const saveChanges = () => {
     if (!contentChanged) return;
 
-    setTmpCard(originalCard);
+    setTmpCard(tmpCard);
     saveTmpCard(null);
     saveCard(tmpCard);
     setContentChanged(false);
@@ -84,6 +94,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
 
   const inputConfig = [
     { key: 'name', type: 'input', name: 'Card Name' },
+    { key: 'cover', type: 'input', name: 'Cover (URL)' },
     { key: 'manaCost', type: 'input', name: 'Mana Cost' },
     { key: 'legendary', type: 'bool', name: 'Legendary?' },
     {
@@ -111,6 +122,8 @@ const CardEditor: React.FC<CardEditorInterface> = ({
     }
   ];
 
+  if (card.cardID === -1) return <div>Hover over card and choose edit!</div>;
+
   return (
     <div className={styles.editor}>
       {inputConfig.map(config => (
@@ -126,28 +139,25 @@ const CardEditor: React.FC<CardEditorInterface> = ({
         </div>
       ))}
       <Row className={tiny ? styles.tiny : ''}>
-        <Col span={12}>
+        <Button.Group
+          className={styles.buttonGroup}
+          size={small ? 'small' : 'default'}
+        >
           <Button
-            size={small ? 'small' : 'default'}
-            className={styles.button}
             disabled={!contentChanged}
             onClick={saveChanges}
             type="primary"
           >
             Save Changes
           </Button>
-        </Col>
-        <Col span={12}>
           <Button
-            size={small ? 'small' : 'default'}
-            className={styles.button}
             disabled={!contentChanged}
             onClick={discardChanges}
             type="danger"
           >
             Discard Changes
           </Button>
-        </Col>
+        </Button.Group>
       </Row>
     </div>
   );

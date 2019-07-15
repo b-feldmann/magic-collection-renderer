@@ -8,6 +8,7 @@ interface ActionHoverInterface {
   southAction?: { icon: string; action: () => void };
   eastAction?: { icon: string; action: () => void };
   westAction?: { icon: string; action: () => void };
+  active?: boolean;
 }
 
 const ActionHover: React.FC<ActionHoverInterface> = actions => {
@@ -16,11 +17,12 @@ const ActionHover: React.FC<ActionHoverInterface> = actions => {
     northAction = empty,
     eastAction = empty,
     westAction = empty,
-    southAction = empty
+    southAction = empty,
+    active
   } = actions;
 
   return (
-    <div className={styles.outer}>
+    <div className={`${styles.outer} ${active ? styles.active : ''}`}>
       <div className={styles.hovereffect}>
         <div className={styles.target}>{actions.children}</div>
         <div className={styles.overlay}>

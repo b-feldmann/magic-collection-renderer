@@ -20,10 +20,13 @@ $action-offset-hover: 30px;
     transition: all 0.35s;
 }
 
-.hovereffect:hover .target {
+.hovereffect:hover .target, .active .hovereffect .target {
     -webkit-transform: scale(0.9);
     -ms-transform: scale(0.9);
     transform: scale(0.9);
+}
+
+.hovereffect:hover .target {
     filter: url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg"><filter id="filter"><feComponentTransfer color-interpolation-filters="sRGB"><feFuncR type="linear" slope="0.7" /><feFuncG type="linear" slope="0.7" /><feFuncB type="linear" slope="0.7" /></feComponentTransfer></filter></svg>#filter');
     filter: brightness(0.7);
     -webkit-filter: brightness(0.7);
@@ -39,7 +42,7 @@ $action-offset-hover: 30px;
     font-weight: 100;
 }
 
-.hovereffect:hover h2 {
+.hovereffect:hover h2, .active .hovereffect h2 {
     opacity: 0;
     filter: alpha(opacity=0);
     -webkit-transform: translate3d(-50%, -50%, 0) scale3d(0.8, 0.8, 1);

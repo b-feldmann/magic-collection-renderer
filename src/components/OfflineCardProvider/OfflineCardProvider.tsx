@@ -44,6 +44,8 @@ const skillCard: CardInterface = {
 
 const necrozmaCard: CardInterface = {
   name: 'Necrozma',
+  cover:
+    'https://www.pokewiki.de/images/thumb/2/25/Illustration_Necrozma_%C3%9Cbernahme.jpg/300px-Illustration_Necrozma_%C3%9Cbernahme.jpg',
   rarity: RarityType.MythicRare,
   cardStats: '4/4',
   creator: 'Goomy our Breath',

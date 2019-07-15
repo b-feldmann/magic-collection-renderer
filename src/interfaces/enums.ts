@@ -1,3 +1,14 @@
+export function mapEnum(enumerable: any, fn: Function): any[] {
+  // get all the members of the enum
+  let enumMembers: any[] = Object.keys(enumerable).map(key => enumerable[key]);
+
+  // // we are only interested in the numeric identifiers as these represent the values
+  // let enumValues: number[] = enumMembers.filter(v => typeof v === 'number');
+
+  // now map through the enum values
+  return enumMembers.map(m => fn(m));
+}
+
 export enum CardMainType {
   Creature = 'Creature',
   Artifact = 'Artifact',
@@ -5,7 +16,6 @@ export enum CardMainType {
   Sorcery = 'Sorcery',
   Enchantment = 'Enchantment',
   Land = 'Land',
-  BasicLand = 'Basic Land',
   Planeswalker = 'Planeswalker'
 }
 
@@ -31,8 +41,8 @@ export enum ColorType {
   Red = 'red',
   Green = 'green',
   Colorless = 'colorless',
-  Land = 'land',
   Gold = 'gold',
+  Land = 'land',
   Planeswalker = 'planeswalker'
 }
 

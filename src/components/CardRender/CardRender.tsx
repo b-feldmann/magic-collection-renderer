@@ -28,6 +28,7 @@ import {
   injectPlaneswalkerIcons,
   injectQuotationMarks
 } from './injectUtils';
+import cardToColor from './cardToColor';
 
 const CardRender: React.FC<CardInterface> = (card: CardInterface) => {
   const { legendary, cardMainType, cardSubTypes, rarity } = card;
@@ -43,57 +44,14 @@ const CardRender: React.FC<CardInterface> = (card: CardInterface) => {
     return CommonIcon;
   };
 
-  let color: ColorType = ColorType.Colorless;
-  if (
-    cardMainType === CardMainType.Land ||
-    cardMainType === CardMainType.BasicLand
-  ) {
-    color = ColorType.Land;
-  } else if (cardMainType === CardMainType.Planeswalker) {
-    color = ColorType.Planeswalker;
-  } else {
-    const setColor = (type: ColorType) => {
-      if (color === type) return;
-      if (color === ColorType.Colorless) color = type;
-      else color = ColorType.Gold;
-    };
-
-    for (let i = 0; i < manaCost.length; i++) {
-      switch (manaCost.charAt(i)) {
-        case 'w':
-        case 'W':
-          setColor(ColorType.White);
-          break;
-        case 'b':
-        case 'B':
-          setColor(ColorType.Black);
-          break;
-        case 'u':
-        case 'U':
-          setColor(ColorType.Blue);
-          break;
-        case 'r':
-        case 'R':
-          setColor(ColorType.Red);
-          break;
-        case 'g':
-        case 'G':
-          setColor(ColorType.Green);
-          break;
-        default:
-          continue;
-      }
-    }
-  }
-
-  const margin = 8;
+  const color = cardToColor(card);
 
   const resizeFactor = () => {
-    return (sizes.width - 2 * margin) / (488.0 - 2 * margin);
+    return sizes.width / 488.0;
   };
 
   const getHeight = () => {
-    return resizeFactor() * 680 + margin;
+    return resizeFactor() * 680;
   };
 
   return (
@@ -103,7 +61,7 @@ const CardRender: React.FC<CardInterface> = (card: CardInterface) => {
         id={`card-id-${cardID}`}
         className="card-container"
         style={{
-          transform: `scale(${resizeFactor()}) translate(${margin}px)`,
+          transform: `scale(${resizeFactor()})`,
           transformOrigin: 'top left'
         }}
       >
@@ -111,7 +69,9 @@ const CardRender: React.FC<CardInterface> = (card: CardInterface) => {
           <div className="card-frame">
             <div className={`frame-header frame-header-${color}`}>
               <h1 className="name">{injectQuotationMarks(name)}</h1>
-              <div className="cost">{injectManaIcons(manaCost)}</div>
+              {card.cardMainType !== CardMainType.Land && (
+                <div className="cost">{injectManaIcons(manaCost)}</div>
+              )}
             </div>
 
             <img
