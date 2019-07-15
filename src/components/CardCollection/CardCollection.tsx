@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 // import CardFaceInterface from '../../interfaces/CardFaceInterface';
 import CardInterface from '../../interfaces/CardInterface';
-import { ColorType, SortType } from '../../interfaces/enums';
-import { Col, Row } from 'antd';
+import { ColorType, RarityType, SortType } from '../../interfaces/enums';
+import { Button, Col, Row } from 'antd';
 import CardRender from '../CardRender/CardRender';
 import styles from './styles.module.css';
 import ActionHover from '../ActionHover/ActionHover';
@@ -16,6 +16,7 @@ import _ from 'lodash';
 
 // @ts-ignore
 import useResizeAware from 'react-resize-aware';
+import CardFaceInterface from '../../interfaces/CardFaceInterface';
 
 interface CardCollectionInterface {
   cards?: CardInterface[];
@@ -39,11 +40,13 @@ const CardCollection: React.FC<CardCollectionInterface> = ({
     CollectionFilterInterface
   >({ colors: {}, rarity: {}, types: {} });
 
+  const [showBackFaceConfig, setShowBackFaceConfig] = useState<boolean[]>([]);
+
   const filteredCards = _.sortBy(cards, [
     o => _.indexOf(Object.values(ColorType), cardToColor(o.front)),
-    'rarity',
+    o => _.indexOf(Object.values(RarityType), o.rarity),
     'cardMainType',
-    o => o.name.toLowerCase()
+    o => o.front.name.toLowerCase()
   ]).filter(
     o =>
       collectionFilter.colors[cardToColor(o.front)] &&
@@ -76,6 +79,17 @@ const CardCollection: React.FC<CardCollectionInterface> = ({
     colSpan = notParsedColSpan;
   }
 
+  const getCardFace = (card: CardInterface): CardFaceInterface => {
+    if (!card.back || !showBackFaceConfig[card.cardID]) return card.front;
+    return card.back;
+  };
+
+  const toggleShowBackConfig = (id: number) => {
+    const newConfig = [...showBackFaceConfig];
+    newConfig[id] = !newConfig[id];
+    setShowBackFaceConfig(newConfig);
+  };
+
   return (
     <div>
       <Row>
@@ -96,33 +110,42 @@ const CardCollection: React.FC<CardCollectionInterface> = ({
                 <PdfDownloadWrapper
                   fileName={card.name}
                   render={downloadPdf => (
-                    <ActionHover
-                      active={currentEditId === card.cardID}
-                      northAction={{
-                        icon: 'edit',
-                        action: () => editCard(card.cardID)
-                      }}
-                      eastAction={{
-                        icon: 'eye',
-                        action: () => viewCard(card.cardID)
-                      }}
-                      southAction={{
-                        icon: 'download',
-                        action: downloadPdf
-                      }}
-                      westAction={{
-                        icon: 'file-text',
-                        action: () => downloadJson(card.cardID)
-                      }}
-                    >
-                      <CardRender
-                        cardID={card.cardID}
-                        rowNumber={card.rowNumber}
-                        creator={card.creator}
-                        rarity={card.rarity}
-                        {...card.front}
-                      />
-                    </ActionHover>
+                    <div>
+                      <ActionHover
+                        active={currentEditId === card.cardID}
+                        northAction={{
+                          icon: 'edit',
+                          action: () => editCard(card.cardID)
+                        }}
+                        eastAction={{
+                          icon: 'eye',
+                          action: () => viewCard(card.cardID)
+                        }}
+                        southAction={{
+                          icon: 'download',
+                          action: downloadPdf
+                        }}
+                        westAction={{
+                          icon: 'file-text',
+                          action: () => downloadJson(card.cardID)
+                        }}
+                      >
+                        <CardRender
+                          cardID={card.cardID}
+                          rowNumber={card.rowNumber}
+                          creator={card.creator}
+                          rarity={card.rarity}
+                          {...getCardFace(card)}
+                        />
+                      </ActionHover>
+                      {card.back && (
+                        <Button
+                          icon="swap"
+                          className={styles.swapButton}
+                          onClick={() => toggleShowBackConfig(card.cardID)}
+                        />
+                      )}
+                    </div>
                   )}
                 />
               </Col>

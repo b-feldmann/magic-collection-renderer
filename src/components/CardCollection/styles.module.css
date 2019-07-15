@@ -3,6 +3,12 @@
     padding-top: 10px;
 }
 
+.swapButton {
+    position: absolute;
+    left: 50%;
+    transform: translateX(calc(-50% + 2px)) translateY(-70%);
+}
+
 .controls {
     margin: 8px;
 }
