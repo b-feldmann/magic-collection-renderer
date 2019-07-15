@@ -64,7 +64,10 @@ const CardEditor: React.FC<CardEditorInterface> = ({
 
   const saveValue = (key: string, value: any) => {
     const newTmpCard = { ...tmpCard };
-    if (key === 'rarity' || key === 'creator') {
+    if (newTmpCard.back && key === 'name') {
+      getCurrentFace(newTmpCard)[key] = value;
+      newTmpCard.name = `${newTmpCard.front.name} // ${newTmpCard.back.name}`;
+    } else if (key === 'rarity' || key === 'creator') {
       newTmpCard[key] = value;
     } else {
       getCurrentFace(newTmpCard)[key] = value;
