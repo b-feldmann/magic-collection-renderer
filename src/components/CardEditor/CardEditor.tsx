@@ -21,11 +21,11 @@ const dummyCard: CardInterface = {
   name: '',
   cardID: -1,
   rowNumber: -1,
+  manaCost: '',
   rarity: RarityType.Common,
   front: {
     name: '',
     cardMainType: CardMainType.Creature,
-    manaCost: '',
     cardText: ''
   }
 };
@@ -58,7 +58,8 @@ const CardEditor: React.FC<CardEditorInterface> = ({
   };
 
   const getValue = (key: string): any => {
-    if (key === 'rarity' || key === 'creator') return tmpCard[key];
+    if (key === 'rarity' || key === 'creator' || key === 'manaCost')
+      return tmpCard[key];
     return getCurrentFace(tmpCard)[key];
   };
 
@@ -67,7 +68,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
     if (newTmpCard.back && key === 'name') {
       getCurrentFace(newTmpCard)[key] = value;
       newTmpCard.name = `${newTmpCard.front.name} // ${newTmpCard.back.name}`;
-    } else if (key === 'rarity' || key === 'creator') {
+    } else if (key === 'rarity' || key === 'creator' || key === 'manaCost') {
       newTmpCard[key] = value;
     } else {
       getCurrentFace(newTmpCard)[key] = value;

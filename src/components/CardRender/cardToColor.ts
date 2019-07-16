@@ -1,21 +1,25 @@
-import CardFaceInterface from '../../interfaces/CardFaceInterface';
 import { CardMainType, ColorType } from '../../interfaces/enums';
 
-const cardToColor = (card: CardFaceInterface): ColorType => {
+const cardToColor = (
+  cardMainType: CardMainType,
+  manaCost?: string
+): ColorType => {
   let color: ColorType = ColorType.Colorless;
-  if (card.cardMainType === CardMainType.Land) {
+  if (cardMainType === CardMainType.Land) {
     color = ColorType.Land;
-  } else if (card.cardMainType === CardMainType.Planeswalker) {
+  } else if (cardMainType === CardMainType.Planeswalker) {
     color = ColorType.Planeswalker;
   } else {
+    if (!manaCost) return ColorType.Colorless;
+
     const setColor = (type: ColorType) => {
       if (color === type) return;
       if (color === ColorType.Colorless) color = type;
       else color = ColorType.Gold;
     };
 
-    for (let i = 0; i < card.manaCost.length; i++) {
-      switch (card.manaCost.charAt(i)) {
+    for (let i = 0; i < manaCost.length; i++) {
+      switch (manaCost.charAt(i)) {
         case 'w':
         case 'W':
           setColor(ColorType.White);

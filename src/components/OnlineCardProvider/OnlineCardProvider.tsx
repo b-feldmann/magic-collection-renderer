@@ -89,9 +89,9 @@ const OnlineCardProvider: React.FC<OnlineCardProviderInterface> = ({
       rarity: RarityType.Common,
       cardID: cards.length,
       rowNumber: cards.length,
+      manaCost: '',
       front: {
         name: '',
-        manaCost: '',
         cardText: '',
         cardMainType: CardMainType.Creature
       }

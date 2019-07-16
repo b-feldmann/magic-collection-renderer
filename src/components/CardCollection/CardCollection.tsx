@@ -43,13 +43,17 @@ const CardCollection: React.FC<CardCollectionInterface> = ({
   const [showBackFaceConfig, setShowBackFaceConfig] = useState<boolean[]>([]);
 
   const filteredCards = _.sortBy(cards, [
-    o => _.indexOf(Object.values(ColorType), cardToColor(o.front)),
+    o =>
+      _.indexOf(
+        Object.values(ColorType),
+        cardToColor(o.front.cardMainType, o.manaCost)
+      ),
     o => _.indexOf(Object.values(RarityType), o.rarity),
     'cardMainType',
     o => o.front.name.toLowerCase()
   ]).filter(
     o =>
-      collectionFilter.colors[cardToColor(o.front)] &&
+      collectionFilter.colors[cardToColor(o.front.cardMainType, o.manaCost)] &&
       collectionFilter.rarity[o.rarity] &&
       collectionFilter.types[o.front.cardMainType]
   );
@@ -60,8 +64,12 @@ const CardCollection: React.FC<CardCollectionInterface> = ({
   const availableTypes: string[] = [];
   const availableRarities: string[] = [];
   cards.forEach(card => {
-    if (!availableColors.includes(cardToColor(card.front)))
-      availableColors.push(cardToColor(card.front));
+    if (
+      !availableColors.includes(
+        cardToColor(card.front.cardMainType, card.manaCost)
+      )
+    )
+      availableColors.push(cardToColor(card.front.cardMainType, card.manaCost));
 
     if (!availableTypes.includes(card.front.cardMainType))
       availableTypes.push(card.front.cardMainType);
@@ -81,7 +89,7 @@ const CardCollection: React.FC<CardCollectionInterface> = ({
 
   const getCardFace = (card: CardInterface): CardFaceInterface => {
     if (!card.back || !showBackFaceConfig[card.cardID]) return card.front;
-    return card.back;
+    return { ...card.back, backFace: true };
   };
 
   const toggleShowBackConfig = (id: number) => {
@@ -131,11 +139,12 @@ const CardCollection: React.FC<CardCollectionInterface> = ({
                         }}
                       >
                         <CardRender
+                          {...getCardFace(card)}
                           cardID={card.cardID}
                           rowNumber={card.rowNumber}
-                          creator={card.creator}
                           rarity={card.rarity}
-                          {...getCardFace(card)}
+                          manaCost={card.manaCost}
+                          creator={card.creator}
                         />
                       </ActionHover>
                       {card.back && (

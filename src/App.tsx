@@ -103,11 +103,13 @@ const App: React.FC = () => {
 
     return (
       <CardRender
+        {...card.back}
         cardID={card.cardID}
         rowNumber={card.rowNumber}
         creator={card.creator}
         rarity={card.rarity}
-        {...card.back}
+        manaCost={card.manaCost}
+        backFace
       />
     );
   };
@@ -182,11 +184,12 @@ const App: React.FC = () => {
                 >
                   <div className={styles.modalCardWrapper}>
                     <CardRender
+                      {...mergedCards[cardViewId].front}
                       cardID={mergedCards[cardViewId].cardID}
                       rowNumber={mergedCards[cardViewId].rowNumber}
                       creator={mergedCards[cardViewId].creator}
                       rarity={mergedCards[cardViewId].rarity}
-                      {...mergedCards[cardViewId].front}
+                      manaCost={mergedCards[cardViewId].manaCost}
                     />
                   </div>
                   {mergedCards[cardViewId].back && (

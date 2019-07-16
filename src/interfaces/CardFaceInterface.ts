@@ -6,7 +6,6 @@ export default interface CardFaceInterface {
   legendary?: boolean;
   cardMainType: CardMainType;
   cardSubTypes?: string;
-  manaCost: string;
   cardText: string;
   cardStats?: string;
   flavourText?: string;

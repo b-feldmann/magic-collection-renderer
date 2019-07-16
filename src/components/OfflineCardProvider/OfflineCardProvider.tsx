@@ -16,10 +16,10 @@ const murkCard: CardInterface = {
   creator: 'Goomy our Breath',
   cardID: 2,
   rowNumber: 2,
+  manaCost: '{b}{1}',
   front: {
-    name: 'Murk Murk',
-    manaCost: '{b}{1}',
     cardStats: '2/1',
+    name: 'Murk Murk',
     cover:
       'https://1.bp.blogspot.com/-buU7hvnFpyM/V2aa-ee3vEI/AAAAAAAAC_8/NBWYUXXKwiEi5d9rsz1UxE6t2VX3gusxgCLcB/s1600/murkrow_by_land_walker-d47oas7.jpg',
     cardText: 'Flying | When ~ attacks you can untap target land.',
@@ -35,8 +35,8 @@ const skillCard: CardInterface = {
   creator: 'Goomy our Light',
   cardID: 1,
   rowNumber: 1,
+  manaCost: '{r}{3}',
   front: {
-    manaCost: '{r}{3}',
     name: '"Skill"',
     cardText:
       '~ deals 3 damage to target player and each creature they control.',
@@ -51,9 +51,9 @@ const necrozmaCard: CardInterface = {
   creator: 'Goomy our Breath',
   cardID: 0,
   rowNumber: 0,
+  manaCost: '{b}{b}{w}{w}',
   front: {
     name: 'Necrozma',
-    manaCost: '{b}{b}{w}{w}',
     cardStats: '4/4',
     cover:
       'https://www.pokewiki.de/images/thumb/2/25/Illustration_Necrozma_%C3%9Cbernahme.jpg/300px-Illustration_Necrozma_%C3%9Cbernahme.jpg',
@@ -74,9 +74,9 @@ const michaCard: CardInterface = {
   creator: 'Goomy our Hope',
   cardID: 3,
   rowNumber: 3,
+  manaCost: '{u}{u}{1}',
   front: {
     name: 'Micha der Ausgeglichene',
-    manaCost: '{u}{u}{1}',
     cardText:
       '~ enters the battlefield with 3 "Geduldscountern". |' +
       'At the end of your turn remove 1 "Geduldscounter" from ~.|' +
@@ -92,10 +92,10 @@ const sivirCard: CardInterface = {
   rarity: RarityType.Common,
   cardID: 4,
   rowNumber: 4,
+  manaCost: '{w}{2}',
   front: {
     name: 'Sivir Countert Alles',
     cardStats: '2/3',
-    manaCost: '{w}{2}',
     cardText: 'Hexproof | {w}{1}: Give a creature haste',
     cardMainType: CardMainType.Creature,
     cardSubTypes: 'Champ'
@@ -108,10 +108,10 @@ const zyraCard: CardInterface = {
   creator: 'Goomy our Light',
   cardID: 5,
   rowNumber: 5,
+  manaCost: '{g}',
   front: {
     name: 'Crit Zyra',
     cardStats: '0/1',
-    manaCost: '{g}',
     cardText:
       '{T}: put a +0/+1 counter on ~. Put a +1/+0 counter on target creature an opponent controls. Tap that creature.',
     cardMainType: CardMainType.Creature,
@@ -125,9 +125,9 @@ const eloCard: CardInterface = {
   creator: 'Goomy our Hope',
   cardID: 6,
   rowNumber: 6,
+  manaCost: '',
   front: {
     name: 'Elo Land',
-    manaCost: '',
     flavourText:
       'Oh Eloland, where the grass is greener and the honey tastes sweeter',
     cardText:
@@ -142,9 +142,9 @@ const dittoCard: CardInterface = {
   creator: 'Goomy our Soul',
   cardID: 7,
   rowNumber: 7,
+  manaCost: '{2}',
   front: {
     name: 'Ditto',
-    manaCost: '{2}',
     cardStats: '0/1',
     flavourText: 'They told me I could be anything <3',
     cardText: '~ enters the battlefield as a copy of target creature.',
@@ -159,9 +159,9 @@ const joridCard: CardInterface = {
   creator: 'Goomy our Lord',
   cardID: 8,
   rowNumber: 8,
+  manaCost: '{b}{b}{3}',
   front: {
     name: 'Jorid, Herr der Geier und Käfer',
-    manaCost: '{b}{b}{3}',
     cardStats: '5',
     legendary: true,
     flavourText: 'Weakling! You stand no chance against my army mwahaha',
@@ -177,9 +177,9 @@ const inhibitorCard: CardInterface = {
   creator: 'Goomy our Breath',
   cardID: 9,
   rowNumber: 9,
+  manaCost: '{4}',
   front: {
     name: 'Inhibitor',
-    manaCost: '{4}',
     cardText:
       'After you play this card give the control of ~ to target opponent | If ~ leaves the battlefield transform ~ instead.',
     flavourText: 'Try harder!',
@@ -192,7 +192,6 @@ const inhibitorCard: CardInterface = {
   },
   back: {
     name: 'Destroyed Inhibitor',
-    manaCost: '{4}',
     cardText:
       'At the start of your turn summon a 3/3 Super-Minion token for target opponent.',
     flavourText: 'Free farm in da base',
@@ -234,9 +233,9 @@ const OfflineCardProvider: React.FC<OfflineCardProviderInterface> = ({
       rarity: RarityType.Common,
       cardID: cards.length,
       rowNumber: cards.length,
+      manaCost: '',
       front: {
         name: '',
-        manaCost: '',
         cardText: '',
         cardMainType: CardMainType.Creature
       }

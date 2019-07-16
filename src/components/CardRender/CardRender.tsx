@@ -3,8 +3,6 @@ import React from 'react';
 // @ts-ignore
 import ReactResizeDetector from 'react-resize-detector';
 
-import CardFaceInterface from '../../interfaces/CardFaceInterface';
-
 import 'mana-font/css/mana.css';
 
 import './css/reset.css';
@@ -31,10 +29,29 @@ import {
 } from './injectUtils';
 import cardToColor from './cardToColor';
 
-const CardRender: React.FC<CardFaceInterface> = (card: CardFaceInterface) => {
-  const { legendary, cardMainType, cardSubTypes, rarity } = card;
-  const { name, manaCost, cardStats, cover, creator } = card;
-  const { cardText, flavourText, flavourAuthor, cardID, rowNumber } = card;
+interface CardRender {
+  name: string;
+  rarity: RarityType;
+  creator?: string;
+  cardID: number;
+  manaCost: string;
+  rowNumber: number;
+  legendary?: boolean;
+  cardMainType: CardMainType;
+  cardSubTypes?: string;
+  cardText: string;
+  cardStats?: string;
+  flavourText?: string;
+  flavourAuthor?: string;
+  cover?: string;
+  backFace?: boolean;
+}
+
+const CardRender: React.FC<CardRender> = (cardRender: CardRender) => {
+  const { legendary, cardMainType, cardSubTypes, rarity } = cardRender;
+  const { name, manaCost, cardStats, cover, creator } = cardRender;
+  const { cardText, flavourText, flavourAuthor, cardID } = cardRender;
+  const { rowNumber, backFace } = cardRender;
 
   const getRarityIcon = () => {
     if (rarity === RarityType.MythicRare) return MythicRareIcon;
@@ -43,7 +60,7 @@ const CardRender: React.FC<CardFaceInterface> = (card: CardFaceInterface) => {
     return CommonIcon;
   };
 
-  const color = cardToColor(card);
+  const color = cardToColor(cardMainType, manaCost);
 
   const rarityCode = () => {
     if (rarity === RarityType.Uncommon) return 'U';
@@ -76,9 +93,10 @@ const CardRender: React.FC<CardFaceInterface> = (card: CardFaceInterface) => {
               <div className="card-frame">
                 <div className={`frame-header frame-header-${color}`}>
                   <h1 className="name">{injectQuotationMarks(name)}</h1>
-                  {card.cardMainType !== CardMainType.Land && (
-                    <div className="cost">{injectManaIcons(manaCost)}</div>
-                  )}
+                  {cardRender.cardMainType !== CardMainType.Land &&
+                    !backFace && (
+                      <div className="cost">{injectManaIcons(manaCost)}</div>
+                    )}
                 </div>
 
                 <img
