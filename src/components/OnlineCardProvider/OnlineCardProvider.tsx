@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Input, message, Modal } from 'antd';
 
-// @ts-ignore
-import dropboxAccess from 'dropbox-fetch';
+import dropboxAccess from './../../utils/dropbox-fetch-axios';
 
 import { CardMainType, RarityType } from '../../interfaces/enums';
 import CardInterface from '../../interfaces/CardInterface';
@@ -27,23 +26,18 @@ const OnlineCardProvider: React.FC<OnlineCardProviderInterface> = ({
   const [tmpApiKey, setTmpApiKey] = useState<string>('');
   const [apiKey, setApiKey] = useLocalStorage('api_key');
 
-  dropboxAccess.setToken(apiKey);
+  dropboxAccess.setToken(apiKey.toString());
 
   const initCollection = () => {
-    dropboxAccess
-      .download(collectionFileName)
-      .then((result: any) => {
-        return result.text();
-      })
-      .then((fileContent: any) => {
-        const data = JSON.parse(fileContent);
-        const newCards: CardInterface[] = [];
-        data.forEach((card: CardInterface) => {
-          newCards[card.cardID] = card;
-        });
-
-        setCards(newCards);
+    dropboxAccess.download(collectionFileName).then((fileContent: any) => {
+      const data = fileContent.data;
+      const newCards: CardInterface[] = [];
+      data.forEach((card: CardInterface) => {
+        newCards[card.cardID] = card;
       });
+
+      setCards(newCards);
+    });
   };
 
   const saveCardToDropBox = (newCard: CardInterface) => {
@@ -52,38 +46,33 @@ const OnlineCardProvider: React.FC<OnlineCardProviderInterface> = ({
       mode: 'overwrite'
     };
 
-    dropboxAccess
-      .download(collectionFileName)
-      .then((result: any) => {
-        return result.text();
-      })
-      .then((fileContent: any) => {
-        const data: CardInterface[] = JSON.parse(fileContent);
-        const collection: CardInterface[] = [];
-        data.forEach((card: CardInterface) => {
-          collection[card.cardID] = card;
-        });
-        collection[newCard.cardID] = newCard;
-        setCards(collection);
-
-        dropboxAccess
-          .upload(apiArgs, JSON.stringify(collection))
-          .then((result: any) => {
-            // do whatever you want with the response
-            if (result.status === 200) {
-              message.success('Saved collection to server :)');
-            } else if (result.status === 400) {
-              message.error('Status 400');
-            } else if (result.status === 500) {
-              message.error('Status 500');
-            } else {
-              message.error(`Unknown Status ${result.status}`);
-            }
-          })
-          .catch((result: any) => {
-            message.error('Something went wrong while uploading data :(');
-          });
+    dropboxAccess.download(collectionFileName).then((fileContent: any) => {
+      const data: CardInterface[] = fileContent.data;
+      const collection: CardInterface[] = [];
+      data.forEach((card: CardInterface) => {
+        collection[card.cardID] = card;
       });
+      collection[newCard.cardID] = newCard;
+      setCards(collection);
+
+      dropboxAccess
+        .upload(apiArgs, JSON.stringify(collection))
+        .then((result: any) => {
+          // do whatever you want with the response
+          if (result.status === 200) {
+            message.success('Saved collection to server :)');
+          } else if (result.status === 400) {
+            message.error('Status 400');
+          } else if (result.status === 500) {
+            message.error('Status 500');
+          } else {
+            message.error(`Unknown Status ${result.status}`);
+          }
+        })
+        .catch((result: any) => {
+          message.error('Something went wrong while uploading data :(');
+        });
+    });
   };
 
   const saveCard = (obj: CardInterface) => {
