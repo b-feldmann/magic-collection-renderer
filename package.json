@@ -15,6 +15,7 @@
     "canvg": "^2.0.0",
     "dropbox": "^4.0.28",
     "dropbox-fetch": "^0.3.2",
+    "gh-pages": "^2.0.1",
     "html2canvas": "^1.0.0-rc.3",
     "js-file-download": "^0.4.7",
     "jspdf": "^1.5.3",
@@ -34,10 +35,12 @@
     "test": "react-app-rewired test",
     "lint:fix": "eslint './src/**/*.{ts,tsx}'",
     "electron": "electron .",
-    "dev": "nf start"
+    "dev": "nf start",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
   },
   "main": "src/electron-starter.js",
-  "homepage": "./",
+  "homepage": "https://bjennware.github.io/magic-collection-renderer",
   "eslintConfig": {
     "extends": "react-app"
   },
