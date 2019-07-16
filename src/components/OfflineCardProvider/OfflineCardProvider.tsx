@@ -1,9 +1,6 @@
 import React, { useState } from 'react';
 import { CardMainType, RarityType } from '../../interfaces/enums';
 import CardInterface from '../../interfaces/CardInterface';
-import CardFaceInterface from '../../interfaces/CardFaceInterface';
-
-// const { dialog } = window.require('electron').remote;
 
 interface OfflineCardProviderInterface {
   render: (
@@ -189,7 +186,9 @@ const inhibitorCard: CardInterface = {
     cardMainType: CardMainType.Planeswalker,
     legendary: true,
     cardSubTypes: 'Building',
-    cardStats: '10'
+    cardStats: '10',
+    cover:
+      'https://lolstatic-a.akamaihd.net/frontpage/apps/prod/LolGameInfo-Harbinger/de_DE/0d258ed5be6806b967afaf2b4b9817406912a7ac/assets/assets/images/get-started/npg-inhibitor.jpg'
   },
   back: {
     name: 'Destroyed Inhibitor',
@@ -199,7 +198,9 @@ const inhibitorCard: CardInterface = {
     flavourText: 'Free farm in da base',
     cardMainType: CardMainType.Enchantment,
     legendary: true,
-    cardSubTypes: 'Building'
+    cardSubTypes: 'Building',
+    cover:
+      'https://www.lolchampion.de/_wordpress_dev716a/wp-content/uploads/2015/01/20140102_inhibitor_respawn.jpg'
   }
 };
 
@@ -226,8 +227,6 @@ const OfflineCardProvider: React.FC<OfflineCardProviderInterface> = ({
 
     setCards(newCards);
   };
-
-  const getCard = () => {};
 
   const addNewCard = () => {
     const card: CardInterface = {

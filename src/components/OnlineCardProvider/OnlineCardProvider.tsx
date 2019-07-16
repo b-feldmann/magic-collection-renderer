@@ -1,97 +1,157 @@
-import React, { ReactChild, useState } from 'react';
-import CardFaceInterface from '../../interfaces/CardFaceInterface';
+import React, { useState, useEffect } from 'react';
+import { Input, message, Modal } from 'antd';
+
+// @ts-ignore
+import dropboxAccess from 'dropbox-fetch';
+
 import { CardMainType, RarityType } from '../../interfaces/enums';
+import CardInterface from '../../interfaces/CardInterface';
+import useLocalStorage from './useLocalStorageHook';
 
-// const { dialog } = window.require('electron').remote;
-
-interface OfflineCardProviderInterface {
-  children: ReactChild;
+interface OnlineCardProviderInterface {
+  render: (
+    cards: CardInterface[],
+    saveCard: (card: CardInterface) => void,
+    addCard: () => void
+  ) => JSX.Element;
 }
 
-interface CardCallbackFunction {
-  (card: CardFaceInterface): void;
-}
+const collectionFileName = '/magic-collection-data.json';
 
-const OnlineCardProvider = ({ children }: OfflineCardProviderInterface) => {
-  // const dataPath = storage.getDataPath();
-  // console.log(dataPath);
-  const [cards, setCards] = useState<CardFaceInterface[]>([]);
+const OnlineCardProvider: React.FC<OnlineCardProviderInterface> = ({
+  render
+}: OnlineCardProviderInterface) => {
+  const [dataLoaded, setDataLoaded] = useState<boolean>(false);
+  const [cards, setCards] = useState<CardInterface[]>([]);
+  const [showApiModal, setShowApiModal] = useState(false);
+  const [tmpApiKey, setTmpApiKey] = useState<string>('');
+  const [apiKey, setApiKey] = useLocalStorage('api_key');
 
-  const murkCard: CardFaceInterface = {
-    name: 'Murk Murk',
-    rarity: RarityType.Common,
-    creator: 'Goomy our Breath',
-    manaCost: '{b}{1}',
-    cardID: 2,
-    rowNumber: 2,
-    cardStats: '2/1',
-    cardText: 'Flying | When ~ attacks you can tap target land.',
-    flavourText: '~ the destroyer',
-    cardMainType: CardMainType.Creature,
-    cardSubTypes: 'Pokemon'
+  dropboxAccess.setToken(apiKey);
+
+  const initCollection = () => {
+    dropboxAccess
+      .download(collectionFileName)
+      .then((result: any) => {
+        return result.text();
+      })
+      .then((fileContent: any) => {
+        const data = JSON.parse(fileContent);
+        const newCards: CardInterface[] = [];
+        data.forEach((card: CardInterface) => {
+          newCards[card.cardID] = card;
+        });
+
+        setCards(newCards);
+      });
   };
 
-  const saveCard = (key: string, obj: CardFaceInterface) => {
-    // fs.writeFile('cards', obj, err => {
-    //   if (err) {
-    //     alert('An error ocurred creating the file ' + err.message);
-    //   }
-    //
-    //   alert('The file has been succesfully saved');
-    // });
+  const saveCardToDropBox = (newCard: CardInterface) => {
+    const apiArgs = {
+      path: collectionFileName,
+      mode: 'overwrite'
+    };
+
+    dropboxAccess
+      .download(collectionFileName)
+      .then((result: any) => {
+        return result.text();
+      })
+      .then((fileContent: any) => {
+        const data: CardInterface[] = JSON.parse(fileContent);
+        const collection: CardInterface[] = [];
+        data.forEach((card: CardInterface) => {
+          collection[card.cardID] = card;
+        });
+        collection[newCard.cardID] = newCard;
+        setCards(collection);
+
+        dropboxAccess
+          .upload(apiArgs, JSON.stringify(collection))
+          .then((result: any) => {
+            // do whatever you want with the response
+            if (result.status === 200) {
+              message.success('Saved collection to server :)');
+            } else if (result.status === 400) {
+              message.error('Status 400');
+            } else if (result.status === 500) {
+              message.error('Status 500');
+            } else {
+              message.error(`Unknown Status ${result.status}`);
+            }
+          })
+          .catch((result: any) => {
+            message.error('Something went wrong while uploading data :(');
+          });
+      });
   };
 
-  const getCard = (key: string) => {
-    // fs.readFile('cards', 'utf-8', (err, data) => {
-    //   if (err) {
-    //     alert('An error ocurred reading the file :' + err.message);
-    //     return;
-    //   }
-    //
-    //   // Change how to handle the file content
-    //   console.log('The file content is : ' + data);
-    //
-    //   // const card: CardFaceInterface = {
-    //   //   rowNumber: -1,
-    //   //   name: '',
-    //   //   cardMainType: CardMainType.Creature,
-    //   //   manaCost: '{0}',
-    //   //   rarity: RarityType.Common,
-    //   //   cardText: '',
-    //   //   cardID: -1,
-    //   //   ...data
-    //   // };
-    //   //
-    //   // console.log(card);
-    // });
+  const saveCard = (obj: CardInterface) => {
+    const newCards: CardInterface[] = [...cards];
+    newCards[obj.cardID] = obj;
+
+    setCards(newCards);
+    saveCardToDropBox(obj);
   };
 
-  saveCard('murk', murkCard);
+  const addNewCard = () => {
+    const card: CardInterface = {
+      name: '',
+      rarity: RarityType.Common,
+      cardID: cards.length,
+      rowNumber: cards.length,
+      front: {
+        name: '',
+        manaCost: '',
+        cardText: '',
+        cardMainType: CardMainType.Creature
+      }
+    };
 
-  // storage.set('murk', card3, function(error) {
-  //   if (error) throw error;
-  // });
-
-  const getAllCards = () => {
-    const allCards: CardFaceInterface[] = [];
-
-    // storage.getAll(function(error, data) {
-    //   if (error) throw error;
-    //
-    //   console.log(data);
-    // });
-    // console.log(allCards);
-
-    return setCards(allCards);
+    saveCard(card);
   };
 
-  const childWithProp = React.Children.map(children, child => {
-    // @ts-ignore
-    return React.cloneElement(child, { cards, getCard });
-  });
+  useEffect(() => {
+    if (apiKey.length > 0) {
+      initCollection();
+    }
+  }, []);
 
-  // return childWithProp;
-  return children;
+  useEffect(() => {
+    if (apiKey.length === 0) {
+      setShowApiModal(true);
+    } else {
+      initCollection();
+    }
+  }, [apiKey]);
+
+  useEffect(() => {
+    if (!dataLoaded && cards.length > 0) {
+      setDataLoaded(true);
+    }
+  }, [cards.length]);
+
+  return (
+    <div>
+      <Modal
+        title="Enter API key"
+        visible={showApiModal}
+        onOk={() => {
+          // @ts-ignore
+          setApiKey(tmpApiKey);
+          setShowApiModal(false);
+        }}
+      >
+        <h4>Key:</h4>
+        <Input onChange={e => setTmpApiKey(e.target.value)} value={tmpApiKey} />
+      </Modal>
+      {dataLoaded ? (
+        <div>{render(Object.values(cards), saveCard, addNewCard)}</div>
+      ) : (
+        <div>Loading Cards...</div>
+      )}
+    </div>
+  );
 };
 
 export default OnlineCardProvider;
