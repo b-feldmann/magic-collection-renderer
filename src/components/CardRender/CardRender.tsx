@@ -94,7 +94,9 @@ const CardRender: React.FC<CardRender> = (cardRender: CardRender) => {
                   <h1 className="name">{injectQuotationMarks(name)}</h1>
                   {cardRender.cardMainType !== CardMainType.Land &&
                     !backFace && (
-                      <div className="cost">{injectManaIcons(manaCost, true)}</div>
+                      <div className="cost">
+                        {injectManaIcons(manaCost, true)}
+                      </div>
                     )}
                 </div>
 

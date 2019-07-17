@@ -91,27 +91,85 @@ export const injectManaIcons = (
       toInject: <Mana symbol="up" cost shadow={shadow} />
     },
     {
-      toReplace: /{[bB][pP]}|{[pP][bB]/,
+      toReplace: /{[bB][pP]}|{[pP][bB]}/,
       toInject: <Mana symbol="bp" cost shadow={shadow} />
     },
     {
-      toReplace: /{[rR][pP]}|{[pP][rR]/,
+      toReplace: /{[rR][pP]}|{[pP][rR]}/,
       toInject: <Mana symbol="rp" shadow={shadow} />
     },
     {
-      toReplace: /{[gG][pP]}|{[pP][gG]/,
+      toReplace: /{[gG][pP]}|{[pP][gG]}/,
       toInject: <Mana symbol="gp" cost shadow={shadow} />
     },
-    { toReplace: /{2[wW]}|{[wW]2}/, toInject: <Mana symbol="2w" cost shadow={shadow} /> },
-    { toReplace: /{2[uU]}|{[uU]2}/, toInject: <Mana symbol="2u" cost shadow={shadow} /> },
-    { toReplace: /{2[bB]}|{[bB]2}/, toInject: <Mana symbol="2b" cost shadow={shadow} /> },
-    { toReplace: /{2[rR]}|{[rR]2}/, toInject: <Mana symbol="2r" cost shadow={shadow} /> },
-    { toReplace: /{2[gG]}|{[gG]2}/, toInject: <Mana symbol="2g" cost shadow={shadow} /> },
+    {
+      toReplace: /{2[wW]}|{[wW]2}/,
+      toInject: <Mana symbol="2w" cost shadow={shadow} />
+    },
+    {
+      toReplace: /{2[uU]}|{[uU]2}/,
+      toInject: <Mana symbol="2u" cost shadow={shadow} />
+    },
+    {
+      toReplace: /{2[bB]}|{[bB]2}/,
+      toInject: <Mana symbol="2b" cost shadow={shadow} />
+    },
+    {
+      toReplace: /{2[rR]}|{[rR]2}/,
+      toInject: <Mana symbol="2r" cost shadow={shadow} />
+    },
+    {
+      toReplace: /{2[gG]}|{[gG]2}/,
+      toInject: <Mana symbol="2g" cost shadow={shadow} />
+    },
     { toReplace: /{[sS]}/, toInject: <Mana symbol="s" cost shadow={shadow} /> },
     { toReplace: /{[xX]}/, toInject: <Mana symbol="x" cost shadow={shadow} /> },
     { toReplace: /{[yY]}/, toInject: <Mana symbol="y" cost shadow={shadow} /> },
     { toReplace: /{[zZ]}/, toInject: <Mana symbol="z" cost shadow={shadow} /> },
-    { toReplace: /{[tT]}/, toInject: <Mana symbol="tap" cost shadow={shadow} /> },
+    {
+      toReplace: /{[wW][uU]}|{[uU][wW]}/,
+      toInject: <Mana symbol="wu" cost shadow={shadow} />
+    },
+    {
+      toReplace: /{[wW][bB]}|{[bB][wW]}/,
+      toInject: <Mana symbol="wb" cost shadow={shadow} />
+    },
+    {
+      toReplace: /{[bB][uU]}|{[uU][bB]}/,
+      toInject: <Mana symbol="ub" cost shadow={shadow} />
+    },
+    {
+      toReplace: /{[rR][uU]}|{[uU][rR]}/,
+      toInject: <Mana symbol="ur" cost shadow={shadow} />
+    },
+    {
+      toReplace: /{[bB][rR]}|{[rR][bB]}/,
+      toInject: <Mana symbol="br" cost shadow={shadow} />
+    },
+    {
+      toReplace: /{[bB][gG]}|{[gG][bB]}/,
+      toInject: <Mana symbol="bg" cost shadow={shadow} />
+    },
+    {
+      toReplace: /{[rR][gG]}|{[gG][rR]}/,
+      toInject: <Mana symbol="rg" cost shadow={shadow} />
+    },
+    {
+      toReplace: /{[wW][rR]}|{[rR][wW]}/,
+      toInject: <Mana symbol="rw" cost shadow={shadow} />
+    },
+    {
+      toReplace: /{[wW][gG]}|{[gG][wW]}/,
+      toInject: <Mana symbol="gw" cost shadow={shadow} />
+    },
+    {
+      toReplace: /{[uU][gG]}|{[gG][uU]}/,
+      toInject: <Mana symbol="gu" cost shadow={shadow} />
+    },
+    {
+      toReplace: /{[tT]}/,
+      toInject: <Mana symbol="tap" cost shadow={shadow} />
+    },
     {
       toReplace: /{[uU][tT]}|{[tT][uU]}/,
       toInject: <Mana symbol="untap" cost shadow={shadow} />

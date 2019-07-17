@@ -18,8 +18,10 @@ const cardToColor = (
       else color = ColorType.Gold;
     };
 
-    for (let i = 0; i < manaCost.length; i++) {
-      switch (manaCost.charAt(i)) {
+    const array = manaCost.split(/{(.)}|{(..)}/);
+    array.forEach((cost: string) => {
+      if (!cost || cost === '') return;
+      switch (cost) {
         case 'w':
         case 'W':
           setColor(ColorType.White);
@@ -40,10 +42,8 @@ const cardToColor = (
         case 'G':
           setColor(ColorType.Green);
           break;
-        default:
-          continue;
       }
-    }
+    });
   }
 
   return color;
