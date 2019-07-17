@@ -33,9 +33,8 @@ interface CardRender {
   name: string;
   rarity: RarityType;
   creator?: string;
-  cardID: number;
+  cardID: string;
   manaCost: string;
-  rowNumber: number;
   legendary?: boolean;
   cardMainType: CardMainType;
   cardSubTypes?: string;
@@ -51,7 +50,7 @@ const CardRender: React.FC<CardRender> = (cardRender: CardRender) => {
   const { legendary, cardMainType, cardSubTypes, rarity } = cardRender;
   const { name, manaCost, cardStats, cover, creator } = cardRender;
   const { cardText, flavourText, flavourAuthor, cardID } = cardRender;
-  const { rowNumber, backFace } = cardRender;
+  const { backFace } = cardRender;
 
   const getRarityIcon = () => {
     if (rarity === RarityType.MythicRare) return MythicRareIcon;
@@ -180,7 +179,7 @@ const CardRender: React.FC<CardRender> = (cardRender: CardRender) => {
                 <div className="frame-bottom-info inner-margin">
                   <div className="fbi-left">
                     <p>
-                      {rowNumber}/184 {rarityCode()}
+                      {cardID}/184 {rarityCode()}
                     </p>
                     <p>
                       EPIC &#x2022; EN

@@ -6,9 +6,8 @@ export default interface CardInterface {
   name: string;
   rarity: RarityType;
   creator?: string;
-  cardID: number;
+  cardID: string;
   manaCost: string;
   front: CardFaceInterface;
   back?: CardFaceInterface;
-  rowNumber: number;
 }

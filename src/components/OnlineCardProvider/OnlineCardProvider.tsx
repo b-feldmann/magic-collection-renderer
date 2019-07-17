@@ -15,13 +15,17 @@ interface OnlineCardProviderInterface {
   ) => JSX.Element;
 }
 
+interface CollectionInterface {
+  [key: string]: CardInterface;
+}
+
 const collectionFileName = '/magic-collection-data.json';
 
 const OnlineCardProvider: React.FC<OnlineCardProviderInterface> = ({
   render
 }: OnlineCardProviderInterface) => {
   const [dataLoaded, setDataLoaded] = useState<boolean>(false);
-  const [cards, setCards] = useState<CardInterface[]>([]);
+  const [cards, setCards] = useState<CollectionInterface>({});
   const [showApiModal, setShowApiModal] = useState(false);
   const [tmpApiKey, setTmpApiKey] = useState<string>('');
   const [apiKey, setApiKey] = useLocalStorage('api_key');
@@ -31,12 +35,8 @@ const OnlineCardProvider: React.FC<OnlineCardProviderInterface> = ({
   const initCollection = () => {
     dropboxAccess.download(collectionFileName).then((fileContent: any) => {
       const data = fileContent.data;
-      const newCards: CardInterface[] = [];
-      data.forEach((card: CardInterface) => {
-        newCards[card.cardID] = card;
-      });
-
-      setCards(newCards);
+      console.log(data);
+      setCards(data);
     });
   };
 
@@ -47,11 +47,7 @@ const OnlineCardProvider: React.FC<OnlineCardProviderInterface> = ({
     };
 
     dropboxAccess.download(collectionFileName).then((fileContent: any) => {
-      const data: CardInterface[] = fileContent.data;
-      const collection: CardInterface[] = [];
-      data.forEach((card: CardInterface) => {
-        collection[card.cardID] = card;
-      });
+      const collection: CollectionInterface = fileContent.data;
       collection[newCard.cardID] = newCard;
       setCards(collection);
 
@@ -76,19 +72,40 @@ const OnlineCardProvider: React.FC<OnlineCardProviderInterface> = ({
   };
 
   const saveCard = (obj: CardInterface) => {
-    const newCards: CardInterface[] = [...cards];
+    const newCards: CollectionInterface = { ...cards };
     newCards[obj.cardID] = obj;
 
     setCards(newCards);
     saveCardToDropBox(obj);
   };
 
+  const ID = (): string => {
+    const generateId = (): string =>
+      '_' +
+      Math.random()
+        .toString(36)
+        .substr(2, 9);
+    let id = '';
+    let unique = true;
+
+    do {
+      id = generateId();
+      Object.values(cards).every(c => {
+        if (c.cardID !== id) return true;
+        unique = false;
+        return false;
+      });
+    } while (!unique);
+
+    console.log(id);
+    return id;
+  };
+
   const addNewCard = () => {
     const card: CardInterface = {
       name: '',
       rarity: RarityType.Common,
-      cardID: cards.length,
-      rowNumber: cards.length,
+      cardID: ID(),
       manaCost: '',
       front: {
         name: '',
@@ -115,10 +132,10 @@ const OnlineCardProvider: React.FC<OnlineCardProviderInterface> = ({
   }, [apiKey]);
 
   useEffect(() => {
-    if (!dataLoaded && cards.length > 0) {
+    if (!dataLoaded && Object.values(cards).length > 0) {
       setDataLoaded(true);
     }
-  }, [cards.length]);
+  }, [Object.values(cards).length]);
 
   return (
     <div>

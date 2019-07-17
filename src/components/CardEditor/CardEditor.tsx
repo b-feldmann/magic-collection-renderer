@@ -10,6 +10,7 @@ import { Button, Row } from 'antd';
 import _ from 'lodash';
 import useWindowDimensions from '../../useWindowDimensions';
 import CardFaceInterface from '../../interfaces/CardFaceInterface';
+import EditorTooltip from '../EditorTooltip/EditorTooltip';
 
 interface CardEditorInterface {
   card: CardInterface;
@@ -17,10 +18,11 @@ interface CardEditorInterface {
   saveCard: (card: CardInterface) => void;
 }
 
+const NO_CARD = '-1';
+
 const dummyCard: CardInterface = {
   name: '',
-  cardID: -1,
-  rowNumber: -1,
+  cardID: NO_CARD,
   manaCost: '',
   rarity: RarityType.Common,
   front: {
@@ -40,7 +42,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
     _.cloneDeep(card)
   );
   const [tmpCard, setTmpCard] = useState<CardInterface>(_.cloneDeep(card));
-  const [timerId, setTimerId] = useState<any>(-1);
+  const [timerId, setTimerId] = useState<any>(NO_CARD);
 
   const [editBack, setEditBack] = useState<boolean>(false);
 
@@ -155,7 +157,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
     }
   ];
 
-  if (card.cardID === -1)
+  if (card.cardID === NO_CARD)
     return (
       <div className={styles.noCard}>
         Hover over a card and click the edit icon to start the editor!
@@ -187,6 +189,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
   return (
     <div className={styles.editor}>
       <Row className={tiny ? styles.tiny : ''}>
+        <EditorTooltip className={styles.tooltip} />
         <Button.Group
           className={styles.smallButtonGroup}
           size={small ? 'small' : 'default'}

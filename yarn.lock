@@ -1274,6 +1274,13 @@
   dependencies:
     "@progress/kendo-file-saver" "^1.0.1"
 
+"@saeris/react-mana@^1.0.3":
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/@saeris/react-mana/-/react-mana-1.0.3.tgz#12f11b3c8757dcb876780134b7e2df52de288dc5"
+  integrity sha512-hDUtJuhzQo13actQhp12wR8TPddH2Sbj46eXXD8GyyyMu/H4I7Srab0AOzOo5vcu21Vwmb7oDWjS6/TivjDT5Q==
+  dependencies:
+    classnames "^2.2.6"
+
 "@svgr/babel-plugin-add-jsx-attribute@^4.2.0":
   version "4.2.0"
   resolved "https://registry.yarnpkg.com/@svgr/babel-plugin-add-jsx-attribute/-/babel-plugin-add-jsx-attribute-4.2.0.tgz#dadcb6218503532d6884b210e7f3c502caaa44b1"

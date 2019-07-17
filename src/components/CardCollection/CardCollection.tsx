@@ -17,15 +17,20 @@ import _ from 'lodash';
 // @ts-ignore
 import useResizeAware from 'react-resize-aware';
 import CardFaceInterface from '../../interfaces/CardFaceInterface';
+import { type } from 'os';
 
 interface CardCollectionInterface {
   cards?: CardInterface[];
   sortBy: SortType;
-  editCard: (id: number) => void;
-  downloadImage: (id: number) => void;
-  downloadJson: (id: number) => void;
-  viewCard: (id: number) => void;
-  currentEditId: number;
+  editCard: (id: string) => void;
+  downloadImage: (id: string) => void;
+  downloadJson: (id: string) => void;
+  viewCard: (id: string) => void;
+  currentEditId: string;
+}
+
+interface BackConfigInterface {
+  [key: string]: boolean;
 }
 
 const CardCollection: React.FC<CardCollectionInterface> = ({
@@ -40,7 +45,9 @@ const CardCollection: React.FC<CardCollectionInterface> = ({
     CollectionFilterInterface
   >({ colors: {}, rarity: {}, types: {} });
 
-  const [showBackFaceConfig, setShowBackFaceConfig] = useState<boolean[]>([]);
+  const [showBackFaceConfig, setShowBackFaceConfig] = useState<
+    BackConfigInterface
+  >({});
 
   const filteredCards = _.sortBy(cards, [
     o =>
@@ -92,8 +99,8 @@ const CardCollection: React.FC<CardCollectionInterface> = ({
     return { ...card.back, backFace: true };
   };
 
-  const toggleShowBackConfig = (id: number) => {
-    const newConfig = [...showBackFaceConfig];
+  const toggleShowBackConfig = (id: string) => {
+    const newConfig = { ...showBackFaceConfig };
     newConfig[id] = !newConfig[id];
     setShowBackFaceConfig(newConfig);
   };
@@ -141,7 +148,6 @@ const CardCollection: React.FC<CardCollectionInterface> = ({
                         <CardRender
                           {...getCardFace(card)}
                           cardID={card.cardID}
-                          rowNumber={card.rowNumber}
                           rarity={card.rarity}
                           manaCost={card.manaCost}
                           creator={card.creator}

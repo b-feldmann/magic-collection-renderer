@@ -37,8 +37,8 @@ export enum SortType {
 
 export enum ColorType {
   White = 'white',
-  Black = 'black',
   Blue = 'blue',
+  Black = 'black',
   Red = 'red',
   Green = 'green',
   Colorless = 'colorless',

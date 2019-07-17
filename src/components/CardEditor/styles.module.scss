@@ -36,3 +36,10 @@
         margin-top: 4px;
     }
 }
+
+.tooltip {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    z-index: 999;
+}

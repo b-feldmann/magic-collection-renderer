@@ -14,7 +14,7 @@ const murkCard: CardInterface = {
   name: 'Murk Murk',
   rarity: RarityType.Common,
   creator: 'Goomy our Breath',
-  cardID: 2,
+  cardID: '2',
   rowNumber: 2,
   manaCost: '{b}{1}',
   front: {
@@ -33,7 +33,7 @@ const skillCard: CardInterface = {
   name: '"Skill"',
   rarity: RarityType.Uncommon,
   creator: 'Goomy our Light',
-  cardID: 1,
+  cardID: '1',
   rowNumber: 1,
   manaCost: '{r}{3}',
   front: {
@@ -49,7 +49,7 @@ const necrozmaCard: CardInterface = {
   name: 'Necrozma',
   rarity: RarityType.MythicRare,
   creator: 'Goomy our Breath',
-  cardID: 0,
+  cardID: '0',
   rowNumber: 0,
   manaCost: '{b}{b}{w}{w}',
   front: {
@@ -72,7 +72,7 @@ const michaCard: CardInterface = {
   rarity: RarityType.Uncommon,
   cardStats: '1/6',
   creator: 'Goomy our Hope',
-  cardID: 3,
+  cardID: '3',
   rowNumber: 3,
   manaCost: '{u}{u}{1}',
   front: {
@@ -90,7 +90,7 @@ const michaCard: CardInterface = {
 const sivirCard: CardInterface = {
   name: 'Sivir Countert Alles',
   rarity: RarityType.Common,
-  cardID: 4,
+  cardID: '4',
   rowNumber: 4,
   manaCost: '{w}{2}',
   front: {
@@ -106,7 +106,7 @@ const zyraCard: CardInterface = {
   name: 'Crit Zyra',
   rarity: RarityType.Common,
   creator: 'Goomy our Light',
-  cardID: 5,
+  cardID: '5',
   rowNumber: 5,
   manaCost: '{g}',
   front: {
@@ -123,7 +123,7 @@ const eloCard: CardInterface = {
   name: 'Elo Land',
   rarity: RarityType.Uncommon,
   creator: 'Goomy our Hope',
-  cardID: 6,
+  cardID: '6',
   rowNumber: 6,
   manaCost: '',
   front: {
@@ -140,7 +140,7 @@ const dittoCard: CardInterface = {
   name: 'Ditto',
   rarity: RarityType.Rare,
   creator: 'Goomy our Soul',
-  cardID: 7,
+  cardID: '7',
   rowNumber: 7,
   manaCost: '{2}',
   front: {
@@ -157,7 +157,7 @@ const joridCard: CardInterface = {
   name: 'Jorid, Herr der Geier und Käfer',
   rarity: RarityType.Rare,
   creator: 'Goomy our Lord',
-  cardID: 8,
+  cardID: '8',
   rowNumber: 8,
   manaCost: '{b}{b}{3}',
   front: {
@@ -175,7 +175,7 @@ const inhibitorCard: CardInterface = {
   name: 'Inhibitor // Broken Inhibitor',
   rarity: RarityType.Rare,
   creator: 'Goomy our Breath',
-  cardID: 9,
+  cardID: '9',
   rowNumber: 9,
   manaCost: '{4}',
   front: {
@@ -203,10 +203,14 @@ const inhibitorCard: CardInterface = {
   }
 };
 
+interface CollectionInterface {
+  [key: string]: CardInterface;
+}
+
 const OfflineCardProvider: React.FC<OfflineCardProviderInterface> = ({
   render
 }: OfflineCardProviderInterface) => {
-  const initialState = [];
+  const initialState: CollectionInterface = {};
   initialState[necrozmaCard.cardID] = necrozmaCard;
   initialState[skillCard.cardID] = skillCard;
   initialState[murkCard.cardID] = murkCard;
@@ -218,10 +222,10 @@ const OfflineCardProvider: React.FC<OfflineCardProviderInterface> = ({
   initialState[joridCard.cardID] = joridCard;
   initialState[inhibitorCard.cardID] = inhibitorCard;
 
-  const [cards, setCards] = useState<CardInterface[]>(initialState);
+  const [cards, setCards] = useState<CollectionInterface>(initialState);
 
   const saveCard = (obj: CardInterface) => {
-    const newCards: CardInterface[] = [...cards];
+    const newCards: CollectionInterface = { ...cards };
     newCards[obj.cardID] = obj;
 
     setCards(newCards);
@@ -231,8 +235,7 @@ const OfflineCardProvider: React.FC<OfflineCardProviderInterface> = ({
     const card: CardInterface = {
       name: '',
       rarity: RarityType.Common,
-      cardID: cards.length,
-      rowNumber: cards.length,
+      cardID: `${cards.length}`,
       manaCost: '',
       front: {
         name: '',

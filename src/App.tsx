@@ -17,10 +17,16 @@ import CardRender from './components/CardRender/CardRender';
 
 const { confirm } = Modal;
 
+const NO_CARD = '-1';
+
+interface MergedCardsInterface {
+  [key: string]: CardInterface;
+}
+
 const App: React.FC = () => {
   const [tmpCard, setTmpCard] = useState<CardInterface | null>(null);
-  const [cardEditId, setCardEditId] = useState<number>(-1);
-  const [cardViewId, setCardViewId] = useState<number>(-1);
+  const [cardEditId, setCardEditId] = useState<string>(NO_CARD);
+  const [cardViewId, setCardViewId] = useState<string>(NO_CARD);
   const [showCardModal, setShowCardModal] = useState<boolean>(false);
 
   const downloadJson = (card: CardInterface) => {
@@ -39,7 +45,7 @@ const App: React.FC = () => {
     fileDownload(JSON.stringify(collectionData), `magic-collection.json`);
   };
 
-  const downloadImage = (id: number, name: string) => {
+  const downloadImage = (id: string, name: string) => {
     const toCapture: HTMLElement | null = document.querySelector(
       `#card-id-${id}`
     );
@@ -54,24 +60,23 @@ const App: React.FC = () => {
     }
   };
 
-  const viewCard = (id: number) => {
+  const viewCard = (id: string) => {
     setCardViewId(id);
     setShowCardModal(true);
   };
 
-  const mergeWithTmpCard = (cards: CardInterface[]) => {
-    if (tmpCard && tmpCard.cardID === -1) return cards;
-
-    const merged: CardInterface[] = [];
+  const mergeWithTmpCard = (cards: CardInterface[]): MergedCardsInterface => {
+    const merged: MergedCardsInterface = {};
 
     cards.forEach(card => {
-      if (tmpCard && card.cardID === tmpCard.cardID) merged.push(tmpCard);
-      else merged.push(card);
+      if (tmpCard && card.cardID === tmpCard.cardID)
+        merged[card.cardID] = tmpCard;
+      else merged[card.cardID] = card;
     });
     return merged;
   };
 
-  const openCardInEditor = (id: number, oldCardName: string) => {
+  const openCardInEditor = (id: string, oldCardName: string) => {
     if (id === cardEditId) {
       setCardViewId(id);
       setShowCardModal(true);
@@ -105,7 +110,6 @@ const App: React.FC = () => {
       <CardRender
         {...card.back}
         cardID={card.cardID}
-        rowNumber={card.rowNumber}
         creator={card.creator}
         rarity={card.rarity}
         manaCost={card.manaCost}
@@ -128,11 +132,11 @@ const App: React.FC = () => {
             <Row className={styles.app}>
               <Col span={18} className={styles.collection}>
                 <CardCollection
-                  cards={mergedCards}
+                  cards={Object.values(mergedCards)}
                   sortBy={SortType.Name}
                   currentEditId={cardEditId}
                   editCard={id => {
-                    if (cardEditId === -1) openCardInEditor(id, '');
+                    if (cardEditId === NO_CARD) openCardInEditor(id, '');
                     else openCardInEditor(id, mergedCards[cardEditId].name);
                   }}
                   downloadImage={id => downloadImage(id, mergedCards[id].name)}
@@ -158,7 +162,9 @@ const App: React.FC = () => {
                   <Button
                     icon="download"
                     type="primary"
-                    onClick={() => downloadCollectionAsJson(mergedCards)}
+                    onClick={() =>
+                      downloadCollectionAsJson(Object.values(mergedCards))
+                    }
                     className={styles.fullWidth}
                   >
                     JSON
@@ -186,7 +192,6 @@ const App: React.FC = () => {
                     <CardRender
                       {...mergedCards[cardViewId].front}
                       cardID={mergedCards[cardViewId].cardID}
-                      rowNumber={mergedCards[cardViewId].rowNumber}
                       creator={mergedCards[cardViewId].creator}
                       rarity={mergedCards[cardViewId].rarity}
                       manaCost={mergedCards[cardViewId].manaCost}
