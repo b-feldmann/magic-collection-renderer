@@ -3,7 +3,7 @@ import { Input, message, Modal } from 'antd';
 
 import dropboxAccess from './../../utils/dropbox-fetch-axios';
 
-import { CardMainType, RarityType } from '../../interfaces/enums';
+import {CardMainType, Creators, RarityType} from '../../interfaces/enums';
 import CardInterface from '../../interfaces/CardInterface';
 import useLocalStorage from './useLocalStorageHook';
 
@@ -84,7 +84,7 @@ const OnlineCardProvider: React.FC<OnlineCardProviderInterface> = ({
       '_' +
       Math.random()
         .toString(36)
-        .substr(2, 9);
+        .substr(2, 15);
     let id = '';
     let unique = true;
 
@@ -107,6 +107,7 @@ const OnlineCardProvider: React.FC<OnlineCardProviderInterface> = ({
       rarity: RarityType.Common,
       cardID: ID(),
       manaCost: '',
+      creator: Creators.UNKNOWN,
       front: {
         name: '',
         cardText: '',

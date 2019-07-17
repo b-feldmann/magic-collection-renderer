@@ -26,6 +26,7 @@ const addToDataSource = (code: string, icon: JSX.Element) => {
   dataSource.push({ key: dataSource.length + 1, code, icon });
 };
 
+addToDataSource('~', <span>Card Name</span>);
 addToDataSource(
   '{w}{u}{b}{r}{g}{c}',
   <span>
@@ -129,12 +130,7 @@ const content = (
 );
 
 const EditorTooltip: React.FC<EditorTooltip> = props => (
-  <Popover
-    {...props}
-    content={content}
-    placement="leftBottom"
-    title="Icon Codes"
-  >
+  <Popover {...props} content={content} placement="bottom" title="Icon Codes">
     <Icon type="question-circle" />
   </Popover>
 );

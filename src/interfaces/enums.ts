@@ -48,6 +48,7 @@ export enum ColorType {
 }
 
 export enum Creators {
+  UNKNOWN = 'Unknown Goomy Follower',
   Anger = 'Goomy our Anger',
   Breath = 'Goomy our Breath',
   Faith = 'Goomy our Faith',

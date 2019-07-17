@@ -18,12 +18,12 @@
 
 .frame-header .ms {
     margin-left: 4px;
-    margin-bottom: 6px;
+    margin-bottom: 4px;
     font-size: 1.1em;
     /*font-size: 1.2em;*/
-    border-radius: 50%;
-    box-sizing: border-box;
-    box-shadow: -0.04em 0.12em 0px 0 black;
+    /*border-radius: 50%;*/
+    /*box-sizing: border-box;*/
+    /*box-shadow: -0.04em 0.12em 0px 0 black;*/
 }
 
 #set-icon {

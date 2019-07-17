@@ -11,7 +11,7 @@ import './css/background.css';
 import './css/borders.css';
 import './css/icons.css';
 import './css/card.css';
-import { CardMainType, RarityType } from '../../interfaces/enums';
+import { CardMainType, Creators, RarityType } from '../../interfaces/enums';
 
 import CommonIcon from './images/rarity/common.png';
 import UncommonIcon from './images/rarity/uncommon.png';
@@ -94,7 +94,7 @@ const CardRender: React.FC<CardRender> = (cardRender: CardRender) => {
                   <h1 className="name">{injectQuotationMarks(name)}</h1>
                   {cardRender.cardMainType !== CardMainType.Land &&
                     !backFace && (
-                      <div className="cost">{injectManaIcons(manaCost)}</div>
+                      <div className="cost">{injectManaIcons(manaCost, true)}</div>
                     )}
                 </div>
 
@@ -188,7 +188,7 @@ const CardRender: React.FC<CardRender> = (cardRender: CardRender) => {
                         src="https://image.ibb.co/e2VxAS/paintbrush_white.png"
                         alt="paintbrush icon"
                       />
-                      {creator}
+                      {creator || Creators.UNKNOWN}
                     </p>
                   </div>
 

@@ -1,5 +1,8 @@
 import React from 'react';
 
+// @ts-ignore
+import { Mana } from '@saeris/react-mana';
+
 interface InjectFunc {
   (
     text: (string | JSX.Element) | (string | JSX.Element)[],
@@ -68,25 +71,57 @@ export const injectWithConfig = (
 };
 
 export const injectManaIcons = (
-  text: string | JSX.Element | (string | JSX.Element)[]
+  text: string | JSX.Element | (string | JSX.Element)[],
+  shadow?: boolean
 ) => {
   const config: InjectionConfig[] = [
-    { toReplace: /{[wW]}/, toInject: <i className="ms ms-cost ms-w" /> },
-    { toReplace: /{[bB]}/, toInject: <i className="ms ms-cost ms-b" /> },
-    { toReplace: /{[uU]}/, toInject: <i className="ms ms-cost ms-u" /> },
-    { toReplace: /{[rR]}/, toInject: <i className="ms ms-cost ms-r" /> },
-    { toReplace: /{[gG]}/, toInject: <i className="ms ms-cost ms-g" /> },
-    { toReplace: /{[cC]}/, toInject: <i className="ms ms-cost ms-c" /> },
-    { toReplace: /{[pP]}/, toInject: <i className="ms ms-cost ms-p" /> },
-    { toReplace: /{[sS]}/, toInject: <i className="ms ms-cost ms-s" /> },
-    { toReplace: /{[xX]}/, toInject: <i className="ms ms-cost ms-x" /> },
-    { toReplace: /{[tT]}/, toInject: <i className="ms ms-cost ms-tap" /> }
+    { toReplace: /{[wW]}/, toInject: <Mana symbol="w" cost shadow={shadow} /> },
+    { toReplace: /{[uU]}/, toInject: <Mana symbol="u" cost shadow={shadow} /> },
+    { toReplace: /{[bB]}/, toInject: <Mana symbol="b" cost shadow={shadow} /> },
+    { toReplace: /{[rR]}/, toInject: <Mana symbol="r" cost shadow={shadow} /> },
+    { toReplace: /{[gG]}/, toInject: <Mana symbol="g" cost shadow={shadow} /> },
+    { toReplace: /{[cC]}/, toInject: <Mana symbol="c" cost shadow={shadow} /> },
+    { toReplace: /{[pP]}/, toInject: <Mana symbol="p" cost shadow={shadow} /> },
+    {
+      toReplace: /{[wW][pP]}|{[pP][wW]}/,
+      toInject: <Mana symbol="wp" cost shadow={shadow} />
+    },
+    {
+      toReplace: /{[uU][pP]}|{[pP][uU]}/,
+      toInject: <Mana symbol="up" cost shadow={shadow} />
+    },
+    {
+      toReplace: /{[bB][pP]}|{[pP][bB]/,
+      toInject: <Mana symbol="bp" cost shadow={shadow} />
+    },
+    {
+      toReplace: /{[rR][pP]}|{[pP][rR]/,
+      toInject: <Mana symbol="rp" shadow={shadow} />
+    },
+    {
+      toReplace: /{[gG][pP]}|{[pP][gG]/,
+      toInject: <Mana symbol="gp" cost shadow={shadow} />
+    },
+    { toReplace: /{2[wW]}|{[wW]2}/, toInject: <Mana symbol="2w" cost shadow={shadow} /> },
+    { toReplace: /{2[uU]}|{[uU]2}/, toInject: <Mana symbol="2u" cost shadow={shadow} /> },
+    { toReplace: /{2[bB]}|{[bB]2}/, toInject: <Mana symbol="2b" cost shadow={shadow} /> },
+    { toReplace: /{2[rR]}|{[rR]2}/, toInject: <Mana symbol="2r" cost shadow={shadow} /> },
+    { toReplace: /{2[gG]}|{[gG]2}/, toInject: <Mana symbol="2g" cost shadow={shadow} /> },
+    { toReplace: /{[sS]}/, toInject: <Mana symbol="s" cost shadow={shadow} /> },
+    { toReplace: /{[xX]}/, toInject: <Mana symbol="x" cost shadow={shadow} /> },
+    { toReplace: /{[yY]}/, toInject: <Mana symbol="y" cost shadow={shadow} /> },
+    { toReplace: /{[zZ]}/, toInject: <Mana symbol="z" cost shadow={shadow} /> },
+    { toReplace: /{[tT]}/, toInject: <Mana symbol="tap" cost shadow={shadow} /> },
+    {
+      toReplace: /{[uU][tT]}|{[tT][uU]}/,
+      toInject: <Mana symbol="untap" cost shadow={shadow} />
+    }
   ];
 
   for (let i = 0; i <= 20; i++) {
     config.push({
-      toReplace: new RegExp(`{[${i}]}`),
-      toInject: <i className={`ms ms-cost ms-${i}`} />
+      toReplace: new RegExp(`\\{${i}\\}`),
+      toInject: <Mana symbol={`${i}`} cost shadow={shadow} />
     });
   }
 
@@ -144,7 +179,8 @@ export const injectQuotationMarks = (
   text: string | JSX.Element | (string | JSX.Element)[]
 ) => {
   return injectWithConfig(text, {
-    toReplace: /"/,
-    toInject: '“”'
+    toReplace: /"(.*)"/,
+    // toInject: '“”'
+    toInject: '“'
   });
 };
