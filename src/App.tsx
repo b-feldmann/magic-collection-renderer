@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import CardInterface from './interfaces/CardInterface';
-import { SortType } from './interfaces/enums';
+import { LayoutType } from './interfaces/enums';
 import CardCollection from './components/CardCollection/CardCollection';
-import OfflineCardProvider from './components/OfflineCardProvider/OfflineCardProvider';
 import OnlineCardProvider from './components/OnlineCardProvider/OnlineCardProvider';
-import { Button, Col, message, Modal, Row } from 'antd';
+import { Button, Col, Modal, Row } from 'antd';
 import CardEditor from './components/CardEditor/CardEditor';
 
 import styles from './App.module.scss';
@@ -14,6 +13,7 @@ import fileDownload from 'js-file-download';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import CardRender from './components/CardRender/CardRender';
+import CardTableCollection from './components/CardTableCollection/CardTableCollection';
 
 const { confirm } = Modal;
 
@@ -28,6 +28,7 @@ const App: React.FC = () => {
   const [cardEditId, setCardEditId] = useState<string>(NO_CARD);
   const [cardViewId, setCardViewId] = useState<string>(NO_CARD);
   const [showCardModal, setShowCardModal] = useState<boolean>(false);
+  const [layout, setLayout] = useState<LayoutType>(LayoutType.GRID);
 
   const downloadJson = (card: CardInterface) => {
     const data = { ...card };
@@ -130,10 +131,36 @@ const App: React.FC = () => {
         return (
           <div>
             <Row className={styles.app}>
-              <Col span={18} className={styles.collection}>
-                <CardCollection
+              {layout === LayoutType.GRID && (
+                <Row>
+                  <Col span={18} className={styles.collection}>
+                    <CardCollection
+                      cards={Object.values(mergedCards)}
+                      currentEditId={cardEditId}
+                      editCard={id => {
+                        if (cardEditId === NO_CARD) openCardInEditor(id, '');
+                        else openCardInEditor(id, mergedCards[cardEditId].name);
+                      }}
+                      downloadImage={id =>
+                        downloadImage(id, mergedCards[id].name)
+                      }
+                      downloadJson={id => downloadJson(mergedCards[id])}
+                      viewCard={viewCard}
+                      setCollectionLayout={layout => setLayout(layout)}
+                    />
+                  </Col>
+                  <Col span={6} className={styles.editor}>
+                    <CardEditor
+                      card={mergedCards[cardEditId]}
+                      saveCard={saveCard}
+                      saveTmpCard={setTmpCard}
+                    />
+                  </Col>
+                </Row>
+              )}
+              {layout === LayoutType.TABLE && (
+                <CardTableCollection
                   cards={Object.values(mergedCards)}
-                  sortBy={SortType.Name}
                   currentEditId={cardEditId}
                   editCard={id => {
                     if (cardEditId === NO_CARD) openCardInEditor(id, '');
@@ -142,35 +169,29 @@ const App: React.FC = () => {
                   downloadImage={id => downloadImage(id, mergedCards[id].name)}
                   downloadJson={id => downloadJson(mergedCards[id])}
                   viewCard={viewCard}
+                  setCollectionLayout={layout => setLayout(layout)}
                 />
-              </Col>
-              <Col span={6} className={styles.editor}>
-                <CardEditor
-                  card={mergedCards[cardEditId]}
-                  saveCard={saveCard}
-                  saveTmpCard={setTmpCard}
-                />
-                <div className={styles.addButton}>
-                  <Button
-                    icon="plus"
-                    type="primary"
-                    onClick={addCard}
-                    className={styles.fullWidth}
-                  >
-                    Add Card
-                  </Button>
-                  <Button
-                    icon="download"
-                    type="primary"
-                    onClick={() =>
-                      downloadCollectionAsJson(Object.values(mergedCards))
-                    }
-                    className={styles.fullWidth}
-                  >
-                    JSON
-                  </Button>
-                </div>
-              </Col>
+              )}
+              <div className={styles.addButton}>
+                <Button
+                  icon="plus"
+                  type="primary"
+                  onClick={addCard}
+                  className={styles.fullWidth}
+                >
+                  Add Card
+                </Button>
+                <Button
+                  icon="download"
+                  type="primary"
+                  onClick={() =>
+                    downloadCollectionAsJson(Object.values(mergedCards))
+                  }
+                  className={styles.fullWidth}
+                >
+                  JSON
+                </Button>
+              </div>
             </Row>
             <Modal
               className={styles.modalCardViewWrapper}

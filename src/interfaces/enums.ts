@@ -27,14 +27,6 @@ export enum RarityType {
   MythicRare = 'Mythic Rare'
 }
 
-export enum SortType {
-  Name,
-  Rarity,
-  Power,
-  Toughness,
-  Type
-}
-
 export enum ColorType {
   White = 'white',
   Blue = 'blue',
@@ -62,4 +54,9 @@ export enum Creators {
   Purity = 'Goomy our Purity',
   Soul = 'Goomy our Soul',
   Truth = 'Goomy our Truth'
+}
+
+export enum LayoutType {
+  TABLE = 'Table',
+  GRID = 'Grid'
 }

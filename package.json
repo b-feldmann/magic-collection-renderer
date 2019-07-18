@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@handsontable/react": "^3.0.0",
     "@progress/kendo-drawing": "^1.5.12",
     "@progress/kendo-react-pdf": "^3.2.2",
     "@saeris/react-mana": "^1.0.3",
@@ -12,6 +13,7 @@
     "dropbox": "^4.0.28",
     "dropbox-fetch": "^0.3.2",
     "gh-pages": "^2.0.1",
+    "handsontable": "^7.1.0",
     "html2canvas": "^1.0.0-rc.3",
     "js-file-download": "^0.4.7",
     "jspdf": "^1.5.3",
@@ -23,6 +25,7 @@
     "react-resize-aware": "^3.0.0-beta.3",
     "react-resize-detector": "latest",
     "react-scripts": "3.0.1",
+    "react-spreadsheet": "^0.4.34",
     "typescript": "3.5.2"
   },
   "scripts": {
@@ -53,14 +56,14 @@
     ]
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^1.11.0",
-    "@typescript-eslint/parser": "^1.11.0",
     "@types/jest": "24.0.15",
     "@types/jspdf": "^1.3.0",
     "@types/lodash": "^4.14.136",
     "@types/node": "12.0.12",
     "@types/react": "^16.8.23",
     "@types/react-dom": "16.8.4",
+    "@typescript-eslint/eslint-plugin": "^1.11.0",
+    "@typescript-eslint/parser": "^1.11.0",
     "babel-plugin-import": "^1.12.0",
     "customize-cra": "^0.2.14",
     "electron": "^5.0.6",

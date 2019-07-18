@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
 // import CardFaceInterface from '../../interfaces/CardFaceInterface';
 import CardInterface from '../../interfaces/CardInterface';
-import { ColorType, RarityType, SortType } from '../../interfaces/enums';
+import {
+  ColorType,
+  LayoutType,
+  RarityType
+} from '../../interfaces/enums';
 import { Button, Col, Row } from 'antd';
 import CardRender from '../CardRender/CardRender';
 import styles from './styles.module.css';
@@ -17,16 +21,15 @@ import _ from 'lodash';
 // @ts-ignore
 import useResizeAware from 'react-resize-aware';
 import CardFaceInterface from '../../interfaces/CardFaceInterface';
-import { type } from 'os';
 
-interface CardCollectionInterface {
+export interface CardCollectionInterface {
   cards?: CardInterface[];
-  sortBy: SortType;
   editCard: (id: string) => void;
   downloadImage: (id: string) => void;
   downloadJson: (id: string) => void;
   viewCard: (id: string) => void;
   currentEditId: string;
+  setCollectionLayout: (layout: LayoutType) => void;
 }
 
 interface BackConfigInterface {
@@ -38,7 +41,8 @@ const CardCollection: React.FC<CardCollectionInterface> = ({
   editCard,
   downloadJson,
   viewCard,
-  currentEditId
+  currentEditId,
+  setCollectionLayout
 }: CardCollectionInterface) => {
   const [notParsedColSpan, setColSpan] = useState<number>(-1);
   const [collectionFilter, setCollectionFilter] = useState<
@@ -110,6 +114,7 @@ const CardCollection: React.FC<CardCollectionInterface> = ({
       <Row>
         <Col span={4}>
           <CollectionFilterControls
+            setCollectionLayout={setCollectionLayout}
             setCollectionColSpan={setColSpan}
             setCollectionFilter={setCollectionFilter}
             availableColors={availableColors}

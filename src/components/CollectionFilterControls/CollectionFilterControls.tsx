@@ -2,12 +2,14 @@ import React, { useEffect, useState } from 'react';
 import {
   CardMainType,
   ColorType,
+  LayoutType,
   mapEnum,
   RarityType
 } from '../../interfaces/enums';
 import { Checkbox, Radio, Row } from 'antd';
 
 import styles from './styles.module.scss';
+import useLocalStorage from '../OnlineCardProvider/useLocalStorageHook';
 
 export interface CollectionFilterInterface {
   colors: CheckBoxGroupInterface;
@@ -16,8 +18,10 @@ export interface CollectionFilterInterface {
 }
 
 interface CollectionFilterControlsInterface {
+  showColSpan?: boolean;
   setCollectionColSpan: (span: number) => void;
   setCollectionFilter: (filter: CollectionFilterInterface) => void;
+  setCollectionLayout: (layout: LayoutType) => void;
   availableColors: string[];
   availableTypes: string[];
   availableRarities: string[];
@@ -30,10 +34,17 @@ export interface CheckBoxGroupInterface {
 const CollectionFilterControls: React.FC<CollectionFilterControlsInterface> = ({
   setCollectionColSpan,
   setCollectionFilter,
+  setCollectionLayout,
   availableColors,
   availableRarities,
-  availableTypes
+  availableTypes,
+  showColSpan = true
 }: CollectionFilterControlsInterface) => {
+  const [layout, setLayout] = useLocalStorage(
+    'collection-layout',
+    LayoutType.GRID
+  );
+
   const createEnumInitState = (values: string[]): CheckBoxGroupInterface => {
     const group: CheckBoxGroupInterface = {};
     values.forEach((value: string) => {
@@ -77,26 +88,50 @@ const CollectionFilterControls: React.FC<CollectionFilterControlsInterface> = ({
     });
   }, [shownColors, shownRarities, shownCardTypes]);
 
+  useEffect(() => {
+    if (layout === LayoutType.GRID) {
+      setCollectionLayout(LayoutType.GRID);
+    } else {
+      setCollectionLayout(LayoutType.TABLE);
+    }
+  }, [layout]);
+
   return (
     <div className={styles.controls}>
       <Row>
         <div className={styles.controlItem}>
-          <h4>Cards per row</h4>
-          <Radio.Group
-            size="small"
-            value={colSpanSetting.toString(10)}
-            onChange={e => updateColSpan(parseInt(e.target.value, 10))}
-          >
-            <Radio.Button value="-1">Auto</Radio.Button>
-            <Radio.Button value="24">1</Radio.Button>
-            <Radio.Button value="12">2</Radio.Button>
-            <Radio.Button value="8">3</Radio.Button>
-            <Radio.Button value="6">4</Radio.Button>
-            <Radio.Button value="4">6</Radio.Button>
-            <Radio.Button value="3">8</Radio.Button>
-            <Radio.Button value="2">12</Radio.Button>
-            <Radio.Button value="1">24</Radio.Button>
+          <h4>Collection Layout</h4>
+          <Radio.Group value={layout} buttonStyle="solid">
+            {mapEnum(LayoutType, (key: string) => (
+              <Radio.Button
+                value={key}
+                // @ts-ignore
+                onChange={e => setLayout(e.target.value)}
+              >
+                {key}
+              </Radio.Button>
+            ))}
           </Radio.Group>
+          {showColSpan && (
+            <div className={styles.controlItem}>
+              <h4>Cards per row</h4>
+              <Radio.Group
+                size="small"
+                value={colSpanSetting.toString(10)}
+                onChange={e => updateColSpan(parseInt(e.target.value, 10))}
+              >
+                <Radio.Button value="-1">Auto</Radio.Button>
+                <Radio.Button value="24">1</Radio.Button>
+                <Radio.Button value="12">2</Radio.Button>
+                <Radio.Button value="8">3</Radio.Button>
+                <Radio.Button value="6">4</Radio.Button>
+                <Radio.Button value="4">6</Radio.Button>
+                <Radio.Button value="3">8</Radio.Button>
+                <Radio.Button value="2">12</Radio.Button>
+                <Radio.Button value="1">24</Radio.Button>
+              </Radio.Group>
+            </div>
+          )}
         </div>
         <div className={styles.controlItem}>
           <h4>Shown Card Types</h4>

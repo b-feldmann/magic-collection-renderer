@@ -3,7 +3,7 @@ import { Input, message, Modal } from 'antd';
 
 import dropboxAccess from './../../utils/dropbox-fetch-axios';
 
-import {CardMainType, Creators, RarityType} from '../../interfaces/enums';
+import { CardMainType, Creators, RarityType } from '../../interfaces/enums';
 import CardInterface from '../../interfaces/CardInterface';
 import useLocalStorage from './useLocalStorageHook';
 
@@ -97,7 +97,6 @@ const OnlineCardProvider: React.FC<OnlineCardProviderInterface> = ({
       });
     } while (!unique);
 
-    console.log(id);
     return id;
   };
 
