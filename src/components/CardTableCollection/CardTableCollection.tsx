@@ -6,7 +6,7 @@ import {
   Creators,
   RarityType
 } from '../../interfaces/enums';
-import { Col, Input, Row, Table } from 'antd';
+import { Button, Col, Input, Row, Table } from 'antd';
 // @ts-ignore
 import Spreadsheet from 'react-spreadsheet';
 import styles from './styles.module.css';
@@ -75,6 +75,7 @@ const CardTableCollection: React.FC<CardCollectionInterface> = ({
     const format = (value?: any) => (value ? value : '');
     const formatBoolean = (value?: boolean) => !!value;
 
+    cardData.cardID = card.cardID;
     cardData.name = format(card.front.name);
     cardData.manaCost = format(card.manaCost);
     cardData.rarity = format(card.rarity);
@@ -82,10 +83,11 @@ const CardTableCollection: React.FC<CardCollectionInterface> = ({
     cardData.cardMainType = format(card.front.cardMainType);
     cardData.cardSubTypes = format(card.front.cardSubTypes);
     cardData.cardText = format(card.front.cardText);
-    cardData.flavoureText = format(card.front.flavourText);
+    cardData.flavourText = format(card.front.flavourText);
     cardData.flavourAuthor = format(card.front.flavourAuthor);
     cardData.cardStats = format(card.front.cardStats);
     cardData.creator = format(card.creator);
+    cardData.cover = format(card.front.cover);
     // cardData.cover = <Input defaultValue={format(card.front.cover)} />;
 
     data.push(cardData);
@@ -107,10 +109,12 @@ const CardTableCollection: React.FC<CardCollectionInterface> = ({
         </Col>
         <Col span={21}>
           <HotTable
+            allowHtml
             readOnly
             licenseKey="non-commercial-and-evaluation"
             data={data}
             colHeaders={[
+              'View',
               'Name',
               'Mana Cost',
               'Rarity',
@@ -125,8 +129,28 @@ const CardTableCollection: React.FC<CardCollectionInterface> = ({
               'Cover'
             ]}
             columns={[
+              {
+                data: 'cardID',
+                renderer: (
+                  instance,
+                  td,
+                  row,
+                  col,
+                  prop,
+                  value,
+                  cellProperties
+                ) => {
+                  const button = document.createElement('a');
+                  button.text = 'Render';
+                  button.onclick = () => viewCard(value);
+                  td.appendChild(button);
+                  // @ts-ignore
+
+                  return td;
+                }
+              },
               { data: 'name' },
-              { data: 'manaCost' },
+              { data: 'manaCost', width: '100px' },
               {
                 data: 'rarity',
                 editor: 'select',
@@ -147,7 +171,8 @@ const CardTableCollection: React.FC<CardCollectionInterface> = ({
                 data: 'creator',
                 editor: 'select',
                 selectOptions: Object.values(Creators)
-              }
+              },
+              { data: 'cover', width: '300px' }
             ]}
             autoColumnSize={true}
             rowHeaders={true}
