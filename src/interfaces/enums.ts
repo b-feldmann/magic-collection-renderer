@@ -57,6 +57,6 @@ export enum Creators {
 }
 
 export enum LayoutType {
-  TABLE = 'Table',
-  GRID = 'Grid'
+  TABLE = 'table',
+  GRID = 'grid'
 }

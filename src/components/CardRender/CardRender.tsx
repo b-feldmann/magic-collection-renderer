@@ -20,14 +20,17 @@ import MythicRareIcon from './images/rarity/mythic.png';
 
 import NoCover from './images/no-cover.jpg';
 
+// @ts-ignore
+import LazyLoad from 'react-lazy-load';
+
 import {
   injectManaIcons,
   injectName,
-  injectNewLine,
   injectPlaneswalkerIcons,
   injectQuotationMarks
 } from './injectUtils';
 import cardToColor from './cardToColor';
+import ImageLoader from '../ImageLoader/ImageLoader';
 
 interface CardRender {
   name: string;
@@ -38,7 +41,7 @@ interface CardRender {
   legendary?: boolean;
   cardMainType: CardMainType;
   cardSubTypes?: string;
-  cardText: string;
+  cardText: string[];
   cardStats?: string;
   flavourText?: string;
   flavourAuthor?: string;
@@ -88,121 +91,132 @@ const CardRender: React.FC<CardRender> = (cardRender: CardRender) => {
               transformOrigin: 'top left'
             }}
           >
-            <div className={`card-background card-background-${color}`}>
-              <div className="card-frame">
-                <div className={`frame-header frame-header-${color}`}>
-                  <h1 className="name">{injectQuotationMarks(name)}</h1>
-                  {cardRender.cardMainType !== CardMainType.Land &&
-                    !backFace && (
-                      <div className="cost">
-                        {injectManaIcons(manaCost, true)}
-                      </div>
-                    )}
-                </div>
-
-                <img
-                  className={`frame-art frame-art-${color}`}
-                  src={cover ? cover : NoCover}
-                  alt="cover"
-                />
-
-                <div className={`frame-type-line frame-type-line-${color}`}>
-                  <h1 className="type">
-                    {legendary ? 'Legendary ' : ''}
-                    {cardMainType}
-                    {/* long dash: – or — */}
-                    {cardSubTypes ? ` – ${cardSubTypes}` : ''}
-                  </h1>
-                  <img src={getRarityIcon()} id="set-icon" alt="OGW-icon" />
-                </div>
-
-                <div className={`frame-text-box frame-text-box-${color}`}>
-                  <p className="description ftb-inner-margin">
-                    {injectQuotationMarks(
-                      injectPlaneswalkerIcons(
-                        injectManaIcons(
-                          injectNewLine(injectName(cardText, name))
-                        )
-                      )
-                    )}
-                  </p>
-                  <p className="flavour-text">
-                    {flavourText && (
-                      <span>
-                        {flavourAuthor
-                          ? `“${injectName(flavourText, name)}”`
-                          : injectName(flavourText, name)}
-                        {flavourAuthor ? (
-                          <span>
-                            <br />
-                            {`— ${flavourAuthor}`}
-                          </span>
-                        ) : (
-                          ''
-                        )}
-                      </span>
-                    )}
-                  </p>
-                </div>
-
-                <div
-                  className={`${
-                    cardMainType === CardMainType.Creature
-                      ? 'frame-stats'
-                      : 'hidden'
-                  } frame-stats-${color}`}
-                >
-                  <div
-                    className={`frame-inner-stats frame-inner-stats-${color}`}
-                  >
-                    <h1 className="stats">{cardStats}</h1>
+            <LazyLoad debounce={false}>
+              <div className={`card-background card-background-${color}`}>
+                <div className="card-frame">
+                  <div className={`frame-header frame-header-${color}`}>
+                    <h1 className="name">{injectQuotationMarks(name)}</h1>
+                    {cardRender.cardMainType !== CardMainType.Land &&
+                      !backFace && (
+                        <div className="cost">
+                          {injectManaIcons(manaCost, true)}
+                        </div>
+                      )}
                   </div>
-                </div>
 
-                <div
-                  className={`${
-                    cardMainType === CardMainType.Planeswalker
-                      ? 'frame-loyalty'
-                      : 'hidden'
-                  }`}
-                >
-                  <div>
-                    <h1 className="stats">
-                      <i
-                        className={`ms ms-loyalty-${cardStats} ms-loyalty-start loyalty-outline-start`}
-                      />
-                      <i
-                        className={`ms ms-loyalty-${cardStats} ms-loyalty-start`}
-                      />
+                  <ImageLoader
+                    className={`frame-art frame-art-${color}`}
+                    src={cover ? cover : NoCover}
+                    alt="cover"
+                  />
+
+                  <div className={`frame-type-line frame-type-line-${color}`}>
+                    <h1 className="type">
+                      {legendary ? 'Legendary ' : ''}
+                      {cardMainType}
+                      {/* long dash: – or — */}
+                      {cardSubTypes ? ` – ${cardSubTypes}` : ''}
                     </h1>
-                  </div>
-                </div>
-
-                <div className="frame-bottom-info inner-margin">
-                  <div className="fbi-left">
-                    <p>
-                      {cardID}/184 {rarityCode()}
-                    </p>
-                    <p>
-                      EPIC &#x2022; EN
-                      <img
-                        className="paintbrush"
-                        src="https://image.ibb.co/e2VxAS/paintbrush_white.png"
-                        alt="paintbrush icon"
-                      />
-                      {creator || Creators.UNKNOWN}
-                    </p>
+                    <ImageLoader
+                      src={getRarityIcon()}
+                      id="set-icon"
+                      alt="OGW-icon"
+                    />
                   </div>
 
-                  <div className="fbi-center"></div>
+                  <div className={`frame-text-box frame-text-box-${color}`}>
+                    <p className="description ftb-inner-margin">
+                      {cardText.map((val, i) => (
+                        <span
+                          className="new-instruction"
+                          key={`${cardID}-instruction-${i}`}
+                        >
+                          {injectQuotationMarks(
+                            injectPlaneswalkerIcons(
+                              injectManaIcons(injectName(val, name))
+                            )
+                          )}
+                        </span>
+                      ))}
+                    </p>
+                    <p className="flavour-text">
+                      {flavourText && (
+                        <span>
+                          {flavourAuthor
+                            ? `“${injectName(flavourText, name)}”`
+                            : injectName(flavourText, name)}
+                          {flavourAuthor ? (
+                            <span>
+                              <br />
+                              {`— ${flavourAuthor}`}
+                            </span>
+                          ) : (
+                            ''
+                          )}
+                        </span>
+                      )}
+                    </p>
+                  </div>
 
-                  <div className="fbi-right">
-                    <br />
-                    <p>&#x99; &amp; &#169; 2019 Wizards of the Coast</p>
+                  <div
+                    className={`${
+                      cardMainType === CardMainType.Creature
+                        ? 'frame-stats'
+                        : 'hidden'
+                    } frame-stats-${color}`}
+                  >
+                    <div
+                      className={`frame-inner-stats frame-inner-stats-${color}`}
+                    >
+                      <h1 className="stats">{cardStats}</h1>
+                    </div>
+                  </div>
+
+                  <div
+                    className={`${
+                      cardMainType === CardMainType.Planeswalker
+                        ? 'frame-loyalty'
+                        : 'hidden'
+                    }`}
+                  >
+                    <div>
+                      <h1 className="stats">
+                        <i
+                          className={`ms ms-loyalty-${cardStats} ms-loyalty-start loyalty-outline-start`}
+                        />
+                        <i
+                          className={`ms ms-loyalty-${cardStats} ms-loyalty-start`}
+                        />
+                      </h1>
+                    </div>
+                  </div>
+
+                  <div className="frame-bottom-info inner-margin">
+                    <div className="fbi-left">
+                      <p>
+                        {cardID}/184 {rarityCode()}
+                      </p>
+                      <p>
+                        EPIC &#x2022; EN
+                        <img
+                          className="paintbrush"
+                          src="https://image.ibb.co/e2VxAS/paintbrush_white.png"
+                          alt="paintbrush icon"
+                        />
+                        {creator || Creators.UNKNOWN}
+                      </p>
+                    </div>
+
+                    <div className="fbi-center"></div>
+
+                    <div className="fbi-right">
+                      <br />
+                      <p>&#x99; &amp; &#169; 2019 Wizards of the Coast</p>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            </LazyLoad>
           </div>
         </div>
       )}

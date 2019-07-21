@@ -32,11 +32,25 @@ const OnlineCardProvider: React.FC<OnlineCardProviderInterface> = ({
 
   dropboxAccess.setToken(apiKey.toString());
 
+  const clean = (cards: CollectionInterface): CollectionInterface => {
+    Object.values(cards).forEach((card: CardInterface) => {
+      delete card.rowNumber;
+      if (typeof card.front.cardText === 'string') {
+        // @ts-ignore
+        card.front.cardText = card.front.cardText.split('|');
+      }
+      if (card.back && typeof card.back.cardText === 'string') {
+        // @ts-ignore
+        card.back.cardText = card.back.cardText.split('|');
+      }
+    });
+    return cards;
+  };
+
   const initCollection = () => {
     dropboxAccess.download(collectionFileName).then((fileContent: any) => {
       const data = fileContent.data;
-      console.log(data);
-      setCards(data);
+      setCards(clean(data));
     });
   };
 
@@ -49,7 +63,7 @@ const OnlineCardProvider: React.FC<OnlineCardProviderInterface> = ({
     dropboxAccess.download(collectionFileName).then((fileContent: any) => {
       const collection: CollectionInterface = fileContent.data;
       collection[newCard.cardID] = newCard;
-      setCards(collection);
+      setCards(clean(collection));
 
       dropboxAccess
         .upload(apiArgs, JSON.stringify(collection))
@@ -109,7 +123,7 @@ const OnlineCardProvider: React.FC<OnlineCardProviderInterface> = ({
       creator: Creators.UNKNOWN,
       front: {
         name: '',
-        cardText: '',
+        cardText: [],
         cardMainType: CardMainType.Creature
       }
     };

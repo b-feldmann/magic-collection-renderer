@@ -22,7 +22,7 @@ const murkCard: CardInterface = {
     name: 'Murk Murk',
     cover:
       'https://1.bp.blogspot.com/-buU7hvnFpyM/V2aa-ee3vEI/AAAAAAAAC_8/NBWYUXXKwiEi5d9rsz1UxE6t2VX3gusxgCLcB/s1600/murkrow_by_land_walker-d47oas7.jpg',
-    cardText: 'Flying | When ~ attacks you can untap target land.',
+    cardText: ['Flying | When ~ attacks you can untap target land.'],
     flavourText: '~ the destroyer',
     cardMainType: CardMainType.Creature,
     cardSubTypes: 'Pokemon'
@@ -38,8 +38,9 @@ const skillCard: CardInterface = {
   manaCost: '{r}{3}',
   front: {
     name: '"Skill"',
-    cardText:
-      '~ deals 3 damage to target player and each creature they control.',
+    cardText: [
+      '~ deals 3 damage to target player and each creature they control.'
+    ],
     flavourText: 'Oops. I tripped.',
     cardMainType: CardMainType.Sorcery
   }
@@ -57,8 +58,9 @@ const necrozmaCard: CardInterface = {
     cardStats: '4/4',
     cover:
       'https://www.pokewiki.de/images/thumb/2/25/Illustration_Necrozma_%C3%9Cbernahme.jpg/300px-Illustration_Necrozma_%C3%9Cbernahme.jpg',
-    cardText:
-      '{w}{w}: Put a +1/+1 counter on ~. | {b}{b}{t}: Remove all +1/+1 counter from ~. ~ deals 4 damage for each removed counter to target creature.',
+    cardText: [
+      '{w}{w}: Put a +1/+1 counter on ~. | {b}{b}{t}: Remove all +1/+1 counter from ~. ~ deals 4 damage for each removed counter to target creature.'
+    ],
     flavourText: 'My team is okay',
     flavourAuthor: 'Goomy our Breath, just before victory',
     cardMainType: CardMainType.Creature,
@@ -77,10 +79,11 @@ const michaCard: CardInterface = {
   manaCost: '{u}{u}{1}',
   front: {
     name: 'Micha der Ausgeglichene',
-    cardText:
+    cardText: [
       '~ enters the battlefield with 3 "Geduldscountern". |' +
-      'At the end of your turn remove 1 "Geduldscounter" from ~.|' +
-      'When there are no counters on ~ he goes back into his controllers hand and all creatures on the battlefield are destroyed.',
+        'At the end of your turn remove 1 "Geduldscounter" from ~.|' +
+        'When there are no counters on ~ he goes back into his controllers hand and all creatures on the battlefield are destroyed.'
+    ],
     flavourText: 'WIE BITTE?!',
     cardMainType: CardMainType.Creature,
     cardSubTypes: 'Goomy Follower'
@@ -96,7 +99,7 @@ const sivirCard: CardInterface = {
   front: {
     name: 'Sivir Countert Alles',
     cardStats: '2/3',
-    cardText: 'Hexproof | {w}{1}: Give a creature haste',
+    cardText: ['Hexproof | {w}{1}: Give a creature haste'],
     cardMainType: CardMainType.Creature,
     cardSubTypes: 'Champ'
   }
@@ -112,8 +115,9 @@ const zyraCard: CardInterface = {
   front: {
     name: 'Crit Zyra',
     cardStats: '0/1',
-    cardText:
-      '{T}: put a +0/+1 counter on ~. Put a +1/+0 counter on target creature an opponent controls. Tap that creature.',
+    cardText: [
+      '{T}: put a +0/+1 counter on ~. Put a +1/+0 counter on target creature an opponent controls. Tap that creature.'
+    ],
     cardMainType: CardMainType.Creature,
     cardSubTypes: 'Champ'
   }
@@ -130,8 +134,9 @@ const eloCard: CardInterface = {
     name: 'Elo Land',
     flavourText:
       'Oh Eloland, where the grass is greener and the honey tastes sweeter',
-    cardText:
-      '{t}: Get a mana of any color. This mana can only be spend to cast gold spells.',
+    cardText: [
+      '{t}: Get a mana of any color. This mana can only be spend to cast gold spells.'
+    ],
     cardMainType: CardMainType.Land
   }
 };
@@ -147,7 +152,7 @@ const dittoCard: CardInterface = {
     name: 'Ditto',
     cardStats: '0/1',
     flavourText: 'They told me I could be anything <3',
-    cardText: '~ enters the battlefield as a copy of target creature.',
+    cardText: ['~ enters the battlefield as a copy of target creature.'],
     cardMainType: CardMainType.Creature,
     cardSubTypes: 'Pokemon'
   }
@@ -165,8 +170,9 @@ const joridCard: CardInterface = {
     cardStats: '5',
     legendary: true,
     flavourText: 'Weakling! You stand no chance against my army mwahaha',
-    cardText:
-      '{+1}: Summon a 1/4 Beetle Token | {-3}: Summon a 3/1 flying Geier Token | {-x}: Beetle and Geier Tokens you control get x +1/+1 counter and have a second attack step',
+    cardText: [
+      '{+1}: Summon a 1/4 Beetle Token | {-3}: Summon a 3/1 flying Geier Token | {-x}: Beetle and Geier Tokens you control get x +1/+1 counter and have a second attack step'
+    ],
     cardMainType: CardMainType.Planeswalker
   }
 };
@@ -180,8 +186,9 @@ const inhibitorCard: CardInterface = {
   manaCost: '{4}',
   front: {
     name: 'Inhibitor',
-    cardText:
-      'After you play this card give the control of ~ to target opponent | If ~ leaves the battlefield transform ~ instead.',
+    cardText: [
+      'After you play this card give the control of ~ to target opponent | If ~ leaves the battlefield transform ~ instead.'
+    ],
     flavourText: 'Try harder!',
     cardMainType: CardMainType.Planeswalker,
     legendary: true,
@@ -192,8 +199,9 @@ const inhibitorCard: CardInterface = {
   },
   back: {
     name: 'Destroyed Inhibitor',
-    cardText:
-      'At the start of your turn summon a 3/3 Super-Minion token for target opponent.',
+    cardText: [
+      'At the start of your turn summon a 3/3 Super-Minion token for target opponent.'
+    ],
     flavourText: 'Free farm in da base',
     cardMainType: CardMainType.Enchantment,
     legendary: true,
@@ -239,7 +247,7 @@ const OfflineCardProvider: React.FC<OfflineCardProviderInterface> = ({
       manaCost: '',
       front: {
         name: '',
-        cardText: '',
+        cardText: [],
         cardMainType: CardMainType.Creature
       }
     };

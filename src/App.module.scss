@@ -3,7 +3,11 @@
 
   .editor {
     right: 0;
+    top: 0;
+    bottom: 0;
     position: fixed;
+    width: calc(100vw / 24 * 21 / 24 * 6);
+    background: whitesmoke;
   }
 
   .collection {}

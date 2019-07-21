@@ -51,6 +51,13 @@
     padding: 50px 6px;
     box-sizing: border-box;
     font-size: 1.2em;
+    line-height: 1.2em;
+}
+
+.new-instruction {
+    display: block;
+    margin-top: 8px;
+    margin-bottom: 8px;
 }
 
 .frame-loyalty,
@@ -164,7 +171,6 @@
 
 .flavour-text {
     border-radius:10px;
-    margin-top: 10px;
     box-shadow: 0 -10px 5px -11px #171314;
     font-style: italic;
     padding: 5px 0;
@@ -176,9 +182,4 @@
 
 .hidden {
     visibility: hidden;
-}
-
-.new-instruction {
-    display: block;
-    margin: 4px;
 }

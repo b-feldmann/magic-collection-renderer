@@ -2,14 +2,12 @@ import React, { useEffect, useState } from 'react';
 import {
   CardMainType,
   ColorType,
-  LayoutType,
   mapEnum,
   RarityType
 } from '../../interfaces/enums';
 import { Checkbox, Radio, Row } from 'antd';
 
 import styles from './styles.module.scss';
-import useLocalStorage from '../OnlineCardProvider/useLocalStorageHook';
 
 export interface CollectionFilterInterface {
   colors: CheckBoxGroupInterface;
@@ -21,7 +19,6 @@ interface CollectionFilterControlsInterface {
   showColSpan?: boolean;
   setCollectionColSpan: (span: number) => void;
   setCollectionFilter: (filter: CollectionFilterInterface) => void;
-  setCollectionLayout: (layout: LayoutType) => void;
   availableColors: string[];
   availableTypes: string[];
   availableRarities: string[];
@@ -34,17 +31,11 @@ export interface CheckBoxGroupInterface {
 const CollectionFilterControls: React.FC<CollectionFilterControlsInterface> = ({
   setCollectionColSpan,
   setCollectionFilter,
-  setCollectionLayout,
   availableColors,
   availableRarities,
   availableTypes,
   showColSpan = true
 }: CollectionFilterControlsInterface) => {
-  const [layout, setLayout] = useLocalStorage(
-    'collection-layout',
-    LayoutType.GRID
-  );
-
   const createEnumInitState = (values: string[]): CheckBoxGroupInterface => {
     const group: CheckBoxGroupInterface = {};
     values.forEach((value: string) => {
@@ -87,31 +78,10 @@ const CollectionFilterControls: React.FC<CollectionFilterControlsInterface> = ({
       types: shownCardTypes
     });
   }, [shownColors, shownRarities, shownCardTypes]);
-
-  useEffect(() => {
-    if (layout === LayoutType.GRID) {
-      setCollectionLayout(LayoutType.GRID);
-    } else {
-      setCollectionLayout(LayoutType.TABLE);
-    }
-  }, [layout]);
-
   return (
     <div className={styles.controls}>
       <Row>
         <div className={styles.controlItem}>
-          <h4>Collection Layout</h4>
-          <Radio.Group value={layout} buttonStyle="solid">
-            {mapEnum(LayoutType, (key: string) => (
-              <Radio.Button
-                value={key}
-                // @ts-ignore
-                onChange={e => setLayout(e.target.value)}
-              >
-                {key}
-              </Radio.Button>
-            ))}
-          </Radio.Group>
           {showColSpan && (
             <div className={styles.controlItem}>
               <h4>Cards per row</h4>

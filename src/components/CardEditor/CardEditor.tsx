@@ -28,7 +28,7 @@ const dummyCard: CardInterface = {
   front: {
     name: '',
     cardMainType: CardMainType.Creature,
-    cardText: ''
+    cardText: []
   }
 };
 
@@ -51,8 +51,8 @@ const CardEditor: React.FC<CardEditorInterface> = ({
   let small = false;
   let tiny = false;
 
-  if (height < 950) small = true;
-  if (height < 790) tiny = true;
+  if (height < 1000) small = true;
+  if (height < 860) tiny = true;
 
   const getCurrentFace = (card: CardInterface): CardFaceInterface => {
     if (card.back && editBack) return card.back;
@@ -145,7 +145,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
       name: 'Rarity',
       data: Object.keys(RarityType).map((type: any) => RarityType[type])
     },
-    { key: 'cardText', type: 'area', name: 'Card Text' },
+    { key: 'cardText', type: 'list', name: 'Card Text' },
     { key: 'flavourText', type: 'area-small', name: 'Flavour Text' },
     { key: 'flavourAuthor', type: 'input', name: 'Flavour Text Author' },
     { key: 'cardStats', type: 'input', name: 'Power / Toughness' },
@@ -168,7 +168,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
     const newTmpCard = { ...tmpCard };
     newTmpCard.back = {
       name: '',
-      cardText: '',
+      cardText: [],
       cardMainType: CardMainType.Creature,
       manaCost: ''
     };

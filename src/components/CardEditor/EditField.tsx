@@ -1,4 +1,4 @@
-import { Checkbox, Input, Select } from 'antd';
+import { Button, Checkbox, Icon, Input, List, Select, Typography } from 'antd';
 import React from 'react';
 import styles from './styles.module.scss';
 import useWindowDimensions from '../../useWindowDimensions';
@@ -22,8 +22,8 @@ const EditField: React.FC<EditFieldInterface> = (props: EditFieldInterface) => {
   let small = false;
   let tiny = false;
 
-  if (height < 950) small = true;
-  if (height < 790) tiny = true;
+  if (height < 1000) small = true;
+  if (height < 860) tiny = true;
 
   if (type === 'input') {
     return (
@@ -59,6 +59,7 @@ const EditField: React.FC<EditFieldInterface> = (props: EditFieldInterface) => {
           value={getValue(fieldKey)}
           onChange={e => saveValue(fieldKey, e.target.value)}
           rows={small ? 1 : 2}
+          autosize={{ minRows: 1, maxRows: small ? 1 : 2 }}
         />
       </span>
     );
@@ -95,6 +96,63 @@ const EditField: React.FC<EditFieldInterface> = (props: EditFieldInterface) => {
             </Select.Option>
           ))}
         </Select>
+      </span>
+    );
+  }
+
+  if (type === 'list') {
+    const toList = (value: string) => value.split('|');
+    const toString = (list: string[]) => list.join('|');
+
+    return (
+      <span className={tiny ? styles.tiny : ''}>
+        <p className={styles.label}>{name}</p>
+        <List
+          size={small ? 'small' : 'default'}
+          bordered
+          dataSource={getValue(fieldKey)}
+          renderItem={(item: string, i) => (
+            <List.Item
+              className={styles.listItem}
+              actions={[
+                <Icon
+                  type="close-circle"
+                  theme="twoTone"
+                  twoToneColor="#FF0000"
+                  onClick={() => {
+                    const list = getValue(fieldKey);
+                    list.splice(i, 1)
+                    saveValue(fieldKey, list);
+                  }}
+                />
+              ]}
+            >
+              <TextArea
+                value={item}
+                onChange={e => {
+                  const list = getValue(fieldKey);
+                  list[i] = e.target.value;
+                  saveValue(fieldKey, list);
+                }}
+                autosize={true}
+              />
+            </List.Item>
+          )}
+          footer={
+            <div className={styles.centerParent}>
+              <Button
+                size={small ? 'small' : 'default'}
+                onClick={() => {
+                  const list = getValue(fieldKey);
+                  list.push('');
+                  saveValue(fieldKey, list);
+                }}
+              >
+                Add Instruction
+              </Button>
+            </div>
+          }
+        />
       </span>
     );
   }

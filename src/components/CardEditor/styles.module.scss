@@ -7,6 +7,18 @@
     margin: 16px;
 }
 
+.listItem {
+    padding: 0 !important;
+}
+
+.listItem > ul {
+    margin-left: 8px;
+}
+
+.centerParent {
+    text-align: center;
+}
+
 .label {
     margin-top: 16px;
     margin-bottom: 2px;

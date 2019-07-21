@@ -1,6 +1,6 @@
 .ant-modal-wrap, .ant-modal-mask {
-  width: calc(100 / 24 * 18 / 24 * 20vw);
-  margin-left: calc(100 / 24 * 18 / 24 * 4vw);
+  width: calc(100vw / 24 * 21 / 24 * 18 + 4px);
+  margin-left: calc(100vw / 24 * 3 - 4px);
 }
 
 .card-view {

@@ -6,71 +6,38 @@ import {
   Creators,
   RarityType
 } from '../../interfaces/enums';
-import { Button, Col, Input, Row, Table } from 'antd';
+import { Col, Row } from 'antd';
 // @ts-ignore
-import Spreadsheet from 'react-spreadsheet';
-import styles from './styles.module.css';
 import CollectionFilterControls, {
   CollectionFilterInterface
 } from '../CollectionFilterControls/CollectionFilterControls';
 import cardToColor from '../CardRender/cardToColor';
 
 import _ from 'lodash';
-import { CardCollectionInterface } from '../CardCollection/CardCollection';
 
 import { HotTable } from '@handsontable/react';
-import Handsontable from 'handsontable';
 import 'handsontable/dist/handsontable.full.css';
+import CardInterface from '../../interfaces/CardInterface';
 
-const CardTableCollection: React.FC<CardCollectionInterface> = ({
+export interface CardTableCollectionInterface {
+  cards?: CardInterface[];
+  editCard: (id: string) => void;
+  downloadImage: (id: string) => void;
+  downloadJson: (id: string) => void;
+  viewCard: (id: string) => void;
+  currentEditId: string;
+}
+
+const CardTableCollection: React.FC<CardTableCollectionInterface> = ({
   cards = [],
   editCard,
   downloadJson,
   viewCard,
-  currentEditId,
-  setCollectionLayout
-}: CardCollectionInterface) => {
-  const [collectionFilter, setCollectionFilter] = useState<
-    CollectionFilterInterface
-  >({ colors: {}, rarity: {}, types: {} });
-
-  const filteredCards = _.sortBy(cards, [
-    o =>
-      _.indexOf(
-        Object.values(ColorType),
-        cardToColor(o.front.cardMainType, o.manaCost)
-      ),
-    o => _.indexOf(Object.values(RarityType), o.rarity),
-    'cardMainType',
-    o => o.front.name.toLowerCase()
-  ]).filter(
-    o =>
-      collectionFilter.colors[cardToColor(o.front.cardMainType, o.manaCost)] &&
-      collectionFilter.rarity[o.rarity] &&
-      collectionFilter.types[o.front.cardMainType]
-  );
-
-  const availableColors: string[] = [];
-  const availableTypes: string[] = [];
-  const availableRarities: string[] = [];
-  cards.forEach(card => {
-    if (
-      !availableColors.includes(
-        cardToColor(card.front.cardMainType, card.manaCost)
-      )
-    )
-      availableColors.push(cardToColor(card.front.cardMainType, card.manaCost));
-
-    if (!availableTypes.includes(card.front.cardMainType))
-      availableTypes.push(card.front.cardMainType);
-
-    if (!availableRarities.includes(card.rarity))
-      availableRarities.push(card.rarity);
-  });
-
+  currentEditId
+}: CardTableCollectionInterface) => {
   const data: object[][] = [];
 
-  filteredCards.map(card => {
+  cards.map(card => {
     const cardData: any = {};
     const format = (value?: any) => (value ? value : '');
     const formatBoolean = (value?: boolean) => !!value;
@@ -95,92 +62,69 @@ const CardTableCollection: React.FC<CardCollectionInterface> = ({
 
   return (
     <div>
-      <Row>
-        <Col span={3}>
-          <CollectionFilterControls
-            showColSpan={false}
-            setCollectionLayout={setCollectionLayout}
-            setCollectionColSpan={() => {}}
-            setCollectionFilter={setCollectionFilter}
-            availableColors={availableColors}
-            availableTypes={availableTypes}
-            availableRarities={availableRarities}
-          />
-        </Col>
-        <Col span={21}>
-          <HotTable
-            allowHtml
-            readOnly
-            licenseKey="non-commercial-and-evaluation"
-            data={data}
-            colHeaders={[
-              'View',
-              'Name',
-              'Mana Cost',
-              'Rarity',
-              'Legendary',
-              'Card Type',
-              'Sub Types',
-              'Card Text',
-              'Flavour Text',
-              'Flavour Author',
-              'Card Stats',
-              'Creator',
-              'Cover'
-            ]}
-            columns={[
-              {
-                data: 'cardID',
-                renderer: (
-                  instance,
-                  td,
-                  row,
-                  col,
-                  prop,
-                  value,
-                  cellProperties
-                ) => {
-                  const button = document.createElement('a');
-                  button.text = 'Render';
-                  button.onclick = () => viewCard(value);
-                  td.appendChild(button);
-                  // @ts-ignore
+      <HotTable
+        allowHtml
+        readOnly
+        licenseKey="non-commercial-and-evaluation"
+        data={data}
+        colHeaders={[
+          'View',
+          'Name',
+          'Mana Cost',
+          'Rarity',
+          'Legendary',
+          'Card Type',
+          'Sub Types',
+          'Card Text',
+          'Flavour Text',
+          'Flavour Author',
+          'Card Stats',
+          'Creator',
+          'Cover'
+        ]}
+        columns={[
+          {
+            data: 'cardID',
+            renderer: (instance, td, row, col, prop, value, cellProperties) => {
+              const button = document.createElement('a');
+              button.text = 'Render';
+              button.onclick = () => viewCard(value);
+              td.appendChild(button);
+              // @ts-ignore
 
-                  return td;
-                }
-              },
-              { data: 'name' },
-              { data: 'manaCost', width: '100px' },
-              {
-                data: 'rarity',
-                editor: 'select',
-                selectOptions: Object.values(RarityType)
-              },
-              { data: 'legendary', type: 'checkbox' },
-              {
-                data: 'cardMainType',
-                editor: 'select',
-                selectOptions: Object.values(CardMainType)
-              },
-              { data: 'cardSubTypes' },
-              { data: 'cardText' },
-              { data: 'flavourText' },
-              { data: 'flavourAuthor' },
-              { data: 'cardStats' },
-              {
-                data: 'creator',
-                editor: 'select',
-                selectOptions: Object.values(Creators)
-              },
-              { data: 'cover', width: '300px' }
-            ]}
-            autoColumnSize={true}
-            rowHeaders={true}
-            width="100%"
-            height="100vh"
-          />
-        </Col>
-      </Row>
+              return td;
+            }
+          },
+          { data: 'name' },
+          { data: 'manaCost', width: '100px' },
+          {
+            data: 'rarity',
+            editor: 'select',
+            selectOptions: Object.values(RarityType)
+          },
+          { data: 'legendary', type: 'checkbox' },
+          {
+            data: 'cardMainType',
+            editor: 'select',
+            selectOptions: Object.values(CardMainType)
+          },
+          { data: 'cardSubTypes' },
+          { data: 'cardText' },
+          { data: 'flavourText' },
+          { data: 'flavourAuthor' },
+          { data: 'cardStats' },
+          {
+            data: 'creator',
+            editor: 'select',
+            selectOptions: Object.values(Creators)
+          },
+          { data: 'cover', width: '300px' }
+        ]}
+        autoColumnSize={true}
+        rowHeaders={true}
+        width="100%"
+        height="calc(100vh - 60px)"
+      />
     </div>
   );
 };
