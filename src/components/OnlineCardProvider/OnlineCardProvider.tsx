@@ -6,12 +6,14 @@ import dropboxAccess from './../../utils/dropbox-fetch-axios';
 import { CardMainType, Creators, RarityType } from '../../interfaces/enums';
 import CardInterface from '../../interfaces/CardInterface';
 import useLocalStorage from './useLocalStorageHook';
+import defaultKeywords from './defaultKeywords';
 
 interface OnlineCardProviderInterface {
   render: (
     cards: CardInterface[],
     saveCard: (card: CardInterface) => void,
-    addCard: () => void
+    addCard: () => void,
+    keywords: string[]
   ) => JSX.Element;
 }
 
@@ -26,6 +28,7 @@ const OnlineCardProvider: React.FC<OnlineCardProviderInterface> = ({
 }: OnlineCardProviderInterface) => {
   const [dataLoaded, setDataLoaded] = useState<boolean>(false);
   const [cards, setCards] = useState<CollectionInterface>({});
+  const [keywords, setKeywords] = useState<string[]>(defaultKeywords);
   const [showApiModal, setShowApiModal] = useState(false);
   const [tmpApiKey, setTmpApiKey] = useState<string>('');
   const [apiKey, setApiKey] = useLocalStorage('api_key');
@@ -166,7 +169,9 @@ const OnlineCardProvider: React.FC<OnlineCardProviderInterface> = ({
         <Input onChange={e => setTmpApiKey(e.target.value)} value={tmpApiKey} />
       </Modal>
       {dataLoaded ? (
-        <div>{render(Object.values(cards), saveCard, addNewCard)}</div>
+        <div>
+          {render(Object.values(cards), saveCard, addNewCard, keywords)}
+        </div>
       ) : (
         <div>Loading Cards...</div>
       )}

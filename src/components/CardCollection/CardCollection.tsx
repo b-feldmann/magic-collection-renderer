@@ -17,6 +17,7 @@ export interface CardCollectionInterface {
   viewCard: (id: string) => void;
   currentEditId: string;
   colSpan: number;
+  keywords: string[];
 }
 
 interface BackConfigInterface {
@@ -29,7 +30,8 @@ const CardCollection: React.FC<CardCollectionInterface> = ({
   downloadJson,
   viewCard,
   currentEditId,
-  colSpan
+  colSpan,
+  keywords
 }: CardCollectionInterface) => {
   const [notParsedColSpan, setColSpan] = useState<number>(-1);
 
@@ -82,6 +84,7 @@ const CardCollection: React.FC<CardCollectionInterface> = ({
                       rarity={card.rarity}
                       manaCost={card.manaCost}
                       creator={card.creator}
+                      keywords={keywords}
                     />
                   </ActionHover>
                   {card.back && (

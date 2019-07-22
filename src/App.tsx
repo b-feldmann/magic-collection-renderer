@@ -124,7 +124,7 @@ const App: React.FC = () => {
     }
   };
 
-  const modalBack = (card: CardInterface) => {
+  const modalBack = (card: CardInterface, keywords: string[]) => {
     if (!card.back) return <div />;
 
     return (
@@ -135,6 +135,7 @@ const App: React.FC = () => {
         rarity={card.rarity}
         manaCost={card.manaCost}
         backFace
+        keywords={keywords}
       />
     );
   };
@@ -188,7 +189,8 @@ const App: React.FC = () => {
 
   const createGrid = (
     cards: MergedCardsInterface,
-    saveCard: (card: CardInterface) => void
+    saveCard: (card: CardInterface) => void,
+    keywords: string[]
   ) => (
     <Row>
       <Col span={18} className={styles.collection}>
@@ -203,6 +205,7 @@ const App: React.FC = () => {
           downloadJson={id => downloadJson(cards[id])}
           viewCard={viewCard}
           colSpan={colSpan}
+          keywords={keywords}
         />
       </Col>
       <Col span={6} className={styles.editor}>
@@ -242,7 +245,7 @@ const App: React.FC = () => {
 
   return (
     <OnlineCardProvider
-      render={(cards, saveCard, addCard) => {
+      render={(cards, saveCard, addCard, keywords) => {
         const mergedCards = mergeWithTmpCard(cards);
         updateAvailableCards(Object.values(mergedCards));
         return (
@@ -276,7 +279,7 @@ const App: React.FC = () => {
                     key="grid"
                   >
                     {layout === LayoutType.GRID &&
-                      createGrid(mergedCards, saveCard)}
+                      createGrid(mergedCards, saveCard, keywords)}
                   </TabPane>
                   <TabPane
                     tab={
@@ -336,11 +339,12 @@ const App: React.FC = () => {
                       creator={mergedCards[cardViewId].creator}
                       rarity={mergedCards[cardViewId].rarity}
                       manaCost={mergedCards[cardViewId].manaCost}
+                      keywords={keywords}
                     />
                   </div>
                   {mergedCards[cardViewId].back && (
                     <div className={styles.modalCardWrapper}>
-                      {modalBack(mergedCards[cardViewId])}
+                      {modalBack(mergedCards[cardViewId], keywords)}
                     </div>
                   )}
                 </div>

@@ -5,9 +5,10 @@
 }
 
 .card-background {
+    position: absolute;
     height: 600px;
+    width: 450px;
     margin: 18px 18px 0 18px;
-    /*margin: 20px 20px 0 20px;*/
     border-radius: 10px 10px 8% 8%;
     background-color: #bbb;
     z-index: 0;

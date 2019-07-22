@@ -1,5 +1,4 @@
 import React from 'react';
-
 // @ts-ignore
 import { Mana } from '@saeris/react-mana';
 
@@ -7,13 +6,15 @@ interface InjectFunc {
   (
     text: (string | JSX.Element) | (string | JSX.Element)[],
     toReplace: RegExp,
-    toInject: JSX.Element | string
+    toInject: JSX.Element | string,
+    toInjectClose?: JSX.Element | string
   ): (string | JSX.Element)[];
 }
 
 interface InjectionConfig {
   toReplace: RegExp;
   toInject: JSX.Element | string;
+  toInjectClose?: JSX.Element | string;
 }
 
 export const simpleReplaceAll = (
@@ -24,7 +25,12 @@ export const simpleReplaceAll = (
   return target.split(toRemove).join(toInject);
 };
 
-const injectDomElement: InjectFunc = (text, toReplace, toInject) => {
+const injectDomElement: InjectFunc = (
+  text,
+  toReplace,
+  toInject,
+  toInjectClose
+) => {
   const workingArray: (string | JSX.Element)[] = [];
   if (Array.isArray(text)) {
     text.forEach(t => workingArray.push(t));
@@ -44,7 +50,15 @@ const injectDomElement: InjectFunc = (text, toReplace, toInject) => {
       const splitArray = elem.split(toReplace);
       for (let i = 0; i < splitArray.length - 1; i++) {
         resultArray.push(splitArray[i]);
-        resultArray.push(toInject);
+        if (toInjectClose && toInject === 'italic') {
+          resultArray.push(
+            <span style={{ fontStyle: 'italic' }}>{toInjectClose}</span>
+          );
+        } else if (toInjectClose && i % 2 === 1) {
+          resultArray.push(toInjectClose);
+        } else {
+          resultArray.push(toInject);
+        }
       }
 
       resultArray.push(splitArray[splitArray.length - 1]);
@@ -61,10 +75,20 @@ export const injectWithConfig = (
   let workingArray = text;
 
   if (!Array.isArray(config))
-    return injectDomElement(workingArray, config.toReplace, config.toInject);
+    return injectDomElement(
+      workingArray,
+      config.toReplace,
+      config.toInject,
+      config.toInjectClose
+    );
 
   config.forEach(c => {
-    workingArray = injectDomElement(workingArray, c.toReplace, c.toInject);
+    workingArray = injectDomElement(
+      workingArray,
+      c.toReplace,
+      c.toInject,
+      c.toInjectClose
+    );
   });
 
   return workingArray;
@@ -239,6 +263,23 @@ export const injectQuotationMarks = (
   return injectWithConfig(text, {
     toReplace: /"(.*)"/,
     // toInject: '“”'
-    toInject: '“'
+    toInject: '“',
+    toInjectClose: '”'
   });
+};
+
+export const injectKeywords = (
+  text: string | JSX.Element | (string | JSX.Element)[],
+  keywords: string[]
+) => {
+  const config: InjectionConfig[] = [];
+  keywords.forEach(word => {
+    config.push({
+      toReplace: new RegExp(`${word}`),
+      toInject: 'italic',
+      toInjectClose: word
+    });
+  });
+
+  return injectWithConfig(text, config);
 };

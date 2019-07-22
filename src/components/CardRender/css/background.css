@@ -8,12 +8,12 @@
 .frame-header-green,
 .frame-type-line-green {
     background: linear-gradient(0deg, rgba(100, 200, 205, .3), rgba(50, 200, 205, .3)),
-    url(https://image.ibb.co/jKByZn/tile_bg_1.jpg);
+    url(../images/tile_bg_1.jpg);
 }
 
 .frame-stats-green,
 .frame-text-box-green {
-    background: linear-gradient(0deg, rgba(100, 200, 255, .2), rgba(100, 200, 205, .2)), url(https://image.ibb.co/dFcNx7/tile_bg_2.jpg);
+    background: linear-gradient(0deg, rgba(100, 200, 255, .2), rgba(100, 200, 205, .2)), url(../images/tile_bg_2.jpg);
 }
 
 .card-background-black {
@@ -26,12 +26,12 @@
 .frame-header-black,
 .frame-type-line-black {
     background: linear-gradient(0deg, rgba(20, 20, 25, .2), rgba(40, 40, 40, .2)),
-    url(https://image.ibb.co/jKByZn/tile_bg_1.jpg);
+    url(../images/tile_bg_1.jpg);
 }
 
 .frame-stats-black,
 .frame-text-box-black {
-    background: linear-gradient(0deg, rgba(230, 230, 230, .4), rgba(255, 255, 255, .4)), url(https://image.ibb.co/dFcNx7/tile_bg_2.jpg);
+    background: linear-gradient(0deg, rgba(230, 230, 230, .4), rgba(255, 255, 255, .4)), url(../images/tile_bg_2.jpg);
 }
 
 .card-background-blue {
@@ -44,12 +44,12 @@
 .frame-header-blue,
 .frame-type-line-blue {
     background: linear-gradient(0deg, rgba(100, 180, 255, .5), rgba(150, 180, 255, .5)),
-    url(https://image.ibb.co/jKByZn/tile_bg_1.jpg);
+    url(../images/tile_bg_1.jpg);
 }
 
 .frame-stats-blue,
 .frame-text-box-blue {
-    background: linear-gradient(0deg, rgba(140, 210, 255, .5), rgba(180, 210, 255, .5)), url(https://image.ibb.co/dFcNx7/tile_bg_2.jpg);
+    background: linear-gradient(0deg, rgba(140, 210, 255, .5), rgba(180, 210, 255, .5)), url(../images/tile_bg_2.jpg);
 }
 
 .card-background-white {
@@ -62,12 +62,12 @@
 .frame-header-white,
 .frame-type-line-white {
     background: linear-gradient(0deg, rgba(230, 230, 170, .4), rgba(255, 255, 205, .4)),
-    url(https://image.ibb.co/jKByZn/tile_bg_1.jpg);
+    url(../images/tile_bg_1.jpg);
 }
 
 .frame-stats-white,
 .frame-text-box-white {
-    background: linear-gradient(0deg, rgba(240, 240, 210, .6), rgba(255, 255, 235, .6)), url(https://image.ibb.co/dFcNx7/tile_bg_2.jpg);
+    background: linear-gradient(0deg, rgba(240, 240, 210, .6), rgba(255, 255, 235, .6)), url(../images/tile_bg_2.jpg);
 }
 
 .card-background-red {
@@ -80,12 +80,12 @@
 .frame-header-red,
 .frame-type-line-red {
     background: linear-gradient(0deg, rgba(255, 0, 0, .2), rgba(255, 100, 0, .2)),
-    url(https://image.ibb.co/jKByZn/tile_bg_1.jpg);
+    url(../images/tile_bg_1.jpg);
 }
 
 .frame-stats-red,
 .frame-text-box-red {
-    background: linear-gradient(0deg, rgba(255, 0, 0, .05), rgba(255, 100, 0, .05)), url(https://image.ibb.co/dFcNx7/tile_bg_2.jpg);
+    background: linear-gradient(0deg, rgba(255, 0, 0, .05), rgba(255, 100, 0, .05)), url(../images/tile_bg_2.jpg);
 }
 
 .card-background-gold {
@@ -98,12 +98,12 @@
 .frame-header-gold,
 .frame-type-line-gold {
     background: linear-gradient(0deg, rgba(215, 190, 100, .4), rgba(195, 170, 100, .4)),
-    url(https://image.ibb.co/jKByZn/tile_bg_1.jpg);
+    url(../images/tile_bg_1.jpg);
 }
 
 .frame-stats-gold,
 .frame-text-box-gold {
-    background: linear-gradient(0deg, rgba(240, 240, 210, .5), rgba(255, 255, 235, .5)), url(https://image.ibb.co/dFcNx7/tile_bg_2.jpg);
+    background: linear-gradient(0deg, rgba(240, 240, 210, .5), rgba(255, 255, 235, .5)), url(../images/tile_bg_2.jpg);
 }
 
 .card-background-colorless {
@@ -116,12 +116,12 @@
 .frame-header-colorless,
 .frame-type-line-colorless {
     background: linear-gradient(0deg, rgba(215, 225, 255, .5), rgba(190, 200, 255, .5)),
-    url(https://image.ibb.co/jKByZn/tile_bg_1.jpg);
+    url(../images/tile_bg_1.jpg);
 }
 
 .frame-stats-colorless,
 .frame-text-box-colorless {
-    background: linear-gradient(0deg, rgba(215, 225, 255, .4), rgba(190, 210, 255, .4)), url(https://image.ibb.co/dFcNx7/tile_bg_2.jpg);
+    background: linear-gradient(0deg, rgba(215, 225, 255, .4), rgba(190, 210, 255, .4)), url(../images/tile_bg_2.jpg);
 }
 
 .card-background-land {
@@ -134,10 +134,10 @@
 .frame-header-land,
 .frame-type-line-land {
     background: linear-gradient(0deg, rgba(215, 190, 100, .4), rgba(195, 170, 100, .4)),
-    url(https://image.ibb.co/jKByZn/tile_bg_1.jpg);
+    url(../images/tile_bg_1.jpg);
 }
 
 .frame-stats-land,
 .frame-text-box-land {
-    background: linear-gradient(0deg, rgba(240, 240, 210, .5), rgba(255, 255, 235, .5)), url(https://image.ibb.co/dFcNx7/tile_bg_2.jpg);
+    background: linear-gradient(0deg, rgba(240, 240, 210, .5), rgba(255, 255, 235, .5)), url(../images/tile_bg_2.jpg);
 }
