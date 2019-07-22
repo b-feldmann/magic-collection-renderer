@@ -52,7 +52,7 @@ const CardCollection: React.FC<CardCollectionInterface> = ({
 
   return (
     <div>
-      {cards.map(card => {
+      {cards.map((card, i) => {
         return (
           <Col className={styles.cardBox} span={colSpan} key={card.cardID}>
             <PdfDownloadWrapper
@@ -85,6 +85,8 @@ const CardCollection: React.FC<CardCollectionInterface> = ({
                       manaCost={card.manaCost}
                       creator={card.creator}
                       keywords={keywords}
+                      collectionNumber={i + 1}
+                      collectionSize={cards.length}
                     />
                   </ActionHover>
                   {card.back && (

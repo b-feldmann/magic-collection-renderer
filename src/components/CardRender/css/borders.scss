@@ -1,0 +1,66 @@
+/*
+ — — — — — — — — — — — — -
+ — — — — — — — — — — — — -
+ BORDERS
+ — — — — — — — — — — — — -
+ — — — — — — — — — — — — -
+*/
+
+.frame-header,
+.frame-type-line {
+    border-bottom: 3px solid rgb(95, 110, 107);
+    border-left: 2px solid rgb(95, 110, 107);
+    border-top: 2px solid #fff;
+    border-right: 1px solid #fff;
+}
+
+.frame-text-box {
+    border-top: 2px solid rgba(95, 110, 107, 0.7);
+    border-right: 2px solid rgba(95, 110, 107, 0.7);
+}
+
+.frame-stats{
+    box-shadow: -1px 2px 2px 1px #171314;
+}
+
+.frame-inner-stats {
+    border-top: 3px solid rgb(57, 72, 69);
+    border-right: 2px solid rgb(57, 72, 69);
+    border-bottom: 2px solid #fff;
+    border-left: 1px solid #fff;
+}
+
+$colors: (
+    white: #e0e4e3,
+    blue:  #0456a8,
+    black: #464e39,
+    red: #df3619,
+    green: #26714A,
+    colorless: #d9d7da,
+    gold: #eed66b,
+    land: #eed66b
+);
+
+@mixin autoIncludeAll() {
+    @each $name, $color in $colors {
+        .frame-header-#{$name},
+        .frame-type-line-#{$name} {
+            box-shadow: 0 0 0 1px #171314,
+            0 0 0 4px $color,
+            -3px 2px 2px 4px #171314;
+        }
+
+        .frame-art-#{$name} {
+            box-shadow: 0 0 1px 2px #171314,
+            0 0 0 5px $color,
+            -3px 2px 2px 5px #171314;
+        }
+
+        .frame-text-box-#{$name} {
+            box-shadow: 0 0 0 3px $color,
+            -3px 2px 2px 3px #171314;
+        }
+    }
+}
+
+@include autoIncludeAll;

@@ -136,7 +136,7 @@ const defaultKeywords = [
   'Spectacle',
   'Enrage',
   'Explore',
-  'Cycle',
+  'Cycle'
 ];
 
 export default defaultKeywords;

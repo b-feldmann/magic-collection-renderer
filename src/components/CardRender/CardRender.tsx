@@ -8,7 +8,7 @@ import 'mana-font/css/mana.css';
 import './css/reset.css';
 
 import './css/background.css';
-import './css/borders.css';
+import './css/borders.scss';
 import './css/icons.css';
 import './css/card.css';
 import {
@@ -63,13 +63,15 @@ interface CardRender {
   cover?: string;
   backFace?: boolean;
   keywords: string[];
+  collectionNumber: number;
+  collectionSize: number;
 }
 
 const CardRender: React.FC<CardRender> = (cardRender: CardRender) => {
   const { legendary, cardMainType, cardSubTypes, rarity } = cardRender;
   const { name, manaCost, cardStats, cover, creator } = cardRender;
   const { cardText, flavourText, flavourAuthor, cardID } = cardRender;
-  const { backFace, keywords } = cardRender;
+  const { backFace, keywords, collectionNumber, collectionSize } = cardRender;
 
   const getRarityIcon = () => {
     if (rarity === RarityType.MythicRare) return MythicRareIcon;
@@ -132,7 +134,7 @@ const CardRender: React.FC<CardRender> = (cardRender: CardRender) => {
           >
             <LazyLoad debounce={false}>
               <div>
-                <img className={`card-background card-background-${color}`} />
+                <div className={`card-background card-background-${color}`} />
                 {/*<ImageLoader*/}
                 {/*  className="card-background"*/}
                 {/*  src={colorToBackground()}*/}
@@ -240,7 +242,7 @@ const CardRender: React.FC<CardRender> = (cardRender: CardRender) => {
                   <div className="frame-bottom-info inner-margin">
                     <div className="fbi-left">
                       <p>
-                        {cardID}/184 {rarityCode()}
+                        {collectionNumber}/{collectionSize} {rarityCode()}
                       </p>
                       <p>
                         EPIC &#x2022; EN

@@ -136,6 +136,8 @@ const App: React.FC = () => {
         manaCost={card.manaCost}
         backFace
         keywords={keywords}
+        collectionNumber={0}
+        collectionSize={0}
       />
     );
   };
@@ -340,6 +342,8 @@ const App: React.FC = () => {
                       rarity={mergedCards[cardViewId].rarity}
                       manaCost={mergedCards[cardViewId].manaCost}
                       keywords={keywords}
+                      collectionNumber={0}
+                      collectionSize={0}
                     />
                   </div>
                   {mergedCards[cardViewId].back && (
