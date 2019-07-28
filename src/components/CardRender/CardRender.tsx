@@ -1,5 +1,4 @@
 import React from 'react';
-
 // @ts-ignore
 import ReactResizeDetector from 'react-resize-detector';
 
@@ -13,9 +12,9 @@ import './css/icons.css';
 import './css/card.css';
 import {
   CardMainType,
+  ColorType,
   Creators,
-  RarityType,
-  ColorType
+  RarityType
 } from '../../interfaces/enums';
 
 import CommonIcon from './images/rarity/common.png';
@@ -33,7 +32,6 @@ import BackgroundLand from './images/land-background.png';
 import BackgroundColorless from './images/artifact.png';
 
 import NoCover from './images/no-cover.jpg';
-
 // @ts-ignore
 import LazyLoad from 'react-lazy-load';
 
@@ -80,7 +78,15 @@ const CardRender: React.FC<CardRender> = (cardRender: CardRender) => {
     return CommonIcon;
   };
 
-  const color = cardToColor(cardMainType, manaCost);
+  const { color, allColors } = cardToColor(cardMainType, manaCost);
+
+  let cssColorName: string = color;
+  if (cardMainType === CardMainType.Planeswalker) {
+    if (allColors.length === 1) cssColorName = `${color}-${color}`;
+    if (allColors.length === 2)
+      cssColorName = `${allColors[0]}-${allColors[1]}`;
+    if (allColors.length > 2) cssColorName = `gold-gold`;
+  }
 
   const rarityCode = () => {
     if (rarity === RarityType.Uncommon) return 'U';
@@ -140,7 +146,12 @@ const CardRender: React.FC<CardRender> = (cardRender: CardRender) => {
                 {/*  src={colorToBackground()}*/}
                 {/*/>*/}
                 <div className="card-frame">
-                  <div className={`frame-header frame-header-${color}`}>
+                  <div
+                    className={`frame-header-special-border frame-header-planeswalker-${cssColorName}`}
+                  />
+                  <div
+                    className={`frame-header frame-header-${color} frame-header-planeswalker-${cssColorName}`}
+                  >
                     <h1 className="name">{injectQuotationMarks(name)}</h1>
                     {cardRender.cardMainType !== CardMainType.Land &&
                       !backFace && (
@@ -151,12 +162,14 @@ const CardRender: React.FC<CardRender> = (cardRender: CardRender) => {
                   </div>
 
                   <ImageLoader
-                    className={`frame-art frame-art-${color}`}
                     src={cover ? cover : NoCover}
                     alt="cover"
+                    className={`frame-art frame-art-${cssColorName}`}
                   />
 
-                  <div className={`frame-type-line frame-type-line-${color}`}>
+                  <div
+                    className={`frame-type-line frame-type-line-${color} frame-type-line-${cssColorName}`}
+                  >
                     <h1 className="type">
                       {legendary ? 'Legendary ' : ''}
                       {cardMainType}
@@ -170,7 +183,9 @@ const CardRender: React.FC<CardRender> = (cardRender: CardRender) => {
                     />
                   </div>
 
-                  <div className={`frame-text-box frame-text-box-${color}`}>
+                  <div
+                    className={`frame-text-box frame-text-box-${color} frame-text-box-${cssColorName}`}
+                  >
                     <p className="description ftb-inner-margin">
                       {cardText.map((val, i) => (
                         <span

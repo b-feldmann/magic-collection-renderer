@@ -20,6 +20,7 @@
     "lodash": "^4.17.14",
     "mana-font": "^1.4.1",
     "node-sass": "^4.12.0",
+    "pixi.js": "^5.1.0",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "react-lazy-load": "^3.0.13",
@@ -27,6 +28,7 @@
     "react-resize-detector": "latest",
     "react-scripts": "3.0.1",
     "react-spreadsheet": "^0.4.34",
+    "three": "^0.106.2",
     "typescript": "3.5.2"
   },
   "scripts": {

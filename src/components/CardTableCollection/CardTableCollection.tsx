@@ -1,19 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 // import CardFaceInterface from '../../interfaces/CardFaceInterface';
-import {
-  CardMainType,
-  ColorType,
-  Creators,
-  RarityType
-} from '../../interfaces/enums';
-import { Col, Row } from 'antd';
+import { CardMainType, Creators, RarityType } from '../../interfaces/enums';
 // @ts-ignore
-import CollectionFilterControls, {
-  CollectionFilterInterface
-} from '../CollectionFilterControls/CollectionFilterControls';
-import cardToColor from '../CardRender/cardToColor';
-
-import _ from 'lodash';
 
 import { HotTable } from '@handsontable/react';
 import 'handsontable/dist/handsontable.full.css';

@@ -1,7 +1,6 @@
-.frame-header,
-.frame-type-line,
-.frame-text-box {
-    overflow: hidden;
+.cost,
+.name {
+    z-index: 1;
 }
 
 .card-background {
@@ -9,7 +8,7 @@
     height: 600px;
     width: 450px;
     margin: 18px 18px 0 18px;
-    border-radius: 10px 10px 8% 8%;
+    border-radius: 10px 10px 42px 8%;
     background-color: #bbb;
     z-index: 0;
 }

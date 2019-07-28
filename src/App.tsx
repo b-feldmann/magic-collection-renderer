@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import CardInterface from './interfaces/CardInterface';
-import { ColorType, LayoutType, RarityType } from './interfaces/enums';
+import {
+  CardMainType,
+  ColorType,
+  LayoutType,
+  RarityType
+} from './interfaces/enums';
 import CardCollection from './components/CardCollection/CardCollection';
 import OnlineCardProvider from './components/OnlineCardProvider/OnlineCardProvider';
 import { Button, Col, Modal, Row, Tabs, Icon } from 'antd';
@@ -24,6 +29,8 @@ import CollectionFilterControls, {
   CollectionFilterInterface
 } from './components/CollectionFilterControls/CollectionFilterControls';
 import cardToColor from './components/CardRender/cardToColor';
+import CardWebGLRender from './components/CardWebGLRender';
+import CardPixiRender from './components/CardPixiRender';
 
 const { TabPane } = Tabs;
 const { confirm } = Modal;
@@ -158,15 +165,15 @@ const App: React.FC = () => {
       o =>
         _.indexOf(
           Object.values(ColorType),
-          cardToColor(o.front.cardMainType, o.manaCost)
+          cardToColor(o.front.cardMainType, o.manaCost).color
         ),
       o => _.indexOf(Object.values(RarityType), o.rarity),
-      'cardMainType',
+      o => _.indexOf(Object.values(CardMainType), o.front.cardMainType),
       o => o.front.name.toLowerCase()
     ]).filter(
       o =>
         collectionFilter.colors[
-          cardToColor(o.front.cardMainType, o.manaCost)
+          cardToColor(o.front.cardMainType, o.manaCost).color
         ] &&
         collectionFilter.rarity[o.rarity] &&
         collectionFilter.types[o.front.cardMainType]
@@ -197,7 +204,7 @@ const App: React.FC = () => {
     <Row>
       <Col span={18} className={styles.collection}>
         <CardCollection
-          cards={filterCards(Object.values(cards))}
+          cards={filterCards([Object.values(cards)[0]])}
           currentEditId={cardEditId}
           editCard={id => {
             if (cardEditId === NO_CARD) openCardInEditor(id, '');
@@ -230,11 +237,11 @@ const App: React.FC = () => {
     cards.forEach(card => {
       if (
         !availableColors.includes(
-          cardToColor(card.front.cardMainType, card.manaCost)
+          cardToColor(card.front.cardMainType, card.manaCost).color
         )
       )
         availableColors.push(
-          cardToColor(card.front.cardMainType, card.manaCost)
+          cardToColor(card.front.cardMainType, card.manaCost).color
         );
 
       if (!availableTypes.includes(card.front.cardMainType))
@@ -335,7 +342,7 @@ const App: React.FC = () => {
                   }`}
                 >
                   <div className={styles.modalCardWrapper}>
-                    <CardRender
+                    <CardPixiRender
                       {...mergedCards[cardViewId].front}
                       cardID={mergedCards[cardViewId].cardID}
                       creator={mergedCards[cardViewId].creator}

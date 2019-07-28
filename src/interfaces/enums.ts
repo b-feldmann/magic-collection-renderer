@@ -11,10 +11,10 @@ export function mapEnum(enumerable: any, fn: Function): any[] {
 
 export enum CardMainType {
   Creature = 'Creature',
-  Artifact = 'Artifact',
   Instant = 'Instant',
   Sorcery = 'Sorcery',
   Enchantment = 'Enchantment',
+  Artifact = 'Artifact',
   Land = 'Land',
   Planeswalker = 'Planeswalker',
   Emblem = 'Emblem'
