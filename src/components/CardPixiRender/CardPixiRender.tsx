@@ -4,12 +4,7 @@ import ReactResizeDetector from 'react-resize-detector';
 
 import 'mana-font/css/mana.css';
 
-import {
-  CardMainType,
-  ColorType,
-  Creators,
-  RarityType
-} from '../../interfaces/enums';
+import { CardMainType, ColorType, Creators, RarityType } from '../../interfaces/enums';
 
 import CommonIcon from './images/rarity/common.png';
 import UncommonIcon from './images/rarity/uncommon.png';
@@ -56,9 +51,7 @@ interface CardWebGLRender {
   collectionSize: number;
 }
 
-const CardPixiRender: React.FC<CardWebGLRender> = (
-  cardRender: CardWebGLRender
-) => {
+const CardPixiRender: React.FC<CardWebGLRender> = (cardRender: CardWebGLRender) => {
   const { legendary, cardMainType, cardSubTypes, rarity } = cardRender;
   const { name, manaCost, cardStats, cover, creator } = cardRender;
   const { cardText, flavourText, flavourAuthor, cardID } = cardRender;
@@ -89,6 +82,29 @@ const CardPixiRender: React.FC<CardWebGLRender> = (
     }
   };
 
+  const borderColor = (): number => {
+    switch (color) {
+      case ColorType.White:
+        return 0xe0e4e3;
+      case ColorType.Blue:
+        return 0x0456a8;
+      case ColorType.Black:
+        return 0x464e39;
+      case ColorType.Red:
+        return 0xdf3619;
+      case ColorType.Green:
+        return 0x26714a;
+      case ColorType.Gold:
+        return 0xeed66b;
+      case ColorType.Land:
+        return 0xeed66b;
+      case ColorType.Colorless:
+        return 0xd9d7da;
+      default:
+        return 0xd9d7da;
+    }
+  };
+
   const resizeFactor = (width: number) => {
     return width / 530.0;
   };
@@ -100,23 +116,16 @@ const CardPixiRender: React.FC<CardWebGLRender> = (
   const [app, setApp] = useState();
 
   const [resources, setResources] = useState(null);
-  const [backgroundCache, setBackgroundCache] = useState<
-    RenderBackgroundCache
-  >();
+  const [backgroundCache, setBackgroundCache] = useState<RenderBackgroundCache>();
   const [artBoxCache, setArtBoxCache] = useState<RenderArtBoxCache>();
 
   const pixiRef = useRef(null);
 
-  const renderCard = () => {
-    let cache: any = renderBackground(
-      app,
-      resources,
-      colorToBackground(),
-      backgroundCache
-    );
+  const renderCard = (useCache?: boolean) => {
+    let cache: any = renderBackground(app, resources, colorToBackground(), useCache ? backgroundCache : undefined);
     setBackgroundCache(cache);
 
-    cache = renderArtBox(app, resources, cover, NoCover, artBoxCache);
+    cache = renderArtBox(app, resources, borderColor(), cover, NoCover, useCache ? artBoxCache : undefined);
     setArtBoxCache(cache);
   };
 
@@ -125,7 +134,14 @@ const CardPixiRender: React.FC<CardWebGLRender> = (
       renderCard();
       console.log('render');
     }
-  }, [resources, manaCost, cover]);
+  }, [cover]);
+
+  useEffect(() => {
+    if (resources) {
+      renderCard(false);
+      console.log('render');
+    }
+  }, [resources, manaCost]);
 
   useEffect(() => {
     const app = new PIXI.Application({

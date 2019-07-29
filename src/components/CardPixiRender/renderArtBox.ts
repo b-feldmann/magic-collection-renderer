@@ -8,6 +8,7 @@ export interface RenderArtBoxCache {
 export const renderArtBox = (
   app: PIXI.Application,
   resources: any,
+  color: number,
   image: string = '',
   fallBackImage: string,
   cache: undefined | RenderArtBoxCache
@@ -18,8 +19,8 @@ export const renderArtBox = (
     artSprite = cache.artSprite;
   } else {
     const box = new PIXI.Graphics();
-    // big white radius
-    box.lineStyle(6, 0xffffff, 1);
+    // big color radius
+    box.lineStyle(6, color, 1);
     box.moveTo(37, 80);
     box.lineTo(37, 415);
     box.lineTo(491, 415);
@@ -43,7 +44,7 @@ export const renderArtBox = (
     box.lineTo(40, 81);
 
     // right white shadow
-    box.lineStyle(2, 0xffffff, 0.5);
+    box.lineStyle(2, color, 0.5);
     box.moveTo(495, 418);
     box.lineTo(495, 78);
 
