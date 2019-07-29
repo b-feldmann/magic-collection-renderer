@@ -50,9 +50,9 @@ export const renderBackground = (
   app.stage.addChild(cardBorderGraphics);
 
   const backgroundSprite2 = new PIXI.TilingSprite(backGroundTexture);
-  backgroundSprite2.x = 22;
+  backgroundSprite2.x = 23;
   backgroundSprite2.y = 22 + backGroundTexture.height;
-  backgroundSprite2.width = 486;
+  backgroundSprite2.width = 484;
   backgroundSprite2.height = Math.min(
     backGroundTexture.height,
     326 * 2 - 22 + backGroundTexture.height
