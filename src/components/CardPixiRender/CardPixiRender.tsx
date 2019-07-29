@@ -29,8 +29,8 @@ import NoCover from './images/no-cover.jpg';
 import cardToColor from './cardToColor';
 
 import * as PIXI from 'pixi.js';
-import { renderBackground } from './renderBackground';
-import { renderArtBox } from './renderArtBox';
+import { renderBackground, RenderBackgroundCache } from './renderBackground';
+import { renderArtBox, RenderArtBoxCache } from './renderArtBox';
 
 export interface Images {
   [key: string]: PIXI.Texture;
@@ -100,12 +100,15 @@ const CardPixiRender: React.FC<CardWebGLRender> = (
   const [app, setApp] = useState();
 
   const [resources, setResources] = useState(null);
-  const [backgroundCache, setBackgroundCache] = useState<any>(null);
+  const [backgroundCache, setBackgroundCache] = useState<
+    RenderBackgroundCache
+  >();
+  const [artBoxCache, setArtBoxCache] = useState<RenderArtBoxCache>();
 
   const pixiRef = useRef(null);
 
   const renderCard = () => {
-    let cache = renderBackground(
+    let cache: any = renderBackground(
       app,
       resources,
       colorToBackground(),
@@ -113,7 +116,8 @@ const CardPixiRender: React.FC<CardWebGLRender> = (
     );
     setBackgroundCache(cache);
 
-    renderArtBox(app, resources, NoCover);
+    cache = renderArtBox(app, resources, cover, NoCover, artBoxCache);
+    setArtBoxCache(cache);
   };
 
   useEffect(() => {
@@ -121,7 +125,7 @@ const CardPixiRender: React.FC<CardWebGLRender> = (
       renderCard();
       console.log('render');
     }
-  }, [resources, manaCost]);
+  }, [resources, manaCost, cover]);
 
   useEffect(() => {
     const app = new PIXI.Application({

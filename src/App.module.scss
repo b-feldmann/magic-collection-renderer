@@ -33,6 +33,9 @@ $max-height-factor: $max-height / 680;
 $modalSingleCardWidth: calc(#{$max-height-factor} * 488);
 $modalDoubleCardWidth: calc(#{$max-width-factor} * 488);
 
+$modalSingleCardWidth: 530px;
+$modalDoubleCardWidth: 1060px;
+
 .modalCardViewWrapper {
   width: 0px !important;
   height: 0px !important;

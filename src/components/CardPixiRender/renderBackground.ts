@@ -1,6 +1,6 @@
 import * as PIXI from 'pixi.js';
 
-interface RenderBackgroundCache {
+export interface RenderBackgroundCache {
   backgroundSprite: PIXI.TilingSprite;
   backgroundSprite2: PIXI.TilingSprite;
 }
