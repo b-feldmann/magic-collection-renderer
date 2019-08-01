@@ -16,7 +16,7 @@ export const renderArtBox = (
   let artSprite: PIXI.Sprite;
 
   if (cache) {
-    artSprite = cache.artSprite;
+    ({ artSprite } = cache);
   } else {
     const box = new PIXI.Graphics();
     // big color radius
@@ -80,5 +80,5 @@ export const renderArtBox = (
     error = true;
   });
 
-  return { artSprite, coverLoader: coverLoader };
+  return { artSprite, coverLoader };
 };

@@ -5,12 +5,11 @@ const cardToColor = (
   manaCost?: string
 ): { color: ColorType; allColors: ColorType[] } => {
   let color: ColorType = ColorType.Colorless;
-  let allColors: ColorType[] = [];
+  const allColors: ColorType[] = [];
   if (cardMainType === CardMainType.Land) {
     color = ColorType.Land;
   } else {
-    if (!manaCost)
-      return { color: ColorType.Colorless, allColors: [ColorType.Colorless] };
+    if (!manaCost) return { color: ColorType.Colorless, allColors: [ColorType.Colorless] };
 
     const setColor = (type: ColorType) => {
       if (color === type) return;
@@ -83,6 +82,9 @@ const cardToColor = (
         case 'Pg':
         case 'PG':
           setColor(ColorType.Green);
+          break;
+        default:
+          // do nothing
           break;
       }
     });

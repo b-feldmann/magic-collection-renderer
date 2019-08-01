@@ -4,6 +4,7 @@ import ReactResizeDetector from 'react-resize-detector';
 
 import 'mana-font/css/mana.css';
 
+import * as PIXI from 'pixi.js';
 import { CardMainType, ColorType, Creators, RarityType } from '../../interfaces/enums';
 
 import CommonIcon from './images/rarity/common.png';
@@ -23,7 +24,6 @@ import BackgroundColorless from './images/artifact.png';
 import NoCover from './images/no-cover.jpg';
 import cardToColor from './cardToColor';
 
-import * as PIXI from 'pixi.js';
 import { renderBackground, RenderBackgroundCache } from './renderBackground';
 import { renderArtBox, RenderArtBoxCache } from './renderArtBox';
 
@@ -122,10 +122,22 @@ const CardPixiRender: React.FC<CardWebGLRender> = (cardRender: CardWebGLRender) 
   const pixiRef = useRef(null);
 
   const renderCard = (useCache?: boolean) => {
-    let cache: any = renderBackground(app, resources, colorToBackground(), useCache ? backgroundCache : undefined);
+    let cache: any = renderBackground(
+      app,
+      resources,
+      colorToBackground(),
+      useCache ? backgroundCache : undefined
+    );
     setBackgroundCache(cache);
 
-    cache = renderArtBox(app, resources, borderColor(), cover, NoCover, useCache ? artBoxCache : undefined);
+    cache = renderArtBox(
+      app,
+      resources,
+      borderColor(),
+      cover,
+      NoCover,
+      useCache ? artBoxCache : undefined
+    );
     setArtBoxCache(cache);
   };
 
@@ -144,13 +156,13 @@ const CardPixiRender: React.FC<CardWebGLRender> = (cardRender: CardWebGLRender) 
   }, [resources, manaCost]);
 
   useEffect(() => {
-    const app = new PIXI.Application({
+    const newApp = new PIXI.Application({
       width: 530,
       height: 740,
       transparent: true,
       antialias: true
     });
-    app.loader
+    newApp.loader
       .add(BackgroundWhite)
       .add(BackgroundBlue)
       .add(BackgroundBlack)
@@ -160,14 +172,14 @@ const CardPixiRender: React.FC<CardWebGLRender> = (cardRender: CardWebGLRender) 
       .add(BackgroundLand)
       .add(BackgroundColorless)
       .add(NoCover)
-      .load((loader: any, resources: any) => {
+      .load((loader: any, loadedResources: any) => {
         // @ts-ignore
-        pixiRef.current.appendChild(app.view);
+        pixiRef.current.appendChild(newApp.view);
 
-        setResources(resources);
+        setResources(loadedResources);
       });
 
-    setApp(app);
+    setApp(newApp);
   }, []);
 
   return (

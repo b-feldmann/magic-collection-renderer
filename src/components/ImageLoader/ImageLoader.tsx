@@ -20,9 +20,7 @@ const ImageLoader = ({
   return (
     <img
       src={src}
-      className={
-        className + ' ' + (loaded ? styles.imgLoaded : styles.imgLoading)
-      }
+      className={`${className} ${loaded ? styles.imgLoaded : styles.imgLoading}`}
       onLoad={() => setLoaded(true)}
       alt={alt}
       id={id}

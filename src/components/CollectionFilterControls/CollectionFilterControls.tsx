@@ -1,11 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import {
-  CardMainType,
-  ColorType,
-  mapEnum,
-  RarityType
-} from '../../interfaces/enums';
 import { Checkbox, Radio, Row } from 'antd';
+import { CardMainType, ColorType, mapEnum, RarityType } from '../../interfaces/enums';
 
 import styles from './styles.module.scss';
 
@@ -107,15 +102,11 @@ const CollectionFilterControls: React.FC<CollectionFilterControlsInterface> = ({
           <h4>Shown Card Types</h4>
           {mapEnum(CardMainType, (key: string) => (
             <Checkbox
+              key={`collection-filter-controls-checkbox-cardmaintype-${key}`}
               disabled={!availableTypes.includes(key)}
               checked={shownCardTypes[key]}
               onChange={e =>
-                updateEnumState(
-                  key,
-                  e.target.checked,
-                  shownCardTypes,
-                  setShownCardTypes
-                )
+                updateEnumState(key, e.target.checked, shownCardTypes, setShownCardTypes)
               }
             >
               {key}
@@ -128,17 +119,10 @@ const CollectionFilterControls: React.FC<CollectionFilterControlsInterface> = ({
             if (key === ColorType.Planeswalker) return '';
             return (
               <Checkbox
+                key={`collection-filter-controls-checkbox-color-${key}`}
                 disabled={!availableColors.includes(key)}
-                key={`collection-filter-color-${key}`}
                 checked={shownColors[key]}
-                onChange={e =>
-                  updateEnumState(
-                    key,
-                    e.target.checked,
-                    shownColors,
-                    setShownColors
-                  )
-                }
+                onChange={e => updateEnumState(key, e.target.checked, shownColors, setShownColors)}
               >
                 {key}
               </Checkbox>
@@ -149,15 +133,11 @@ const CollectionFilterControls: React.FC<CollectionFilterControlsInterface> = ({
           <h4>Shown Rarities</h4>
           {mapEnum(RarityType, (key: string) => (
             <Checkbox
+              key={`collection-filter-controls-checkbox-rarity-${key}`}
               disabled={!availableRarities.includes(key)}
               checked={shownRarities[key]}
               onChange={e =>
-                updateEnumState(
-                  key,
-                  e.target.checked,
-                  shownRarities,
-                  setShownRarities
-                )
+                updateEnumState(key, e.target.checked, shownRarities, setShownRarities)
               }
             >
               {key}

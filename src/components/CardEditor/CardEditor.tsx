@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 // import CardFaceInterface from '../../interfaces/CardFaceInterface';
+import { Button, Row } from 'antd';
+import _ from 'lodash';
 import CardInterface from '../../interfaces/CardInterface';
 
 import styles from './styles.module.scss';
 import { CardMainType, Creators, RarityType } from '../../interfaces/enums';
 import EditField from './EditField';
-import { Button, Row } from 'antd';
 
-import _ from 'lodash';
 import useWindowDimensions from '../../useWindowDimensions';
 import CardFaceInterface from '../../interfaces/CardFaceInterface';
 import EditorTooltip from '../EditorTooltip/EditorTooltip';
@@ -38,9 +38,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
   saveTmpCard
 }: CardEditorInterface) => {
   const [contentChanged, setContentChanged] = useState<boolean>(false);
-  const [originalCard, setOriginalCard] = useState<CardInterface>(
-    _.cloneDeep(card)
-  );
+  const [originalCard, setOriginalCard] = useState<CardInterface>(_.cloneDeep(card));
   const [tmpCard, setTmpCard] = useState<CardInterface>(_.cloneDeep(card));
   const [timerId, setTimerId] = useState<any>(NO_CARD);
 
@@ -54,14 +52,13 @@ const CardEditor: React.FC<CardEditorInterface> = ({
   if (height < 1000) small = true;
   if (height < 860) tiny = true;
 
-  const getCurrentFace = (card: CardInterface): CardFaceInterface => {
-    if (card.back && editBack) return card.back;
-    return card.front;
+  const getCurrentFace = (currentCard: CardInterface): CardFaceInterface => {
+    if (currentCard.back && editBack) return currentCard.back;
+    return currentCard.front;
   };
 
   const getValue = (key: string): any => {
-    if (key === 'rarity' || key === 'creator' || key === 'manaCost')
-      return tmpCard[key];
+    if (key === 'rarity' || key === 'creator' || key === 'manaCost') return tmpCard[key];
     return getCurrentFace(tmpCard)[key];
   };
 
@@ -160,7 +157,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
   if (card.cardID === NO_CARD)
     return (
       <div className={styles.noCard}>
-        Hover over a card and click the edit icon to start the editor!
+        <span>Hover over a card and click the edit icon to start the editor!</span>
       </div>
     );
 
@@ -190,23 +187,20 @@ const CardEditor: React.FC<CardEditorInterface> = ({
     <div className={styles.editor}>
       <Row className={tiny ? styles.tiny : ''}>
         <EditorTooltip className={styles.tooltip} />
-        <Button.Group
-          className={styles.smallButtonGroup}
-          size={small ? 'small' : 'default'}
-        >
+        <Button.Group className={styles.smallButtonGroup} size={small ? 'small' : 'default'}>
           {card.back && editBack && (
             <Button type="ghost" onClick={() => setEditBack(false)}>
-              Edit Front Face
+              <span>Edit Front Face</span>
             </Button>
           )}
           {card.back && !editBack && (
             <Button type="ghost" onClick={() => setEditBack(true)}>
-              Edit Back Face
+              <span>Edit Back Face</span>
             </Button>
           )}
           {card.back && (
             <Button onClick={deleteBackFace} type="danger">
-              Delete Back Face
+              <span>Delete Back Face</span>
             </Button>
           )}
           {!card.back && <Button onClick={addBackFace}>Add Back Face</Button>}
@@ -225,23 +219,12 @@ const CardEditor: React.FC<CardEditorInterface> = ({
         </div>
       ))}
       <Row className={tiny ? styles.tiny : ''}>
-        <Button.Group
-          className={styles.buttonGroup}
-          size={small ? 'small' : 'default'}
-        >
-          <Button
-            disabled={!contentChanged}
-            onClick={saveChanges}
-            type="primary"
-          >
-            Save Changes
+        <Button.Group className={styles.buttonGroup} size={small ? 'small' : 'default'}>
+          <Button disabled={!contentChanged} onClick={saveChanges} type="primary">
+            <span>Save Changes</span>
           </Button>
-          <Button
-            disabled={!contentChanged}
-            onClick={discardChanges}
-            type="danger"
-          >
-            Discard Changes
+          <Button disabled={!contentChanged} onClick={discardChanges} type="danger">
+            <span>Discard Changes</span>
           </Button>
         </Button.Group>
       </Row>

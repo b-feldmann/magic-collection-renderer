@@ -1,6 +1,6 @@
 export function mapEnum(enumerable: any, fn: Function): any[] {
   // get all the members of the enum
-  let enumMembers: any[] = Object.keys(enumerable).map(key => enumerable[key]);
+  const enumMembers: any[] = Object.keys(enumerable).map(key => enumerable[key]);
 
   // // we are only interested in the numeric identifiers as these represent the values
   // let enumValues: number[] = enumMembers.filter(v => typeof v === 'number');

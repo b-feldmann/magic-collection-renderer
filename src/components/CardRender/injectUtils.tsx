@@ -17,20 +17,11 @@ interface InjectionConfig {
   toInjectClose?: JSX.Element | string;
 }
 
-export const simpleReplaceAll = (
-  target: string,
-  toRemove: string,
-  toInject: string
-) => {
+export const simpleReplaceAll = (target: string, toRemove: string, toInject: string) => {
   return target.split(toRemove).join(toInject);
 };
 
-const injectDomElement: InjectFunc = (
-  text,
-  toReplace,
-  toInject,
-  toInjectClose
-) => {
+const injectDomElement: InjectFunc = (text, toReplace, toInject, toInjectClose) => {
   const workingArray: (string | JSX.Element)[] = [];
   if (Array.isArray(text)) {
     text.forEach(t => workingArray.push(t));
@@ -48,12 +39,10 @@ const injectDomElement: InjectFunc = (
 
     if (typeof elem === 'string') {
       const splitArray = elem.split(toReplace);
-      for (let i = 0; i < splitArray.length - 1; i++) {
+      for (let i = 0; i < splitArray.length - 1; i += 1) {
         resultArray.push(splitArray[i]);
         if (toInjectClose && toInject === 'italic') {
-          resultArray.push(
-            <span style={{ fontStyle: 'italic' }}>{toInjectClose}</span>
-          );
+          resultArray.push(<span style={{ fontStyle: 'italic' }}>{toInjectClose}</span>);
         } else if (toInjectClose && i % 2 === 1) {
           resultArray.push(toInjectClose);
         } else {
@@ -75,20 +64,10 @@ export const injectWithConfig = (
   let workingArray = text;
 
   if (!Array.isArray(config))
-    return injectDomElement(
-      workingArray,
-      config.toReplace,
-      config.toInject,
-      config.toInjectClose
-    );
+    return injectDomElement(workingArray, config.toReplace, config.toInject, config.toInjectClose);
 
   config.forEach(c => {
-    workingArray = injectDomElement(
-      workingArray,
-      c.toReplace,
-      c.toInject,
-      c.toInjectClose
-    );
+    workingArray = injectDomElement(workingArray, c.toReplace, c.toInject, c.toInjectClose);
   });
 
   return workingArray;
@@ -200,7 +179,7 @@ export const injectManaIcons = (
     }
   ];
 
-  for (let i = 0; i <= 20; i++) {
+  for (let i = 0; i <= 20; i += 1) {
     config.push({
       toReplace: new RegExp(`\\{${i}\\}`),
       toInject: <Mana symbol={`${i}`} cost shadow={shadow} />
@@ -210,9 +189,7 @@ export const injectManaIcons = (
   return injectWithConfig(text, config);
 };
 
-export const injectPlaneswalkerIcons = (
-  text: string | JSX.Element | (string | JSX.Element)[]
-) => {
+export const injectPlaneswalkerIcons = (text: string | JSX.Element | (string | JSX.Element)[]) => {
   const config: InjectionConfig[] = [
     {
       toReplace: /{\+x}/,
@@ -224,7 +201,7 @@ export const injectPlaneswalkerIcons = (
     }
   ];
 
-  for (let i = 0; i <= 20; i++) {
+  for (let i = 0; i <= 20; i += 1) {
     config.push({
       toReplace: new RegExp(`{\\+${i}}`),
       toInject: <i className={`ms ms-loyalty-${i} ms-loyalty-up`} />
@@ -238,28 +215,21 @@ export const injectPlaneswalkerIcons = (
   return injectWithConfig(text, config);
 };
 
-export const injectNewLine = (
-  text: string | JSX.Element | (string | JSX.Element)[]
-) => {
+export const injectNewLine = (text: string | JSX.Element | (string | JSX.Element)[]) => {
   return injectWithConfig(text, {
     toReplace: /\|/,
     toInject: <span className="new-instruction" />
   });
 };
 
-export const injectName = (
-  text: string | JSX.Element | (string | JSX.Element)[],
-  name: string
-) => {
+export const injectName = (text: string | JSX.Element | (string | JSX.Element)[], name: string) => {
   return injectWithConfig(text, {
     toReplace: /~/,
     toInject: name
   });
 };
 
-export const injectQuotationMarks = (
-  text: string | JSX.Element | (string | JSX.Element)[]
-) => {
+export const injectQuotationMarks = (text: string | JSX.Element | (string | JSX.Element)[]) => {
   return injectWithConfig(text, {
     toReplace: /"(.*)"/,
     // toInject: '“”'

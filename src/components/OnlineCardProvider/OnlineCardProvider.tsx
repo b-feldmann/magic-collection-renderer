@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Input, message, Modal } from 'antd';
 
-import dropboxAccess from './../../utils/dropbox-fetch-axios';
+import dropboxAccess from '../../utils/dropbox-fetch-axios';
 
 import { CardMainType, Creators, RarityType } from '../../interfaces/enums';
 import CardInterface from '../../interfaces/CardInterface';
@@ -35,8 +35,8 @@ const OnlineCardProvider: React.FC<OnlineCardProviderInterface> = ({
 
   dropboxAccess.setToken(apiKey.toString());
 
-  const clean = (cards: CollectionInterface): CollectionInterface => {
-    Object.values(cards).forEach((card: CardInterface) => {
+  const clean = (cardsToClean: CollectionInterface): CollectionInterface => {
+    Object.values(cardsToClean).forEach((card: CardInterface) => {
       delete card.rowNumber;
       if (typeof card.front.cardText === 'string') {
         // @ts-ignore
@@ -47,12 +47,12 @@ const OnlineCardProvider: React.FC<OnlineCardProviderInterface> = ({
         card.back.cardText = card.back.cardText.split('|');
       }
     });
-    return cards;
+    return cardsToClean;
   };
 
   const initCollection = () => {
     dropboxAccess.download(collectionFileName).then((fileContent: any) => {
-      const data = fileContent.data;
+      const { data } = fileContent;
       setCards(clean(data));
     });
   };
@@ -98,20 +98,21 @@ const OnlineCardProvider: React.FC<OnlineCardProviderInterface> = ({
 
   const ID = (): string => {
     const generateId = (): string =>
-      '_' +
-      Math.random()
+      `_${Math.random()
         .toString(36)
-        .substr(2, 15);
+        .substr(2, 15)}`;
     let id = '';
     let unique = true;
 
+    const checkId = (c: CardInterface): boolean => {
+      if (c.cardID !== id) return true;
+      unique = false;
+      return false;
+    };
+
     do {
       id = generateId();
-      Object.values(cards).every(c => {
-        if (c.cardID !== id) return true;
-        unique = false;
-        return false;
-      });
+      Object.values(cards).every(checkId);
     } while (!unique);
 
     return id;
@@ -169,9 +170,7 @@ const OnlineCardProvider: React.FC<OnlineCardProviderInterface> = ({
         <Input onChange={e => setTmpApiKey(e.target.value)} value={tmpApiKey} />
       </Modal>
       {dataLoaded ? (
-        <div>
-          {render(Object.values(cards), saveCard, addNewCard, keywords)}
-        </div>
+        <div>{render(Object.values(cards), saveCard, addNewCard, keywords)}</div>
       ) : (
         <div>Loading Cards...</div>
       )}

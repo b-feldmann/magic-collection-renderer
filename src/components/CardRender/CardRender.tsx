@@ -10,30 +10,17 @@ import './css/background.css';
 import './css/borders.scss';
 import './css/icons.css';
 import './css/card.css';
-import {
-  CardMainType,
-  ColorType,
-  Creators,
-  RarityType
-} from '../../interfaces/enums';
+// @ts-ignore
+import LazyLoad from 'react-lazy-load';
+import { CardMainType, ColorType, Creators, RarityType } from '../../interfaces/enums';
 
 import CommonIcon from './images/rarity/common.png';
 import UncommonIcon from './images/rarity/uncommon.png';
 import RareIcon from './images/rarity/rare.png';
 import MythicRareIcon from './images/rarity/mythic.png';
 
-import BackgroundWhite from './images/white-background.png';
-import BackgroundBlue from './images/blue-background.png';
-import BackgroundBlack from './images/black-background.png';
-import BackgroundRed from './images/red-background.png';
-import BackgroundGreen from './images/green-background.png';
-import BackgroundGold from './images/gold-background.png';
-import BackgroundLand from './images/land-background.png';
-import BackgroundColorless from './images/artifact.png';
-
 import NoCover from './images/no-cover.jpg';
 // @ts-ignore
-import LazyLoad from 'react-lazy-load';
 
 import {
   injectKeywords,
@@ -83,8 +70,7 @@ const CardRender: React.FC<CardRender> = (cardRender: CardRender) => {
   let cssColorName: string = color;
   if (cardMainType === CardMainType.Planeswalker) {
     if (allColors.length === 1) cssColorName = `${color}-${color}`;
-    if (allColors.length === 2)
-      cssColorName = `${allColors[0]}-${allColors[1]}`;
+    if (allColors.length === 2) cssColorName = `${allColors[0]}-${allColors[1]}`;
     if (allColors.length > 2) cssColorName = `gold-gold`;
   }
 
@@ -103,29 +89,6 @@ const CardRender: React.FC<CardRender> = (cardRender: CardRender) => {
     return resizeFactor(width) * 680;
   };
 
-  const colorToBackground = () => {
-    switch (color) {
-      case ColorType.White:
-        return BackgroundWhite;
-      case ColorType.Blue:
-        return BackgroundBlue;
-      case ColorType.Black:
-        return BackgroundBlack;
-      case ColorType.Red:
-        return BackgroundRed;
-      case ColorType.Green:
-        return BackgroundGreen;
-      case ColorType.Gold:
-        return BackgroundGold;
-      case ColorType.Land:
-        return BackgroundLand;
-      case ColorType.Colorless:
-        return BackgroundColorless;
-      default:
-        return BackgroundColorless;
-    }
-  };
-
   return (
     <ReactResizeDetector handleWidth>
       {({ width }: { width: number }) => (
@@ -141,10 +104,10 @@ const CardRender: React.FC<CardRender> = (cardRender: CardRender) => {
             <LazyLoad debounce={false}>
               <div>
                 <div className={`card-background card-background-${color}`} />
-                {/*<ImageLoader*/}
-                {/*  className="card-background"*/}
-                {/*  src={colorToBackground()}*/}
-                {/*/>*/}
+                {/* <ImageLoader */}
+                {/*  className="card-background" */}
+                {/*  src={colorToBackground()} */}
+                {/* /> */}
                 <div className="card-frame">
                   <div
                     className={`frame-header-special-border frame-header-planeswalker-${cssColorName}`}
@@ -153,16 +116,13 @@ const CardRender: React.FC<CardRender> = (cardRender: CardRender) => {
                     className={`frame-header frame-header-${color} frame-header-planeswalker-${cssColorName}`}
                   >
                     <h1 className="name">{injectQuotationMarks(name)}</h1>
-                    {cardRender.cardMainType !== CardMainType.Land &&
-                      !backFace && (
-                        <div className="cost">
-                          {injectManaIcons(manaCost, true)}
-                        </div>
-                      )}
+                    {cardRender.cardMainType !== CardMainType.Land && !backFace && (
+                      <div className="cost">{injectManaIcons(manaCost, true)}</div>
+                    )}
                   </div>
 
                   <ImageLoader
-                    src={cover ? cover : NoCover}
+                    src={cover || NoCover}
                     alt="cover"
                     className={`frame-art frame-art-${cssColorName}`}
                   />
@@ -176,27 +136,18 @@ const CardRender: React.FC<CardRender> = (cardRender: CardRender) => {
                       {/* long dash: – or — */}
                       {cardSubTypes ? ` – ${cardSubTypes}` : ''}
                     </h1>
-                    <ImageLoader
-                      src={getRarityIcon()}
-                      id="set-icon"
-                      alt="rarity-icon"
-                    />
+                    <ImageLoader src={getRarityIcon()} id="set-icon" alt="rarity-icon" />
                   </div>
 
                   <div
                     className={`frame-text-box frame-text-box-${color} frame-text-box-${cssColorName}`}
                   >
                     <p className="description ftb-inner-margin">
-                      {cardText.map((val, i) => (
-                        <span
-                          className="new-instruction"
-                          key={`${cardID}-instruction-${i}`}
-                        >
+                      {cardText.map(val => (
+                        <span className="new-instruction">
                           {injectQuotationMarks(
                             injectPlaneswalkerIcons(
-                              injectManaIcons(
-                                injectKeywords(injectName(val, name), keywords)
-                              )
+                              injectManaIcons(injectKeywords(injectName(val, name), keywords))
                             )
                           )}
                         </span>
@@ -223,23 +174,17 @@ const CardRender: React.FC<CardRender> = (cardRender: CardRender) => {
 
                   <div
                     className={`${
-                      cardMainType === CardMainType.Creature
-                        ? 'frame-stats'
-                        : 'hidden'
+                      cardMainType === CardMainType.Creature ? 'frame-stats' : 'hidden'
                     } frame-stats-${color}`}
                   >
-                    <div
-                      className={`frame-inner-stats frame-inner-stats-${color}`}
-                    >
+                    <div className={`frame-inner-stats frame-inner-stats-${color}`}>
                       <h1 className="stats">{cardStats}</h1>
                     </div>
                   </div>
 
                   <div
                     className={`${
-                      cardMainType === CardMainType.Planeswalker
-                        ? 'frame-loyalty'
-                        : 'hidden'
+                      cardMainType === CardMainType.Planeswalker ? 'frame-loyalty' : 'hidden'
                     }`}
                   >
                     <div>
@@ -247,20 +192,16 @@ const CardRender: React.FC<CardRender> = (cardRender: CardRender) => {
                         <i
                           className={`ms ms-loyalty-${cardStats} ms-loyalty-start loyalty-outline-start`}
                         />
-                        <i
-                          className={`ms ms-loyalty-${cardStats} ms-loyalty-start`}
-                        />
+                        <i className={`ms ms-loyalty-${cardStats} ms-loyalty-start`} />
                       </h1>
                     </div>
                   </div>
 
                   <div className="frame-bottom-info inner-margin">
                     <div className="fbi-left">
+                      <p>{`${collectionNumber}/${collectionSize} ${rarityCode()}`}</p>
                       <p>
-                        {collectionNumber}/{collectionSize} {rarityCode()}
-                      </p>
-                      <p>
-                        EPIC &#x2022; EN
+                        <span>EPIC &#x2022; EN</span>
                         <img
                           className="paintbrush"
                           src="https://image.ibb.co/e2VxAS/paintbrush_white.png"
@@ -270,7 +211,7 @@ const CardRender: React.FC<CardRender> = (cardRender: CardRender) => {
                       </p>
                     </div>
 
-                    <div className="fbi-center"></div>
+                    <div className="fbi-center" />
 
                     <div className="fbi-right">
                       <br />
