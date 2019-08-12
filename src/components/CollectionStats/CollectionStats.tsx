@@ -4,6 +4,8 @@ import CardInterface from '../../interfaces/CardInterface';
 import cardToColor from '../CardRender/cardToColor';
 import { CardMainType } from '../../interfaces/enums';
 
+import styles from './collectionStats.module.scss';
+
 const CollectionStats = ({ collection }: { collection: CardInterface[] }) => {
   const cardTypes = {};
   Object.values(CardMainType).forEach(key => {
@@ -56,7 +58,7 @@ const CollectionStats = ({ collection }: { collection: CardInterface[] }) => {
 
   return (
     <Popover content={content} title="Collection Stats">
-      <Button type="primary" style={{ width: '100%' }}>
+      <Button type="primary" className={styles.stats}>
         {`${collection.length} Cards. Hover Here`}
       </Button>
     </Popover>
