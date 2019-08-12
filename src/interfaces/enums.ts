@@ -53,7 +53,8 @@ export enum Creators {
   Pride = 'Goomy our Pride',
   Purity = 'Goomy our Purity',
   Soul = 'Goomy our Soul',
-  Truth = 'Goomy our Truth'
+  Truth = 'Goomy our Truth',
+  NobleTwo = 'NobleTwo'
 }
 
 export enum LayoutType {

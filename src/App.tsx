@@ -259,6 +259,14 @@ const App: React.FC = () => {
           >
             JSON
           </Button>
+          <Button
+            icon="reload"
+            type="primary"
+            onClick={() => getAllCards(dispatch)}
+            className={styles.fullWidth}
+          >
+            Reload Collection
+          </Button>
         </div>
       </Row>
       <Modal

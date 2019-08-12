@@ -2,7 +2,7 @@ import uuidv4 from 'uuid/v4';
 import { message } from 'antd';
 
 import { CardAction, CardActionType } from './cardReducer';
-import {CardMainType, CardVersion, Creators, RarityType} from './interfaces/enums';
+import { CardMainType, CardVersion, Creators, RarityType } from './interfaces/enums';
 
 import { getDropboxInstance } from './dropboxService';
 import CardInterface from './interfaces/CardInterface';
@@ -65,17 +65,23 @@ const updateCollectionUuids = (cards: CardInterface[], updatedCard: CardInterfac
     mode: 'overwrite'
   };
 
-  // if (cards.find(card => card.uuid === updatedCard.uuid)) return;
-
-  const uuids = cards.map(card => card.uuid);
-
   getDropboxInstance()
-    .upload(apiArgs, JSON.stringify(uuids))
-    .then((result: any) => {
-      console.log('Saved uuids');
-    })
-    .catch((result: any) => {
-      console.log('Something went wrong while saving uuids :(');
+    .download(collectionFileName)
+    .then((fileContent: any) => {
+      const { data } = fileContent;
+      // @ts-ignore
+      if (data.find(uuid => uuid === updatedCard.uuid)) return;
+
+      const uuids = [...data, updatedCard.uuid];
+
+      getDropboxInstance()
+        .upload(apiArgs, JSON.stringify(uuids))
+        .then((result: any) => {
+          console.log('Saved uuids');
+        })
+        .catch((result: any) => {
+          console.log('Something went wrong while saving uuids :(');
+        });
     });
 };
 
