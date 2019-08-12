@@ -30,7 +30,7 @@ const CardTableCollection: React.FC<CardTableCollectionInterface> = ({
     const format = (value?: any) => (value ? value : '');
     const formatBoolean = (value?: boolean) => !!value;
 
-    cardData.cardID = card.cardID;
+    cardData.cardID = card.uuid;
     cardData.name = format(card.front.name);
     cardData.manaCost = format(card.manaCost);
     cardData.rarity = format(card.rarity);
@@ -72,7 +72,7 @@ const CardTableCollection: React.FC<CardTableCollectionInterface> = ({
         ]}
         columns={[
           {
-            data: 'cardID',
+            data: 'uuid',
             renderer: (instance, td, row, col, prop, value, cellProperties) => {
               const button = document.createElement('a');
               button.text = 'Render';

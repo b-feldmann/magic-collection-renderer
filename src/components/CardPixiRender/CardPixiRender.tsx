@@ -21,11 +21,14 @@ import BackgroundGold from './images/gold-background.png';
 import BackgroundLand from './images/land-background.png';
 import BackgroundColorless from './images/artifact.png';
 
+import TextboxTile from './images/tile_bg_2.jpg';
+
 import NoCover from './images/no-cover.jpg';
 import cardToColor from './cardToColor';
 
 import { renderBackground, RenderBackgroundCache } from './renderBackground';
 import { renderArtBox, RenderArtBoxCache } from './renderArtBox';
+import { renderTextBox, RenderTextBoxCache } from './renderTextBox';
 
 export interface Images {
   [key: string]: PIXI.Texture;
@@ -118,6 +121,7 @@ const CardPixiRender: React.FC<CardWebGLRender> = (cardRender: CardWebGLRender) 
   const [resources, setResources] = useState(null);
   const [backgroundCache, setBackgroundCache] = useState<RenderBackgroundCache>();
   const [artBoxCache, setArtBoxCache] = useState<RenderArtBoxCache>();
+  const [textBoxCache, setTextBoxCache] = useState<RenderTextBoxCache>();
 
   const pixiRef = useRef(null);
 
@@ -139,6 +143,18 @@ const CardPixiRender: React.FC<CardWebGLRender> = (cardRender: CardWebGLRender) 
       useCache ? artBoxCache : undefined
     );
     setArtBoxCache(cache);
+
+    cache = renderTextBox(
+      app,
+      resources,
+      TextboxTile,
+      borderColor(),
+      cardText,
+      flavourText,
+      flavourAuthor,
+      useCache ? textBoxCache : undefined
+    );
+    setTextBoxCache(cache);
   };
 
   useEffect(() => {
@@ -172,6 +188,7 @@ const CardPixiRender: React.FC<CardWebGLRender> = (cardRender: CardWebGLRender) 
       .add(BackgroundLand)
       .add(BackgroundColorless)
       .add(NoCover)
+      .add(TextboxTile)
       .load((loader: any, loadedResources: any) => {
         // @ts-ignore
         pixiRef.current.appendChild(newApp.view);

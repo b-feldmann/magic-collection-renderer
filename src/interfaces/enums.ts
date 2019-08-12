@@ -60,3 +60,8 @@ export enum LayoutType {
   TABLE = 'table',
   GRID = 'grid'
 }
+
+export enum CardVersion {
+  V1 = 'v1',
+  V2 = 'v2'
+}

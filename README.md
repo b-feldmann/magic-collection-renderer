@@ -40,3 +40,9 @@ See the section about [deployment](https://facebook.github.io/create-react-app/d
 
 ### `yarn deploy`
 Deploy the app on gh-pages
+
+## License
+MIT
+
+## Disclaimer
+This repo has no affiliation or relationship with Wizards of the Coast.

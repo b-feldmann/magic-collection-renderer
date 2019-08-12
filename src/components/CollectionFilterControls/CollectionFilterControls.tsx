@@ -14,9 +14,6 @@ interface CollectionFilterControlsInterface {
   showColSpan?: boolean;
   setCollectionColSpan: (span: number) => void;
   setCollectionFilter: (filter: CollectionFilterInterface) => void;
-  availableColors: string[];
-  availableTypes: string[];
-  availableRarities: string[];
 }
 
 export interface CheckBoxGroupInterface {
@@ -26,9 +23,6 @@ export interface CheckBoxGroupInterface {
 const CollectionFilterControls: React.FC<CollectionFilterControlsInterface> = ({
   setCollectionColSpan,
   setCollectionFilter,
-  availableColors,
-  availableRarities,
-  availableTypes,
   showColSpan = true
 }: CollectionFilterControlsInterface) => {
   const createEnumInitState = (values: string[]): CheckBoxGroupInterface => {
@@ -103,7 +97,6 @@ const CollectionFilterControls: React.FC<CollectionFilterControlsInterface> = ({
           {mapEnum(CardMainType, (key: string) => (
             <Checkbox
               key={`collection-filter-controls-checkbox-cardmaintype-${key}`}
-              disabled={!availableTypes.includes(key)}
               checked={shownCardTypes[key]}
               onChange={e =>
                 updateEnumState(key, e.target.checked, shownCardTypes, setShownCardTypes)
@@ -120,7 +113,6 @@ const CollectionFilterControls: React.FC<CollectionFilterControlsInterface> = ({
             return (
               <Checkbox
                 key={`collection-filter-controls-checkbox-color-${key}`}
-                disabled={!availableColors.includes(key)}
                 checked={shownColors[key]}
                 onChange={e => updateEnumState(key, e.target.checked, shownColors, setShownColors)}
               >
@@ -134,7 +126,6 @@ const CollectionFilterControls: React.FC<CollectionFilterControlsInterface> = ({
           {mapEnum(RarityType, (key: string) => (
             <Checkbox
               key={`collection-filter-controls-checkbox-rarity-${key}`}
-              disabled={!availableRarities.includes(key)}
               checked={shownRarities[key]}
               onChange={e =>
                 updateEnumState(key, e.target.checked, shownRarities, setShownRarities)

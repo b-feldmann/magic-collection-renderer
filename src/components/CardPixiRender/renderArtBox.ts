@@ -18,17 +18,24 @@ export const renderArtBox = (
   if (cache) {
     ({ artSprite } = cache);
   } else {
+    artSprite = new PIXI.Sprite(resources[fallBackImage].texture);
+    artSprite.x = 41;
+    artSprite.y = 83;
+    artSprite.width = 448;
+    artSprite.height = 330;
+    app.stage.addChild(artSprite);
+
     const box = new PIXI.Graphics();
     // big color radius
     box.lineStyle(6, color, 1);
-    box.moveTo(37, 80);
+    box.moveTo(37, 78);
     box.lineTo(37, 415);
     box.lineTo(491, 415);
     box.lineTo(491, 81);
     box.lineTo(34, 81);
 
     // inner black border
-    box.lineStyle(2, 0x000000, 1);
+    box.lineStyle(2, 0x000000, 0.8);
     box.moveTo(41, 82);
     box.lineTo(41, 413);
     box.lineTo(489, 413);
@@ -50,21 +57,14 @@ export const renderArtBox = (
 
     // left black strong shadow
     box.lineStyle(4, 0x000000, 0.5);
-    box.moveTo(34, 74);
+    box.moveTo(34, 76);
     box.lineTo(34, 420);
 
     // left black outer shadow
     box.lineStyle(2, 0x000000, 0.2);
-    box.moveTo(31, 74);
-    box.lineTo(31, 421);
+    box.moveTo(31, 76);
+    box.lineTo(31, 420);
     app.stage.addChild(box);
-
-    artSprite = new PIXI.Sprite(resources[fallBackImage].texture);
-    artSprite.x = 42;
-    artSprite.y = 84;
-    artSprite.width = 446;
-    artSprite.height = 328;
-    app.stage.addChild(artSprite);
   }
 
   let error = false;

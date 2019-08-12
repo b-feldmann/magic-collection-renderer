@@ -207,6 +207,13 @@ const download = (path: string, token = _token) => {
   return get('files/download', { path }, CONTENT_ENDPOINT, token);
 };
 
+const zip = (path: string, token = _token) => {
+  assert.string(path, 'invalid argument ' + path + ' (expected: string)');
+  assert.string(token, 'invalid argument ' + token + ' (expected: string)');
+
+  return get('files/download_zip', { path }, CONTENT_ENDPOINT, token);
+};
+
 /**
  * Get the metadata of the specified file. Useful for testing whether a file
  * exists or how big the download would be.
@@ -263,6 +270,7 @@ export default {
   RPC_ENDPOINT,
   authorize,
   download,
+  zip,
   get,
   getMetadata,
   post,

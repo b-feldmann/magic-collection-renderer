@@ -40,7 +40,7 @@ const CardCollection: React.FC<CardCollectionInterface> = ({
   >({});
 
   const getCardFace = (card: CardInterface): CardFaceInterface => {
-    if (!card.back || !showBackFaceConfig[card.cardID]) return card.front;
+    if (!card.back || !showBackFaceConfig[card.uuid]) return card.front;
     return { ...card.back, backFace: true };
   };
 
@@ -54,20 +54,20 @@ const CardCollection: React.FC<CardCollectionInterface> = ({
     <div>
       {cards.map((card, i) => {
         return (
-          <Col className={styles.cardBox} span={colSpan} key={card.cardID}>
+          <Col className={styles.cardBox} span={colSpan} key={card.uuid}>
             <PdfDownloadWrapper
               fileName={card.name}
               render={downloadPdf => (
                 <div>
                   <ActionHover
-                    active={currentEditId === card.cardID}
+                    active={currentEditId === card.uuid}
                     northAction={{
                       icon: 'edit',
-                      action: () => editCard(card.cardID)
+                      action: () => editCard(card.uuid)
                     }}
                     eastAction={{
                       icon: 'eye',
-                      action: () => viewCard(card.cardID)
+                      action: () => viewCard(card.uuid)
                     }}
                     southAction={{
                       icon: 'download',
@@ -75,12 +75,12 @@ const CardCollection: React.FC<CardCollectionInterface> = ({
                     }}
                     westAction={{
                       icon: 'file-text',
-                      action: () => downloadJson(card.cardID)
+                      action: () => downloadJson(card.uuid)
                     }}
                   >
                     <CardRender
                       {...getCardFace(card)}
-                      cardID={card.cardID}
+                      cardID={card.uuid}
                       rarity={card.rarity}
                       manaCost={card.manaCost}
                       creator={card.creator}
@@ -93,7 +93,7 @@ const CardCollection: React.FC<CardCollectionInterface> = ({
                     <Button
                       icon="swap"
                       className={styles.swapButton}
-                      onClick={() => toggleShowBackConfig(card.cardID)}
+                      onClick={() => toggleShowBackConfig(card.uuid)}
                     />
                   )}
                 </div>

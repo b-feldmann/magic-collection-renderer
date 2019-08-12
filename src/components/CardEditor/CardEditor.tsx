@@ -1,40 +1,41 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 // import CardFaceInterface from '../../interfaces/CardFaceInterface';
 import { Button, Row } from 'antd';
 import _ from 'lodash';
 import CardInterface from '../../interfaces/CardInterface';
 
 import styles from './styles.module.scss';
-import { CardMainType, Creators, RarityType } from '../../interfaces/enums';
+import { CardMainType, CardVersion, Creators, RarityType } from '../../interfaces/enums';
 import EditField from './EditField';
 
 import useWindowDimensions from '../../useWindowDimensions';
 import CardFaceInterface from '../../interfaces/CardFaceInterface';
 import EditorTooltip from '../EditorTooltip/EditorTooltip';
+import { updateCard } from '../../actions';
+import { Store, StoreType } from '../../store';
 
 interface CardEditorInterface {
   card: CardInterface;
   saveTmpCard: (card: CardInterface | null) => void;
-  saveCard: (card: CardInterface) => void;
 }
 
 const NO_CARD = '-1';
 
 const dummyCard: CardInterface = {
   name: '',
-  cardID: NO_CARD,
+  uuid: NO_CARD,
   manaCost: '',
   rarity: RarityType.Common,
   front: {
     name: '',
     cardMainType: CardMainType.Creature,
     cardText: []
-  }
+  },
+  version: CardVersion.V1
 };
 
 const CardEditor: React.FC<CardEditorInterface> = ({
   card = dummyCard,
-  saveCard,
   saveTmpCard
 }: CardEditorInterface) => {
   const [contentChanged, setContentChanged] = useState<boolean>(false);
@@ -43,6 +44,8 @@ const CardEditor: React.FC<CardEditorInterface> = ({
   const [timerId, setTimerId] = useState<any>(NO_CARD);
 
   const [editBack, setEditBack] = useState<boolean>(false);
+
+  const { dispatch, cards } = useContext<StoreType>(Store);
 
   const { height } = useWindowDimensions();
 
@@ -101,7 +104,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
     setTmpCard(_.cloneDeep(tmpCard));
     setOriginalCard(_.cloneDeep(tmpCard));
     saveTmpCard(null);
-    saveCard(_.cloneDeep(tmpCard));
+    updateCard(dispatch, cards, _.cloneDeep(tmpCard));
     setContentChanged(false);
   };
 
@@ -122,7 +125,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
     setOriginalCard(_.cloneDeep(card));
     saveTmpCard(null);
     setContentChanged(false);
-  }, [card.cardID]);
+  }, [card.uuid]);
 
   const inputConfig = [
     { key: 'name', type: 'input', name: 'Card Name' },
@@ -154,7 +157,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
     }
   ];
 
-  if (card.cardID === NO_CARD)
+  if (card.uuid === NO_CARD)
     return (
       <div className={styles.noCard}>
         <span>Hover over a card and click the edit icon to start the editor!</span>

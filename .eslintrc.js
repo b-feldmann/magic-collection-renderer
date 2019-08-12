@@ -61,6 +61,8 @@ module.exports = {
      */
     "react-hooks/rules-of-hooks": "error",
 
+    "react/jsx-wrap-multilines": ["error", {"declaration": false, "assignment": false}],
+
     /**
      * @description rules of eslint-plugin-prettier
      */
