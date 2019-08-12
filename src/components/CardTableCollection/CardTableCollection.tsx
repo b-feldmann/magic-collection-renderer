@@ -1,9 +1,9 @@
 import React from 'react';
 // import CardFaceInterface from '../../interfaces/CardFaceInterface';
+import { HotTable } from '@handsontable/react';
 import { CardMainType, Creators, RarityType } from '../../interfaces/enums';
 // @ts-ignore
 
-import { HotTable } from '@handsontable/react';
 import 'handsontable/dist/handsontable.full.css';
 import CardInterface from '../../interfaces/CardInterface';
 
@@ -27,10 +27,10 @@ const CardTableCollection: React.FC<CardTableCollectionInterface> = ({
 
   cards.map(card => {
     const cardData: any = {};
-    const format = (value?: any) => (value ? value : '');
+    const format = (value?: any) => value || '';
     const formatBoolean = (value?: boolean) => !!value;
 
-    cardData.cardID = card.uuid;
+    cardData.uuid = card.uuid;
     cardData.name = format(card.front.name);
     cardData.manaCost = format(card.manaCost);
     cardData.rarity = format(card.rarity);
@@ -108,8 +108,8 @@ const CardTableCollection: React.FC<CardTableCollectionInterface> = ({
           },
           { data: 'cover', width: '300px' }
         ]}
-        autoColumnSize={true}
-        rowHeaders={true}
+        autoColumnSize
+        rowHeaders
         width="100%"
         height="calc(100vh - 60px)"
       />
