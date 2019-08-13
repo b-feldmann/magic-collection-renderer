@@ -1,6 +1,4 @@
 import React from 'react';
-// @ts-ignore
-import ReactResizeDetector from 'react-resize-detector';
 
 import 'mana-font/css/mana.css';
 
@@ -12,7 +10,7 @@ import './css/icons.css';
 import './css/card.css';
 // @ts-ignore
 import LazyLoad from 'react-lazy-load';
-import { CardMainType, ColorType, Creators, RarityType } from '../../interfaces/enums';
+import { CardMainType, Creators, RarityType } from '../../interfaces/enums';
 
 import CommonIcon from './images/rarity/common.png';
 import UncommonIcon from './images/rarity/uncommon.png';
@@ -50,13 +48,15 @@ interface CardRender {
   keywords: string[];
   collectionNumber: number;
   collectionSize: number;
+  containerWidth?: number;
 }
 
-const CardRender: React.FC<CardRender> = (cardRender: CardRender) => {
+const CardRender = (cardRender: CardRender) => {
   const { legendary, cardMainType, cardSubTypes, rarity } = cardRender;
   const { name, manaCost, cardStats, cover, creator } = cardRender;
   const { cardText, flavourText, flavourAuthor, cardID } = cardRender;
   const { backFace, keywords, collectionNumber, collectionSize } = cardRender;
+  const { containerWidth = 488 } = cardRender;
 
   const getRarityIcon = () => {
     if (rarity === RarityType.MythicRare) return MythicRareIcon;
@@ -90,141 +90,137 @@ const CardRender: React.FC<CardRender> = (cardRender: CardRender) => {
   };
 
   return (
-    <ReactResizeDetector handleWidth>
-      {({ width }: { width: number }) => (
-        <div style={{ height: `${getHeight(width)}px` }}>
-          <div
-            id={`card-id-${cardID}`}
-            className="card-container"
-            style={{
-              transform: `scale(${resizeFactor(width)})`,
-              transformOrigin: 'top left'
-            }}
-          >
-            <LazyLoad debounce={false}>
-              <div>
-                <div className={`card-background card-background-${color}`} />
-                {/* <ImageLoader */}
-                {/*  className="card-background" */}
-                {/*  src={colorToBackground()} */}
-                {/* /> */}
-                <div className="card-frame">
-                  <div
-                    className={`frame-header-special-border frame-header-planeswalker-${cssColorName}`}
-                  />
-                  <div
-                    className={`frame-header frame-header-${color} frame-header-planeswalker-${cssColorName}`}
-                  >
-                    <h1 className="name">{injectQuotationMarks(name)}</h1>
-                    {cardRender.cardMainType !== CardMainType.Land && !backFace && (
-                      <div className="cost">{injectManaIcons(manaCost, true)}</div>
-                    )}
-                  </div>
+    <div style={{ height: `${getHeight(containerWidth)}px` }}>
+      <div
+        id={`card-id-${cardID}`}
+        className="card-container"
+        style={{
+          transform: `scale(${resizeFactor(containerWidth)})`,
+          transformOrigin: 'top left'
+        }}
+      >
+        <LazyLoad debounce={false}>
+          <div>
+            <div className={`card-background card-background-${color}`} />
+            {/* <ImageLoader */}
+            {/*  className="card-background" */}
+            {/*  src={colorToBackground()} */}
+            {/* /> */}
+            <div className="card-frame">
+              <div
+                className={`frame-header-special-border frame-header-planeswalker-${cssColorName}`}
+              />
+              <div
+                className={`frame-header frame-header-${color} frame-header-planeswalker-${cssColorName}`}
+              >
+                <h1 className="name">{injectQuotationMarks(name)}</h1>
+                {cardRender.cardMainType !== CardMainType.Land && !backFace && (
+                  <div className="cost">{injectManaIcons(manaCost, true)}</div>
+                )}
+              </div>
 
-                  <ImageLoader
-                    src={cover || NoCover}
-                    alt="cover"
-                    className={`frame-art frame-art-${cssColorName}`}
-                  />
+              <ImageLoader
+                src={cover || NoCover}
+                alt="cover"
+                className={`frame-art frame-art-${cssColorName}`}
+              />
 
-                  <div
-                    className={`frame-type-line frame-type-line-${color} frame-type-line-${cssColorName}`}
-                  >
-                    <h1 className="type">
-                      {legendary ? 'Legendary ' : ''}
-                      {cardMainType}
-                      {/* long dash: – or — */}
-                      {cardSubTypes ? ` – ${cardSubTypes}` : ''}
-                    </h1>
-                    <ImageLoader src={getRarityIcon()} id="set-icon" alt="rarity-icon" />
-                  </div>
+              <div
+                className={`frame-type-line frame-type-line-${color} frame-type-line-${cssColorName}`}
+              >
+                <h1 className="type">
+                  {legendary ? 'Legendary ' : ''}
+                  {cardMainType}
+                  {/* long dash: – or — */}
+                  {cardSubTypes ? ` – ${cardSubTypes}` : ''}
+                </h1>
+                <ImageLoader src={getRarityIcon()} id="set-icon" alt="rarity-icon" />
+              </div>
 
-                  <div
-                    className={`frame-text-box frame-text-box-${color} frame-text-box-${cssColorName}`}
-                  >
-                    <p className="description ftb-inner-margin">
-                      {cardText.map(val => (
-                        <span className="new-instruction">
-                          {injectQuotationMarks(
-                            injectPlaneswalkerIcons(
-                              injectManaIcons(injectKeywords(injectName(val, name), keywords))
-                            )
-                          )}
-                        </span>
-                      ))}
-                    </p>
-                    <p className="flavour-text">
-                      {flavourText && (
-                        <span>
-                          {flavourAuthor
-                            ? `“${injectName(flavourText, name)}”`
-                            : injectName(flavourText, name)}
-                          {flavourAuthor ? (
-                            <span>
-                              <br />
-                              {`— ${flavourAuthor}`}
-                            </span>
-                          ) : (
-                            ''
-                          )}
-                        </span>
+              <div
+                className={`frame-text-box frame-text-box-${color} frame-text-box-${cssColorName}`}
+              >
+                <p className="description ftb-inner-margin">
+                  {cardText.map(val => (
+                    <span className="new-instruction">
+                      {injectQuotationMarks(
+                        injectPlaneswalkerIcons(
+                          injectManaIcons(injectKeywords(injectName(val, name), keywords))
+                        )
                       )}
-                    </p>
-                  </div>
+                    </span>
+                  ))}
+                </p>
+                <p className="flavour-text">
+                  {flavourText && (
+                    <span>
+                      {flavourAuthor
+                        ? `“${injectName(flavourText, name)}”`
+                        : injectName(flavourText, name)}
+                      {flavourAuthor ? (
+                        <span>
+                          <br />
+                          {`— ${flavourAuthor}`}
+                        </span>
+                      ) : (
+                        ''
+                      )}
+                    </span>
+                  )}
+                </p>
+              </div>
 
-                  <div
-                    className={`${
-                      cardMainType === CardMainType.Creature ? 'frame-stats' : 'hidden'
-                    } frame-stats-${color}`}
-                  >
-                    <div className={`frame-inner-stats frame-inner-stats-${color}`}>
-                      <h1 className="stats">{cardStats}</h1>
-                    </div>
-                  </div>
-
-                  <div
-                    className={`${
-                      cardMainType === CardMainType.Planeswalker ? 'frame-loyalty' : 'hidden'
-                    }`}
-                  >
-                    <div>
-                      <h1 className="stats">
-                        <i
-                          className={`ms ms-loyalty-${cardStats} ms-loyalty-start loyalty-outline-start`}
-                        />
-                        <i className={`ms ms-loyalty-${cardStats} ms-loyalty-start`} />
-                      </h1>
-                    </div>
-                  </div>
-
-                  <div className="frame-bottom-info inner-margin">
-                    <div className="fbi-left">
-                      <p>{`${collectionNumber}/${collectionSize} ${rarityCode()}`}</p>
-                      <p>
-                        <span>EPIC &#x2022; EN</span>
-                        <img
-                          className="paintbrush"
-                          src="https://image.ibb.co/e2VxAS/paintbrush_white.png"
-                          alt="paintbrush icon"
-                        />
-                        {creator || Creators.UNKNOWN}
-                      </p>
-                    </div>
-
-                    <div className="fbi-center" />
-
-                    <div className="fbi-right">
-                      <br />
-                      <p>&#x99; &amp; &#169; 2019 Wizards of the Coast</p>
-                    </div>
-                  </div>
+              <div
+                className={`${
+                  cardMainType === CardMainType.Creature ? 'frame-stats' : 'hidden'
+                } frame-stats-${color}`}
+              >
+                <div className={`frame-inner-stats frame-inner-stats-${color}`}>
+                  <h1 className="stats">{cardStats}</h1>
                 </div>
               </div>
-            </LazyLoad>
+
+              <div
+                className={`${
+                  cardMainType === CardMainType.Planeswalker ? 'frame-loyalty' : 'hidden'
+                }`}
+              >
+                <div>
+                  <h1 className="stats">
+                    <i
+                      className={`ms ms-loyalty-${cardStats} ms-loyalty-start loyalty-outline-start`}
+                    />
+                    <i className={`ms ms-loyalty-${cardStats} ms-loyalty-start`} />
+                  </h1>
+                </div>
+              </div>
+
+              <div className="frame-bottom-info inner-margin">
+                <div className="fbi-left">
+                  <p>{`${collectionNumber}/${collectionSize} ${rarityCode()}`}</p>
+                  <p>
+                    <span>EPIC &#x2022; EN</span>
+                    <img
+                      className="paintbrush"
+                      src="https://image.ibb.co/e2VxAS/paintbrush_white.png"
+                      alt="paintbrush icon"
+                    />
+                    {creator || Creators.UNKNOWN}
+                  </p>
+                </div>
+
+                <div className="fbi-center" />
+
+                <div className="fbi-right">
+                  <br />
+                  <p>&#x99; &amp; &#169; 2019 Wizards of the Coast</p>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-      )}
-    </ReactResizeDetector>
+        </LazyLoad>
+      </div>
+    </div>
   );
 };
 

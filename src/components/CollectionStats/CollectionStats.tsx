@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Popover, Row, Table } from 'antd';
+import { Button, Popover, Table } from 'antd';
 import CardInterface from '../../interfaces/CardInterface';
 import cardToColor from '../CardRender/cardToColor';
 import { CardMainType } from '../../interfaces/enums';
@@ -14,18 +14,18 @@ const CollectionStats = ({ collection }: { collection: CardInterface[] }) => {
   });
 
   const stats = {
-    white: { Count: 0, Common: 0, Uncommon: 0, Rare: 0, Mythic: 0, ...cardTypes },
-    blue: { Count: 0, Common: 0, Uncommon: 0, Rare: 0, Mythic: 0, ...cardTypes },
-    black: { Count: 0, Common: 0, Uncommon: 0, Rare: 0, Mythic: 0, ...cardTypes },
-    red: { Count: 0, Common: 0, Uncommon: 0, Rare: 0, Mythic: 0, ...cardTypes },
-    green: { Count: 0, Common: 0, Uncommon: 0, Rare: 0, Mythic: 0, ...cardTypes },
-    colorless: { Count: 0, Common: 0, Uncommon: 0, Rare: 0, Mythic: 0, ...cardTypes },
-    gold: { Count: 0, Common: 0, Uncommon: 0, Rare: 0, Mythic: 0, ...cardTypes },
-    land: { Count: 0, Common: 0, Uncommon: 0, Rare: 0, Mythic: 0, ...cardTypes }
+    white: { Count: 0, Common: 0, Uncommon: 0, Rare: 0, 'Mythic Rare': 0, ...cardTypes },
+    blue: { Count: 0, Common: 0, Uncommon: 0, Rare: 0, 'Mythic Rare': 0, ...cardTypes },
+    black: { Count: 0, Common: 0, Uncommon: 0, Rare: 0, 'Mythic Rare': 0, ...cardTypes },
+    red: { Count: 0, Common: 0, Uncommon: 0, Rare: 0, 'Mythic Rare': 0, ...cardTypes },
+    green: { Count: 0, Common: 0, Uncommon: 0, Rare: 0, 'Mythic Rare': 0, ...cardTypes },
+    colorless: { Count: 0, Common: 0, Uncommon: 0, Rare: 0, 'Mythic Rare': 0, ...cardTypes },
+    gold: { Count: 0, Common: 0, Uncommon: 0, Rare: 0, 'Mythic Rare': 0, ...cardTypes },
+    land: { Count: 0, Common: 0, Uncommon: 0, Rare: 0, 'Mythic Rare': 0, ...cardTypes }
   };
 
   collection.forEach(card => {
-    const { color, allColors } = cardToColor(card.front.cardMainType, card.manaCost);
+    const { color } = cardToColor(card.front.cardMainType, card.manaCost);
     // @ts-ignore
     stats[color][card.rarity] += 1;
     // @ts-ignore
@@ -51,7 +51,7 @@ const CollectionStats = ({ collection }: { collection: CardInterface[] }) => {
   addColumn('Common');
   addColumn('Uncommon');
   addColumn('Rare');
-  addColumn('Mythic');
+  addColumn('Mythic Rare');
   Object.values(CardMainType).forEach(key => addColumn(key));
 
   const content = <Table size="small" dataSource={data} columns={columns} />;

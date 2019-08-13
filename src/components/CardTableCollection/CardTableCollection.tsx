@@ -25,7 +25,7 @@ const CardTableCollection: React.FC<CardTableCollectionInterface> = ({
 }: CardTableCollectionInterface) => {
   const data: object[][] = [];
 
-  cards.map(card => {
+  cards.forEach(card => {
     const cardData: any = {};
     const format = (value?: any) => value || '';
     const formatBoolean = (value?: boolean) => !!value;

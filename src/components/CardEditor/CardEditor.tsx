@@ -15,7 +15,7 @@ import { updateCard } from '../../actions';
 import { Store, StoreType } from '../../store';
 
 interface CardEditorInterface {
-  card: CardInterface;
+  card?: CardInterface;
   saveTmpCard: (card: CardInterface | null) => void;
 }
 
@@ -117,6 +117,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
       saveTmpCard(null);
       setContentChanged(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tmpCard]);
 
   useEffect(() => {
@@ -125,6 +126,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
     setOriginalCard(_.cloneDeep(card));
     saveTmpCard(null);
     setContentChanged(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [card.uuid]);
 
   const inputConfig = [

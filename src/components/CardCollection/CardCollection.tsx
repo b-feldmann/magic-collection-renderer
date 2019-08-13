@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
-// import CardFaceInterface from '../../interfaces/CardFaceInterface';
-import CardInterface from '../../interfaces/CardInterface';
-import { Button, Col } from 'antd';
-import CardRender from '../CardRender/CardRender';
-import styles from './styles.module.css';
-import ActionHover from '../ActionHover/ActionHover';
-import PdfDownloadWrapper from '../PdfDownloadWrapper/PdfDownloadWrapper';
+import { Button, Col, message, Spin } from 'antd';
 
+// @ts-ignore
+import useResizeAware from 'react-resize-aware';
+
+import CardRender from '../CardRender/CardRender';
+import ActionHover from '../ActionHover/ActionHover';
+import styles from './styles.module.css';
+
+import CardInterface from '../../interfaces/CardInterface';
 import CardFaceInterface from '../../interfaces/CardFaceInterface';
 
 export interface CardCollectionInterface {
@@ -24,7 +26,7 @@ interface BackConfigInterface {
   [key: string]: boolean;
 }
 
-const CardCollection: React.FC<CardCollectionInterface> = ({
+const CardCollection = ({
   cards = [],
   editCard,
   downloadJson,
@@ -33,11 +35,7 @@ const CardCollection: React.FC<CardCollectionInterface> = ({
   colSpan,
   keywords
 }: CardCollectionInterface) => {
-  const [notParsedColSpan, setColSpan] = useState<number>(-1);
-
-  const [showBackFaceConfig, setShowBackFaceConfig] = useState<
-    BackConfigInterface
-  >({});
+  const [showBackFaceConfig, setShowBackFaceConfig] = useState<BackConfigInterface>({});
 
   const getCardFace = (card: CardInterface): CardFaceInterface => {
     if (!card.back || !showBackFaceConfig[card.uuid]) return card.front;
@@ -50,55 +48,54 @@ const CardCollection: React.FC<CardCollectionInterface> = ({
     setShowBackFaceConfig(newConfig);
   };
 
+  const [resizeListener, sizes] = useResizeAware();
+
   return (
     <div>
+      {resizeListener}
       {cards.map((card, i) => {
         return (
           <Col className={styles.cardBox} span={colSpan} key={card.uuid}>
-            <PdfDownloadWrapper
-              fileName={card.name}
-              render={downloadPdf => (
-                <div>
-                  <ActionHover
-                    active={currentEditId === card.uuid}
-                    northAction={{
-                      icon: 'edit',
-                      action: () => editCard(card.uuid)
-                    }}
-                    eastAction={{
-                      icon: 'eye',
-                      action: () => viewCard(card.uuid)
-                    }}
-                    southAction={{
-                      icon: 'download',
-                      action: downloadPdf
-                    }}
-                    westAction={{
-                      icon: 'file-text',
-                      action: () => downloadJson(card.uuid)
-                    }}
-                  >
-                    <CardRender
-                      {...getCardFace(card)}
-                      cardID={card.uuid}
-                      rarity={card.rarity}
-                      manaCost={card.manaCost}
-                      creator={card.creator}
-                      keywords={keywords}
-                      collectionNumber={i + 1}
-                      collectionSize={cards.length}
-                    />
-                  </ActionHover>
-                  {card.back && (
-                    <Button
-                      icon="swap"
-                      className={styles.swapButton}
-                      onClick={() => toggleShowBackConfig(card.uuid)}
-                    />
-                  )}
-                </div>
-              )}
-            />
+            <Spin size="large" spinning={!!card.loading}>
+              <ActionHover
+                active={currentEditId === card.uuid}
+                northAction={{
+                  icon: 'edit',
+                  action: () => editCard(card.uuid)
+                }}
+                eastAction={{
+                  icon: 'eye',
+                  action: () => viewCard(card.uuid)
+                }}
+                southAction={{
+                  icon: 'download',
+                  action: () => message.error('Currently not implemented')
+                }}
+                westAction={{
+                  icon: 'file-text',
+                  action: () => downloadJson(card.uuid)
+                }}
+              >
+                <CardRender
+                  containerWidth={(sizes.width / 24) * colSpan - 8}
+                  {...getCardFace(card)}
+                  cardID={card.uuid}
+                  rarity={card.rarity}
+                  manaCost={card.manaCost}
+                  creator={card.creator}
+                  keywords={keywords}
+                  collectionNumber={i + 1}
+                  collectionSize={cards.length}
+                />
+              </ActionHover>
+            </Spin>
+            {card.back && (
+              <Button
+                icon="swap"
+                className={styles.swapButton}
+                onClick={() => toggleShowBackConfig(card.uuid)}
+              />
+            )}
           </Col>
         );
       })}

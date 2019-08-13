@@ -1,4 +1,5 @@
 import uuidv4 from 'uuid/v4';
+import uuidv5 from 'uuid/v5';
 import { message } from 'antd';
 
 import { CardAction, CardActionType } from './cardReducer';
@@ -7,7 +8,13 @@ import { CardMainType, CardVersion, Creators, RarityType } from './interfaces/en
 import { getDropboxInstance } from './dropboxService';
 import CardInterface from './interfaces/CardInterface';
 
+const createIdentity = (card: CardInterface) => {
+  return uuidv5(JSON.stringify(card), card.uuid);
+};
+
 const collectionFileName = '/magic-collection-data.json';
+
+const localStorageFile = 'collection-cache';
 
 export const EMPTY_CARD = (): CardInterface => ({
   name: '',
@@ -23,18 +30,51 @@ export const EMPTY_CARD = (): CardInterface => ({
   version: CardVersion.V1
 });
 
-export const getAllCards = (dispatch: (value: CardAction) => void) => {
+export const refreshCollection = (
+  dispatch: (value: CardAction) => void,
+  cards: CardInterface[]
+) => {
+  dispatch({
+    type: CardActionType.RefreshCollection
+  });
+
   getDropboxInstance()
     .download(collectionFileName)
     .then((fileContent: any) => {
       const { data } = fileContent;
 
-      data.forEach((uuid: string) => readCard(dispatch, uuid));
+      const uuidToCard: { [key: string]: CardInterface } = {};
+      if (cards && cards.length > 0) {
+        cards.forEach(card => {
+          uuidToCard[card.uuid] = card;
+        });
+      } else {
+        const cache = localStorage.getItem(localStorageFile);
+        if (cache) {
+          const cachedCards: CardInterface[] = JSON.parse(cache);
+          cachedCards.forEach(card => {
+            uuidToCard[card.uuid] = card;
+          });
+        }
+      }
 
-      // return dispatch({
-      //   type: CardActionType.GetAllCards,
-      //   payload: { cards: data }
-      // });
+      const untouchedCards: CardInterface[] = [];
+
+      Object.keys(data).forEach((uuid: any) => {
+        if (uuidToCard[uuid] && createIdentity(uuidToCard[uuid]) === data[uuid]) {
+          untouchedCards.push(uuidToCard[uuid]);
+        } else {
+          // eslint-disable-next-line @typescript-eslint/no-use-before-define
+          readCard(dispatch, uuid);
+        }
+      });
+
+      if (untouchedCards) {
+        dispatch({
+          type: CardActionType.BulkReadCard,
+          payload: { cards: untouchedCards }
+        });
+      }
     });
 };
 
@@ -52,6 +92,15 @@ export const readCard = (dispatch: (value: CardAction) => void, uuid: string) =>
     .download(`/cards/${uuid}.json`)
     .then((fileContent: any) => {
       const { data } = fileContent;
+
+      const cache = localStorage.getItem(localStorageFile);
+      if (cache) {
+        const cachedCards: CardInterface[] = JSON.parse(cache);
+        localStorage.setItem(localStorageFile, JSON.stringify([...cachedCards, data]));
+      } else {
+        localStorage.setItem(localStorageFile, JSON.stringify([data]));
+      }
+
       return dispatch({
         type: CardActionType.ReadCard,
         payload: { card: data }
@@ -59,7 +108,7 @@ export const readCard = (dispatch: (value: CardAction) => void, uuid: string) =>
     });
 };
 
-const updateCollectionUuids = (cards: CardInterface[], updatedCard: CardInterface) => {
+const updateCollectionUuids = (updatedCard: CardInterface) => {
   const apiArgs = {
     path: collectionFileName,
     mode: 'overwrite'
@@ -69,13 +118,12 @@ const updateCollectionUuids = (cards: CardInterface[], updatedCard: CardInterfac
     .download(collectionFileName)
     .then((fileContent: any) => {
       const { data } = fileContent;
-      // @ts-ignore
-      if (data.find(uuid => uuid === updatedCard.uuid)) return;
 
-      const uuids = [...data, updatedCard.uuid];
+      const identifier = { ...data };
+      identifier[updatedCard.uuid] = createIdentity(updatedCard);
 
       getDropboxInstance()
-        .upload(apiArgs, JSON.stringify(uuids))
+        .upload(apiArgs, JSON.stringify(identifier))
         .then((result: any) => {
           console.log('Saved uuids');
         })
@@ -118,14 +166,15 @@ export const updateCard = (
       message.error('Something went wrong while uploading data :(');
     });
 
-  updateCollectionUuids(cards, updated);
+  updateCollectionUuids(updated);
+
+  localStorage.setItem(localStorageFile, JSON.stringify([...cards, updated]));
 };
 
 export const deleteCard = (dispatch: (value: CardAction) => void, uuid: string) => {
   getDropboxInstance()
     .download(collectionFileName)
     .then((fileContent: any) => {
-      const { data } = fileContent;
       return dispatch({
         type: CardActionType.DeleteCard,
         payload: { uuid }

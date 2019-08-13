@@ -2,7 +2,7 @@ import CardFaceInterface from './CardFaceInterface';
 import { CardVersion, RarityType } from './enums';
 
 export default interface CardInterface {
-  [key: string]: number | string | CardFaceInterface | undefined;
+  [key: string]: number | string | CardFaceInterface | boolean | undefined;
   name: string;
   rarity: RarityType;
   creator?: string;
@@ -11,4 +11,5 @@ export default interface CardInterface {
   front: CardFaceInterface;
   back?: CardFaceInterface;
   version: CardVersion;
+  loading?: boolean;
 }

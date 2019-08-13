@@ -1,34 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
-// @ts-ignore
-import ReactResizeDetector from 'react-resize-detector';
 
 import 'mana-font/css/mana.css';
 
 import * as THREE from 'three';
 
-import {
-  CardMainType,
-  ColorType,
-  Creators,
-  RarityType
-} from '../../interfaces/enums';
-
-import CommonIcon from './images/rarity/common.png';
-import UncommonIcon from './images/rarity/uncommon.png';
-import RareIcon from './images/rarity/rare.png';
-import MythicRareIcon from './images/rarity/mythic.png';
-
-import BackgroundWhite from './images/white-background.png';
-import BackgroundBlue from './images/blue-background.png';
-import BackgroundBlack from './images/black-background.png';
-import BackgroundRed from './images/red-background.png';
-import BackgroundGreen from './images/green-background.png';
-import BackgroundGold from './images/gold-background.png';
-import BackgroundLand from './images/land-background.png';
-import BackgroundColorless from './images/artifact.png';
-
-import NoCover from './images/no-cover.jpg';
-import cardToColor from './cardToColor';
+import { CardMainType, RarityType } from '../../interfaces/enums';
 
 interface CardWebGLRender {
   name: string;
@@ -48,6 +24,7 @@ interface CardWebGLRender {
   keywords: string[];
   collectionNumber: number;
   collectionSize: number;
+  containerWidth?: number;
 }
 
 const CardWebGLRender = (cardRender: CardWebGLRender) => {
@@ -55,6 +32,7 @@ const CardWebGLRender = (cardRender: CardWebGLRender) => {
   const { name, manaCost, cardStats, cover, creator } = cardRender;
   const { cardText, flavourText, flavourAuthor, cardID } = cardRender;
   const { backFace, keywords, collectionNumber, collectionSize } = cardRender;
+  const { containerWidth = 488 } = cardRender;
 
   const [scene, setScene] = useState(new THREE.Scene());
   const [renderer, setRenderer] = useState();
@@ -159,20 +137,16 @@ const CardWebGLRender = (cardRender: CardWebGLRender) => {
   };
 
   return (
-    <ReactResizeDetector handleWidth>
-      {({ width }: { width: number }) => (
-        <div style={{ height: `${getHeight(width)}px` }}>
-          <div
-            id={`card-id-${cardID}`}
-            style={{
-              transform: `scale(${resizeFactor(width)})`,
-              transformOrigin: 'top left'
-            }}
-            ref={mount}
-          />
-        </div>
-      )}
-    </ReactResizeDetector>
+    <div style={{ height: `${getHeight(containerWidth)}px` }}>
+      <div
+        id={`card-id-${cardID}`}
+        style={{
+          transform: `scale(${resizeFactor(containerWidth)})`,
+          transformOrigin: 'top left'
+        }}
+        ref={mount}
+      />
+    </div>
   );
 };
 

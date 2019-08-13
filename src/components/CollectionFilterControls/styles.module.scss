@@ -1,9 +1,10 @@
 .controls {
     top: 32px;
     background: whitesmoke;
-    padding: 8px;
     position: fixed;
     width: calc(100 / 24 * 18 / 24 * 4vw);
+    height: calc(100vh - 32px);
+    padding: 8px 24px 8px 8px;
 }
 
 .controlItem {

@@ -1,4 +1,4 @@
-import { Button, Checkbox, Icon, Input, List, Select, Typography } from 'antd';
+import { Button, Checkbox, Icon, Input, List, Select } from 'antd';
 import React from 'react';
 import styles from './styles.module.scss';
 import useWindowDimensions from '../../useWindowDimensions';
@@ -14,7 +14,7 @@ interface EditFieldInterface {
   saveValue: (key: string, value: any) => void;
 }
 
-const EditField: React.FC<EditFieldInterface> = (props: EditFieldInterface) => {
+const EditField = (props: EditFieldInterface) => {
   const { type, fieldKey, name, data, getValue, saveValue } = props;
 
   const { height } = useWindowDimensions();
@@ -101,9 +101,6 @@ const EditField: React.FC<EditFieldInterface> = (props: EditFieldInterface) => {
   }
 
   if (type === 'list') {
-    const toList = (value: string) => value.split('|');
-    const toString = (list: string[]) => list.join('|');
-
     return (
       <span className={tiny ? styles.tiny : ''}>
         <p className={styles.label}>{name}</p>
@@ -121,7 +118,7 @@ const EditField: React.FC<EditFieldInterface> = (props: EditFieldInterface) => {
                   twoToneColor="#FF0000"
                   onClick={() => {
                     const list = getValue(fieldKey);
-                    list.splice(i, 1)
+                    list.splice(i, 1);
                     saveValue(fieldKey, list);
                   }}
                 />
@@ -134,7 +131,7 @@ const EditField: React.FC<EditFieldInterface> = (props: EditFieldInterface) => {
                   list[i] = e.target.value;
                   saveValue(fieldKey, list);
                 }}
-                autosize={true}
+                autosize
               />
             </List.Item>
           )}

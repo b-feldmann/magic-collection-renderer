@@ -1,4 +1,3 @@
-'use strict';
 // @ts-ignore
 import assert from 'assert-plus';
 import axios from 'axios';
@@ -33,9 +32,7 @@ const apiMethodRegex = /^([a-z_2]+\/)*[a-z_2]+$/;
 const authorize = (clientId: string, redirectUri = '') => {
   // eslint-disable-next-line no-undef
   return new Promise((resolve, reject) => {
-    reject(
-      'Not implemented yet, please obtain a token manually and store it via setToken'
-    );
+    reject('Not implemented yet, please obtain a token manually and store it via setToken');
   });
 };
 
@@ -69,30 +66,16 @@ const setToken = (token: string) => {
  * probably want to access some data that is returned by the call; this can be
  * achieved by calling `text()` on the result returned by the promise.
  */
-const get = (
-  apiMethod: string,
-  apiArgs: object,
-  endpoint = CONTENT_ENDPOINT,
-  token = _token
-) => {
-  assert.string(
-    apiMethod,
-    'invalid argument ' + apiMethod + ' (expected: string)'
-  );
-  assert.ok(
-    apiMethodRegex.test(apiMethod),
-    'apiMethod has an unexpected format: ' + apiMethod
-  );
-  assert.object(apiArgs, 'invalid argument ' + apiArgs + ' (expected: object)');
-  assert.string(
-    endpoint,
-    'invalid argument ' + endpoint + ' (expected: string)'
-  );
-  assert.string(token, 'invalid argument ' + token + ' (expected: string)');
+const get = (apiMethod: string, apiArgs: object, endpoint = CONTENT_ENDPOINT, token = _token) => {
+  assert.string(apiMethod, `invalid argument ${apiMethod} (expected: string)`);
+  assert.ok(apiMethodRegex.test(apiMethod), `apiMethod has an unexpected format: ${apiMethod}`);
+  assert.object(apiArgs, `invalid argument ${apiArgs} (expected: object)`);
+  assert.string(endpoint, `invalid argument ${endpoint} (expected: string)`);
+  assert.string(token, `invalid argument ${token} (expected: string)`);
 
   return axios.get(endpoint + API_VERSION + apiMethod, {
     headers: {
-      Authorization: 'Bearer ' + token,
+      Authorization: `Bearer ${token}`,
       'Dropbox-API-Arg': JSON.stringify(apiArgs)
     }
   });
@@ -124,26 +107,17 @@ const post = (
   endpoint = CONTENT_ENDPOINT,
   token = _token
 ) => {
-  assert.string(
-    apiMethod,
-    'invalid argument ' + apiMethod + ' (expected: string)'
-  );
-  assert.ok(
-    apiMethodRegex.test(apiMethod),
-    'apiMethod has an unexpected format: ' + apiMethod
-  );
-  assert.object(apiArgs, 'invalid argument ' + apiArgs + ' (expected: object)');
+  assert.string(apiMethod, `invalid argument ${apiMethod} (expected: string)`);
+  assert.ok(apiMethodRegex.test(apiMethod), `apiMethod has an unexpected format: ${apiMethod}`);
+  assert.object(apiArgs, `invalid argument ${apiArgs} (expected: object)`);
   // no assertion for content - can be anything
-  assert.string(
-    endpoint,
-    'invalid argument ' + endpoint + ' (expected: string)'
-  );
-  assert.string(token, 'invalid argument ' + token + ' (expected: string)');
+  assert.string(endpoint, `invalid argument ${endpoint} (expected: string)`);
+  assert.string(token, `invalid argument ${token} (expected: string)`);
 
   return axios.post(endpoint + API_VERSION + apiMethod, content, {
     headers: {
       'Content-Type': 'application/octet-stream',
-      Authorization: 'Bearer ' + token,
+      Authorization: `Bearer ${token}`,
       'Dropbox-API-Arg': JSON.stringify(apiArgs)
     }
   });
@@ -180,16 +154,10 @@ const upload = (
   assert.bool(mute);
 
   if (!path.startsWith('/')) {
-    path = '/' + path;
+    path = `/${path}`;
   }
 
-  return post(
-    'files/upload',
-    { path, mode, autorename, mute },
-    content,
-    CONTENT_ENDPOINT,
-    token
-  );
+  return post('files/upload', { path, mode, autorename, mute }, content, CONTENT_ENDPOINT, token);
 };
 
 /**
@@ -201,15 +169,15 @@ const upload = (
  * fails with an error message
  */
 const download = (path: string, token = _token) => {
-  assert.string(path, 'invalid argument ' + path + ' (expected: string)');
-  assert.string(token, 'invalid argument ' + token + ' (expected: string)');
+  assert.string(path, `invalid argument ${path} (expected: string)`);
+  assert.string(token, `invalid argument ${token} (expected: string)`);
 
   return get('files/download', { path }, CONTENT_ENDPOINT, token);
 };
 
 const zip = (path: string, token = _token) => {
-  assert.string(path, 'invalid argument ' + path + ' (expected: string)');
-  assert.string(token, 'invalid argument ' + token + ' (expected: string)');
+  assert.string(path, `invalid argument ${path} (expected: string)`);
+  assert.string(token, `invalid argument ${token} (expected: string)`);
 
   return get('files/download_zip', { path }, CONTENT_ENDPOINT, token);
 };
@@ -244,11 +212,11 @@ const getMetadata = (
   assert.bool(includeHasExplicitSharedMembers);
   assert.string(token);
 
-  return fetch(RPC_ENDPOINT + API_VERSION + 'files/get_metadata', {
+  return fetch(`${RPC_ENDPOINT + API_VERSION}files/get_metadata`, {
     method: 'POST',
     headers: {
       'Access-Control-Allow-Origin': '*',
-      Authorization: 'Bearer ' + token,
+      Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({

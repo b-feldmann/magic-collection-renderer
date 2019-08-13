@@ -1,13 +1,13 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Button, Col, Icon, Modal, Row, Tabs } from 'antd';
+import { Button, Col, Icon, Input, Modal, Row, Tabs } from 'antd';
 import _ from 'lodash';
 // @ts-ignore
 import useResizeAware from 'react-resize-aware';
-
 import fileDownload from 'js-file-download';
+import useWindowDimensions from './useWindowDimensions';
 
 import CardInterface from './interfaces/CardInterface';
-import { CardMainType, ColorType, LayoutType, RarityType } from './interfaces/enums';
+import { ColorType, LayoutType } from './interfaces/enums';
 import CardCollection from './components/CardCollection/CardCollection';
 import CardEditor from './components/CardEditor/CardEditor';
 
@@ -23,10 +23,12 @@ import CollectionFilterControls, {
   CollectionFilterInterface
 } from './components/CollectionFilterControls/CollectionFilterControls';
 import cardToColor from './components/CardRender/cardToColor';
-import CardPixiRender from './components/CardPixiRender';
-import { createCard, EMPTY_CARD, getAllCards } from './actions';
+import { createCard, EMPTY_CARD, refreshCollection } from './actions';
 import CollectionStats from './components/CollectionStats/CollectionStats';
 
+import { hasAccessToken, updateAccessToken } from './dropboxService';
+
+const { Search } = Input;
 const { TabPane } = Tabs;
 const { confirm } = Modal;
 
@@ -37,6 +39,7 @@ const App: React.FC = () => {
   const [cardEditId, setCardEditId] = useState<string>(NO_CARD);
   const [cardViewId, setCardViewId] = useState<string>(NO_CARD);
   const [showCardModal, setShowCardModal] = useState<boolean>(false);
+  const [cardNameFilter, setCardNameFilter] = useState<string>('');
   const [layout, setLayout] = useLocalStorage('collection-layout', LayoutType.GRID);
 
   const [collectionFilter, setCollectionFilter] = useState<CollectionFilterInterface>({
@@ -54,11 +57,12 @@ const App: React.FC = () => {
 
   const filteredCollection = _.sortBy(mergedCollection, [
     o => _.indexOf(Object.values(ColorType), cardToColor(o.front.cardMainType, o.manaCost).color),
-    o => _.indexOf(Object.values(RarityType), o.rarity),
-    o => _.indexOf(Object.values(CardMainType), o.front.cardMainType),
+    // o => _.indexOf(Object.values(RarityType), o.rarity),
+    // o => _.indexOf(Object.values(CardMainType), o.front.cardMainType),
     o => o.front.name.toLowerCase()
   ]).filter(
     o =>
+      o.name.toLowerCase().includes(cardNameFilter.toLowerCase()) &&
       collectionFilter.colors[cardToColor(o.front.cardMainType, o.manaCost).color] &&
       collectionFilter.rarity[o.rarity] &&
       collectionFilter.types[o.front.cardMainType]
@@ -67,6 +71,9 @@ const App: React.FC = () => {
   const getCard = (collection: CardInterface[], uuid: string) =>
     filteredCollection.find(card => card.uuid === uuid) || EMPTY_CARD();
 
+  const getCardUndefined = (collection: CardInterface[], uuid: string) =>
+    filteredCollection.find(card => card.uuid === uuid);
+
   useEffect(() => {
     if (newUuid) {
       // eslint-disable-next-line @typescript-eslint/no-use-before-define
@@ -74,9 +81,14 @@ const App: React.FC = () => {
       // eslint-disable-next-line @typescript-eslint/no-use-before-define
       else openCardInEditor(newUuid, getCard(filteredCollection, cardEditId).name);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [newUuid]);
 
-  useEffect(() => getAllCards(dispatch), []);
+  useEffect(
+    () => refreshCollection(dispatch, cards),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
+  );
 
   const downloadJson = (card: CardInterface) => {
     const data = { ...card };
@@ -130,11 +142,12 @@ const App: React.FC = () => {
     }
   };
 
-  const modalBack = (card: CardInterface) => {
+  const modalBack = (card: CardInterface, width: number) => {
     if (!card.back) return <div />;
 
     return (
       <CardRender
+        containerWidth={width}
         {...card.back}
         cardID={card.uuid}
         creator={card.creator}
@@ -148,6 +161,25 @@ const App: React.FC = () => {
     );
   };
 
+  const { width, height } = useWindowDimensions();
+
+  const isMobile = width < 900 && height < 900;
+  const isLandScape = width > height;
+
+  const wOffset = isMobile ? 50 : 100;
+  const hOffset = isMobile ? 50 : 200;
+
+  const dimFactor = 488 / 680;
+
+  let modalMaxWidth = (width / 100) * 62.5 - wOffset;
+  if (isMobile) {
+    if (isLandScape) modalMaxWidth = (width / 24) * 15 - wOffset;
+    else modalMaxWidth = width - wOffset;
+  }
+  const modalMaxHeight = height - hOffset;
+  const modalSingleCardWidth = Math.min(modalMaxWidth, modalMaxHeight * dimFactor);
+  const modalDoubleCardWidth = Math.min(modalMaxWidth, modalMaxHeight * dimFactor * 2);
+
   const [resizeListener, sizes] = useResizeAware();
 
   let colSpan = 4;
@@ -157,6 +189,11 @@ const App: React.FC = () => {
     if (sizes.width < 800) colSpan = 12;
   } else {
     colSpan = colSpanSetting;
+  }
+
+  if (isMobile) {
+    if (isLandScape) colSpan = 8;
+    else colSpan = 12;
   }
 
   const createTable = (collection: CardInterface[]) => (
@@ -174,75 +211,67 @@ const App: React.FC = () => {
     />
   );
 
-  const createGrid = (collection: CardInterface[]) => (
-    <Row>
-      <Col span={18} className={styles.collection}>
-        <CardCollection
-          cards={filteredCollection}
-          currentEditId={cardEditId}
-          editCard={id => {
-            if (cardEditId === NO_CARD) openCardInEditor(id, '');
-            else openCardInEditor(id, getCard(collection, id).name);
-          }}
-          downloadImage={id => downloadImage(id, getCard(collection, id).name)}
-          downloadJson={id => downloadJson(getCard(collection, id))}
-          viewCard={viewCard}
-          colSpan={colSpan}
-          keywords={[]}
-        />
-      </Col>
-      <Col span={6} className={styles.editor}>
-        <CardEditor card={getCard(collection, cardEditId)} saveTmpCard={setTmpCard} />
-      </Col>
-    </Row>
-  );
+  const createGrid = (collection: CardInterface[]) => {
+    let collectionSpan = 18;
+    let editorSpan = 6;
+
+    if (isMobile) {
+      if (isLandScape) {
+        collectionSpan = 15;
+        editorSpan = 9;
+      } else {
+        collectionSpan = 24;
+        editorSpan = 0;
+      }
+    }
+
+    return (
+      <Row>
+        <Col span={collectionSpan} className={styles.collection}>
+          <CardCollection
+            cards={filteredCollection}
+            currentEditId={cardEditId}
+            editCard={id => {
+              if (cardEditId === NO_CARD) openCardInEditor(id, '');
+              else openCardInEditor(id, getCard(collection, id).name);
+            }}
+            downloadImage={id => downloadImage(id, getCard(collection, id).name)}
+            downloadJson={id => downloadJson(getCard(collection, id))}
+            viewCard={viewCard}
+            colSpan={colSpan}
+            keywords={[]}
+          />
+        </Col>
+        <Col
+          span={editorSpan}
+          className={`${styles.editor} ${isMobile ? styles.editorMobile : ''}`}
+        >
+          <CardEditor card={getCardUndefined(collection, cardEditId)} saveTmpCard={setTmpCard} />
+        </Col>
+      </Row>
+    );
+  };
+
+  if (!hasAccessToken()) {
+    return (
+      <Search
+        placeholder="Input Api Key"
+        enterButton="Enter"
+        size="large"
+        onSearch={value => {
+          updateAccessToken(value);
+          window.location.reload();
+        }}
+      />
+    );
+  }
 
   const tabKey: string = typeof layout === 'string' ? layout : 'grid';
 
   return (
     <div>
-      <Row className={styles.app}>
-        <Col span={3}>
-          <CollectionStats collection={mergedCollection} />
-          <CollectionFilterControls
-            setCollectionColSpan={setColSpanSetting}
-            setCollectionFilter={setCollectionFilter}
-            showColSpan={layout === LayoutType.GRID}
-          />
-        </Col>
-        <Col span={21}>
-          {resizeListener}
-          <Tabs
-            activeKey={tabKey}
-            tabPosition="top"
-            // @ts-ignore
-            onChange={(key: string) => setLayout(key)}
-          >
-            <TabPane
-              tab={
-                <span>
-                  <Icon type="file-image" />
-                  <span>Rendered Cards</span>
-                </span>
-              }
-              key="grid"
-            >
-              {layout === LayoutType.GRID && createGrid(filteredCollection)}
-            </TabPane>
-            <TabPane
-              tab={
-                <span>
-                  <Icon type="table" />
-                  Spreadsheet
-                </span>
-              }
-              key="table"
-            >
-              {layout === LayoutType.TABLE && createTable(filteredCollection)}
-            </TabPane>
-          </Tabs>
-        </Col>
-        <div className={styles.addButton}>
+      {isMobile && isLandScape && (
+        <div className={styles.landscapeAddButton}>
           <Button
             icon="plus"
             type="primary"
@@ -251,23 +280,79 @@ const App: React.FC = () => {
           >
             Add Card
           </Button>
-          <Button
-            icon="download"
-            type="primary"
-            onClick={() => downloadCollectionAsJson(filteredCollection)}
-            className={styles.fullWidth}
-          >
-            JSON
-          </Button>
-          <Button
-            icon="reload"
-            type="primary"
-            onClick={() => getAllCards(dispatch)}
-            className={styles.fullWidth}
-          >
-            Reload Collection
-          </Button>
         </div>
+      )}
+      <Row className={styles.app}>
+        <Col span={isMobile ? 0 : 3}>
+          <CollectionStats collection={mergedCollection} />
+          <CollectionFilterControls
+            collection={cards}
+            setCollectionColSpan={setColSpanSetting}
+            setCollectionFilter={setCollectionFilter}
+            showColSpan={layout === LayoutType.GRID}
+            setNameFilter={setCardNameFilter}
+          />
+        </Col>
+        <Col span={isMobile ? 24 : 21}>
+          {resizeListener}
+          {/* <Tabs */}
+          {/*  activeKey={tabKey} */}
+          {/*  tabPosition="top" */}
+          {/*  // @ts-ignore */}
+          {/*  onChange={(key: string) => setLayout(key)} */}
+          {/* > */}
+          {/*  <TabPane */}
+          {/*    tab={ */}
+          {/*      <span> */}
+          {/*        <Icon type="file-image" /> */}
+          {/*        <span>Rendered Cards</span> */}
+          {/*      </span> */}
+          {/*    } */}
+          {/*    key="grid" */}
+          {/*  > */}
+          {layout === LayoutType.GRID && createGrid(filteredCollection)}
+          {/*  </TabPane> */}
+          {/*  <TabPane */}
+          {/*    tab={ */}
+          {/*      <span> */}
+          {/*        <Icon type="table" /> */}
+          {/*        Spreadsheet */}
+          {/*      </span> */}
+          {/*    } */}
+          {/*    key="table" */}
+          {/*  > */}
+          {/*    {layout === LayoutType.TABLE && createTable(filteredCollection)} */}
+          {/*  </TabPane> */}
+          {/* </Tabs> */}
+        </Col>
+        {!isMobile && (
+          <div className={styles.addButton}>
+            <Button
+              icon="plus"
+              type="primary"
+              onClick={() => createCard(dispatch)}
+              className={styles.fullWidth}
+            >
+              Add Card
+            </Button>
+            <Button
+              icon="download"
+              type="primary"
+              onClick={() => downloadCollectionAsJson(filteredCollection)}
+              className={styles.fullWidth}
+            >
+              JSON
+            </Button>
+            <Button
+              icon="reload"
+              type="primary"
+              onClick={() => refreshCollection(dispatch, cards)}
+              className={styles.fullWidth}
+            >
+              Reload Collection
+            </Button>
+          </div>
+        )}
       </Row>
       <Modal
         className={styles.modalCardViewWrapper}
@@ -284,9 +369,19 @@ const App: React.FC = () => {
                 ? styles.modalCardGroupWrapperDouble
                 : styles.modalCardGroupWrapperSingle
             }`}
+            style={{
+              width: getCard(filteredCollection, cardViewId).back
+                ? modalDoubleCardWidth
+                : modalSingleCardWidth
+            }}
           >
             <div className={styles.modalCardWrapper}>
               <CardRender
+                containerWidth={
+                  getCard(filteredCollection, cardViewId).back
+                    ? modalDoubleCardWidth / 2
+                    : modalSingleCardWidth
+                }
                 {...getCard(filteredCollection, cardViewId).front}
                 cardID={getCard(filteredCollection, cardViewId).uuid}
                 creator={getCard(filteredCollection, cardViewId).creator}
@@ -299,12 +394,20 @@ const App: React.FC = () => {
             </div>
             {getCard(filteredCollection, cardViewId).back && (
               <div className={styles.modalCardWrapper}>
-                {modalBack(getCard(filteredCollection, cardViewId))}
+                {modalBack(
+                  getCard(filteredCollection, cardViewId),
+                  getCard(filteredCollection, cardViewId).back
+                    ? modalDoubleCardWidth / 2
+                    : modalSingleCardWidth
+                )}
               </div>
             )}
           </div>
         )}
       </Modal>
+      {isMobile && !isLandScape && (
+        <div className={styles.landscapeReminder}>Use Landscape Mode to edit cards!</div>
+      )}
     </div>
   );
 };

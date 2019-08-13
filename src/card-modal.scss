@@ -3,6 +3,20 @@
   margin-left: calc(100vw / 24 * 3 - 4px);
 }
 
+@media only screen and (max-width: 900px) {
+  .ant-modal-wrap, .ant-modal-mask {
+    width: calc(100vw / 24 * 15);
+    margin-left: 0;
+  }
+}
+
+@media only screen and (max-width: 600px) {
+  .ant-modal-wrap, .ant-modal-mask {
+    width: 100vw;
+    margin-left: 0;
+  }
+}
+
 .card-view {
   .ant-modal-header, .ant-modal-close, .ant-modal-footer {
     visibility: hidden;

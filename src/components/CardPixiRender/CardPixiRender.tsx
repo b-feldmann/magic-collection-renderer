@@ -1,6 +1,4 @@
 import React, { useState, useRef, useEffect } from 'react';
-// @ts-ignore
-import ReactResizeDetector from 'react-resize-detector';
 
 import 'mana-font/css/mana.css';
 
@@ -52,6 +50,7 @@ interface CardWebGLRender {
   keywords: string[];
   collectionNumber: number;
   collectionSize: number;
+  containerWidth?: number;
 }
 
 const CardPixiRender: React.FC<CardWebGLRender> = (cardRender: CardWebGLRender) => {
@@ -59,6 +58,7 @@ const CardPixiRender: React.FC<CardWebGLRender> = (cardRender: CardWebGLRender) 
   const { name, manaCost, cardStats, cover, creator } = cardRender;
   const { cardText, flavourText, flavourAuthor, cardID } = cardRender;
   const { backFace, keywords, collectionNumber, collectionSize } = cardRender;
+  const { containerWidth = 488 } = cardRender;
 
   const { color, allColors } = cardToColor(cardMainType, manaCost);
 
@@ -200,21 +200,17 @@ const CardPixiRender: React.FC<CardWebGLRender> = (cardRender: CardWebGLRender) 
   }, []);
 
   return (
-    <ReactResizeDetector handleWidth>
-      {({ width }: { width: number }) => (
-        <div style={{ height: `${getHeight(width)}px` }}>
-          <div
-            id={`card-id-${cardID}`}
-            style={{
-              transform: `scale(${resizeFactor(width)})`,
-              transformOrigin: 'top left'
-            }}
-          >
-            <div ref={pixiRef} />
-          </div>
-        </div>
-      )}
-    </ReactResizeDetector>
+    <div style={{ height: `${getHeight(containerWidth)}px` }}>
+      <div
+        id={`card-id-${cardID}`}
+        style={{
+          transform: `scale(${resizeFactor(containerWidth)})`,
+          transformOrigin: 'top left'
+        }}
+      >
+        <div ref={pixiRef} />
+      </div>
+    </div>
   );
 };
 

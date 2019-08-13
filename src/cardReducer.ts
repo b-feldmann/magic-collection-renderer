@@ -1,8 +1,9 @@
 import CardInterface from './interfaces/CardInterface';
 
 export enum CardActionType {
-  GetAllCards = 'get-all-cards',
+  RefreshCollection = 'refresh-collection',
   CreateCard = 'create-card',
+  BulkReadCard = 'bulk-read-card',
   ReadCard = 'read-card',
   UpdateCard = 'update-card',
   DeleteCard = 'delete-card'
@@ -14,31 +15,19 @@ type State = {
 };
 
 export type CardAction =
-  | { type: CardActionType.GetAllCards; payload: { cards: CardInterface[] } }
+  | { type: CardActionType.RefreshCollection }
   | { type: CardActionType.CreateCard; payload: { card: CardInterface } }
+  | { type: CardActionType.BulkReadCard; payload: { cards: CardInterface[] } }
   | { type: CardActionType.ReadCard; payload: { card: CardInterface } }
   | { type: CardActionType.UpdateCard; payload: { card: CardInterface } }
   | { type: CardActionType.DeleteCard; payload: { uuid: string } };
 
 const cardReducer: React.Reducer<State, CardAction> = (state, action) => {
   switch (action.type) {
-    case CardActionType.GetAllCards:
+    case CardActionType.RefreshCollection:
       return {
         ...state,
-        cards: Object.values(action.payload.cards).map(card => {
-          const cleanedCard = { ...card };
-          delete cleanedCard.rowNumber;
-          if (typeof cleanedCard.front.cardText === 'string') {
-            // @ts-ignore
-            cleanedCard.front.cardText = cleanedCard.front.cardText.split('|');
-          }
-          if (cleanedCard.back && typeof cleanedCard.back.cardText === 'string') {
-            // @ts-ignore
-            cleanedCard.back.cardText = cleanedCard.back.cardText.split('|');
-          }
-
-          return cleanedCard;
-        })
+        cards: state.cards.map(card => ({ ...card, loading: true }))
       };
     case CardActionType.CreateCard:
       return {
@@ -52,6 +41,16 @@ const cardReducer: React.Reducer<State, CardAction> = (state, action) => {
         cards: [
           ...state.cards.filter(card => card.uuid !== action.payload.card.uuid),
           action.payload.card
+        ]
+      };
+    case CardActionType.BulkReadCard:
+      return {
+        ...state,
+        cards: [
+          ...state.cards.filter(
+            card => !action.payload.cards.find(newCard => newCard.uuid === card.uuid)
+          ),
+          ...action.payload.cards
         ]
       };
     case CardActionType.UpdateCard:
