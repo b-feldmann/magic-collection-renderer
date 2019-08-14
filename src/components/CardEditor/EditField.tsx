@@ -58,8 +58,8 @@ const EditField = (props: EditFieldInterface) => {
         <TextArea
           value={getValue(fieldKey)}
           onChange={e => saveValue(fieldKey, e.target.value)}
-          rows={small ? 1 : 2}
-          autosize={{ minRows: 1, maxRows: small ? 1 : 2 }}
+          rows={2}
+          autosize={{ minRows: 1, maxRows: 2 }}
         />
       </span>
     );

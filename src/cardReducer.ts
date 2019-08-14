@@ -1,4 +1,5 @@
 import CardInterface from './interfaces/CardInterface';
+import MechanicInterface from './interfaces/MechanicInterface';
 
 export enum CardActionType {
   RefreshCollection = 'refresh-collection',
@@ -9,20 +10,32 @@ export enum CardActionType {
   DeleteCard = 'delete-card'
 }
 
+export enum MechanicActionType {
+  GetMechanics = 'get-mechanics',
+  CreateMechanic = 'create-mechanic',
+  UpdateMechanic = 'update-mechanic',
+  DeleteMechanic = 'delete-mechanic'
+}
+
 type State = {
   cards: CardInterface[];
+  mechanics: MechanicInterface[];
   newUuid?: string;
 };
 
-export type CardAction =
+export type Action =
   | { type: CardActionType.RefreshCollection }
   | { type: CardActionType.CreateCard; payload: { card: CardInterface } }
   | { type: CardActionType.BulkReadCard; payload: { cards: CardInterface[] } }
   | { type: CardActionType.ReadCard; payload: { card: CardInterface } }
   | { type: CardActionType.UpdateCard; payload: { card: CardInterface } }
-  | { type: CardActionType.DeleteCard; payload: { uuid: string } };
+  | { type: CardActionType.DeleteCard; payload: { uuid: string } }
+  | { type: MechanicActionType.GetMechanics; payload: { mechanics: MechanicInterface[] } }
+  | { type: MechanicActionType.CreateMechanic; payload: { mechanic: MechanicInterface } }
+  | { type: MechanicActionType.UpdateMechanic; payload: { mechanic: MechanicInterface } }
+  | { type: MechanicActionType.DeleteMechanic; payload: { uuid: string } };
 
-const cardReducer: React.Reducer<State, CardAction> = (state, action) => {
+const cardReducer: React.Reducer<State, Action> = (state, action) => {
   switch (action.type) {
     case CardActionType.RefreshCollection:
       return {
@@ -65,6 +78,30 @@ const cardReducer: React.Reducer<State, CardAction> = (state, action) => {
       return {
         ...state,
         cards: [...state.cards.filter(card => card.uuid !== action.payload.uuid)]
+      };
+
+    case MechanicActionType.GetMechanics:
+      return {
+        ...state,
+        mechanics: action.payload.mechanics
+      };
+    case MechanicActionType.CreateMechanic:
+      return {
+        ...state,
+        mechanics: [...state.mechanics, action.payload.mechanic]
+      };
+    case MechanicActionType.UpdateMechanic:
+      return {
+        ...state,
+        mechanics: [
+          ...state.mechanics.filter(mechanic => mechanic.uuid !== action.payload.mechanic.uuid),
+          action.payload.mechanic
+        ]
+      };
+    case MechanicActionType.DeleteMechanic:
+      return {
+        ...state,
+        mechanics: [...state.mechanics.filter(mechanic => mechanic.uuid !== action.payload.uuid)]
       };
 
     default:

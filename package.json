@@ -45,7 +45,7 @@
     "deploy": "gh-pages -d build"
   },
   "main": "src/electron-starter.js",
-  "homepage": "https://BJennWare.github.io/magic-collection-renderer",
+  "homepage": ".",
   "eslintConfig": {
     "extends": "react-app"
   },

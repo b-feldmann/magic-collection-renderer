@@ -54,12 +54,8 @@ export enum Creators {
   Purity = 'Goomy our Purity',
   Soul = 'Goomy our Soul',
   Truth = 'Goomy our Truth',
-  NobleTwo = 'NobleTwo'
-}
-
-export enum LayoutType {
-  TABLE = 'table',
-  GRID = 'grid'
+  NobleTwo = 'NobleTwo',
+  Kant = 'Kantiger als Kant'
 }
 
 export enum CardVersion {

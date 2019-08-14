@@ -9,6 +9,10 @@ export const updateAccessToken = (token: string) => {
   dropboxAccess.setToken(localStorage.getItem(LOCALSTORAGE_KEY) || '');
 };
 
+export const getAccessToken = () => {
+  return localStorage.getItem(LOCALSTORAGE_KEY) || '';
+};
+
 export const hasAccessToken = (): boolean => {
   return !!localStorage.getItem(LOCALSTORAGE_KEY);
 };

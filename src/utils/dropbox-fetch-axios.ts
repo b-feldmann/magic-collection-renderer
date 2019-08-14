@@ -144,12 +144,12 @@ const upload = (
     mode = 'add',
     autorename = true,
     mute = false
-  }: { path: string; mode?: string; autorename?: boolean; mute?: boolean },
+  }: { path: string; mode?: string | object; autorename?: boolean; mute?: boolean },
   content: any,
   token = _token
 ) => {
   assert.string(path);
-  assert.string(mode);
+  // assert.object(mode);
   assert.bool(autorename);
   assert.bool(mute);
 

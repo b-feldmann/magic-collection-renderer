@@ -1,19 +1,22 @@
 import React, { createContext, useReducer } from 'react';
-import reducer, { CardAction } from './cardReducer';
+import reducer, { Action } from './cardReducer';
 import CardInterface from './interfaces/CardInterface';
+import MechanicInterface from './interfaces/MechanicInterface';
 
 export type StoreType = {
   cards: CardInterface[];
   newUuid?: string;
+  mechanics: MechanicInterface[];
   keywords: string[];
   cardSubTypes: string[];
   creators: string[];
-  dispatch: (value: CardAction) => void;
+  dispatch: (value: Action) => void;
 };
 
 const initialStore = {
   cards: [],
   newUuid: undefined,
+  mechanics: [],
   keywords: [],
   cardSubTypes: [],
   creators: [''],
@@ -22,14 +25,15 @@ const initialStore = {
 
 export const Store = createContext<StoreType>(initialStore);
 
-const initialCardState = {
-  cards: []
+const initialState = {
+  cards: [],
+  mechanics: []
 };
 
 export function StoreProvider({ children }: { children: React.ReactNode }) {
-  const [cardState, dispatch] = useReducer(reducer, initialCardState);
+  const [state, dispatch] = useReducer(reducer, initialState);
 
-  const value: StoreType = { ...initialStore, ...cardState, dispatch };
+  const value: StoreType = { ...initialStore, ...state, dispatch };
 
   return <Store.Provider value={value}>{children}</Store.Provider>;
 }

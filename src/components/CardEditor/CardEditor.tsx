@@ -11,7 +11,7 @@ import EditField from './EditField';
 import useWindowDimensions from '../../useWindowDimensions';
 import CardFaceInterface from '../../interfaces/CardFaceInterface';
 import EditorTooltip from '../EditorTooltip/EditorTooltip';
-import { updateCard } from '../../actions';
+import { updateCard } from '../../actions/cardActions';
 import { Store, StoreType } from '../../store';
 
 interface CardEditorInterface {
@@ -104,7 +104,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
     setTmpCard(_.cloneDeep(tmpCard));
     setOriginalCard(_.cloneDeep(tmpCard));
     saveTmpCard(null);
-    updateCard(dispatch, cards, _.cloneDeep(tmpCard));
+    updateCard(dispatch, _.cloneDeep(tmpCard));
     setContentChanged(false);
   };
 

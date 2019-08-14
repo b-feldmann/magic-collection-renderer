@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 
 import 'mana-font/css/mana.css';
 
@@ -23,12 +23,14 @@ import NoCover from './images/no-cover.jpg';
 import {
   injectKeywords,
   injectManaIcons,
+  injectMechanics,
   injectName,
   injectPlaneswalkerIcons,
   injectQuotationMarks
 } from './injectUtils';
 import cardToColor from './cardToColor';
 import ImageLoader from '../ImageLoader/ImageLoader';
+import { Store, StoreType } from '../../store';
 
 interface CardRender {
   name: string;
@@ -57,6 +59,8 @@ const CardRender = (cardRender: CardRender) => {
   const { cardText, flavourText, flavourAuthor, cardID } = cardRender;
   const { backFace, keywords, collectionNumber, collectionSize } = cardRender;
   const { containerWidth = 488 } = cardRender;
+
+  const { mechanics } = useContext<StoreType>(Store);
 
   const getRarityIcon = () => {
     if (rarity === RarityType.MythicRare) return MythicRareIcon;
@@ -145,7 +149,7 @@ const CardRender = (cardRender: CardRender) => {
                     <span className="new-instruction">
                       {injectQuotationMarks(
                         injectPlaneswalkerIcons(
-                          injectManaIcons(injectKeywords(injectName(val, name), keywords))
+                          injectManaIcons(injectMechanics(injectName(val, name), mechanics))
                         )
                       )}
                     </span>

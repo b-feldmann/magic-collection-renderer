@@ -1,6 +1,7 @@
 import React from 'react';
 // @ts-ignore
 import { Mana } from '@saeris/react-mana';
+import MechanicInterface from '../../interfaces/MechanicInterface';
 
 interface InjectFunc {
   (
@@ -71,6 +72,26 @@ export const injectWithConfig = (
   });
 
   return workingArray;
+};
+
+export const injectMechanics = (
+  text: string | JSX.Element | (string | JSX.Element)[],
+  mechanics: MechanicInterface[]
+) => {
+  const config: InjectionConfig[] = [];
+  mechanics.forEach(mechanic => {
+    config.push({
+      toReplace: new RegExp(`(^[\\s]*${mechanic.name}[\\s]*{.*}[\\s]*$)`),
+      toInject: '',
+      toInjectClose: ` ${mechanic.description}`
+    });
+    config.push({
+      toReplace: new RegExp(`(^[\\s]*${mechanic.name}[\\s]*$)`),
+      toInject: '',
+      toInjectClose: ` ${mechanic.description}`
+    });
+  });
+  return injectWithConfig(text, config);
 };
 
 export const injectManaIcons = (
