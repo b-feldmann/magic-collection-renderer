@@ -81,14 +81,14 @@ export const injectMechanics = (
   const config: InjectionConfig[] = [];
   mechanics.forEach(mechanic => {
     config.push({
-      toReplace: new RegExp(`(^[\\s]*${mechanic.name}[\\s]*{.*}[\\s]*$)`),
+      toReplace: new RegExp(`^[\\s]*\\[([\\s]*${mechanic.name}[\\s]*{.*}[\\s]*)\\]`),
       toInject: '',
-      toInjectClose: ` ${mechanic.description}`
+      toInjectClose: ` — ${mechanic.description}`
     });
     config.push({
-      toReplace: new RegExp(`(^[\\s]*${mechanic.name}[\\s]*$)`),
+      toReplace: new RegExp(`^[\\s]*\\[([\\s]*${mechanic.name}[\\s]*)\\]`),
       toInject: '',
-      toInjectClose: ` ${mechanic.description}`
+      toInjectClose: ` — ${mechanic.description}`
     });
   });
   return injectWithConfig(text, config);
