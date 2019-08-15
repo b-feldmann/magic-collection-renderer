@@ -8,21 +8,34 @@ interface InjectFunc {
     text: (string | JSX.Element) | (string | JSX.Element)[],
     toReplace: RegExp,
     toInject: JSX.Element | string,
-    toInjectClose?: JSX.Element | string
+    toInjectClose?: JSX.Element | string,
+    style?: InjectStyle
   ): (string | JSX.Element)[];
+}
+
+enum InjectStyle {
+  NONE,
+  ITALIC
 }
 
 interface InjectionConfig {
   toReplace: RegExp;
   toInject: JSX.Element | string;
   toInjectClose?: JSX.Element | string;
+  style?: InjectStyle;
 }
 
 export const simpleReplaceAll = (target: string, toRemove: string, toInject: string) => {
   return target.split(toRemove).join(toInject);
 };
 
-const injectDomElement: InjectFunc = (text, toReplace, toInject, toInjectClose) => {
+const injectDomElement: InjectFunc = (
+  text,
+  toReplace,
+  toInject,
+  toInjectClose,
+  style = InjectStyle.NONE
+) => {
   const workingArray: (string | JSX.Element)[] = [];
   if (Array.isArray(text)) {
     text.forEach(t => workingArray.push(t));
@@ -39,15 +52,20 @@ const injectDomElement: InjectFunc = (text, toReplace, toInject, toInjectClose) 
     }
 
     if (typeof elem === 'string') {
+      const wrap = (obj: string | JSX.Element) => {
+        if (style === InjectStyle.ITALIC) {
+          return <span style={{ fontStyle: 'italic' }}>{obj}</span>;
+        }
+        return obj;
+      };
+
       const splitArray = elem.split(toReplace);
       for (let i = 0; i < splitArray.length - 1; i += 1) {
         resultArray.push(splitArray[i]);
-        if (toInjectClose && toInject === 'italic') {
-          resultArray.push(<span style={{ fontStyle: 'italic' }}>{toInjectClose}</span>);
-        } else if (toInjectClose && i % 2 === 1) {
-          resultArray.push(toInjectClose);
+        if (toInjectClose && i % 2 === 1) {
+          resultArray.push(wrap(toInjectClose));
         } else {
-          resultArray.push(toInject);
+          resultArray.push(wrap(toInject));
         }
       }
 
@@ -65,10 +83,22 @@ export const injectWithConfig = (
   let workingArray = text;
 
   if (!Array.isArray(config))
-    return injectDomElement(workingArray, config.toReplace, config.toInject, config.toInjectClose);
+    return injectDomElement(
+      workingArray,
+      config.toReplace,
+      config.toInject,
+      config.toInjectClose,
+      config.style
+    );
 
   config.forEach(c => {
-    workingArray = injectDomElement(workingArray, c.toReplace, c.toInject, c.toInjectClose);
+    workingArray = injectDomElement(
+      workingArray,
+      c.toReplace,
+      c.toInject,
+      c.toInjectClose,
+      c.style
+    );
   });
 
   return workingArray;
@@ -81,14 +111,27 @@ export const injectMechanics = (
   const config: InjectionConfig[] = [];
   mechanics.forEach(mechanic => {
     config.push({
-      toReplace: new RegExp(`^[\\s]*\\[([\\s]*${mechanic.name}[\\s]*{.*}[\\s]*)\\]`),
+      toReplace: new RegExp(`[\\s]*\\[([\\s]*${mechanic.name}[\\s]*{.*}[\\s]*)\\]`),
+      style: InjectStyle.ITALIC,
       toInject: '',
-      toInjectClose: ` — ${mechanic.description}`
+      toInjectClose: ` (${mechanic.description})`
     });
     config.push({
-      toReplace: new RegExp(`^[\\s]*\\[([\\s]*${mechanic.name}[\\s]*)\\]`),
+      toReplace: new RegExp(`[\\s]*\\[([\\s]*${mechanic.name}[\\s]*\\d+[\\s]*)\\]`),
+      style: InjectStyle.ITALIC,
       toInject: '',
-      toInjectClose: ` — ${mechanic.description}`
+      toInjectClose: ` (${mechanic.description})`
+    });
+    config.push({
+      toReplace: new RegExp(`[\\s]*\\[([\\s]*${mechanic.name}[\\s]*)\\]`),
+      style: InjectStyle.ITALIC,
+      toInject: '',
+      toInjectClose: ` (${mechanic.description})`
+    });
+    config.push({
+      toReplace: new RegExp(`[\\s]*\\[[\\s]*${mechanic.name}[\\s]*(.*)\\]`),
+      toInject: ` ${mechanic.name} — ${mechanic.description} `,
+      toInjectClose: ' '
     });
   });
   return injectWithConfig(text, config);

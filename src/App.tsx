@@ -25,7 +25,8 @@ import { createCard, EMPTY_CARD, refreshCollection } from './actions/cardActions
 import CollectionStats from './components/CollectionStats/CollectionStats';
 
 import { hasAccessToken, updateAccessToken } from './dropboxService';
-import {getMechanics} from "./actions/mechanicActions";
+import { getMechanics } from './actions/mechanicActions';
+import MechanicModal from './components/MechanicModal/MechanicModal';
 
 const { Search } = Input;
 const { confirm } = Modal;
@@ -38,6 +39,7 @@ const App: React.FC = () => {
   const [cardViewId, setCardViewId] = useState<string>(NO_CARD);
   const [showCardModal, setShowCardModal] = useState<boolean>(false);
   const [cardNameFilter, setCardNameFilter] = useState<string>('');
+  const [mechanicsVisible, setMechanicsVisible] = useState(false);
 
   const [collectionFilter, setCollectionFilter] = useState<CollectionFilterInterface>({
     colors: {},
@@ -208,6 +210,7 @@ const App: React.FC = () => {
 
     return (
       <Row>
+        <MechanicModal visible={mechanicsVisible} setVisible={setMechanicsVisible} />
         <Col span={collectionSpan} className={styles.collection}>
           <CardCollection
             cards={filteredCollection}
@@ -278,6 +281,14 @@ const App: React.FC = () => {
         </Col>
         {!isMobile && (
           <div className={styles.addButton}>
+            <Button
+              icon="edit"
+              onClick={() => setMechanicsVisible(true)}
+              style={{ width: '100%', marginTop: '8px' }}
+              type="primary"
+            >
+              Edit Mechanics
+            </Button>
             <Button
               icon="plus"
               type="primary"

@@ -45,7 +45,9 @@ export const createMechanic = (dispatch: (value: Action) => void) => {
 };
 
 export const updateMechanic = (dispatch: (value: Action) => void, updated: MechanicInterface) => {
-  const request = `${MIDDLEWARE_ENDPOINT}/mechanic`;
+  console.log(updated);
+
+  const request = `${MIDDLEWARE_ENDPOINT}/mechanics`;
   axios
     .put(request, { mechanic: updated, accessKey: getAccessToken() })
     .then(result => {
