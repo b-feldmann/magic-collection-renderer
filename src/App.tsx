@@ -16,7 +16,7 @@ import { Store, StoreType } from './store';
 import styles from './App.module.scss';
 import './card-modal.scss';
 
-import CardRender from './components/CardRender/CardRender';
+import { NonMemoCardRender as CardRender } from './components/CardRender/CardRender';
 import CollectionFilterControls, {
   CollectionFilterInterface
 } from './components/CollectionFilterControls/CollectionFilterControls';
@@ -27,7 +27,7 @@ import { hasAccessToken, updateAccessToken } from './dropboxService';
 import { getMechanics } from './actions/mechanicActions';
 import MechanicModal from './components/MechanicModal/MechanicModal';
 import useLocalStorage from './utils/useLocalStorageHook';
-import moment from 'moment';
+import UpdateLogModal from './components/UpdateLogModal/UpdateLogModal';
 
 const { Search } = Input;
 const { confirm } = Modal;
@@ -237,6 +237,7 @@ const App: React.FC = () => {
 
     return (
       <Row>
+        <UpdateLogModal />
         <MechanicModal visible={mechanicsVisible} setVisible={setMechanicsVisible} />
         <Col span={collectionSpan} className={styles.collection}>
           <CardCollection

@@ -111,27 +111,27 @@ export const injectMechanics = (
   const config: InjectionConfig[] = [];
   mechanics.forEach(mechanic => {
     config.push({
-      toReplace: new RegExp(`[\\s]*\\[([\\s]*${mechanic.name}[\\s]*{.*}[\\s]*)\\]`),
+      toReplace: new RegExp(`[\\s]*\\[([\\s]*${mechanic.name}[\\s]*{.*}[\\s]*)\\]$`),
       style: InjectStyle.ITALIC,
       toInject: '',
       toInjectClose: ` (${mechanic.description})`
     });
     config.push({
-      toReplace: new RegExp(`[\\s]*\\[([\\s]*${mechanic.name}[\\s]*\\d+[\\s]*)\\]`),
+      toReplace: new RegExp(`[\\s]*\\[([\\s]*${mechanic.name}[\\s]*\\d+[\\s]*)\\]$`),
       style: InjectStyle.ITALIC,
       toInject: '',
       toInjectClose: ` (${mechanic.description})`
     });
     config.push({
-      toReplace: new RegExp(`[\\s]*\\[([\\s]*${mechanic.name}[\\s]*)\\]`),
+      toReplace: new RegExp(`[\\s]*\\[([\\s]*${mechanic.name}[\\s]*)\\]$`),
       style: InjectStyle.ITALIC,
       toInject: '',
       toInjectClose: ` (${mechanic.description})`
     });
     config.push({
       toReplace: new RegExp(`[\\s]*\\[[\\s]*${mechanic.name}[\\s]*(.*)\\]`),
-      toInject: ` ${mechanic.name} — ${mechanic.description} `,
-      toInjectClose: ' '
+      toInject: ` ${mechanic.name} — `,
+      toInjectClose: ` ${mechanic.description}`
     });
   });
   return injectWithConfig(text, config);

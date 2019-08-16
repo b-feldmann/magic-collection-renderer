@@ -226,4 +226,6 @@ const CardRender = (cardRender: CardRender) => {
   );
 };
 
+export const NonMemoCardRender = CardRender;
+
 export default React.memo(CardRender);
