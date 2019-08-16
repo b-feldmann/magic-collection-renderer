@@ -1,5 +1,5 @@
 import AnnotationInterface from './AnnotationInterface';
 
-export default interface AnnotationFileInterface {
+export default interface AnnotationAccessorInterface {
   [key: string]: AnnotationInterface[];
 }

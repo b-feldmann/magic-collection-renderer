@@ -43,7 +43,7 @@ const CardTableCollection: React.FC<CardTableCollectionInterface> = ({
     cardData.cardStats = format(card.front.cardStats);
     cardData.creator = format(card.creator);
     cardData.cover = format(card.front.cover);
-    // cardData.cover = <Input defaultValue={format(card.front.cover)} />;
+    // cardData.cover = <Input defaultContent={format(card.front.cover)} />;
 
     data.push(cardData);
   });

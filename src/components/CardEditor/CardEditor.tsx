@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 // import CardFaceInterface from '../../interfaces/CardFaceInterface';
 import { Button, Row } from 'antd';
 import _ from 'lodash';
+import moment from 'moment';
 import CardInterface from '../../interfaces/CardInterface';
 
 import styles from './styles.module.scss';
@@ -31,7 +32,10 @@ const dummyCard: CardInterface = {
     cardMainType: CardMainType.Creature,
     cardText: []
   },
-  version: CardVersion.V1
+  version: CardVersion.V1,
+  lastUpdated: moment().valueOf(),
+  createdAt: moment().valueOf(),
+  creator: Creators.UNKNOWN
 };
 
 const CardEditor: React.FC<CardEditorInterface> = ({

@@ -55,10 +55,17 @@ export enum Creators {
   Soul = 'Goomy our Soul',
   Truth = 'Goomy our Truth',
   NobleTwo = 'NobleTwo',
-  Kant = 'Kantiger als Kant'
+  Kant = 'Kantiger als Kant',
+  kleinFlopsi = 'kleinFlopsi'
 }
 
 export enum CardVersion {
   V1 = 'v1',
   V2 = 'v2'
+}
+
+export enum SortByType {
+  Color = 'Color',
+  LastUpdated = 'Last Updated',
+  Creator = 'Creator'
 }

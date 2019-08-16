@@ -5,11 +5,13 @@ export default interface CardInterface {
   [key: string]: number | string | CardFaceInterface | boolean | undefined;
   name: string;
   rarity: RarityType;
-  creator?: string;
+  creator: string;
   uuid: string;
   manaCost: string;
   front: CardFaceInterface;
   back?: CardFaceInterface;
+  lastUpdated: number;
+  createdAt: number;
   version: CardVersion;
   loading?: boolean;
 }

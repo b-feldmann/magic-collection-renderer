@@ -128,6 +128,7 @@ const CollectionFilterControls = ({
             <Checkbox
               key={`collection-filter-controls-checkbox-cardmaintype-${key}`}
               checked={shownCardTypes[key]}
+              disabled={cardCountStats[key] === 0}
               onChange={e =>
                 updateEnumState(key, e.target.checked, shownCardTypes, setShownCardTypes)
               }
@@ -144,6 +145,7 @@ const CollectionFilterControls = ({
               <Checkbox
                 key={`collection-filter-controls-checkbox-color-${key}`}
                 checked={shownColors[key]}
+                disabled={cardCountStats[key] === 0}
                 onChange={e => updateEnumState(key, e.target.checked, shownColors, setShownColors)}
               >
                 {`${key} (${cardCountStats[key]})`}
@@ -157,6 +159,7 @@ const CollectionFilterControls = ({
             <Checkbox
               key={`collection-filter-controls-checkbox-rarity-${key}`}
               checked={shownRarities[key]}
+              disabled={cardCountStats[key] === 0}
               onChange={e =>
                 updateEnumState(key, e.target.checked, shownRarities, setShownRarities)
               }

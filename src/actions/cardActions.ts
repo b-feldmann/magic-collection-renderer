@@ -2,6 +2,7 @@ import uuidv4 from 'uuid/v4';
 import axios from 'axios';
 
 import { message } from 'antd';
+import moment from 'moment';
 import { Action, CardActionType } from '../cardReducer';
 import { CardMainType, CardVersion, Creators, RarityType } from '../interfaces/enums';
 
@@ -21,7 +22,9 @@ export const EMPTY_CARD = (): CardInterface => ({
   manaCost: '',
   rarity: RarityType.Common,
   creator: Creators.UNKNOWN,
-  version: CardVersion.V1
+  version: CardVersion.V1,
+  lastUpdated: moment().valueOf(),
+  createdAt: moment().valueOf()
 });
 
 export const refreshCollection = (dispatch: (value: Action) => void) => {
@@ -33,6 +36,13 @@ export const refreshCollection = (dispatch: (value: Action) => void) => {
   axios
     .get(request)
     .then(result => {
+      // result.data.cards.forEach((card: CardInterface) => {
+      //   if (!card.createdAt) {
+      //     card.createdAt = moment().valueOf();
+      //     updateCard(dispatch, card);
+      //   }
+      // });
+
       dispatch({
         type: CardActionType.BulkReadCard,
         payload: { cards: result.data.cards }

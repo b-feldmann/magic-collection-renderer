@@ -1,7 +1,9 @@
 import { Creators } from './enums';
 
 export default interface AnnotationInterface {
-  time: string;
+  uuid: string;
+  datetime: string;
   author: Creators;
-  text: string;
+  content: string;
+  cardReference: string;
 }

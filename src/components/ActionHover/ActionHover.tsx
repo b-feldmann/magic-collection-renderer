@@ -1,7 +1,7 @@
 import React from 'react';
 
-import styles from './styles.module.scss';
 import { Icon } from 'antd';
+import styles from './styles.module.scss';
 
 interface ActionHoverInterface {
   northAction?: { icon: string; action: () => void };
@@ -9,6 +9,7 @@ interface ActionHoverInterface {
   eastAction?: { icon: string; action: () => void };
   westAction?: { icon: string; action: () => void };
   active?: boolean;
+  onHover?: () => void;
 }
 
 const ActionHover: React.FC<ActionHoverInterface> = actions => {
@@ -18,15 +19,18 @@ const ActionHover: React.FC<ActionHoverInterface> = actions => {
     eastAction = empty,
     westAction = empty,
     southAction = empty,
-    active
+    active,
+    onHover = () => {}
   } = actions;
 
   return (
-    <div className={`${styles.outer} ${active ? styles.active : ''}`}>
+    <div
+      className={`${styles.outer} ${active ? styles.active : ''}`}
+      onMouseEnter={() => onHover()}
+    >
       <div className={styles.hovereffect}>
         <div className={styles.target}>{actions.children}</div>
         <div className={styles.overlay}>
-          {/*<h2>Hover Me</h2>*/}
           <Icon
             className={`${styles.action} ${styles.eastAction}`}
             type={eastAction.icon}

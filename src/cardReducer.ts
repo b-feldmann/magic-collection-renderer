@@ -1,5 +1,7 @@
 import CardInterface from './interfaces/CardInterface';
 import MechanicInterface from './interfaces/MechanicInterface';
+import AnnotationInterface from './interfaces/AnnotationInterface';
+import AnnotationAccessorInterface from './interfaces/AnnotationAccessorInterface';
 
 export enum CardActionType {
   RefreshCollection = 'refresh-collection',
@@ -17,9 +19,17 @@ export enum MechanicActionType {
   DeleteMechanic = 'delete-mechanic'
 }
 
+export enum AnnotationActionType {
+  GetAnnotations = 'get-annotations',
+  CreateAnnotation = 'create-annotation',
+  UpdateAnnotation = 'update-annotation',
+  DeleteAnnotation = 'delete-annotation'
+}
+
 type State = {
   cards: CardInterface[];
   mechanics: MechanicInterface[];
+  annotationAccessor: AnnotationAccessorInterface;
   newUuid?: string;
 };
 
@@ -33,9 +43,15 @@ export type Action =
   | { type: MechanicActionType.GetMechanics; payload: { mechanics: MechanicInterface[] } }
   | { type: MechanicActionType.CreateMechanic; payload: { mechanic: MechanicInterface } }
   | { type: MechanicActionType.UpdateMechanic; payload: { mechanic: MechanicInterface } }
-  | { type: MechanicActionType.DeleteMechanic; payload: { uuid: string } };
+  | { type: MechanicActionType.DeleteMechanic; payload: { uuid: string } }
+  | { type: AnnotationActionType.GetAnnotations; payload: { annotations: AnnotationInterface[] } }
+  | { type: AnnotationActionType.CreateAnnotation; payload: { annotation: AnnotationInterface } }
+  | { type: AnnotationActionType.UpdateAnnotation; payload: { annotation: AnnotationInterface } }
+  | { type: AnnotationActionType.DeleteAnnotation; payload: { uuid: string } };
 
 const cardReducer: React.Reducer<State, Action> = (state, action) => {
+  let annotationAccessor: AnnotationAccessorInterface;
+
   switch (action.type) {
     case CardActionType.RefreshCollection:
       return {
@@ -102,6 +118,57 @@ const cardReducer: React.Reducer<State, Action> = (state, action) => {
       return {
         ...state,
         mechanics: [...state.mechanics.filter(mechanic => mechanic.uuid !== action.payload.uuid)]
+      };
+    case AnnotationActionType.GetAnnotations:
+      // eslint-disable-next-line no-case-declarations
+      annotationAccessor = {};
+
+      action.payload.annotations.forEach(annotation => {
+        if (!annotationAccessor[annotation.cardReference]) {
+          annotationAccessor[annotation.cardReference] = [annotation];
+        } else annotationAccessor[annotation.cardReference].push(annotation);
+      });
+      return {
+        ...state,
+        annotationAccessor
+      };
+    case AnnotationActionType.CreateAnnotation:
+      // eslint-disable-next-line no-case-declarations
+      annotationAccessor = { ...state.annotationAccessor };
+      if (!state.annotationAccessor[action.payload.annotation.cardReference]) {
+        annotationAccessor[action.payload.annotation.cardReference] = [action.payload.annotation];
+      } else
+        annotationAccessor[action.payload.annotation.cardReference].push(action.payload.annotation);
+
+      return {
+        ...state,
+        annotationAccessor
+      };
+    case AnnotationActionType.UpdateAnnotation:
+      annotationAccessor = { ...state.annotationAccessor };
+      if (!state.annotationAccessor[action.payload.annotation.cardReference]) {
+        annotationAccessor[action.payload.annotation.cardReference] = [action.payload.annotation];
+      } else
+        annotationAccessor[action.payload.annotation.cardReference] = [
+          ...annotationAccessor[action.payload.annotation.cardReference].filter(
+            annotation => annotation.uuid !== action.payload.annotation.uuid
+          ),
+          action.payload.annotation
+        ];
+
+      return {
+        ...state,
+        annotationAccessor
+      };
+    case AnnotationActionType.DeleteAnnotation:
+      annotationAccessor = { ...state.annotationAccessor };
+      Object.values(annotationAccessor).map(list =>
+        list.filter(annotation => annotation.uuid !== action.payload.uuid)
+      );
+
+      return {
+        ...state,
+        annotationAccessor
       };
 
     default:

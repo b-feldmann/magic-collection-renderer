@@ -10,6 +10,7 @@ import styles from './styles.module.css';
 
 import CardInterface from '../../interfaces/CardInterface';
 import CardFaceInterface from '../../interfaces/CardFaceInterface';
+import GlowingStar from '../GlowingStar';
 
 export interface CardCollectionInterface {
   cards?: CardInterface[];
@@ -19,7 +20,8 @@ export interface CardCollectionInterface {
   viewCard: (id: string) => void;
   currentEditId: string;
   colSpan: number;
-  keywords: string[];
+  seenCardUuids: { [key: string]: boolean };
+  addSeenCard: (uuid: string) => void;
 }
 
 interface BackConfigInterface {
@@ -33,7 +35,8 @@ const CardCollection = ({
   viewCard,
   currentEditId,
   colSpan,
-  keywords
+  seenCardUuids,
+  addSeenCard
 }: CardCollectionInterface) => {
   const [showBackFaceConfig, setShowBackFaceConfig] = useState<BackConfigInterface>({});
 
@@ -54,10 +57,15 @@ const CardCollection = ({
     <div>
       {resizeListener}
       {cards.map((card, i) => {
+        const newCard = !seenCardUuids[card.uuid];
         return (
           <Col className={styles.cardBox} span={colSpan} key={card.uuid}>
+            {newCard && <GlowingStar />}
             <Spin size="large" spinning={!!card.loading}>
               <ActionHover
+                onHover={() => {
+                  if (newCard) addSeenCard(card.uuid);
+                }}
                 active={currentEditId === card.uuid}
                 northAction={{
                   icon: 'edit',
@@ -83,7 +91,6 @@ const CardCollection = ({
                   rarity={card.rarity}
                   manaCost={card.manaCost}
                   creator={card.creator}
-                  keywords={keywords}
                   collectionNumber={i + 1}
                   collectionSize={cards.length}
                 />

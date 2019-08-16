@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Button, Col, Input, Modal, Row } from 'antd';
+import { Button, Col, Input, Modal, Row, Select } from 'antd';
 import _ from 'lodash';
 // @ts-ignore
 import useResizeAware from 'react-resize-aware';
@@ -7,7 +7,7 @@ import fileDownload from 'js-file-download';
 import useWindowDimensions from './useWindowDimensions';
 
 import CardInterface from './interfaces/CardInterface';
-import { ColorType } from './interfaces/enums';
+import { ColorType, Creators, SortByType } from './interfaces/enums';
 import CardCollection from './components/CardCollection/CardCollection';
 import CardEditor from './components/CardEditor/CardEditor';
 
@@ -22,11 +22,12 @@ import CollectionFilterControls, {
 } from './components/CollectionFilterControls/CollectionFilterControls';
 import cardToColor from './components/CardRender/cardToColor';
 import { createCard, EMPTY_CARD, refreshCollection } from './actions/cardActions';
-import CollectionStats from './components/CollectionStats/CollectionStats';
 
 import { hasAccessToken, updateAccessToken } from './dropboxService';
 import { getMechanics } from './actions/mechanicActions';
 import MechanicModal from './components/MechanicModal/MechanicModal';
+import useLocalStorage from './utils/useLocalStorageHook';
+import moment from 'moment';
 
 const { Search } = Input;
 const { confirm } = Modal;
@@ -40,6 +41,12 @@ const App: React.FC = () => {
   const [showCardModal, setShowCardModal] = useState<boolean>(false);
   const [cardNameFilter, setCardNameFilter] = useState<string>('');
   const [mechanicsVisible, setMechanicsVisible] = useState(false);
+  const [sortBy, setSortBy] = useLocalStorage('mtg-funset:SortBy', SortByType.Color);
+  const [seenCardUuids, setSeenCardUuids] = useLocalStorage(
+    'mtg-funset:seen-card-uuids',
+    '[]',
+    true
+  );
 
   const [collectionFilter, setCollectionFilter] = useState<CollectionFilterInterface>({
     colors: {},
@@ -54,12 +61,27 @@ const App: React.FC = () => {
   const mergedCollection = [...cards.filter(card => card.uuid !== (tmpCard ? tmpCard.uuid : ''))];
   if (tmpCard) mergedCollection.push(tmpCard);
 
-  const filteredCollection = _.sortBy(mergedCollection, [
-    o => _.indexOf(Object.values(ColorType), cardToColor(o.front.cardMainType, o.manaCost).color),
-    // o => _.indexOf(Object.values(RarityType), o.rarity),
-    // o => _.indexOf(Object.values(CardMainType), o.front.cardMainType),
-    o => o.front.name.toLowerCase()
-  ]).filter(
+  const sortList = [];
+  if (sortBy === SortByType.Color) {
+    sortList.push((o: CardInterface) =>
+      _.indexOf(Object.values(ColorType), cardToColor(o.front.cardMainType, o.manaCost).color)
+    );
+    sortList.push((o: CardInterface) => o.front.name.toLowerCase());
+  }
+  if (sortBy === SortByType.Creator) {
+    sortList.push((o: CardInterface) =>
+      o.creator === Creators.UNKNOWN ? 999 : _.indexOf(Object.values(Creators), o.creator)
+    );
+    sortList.push((o: CardInterface) =>
+      _.indexOf(Object.values(ColorType), cardToColor(o.front.cardMainType, o.manaCost).color)
+    );
+    sortList.push((o: CardInterface) => o.front.name.toLowerCase());
+  }
+  if (sortBy === SortByType.LastUpdated) {
+    sortList.push((o: CardInterface) => o.lastUpdated * -1);
+  }
+
+  const filteredCollection = _.sortBy(mergedCollection, sortList).filter(
     o =>
       o.name.toLowerCase().includes(cardNameFilter.toLowerCase()) &&
       collectionFilter.colors[cardToColor(o.front.cardMainType, o.manaCost).color] &&
@@ -108,6 +130,10 @@ const App: React.FC = () => {
     console.log(`image download: ${id} - ${name}`);
   };
 
+  const addSeenCard = (uuid: string) => {
+    setSeenCardUuids([...seenCardUuids, uuid]);
+  };
+
   const viewCard = (id: string) => {
     setCardViewId(id);
     setShowCardModal(true);
@@ -115,8 +141,7 @@ const App: React.FC = () => {
 
   const openCardInEditor = (id: string, oldCardName: string) => {
     if (id === cardEditId) {
-      setCardViewId(id);
-      setShowCardModal(true);
+      viewCard(id);
       return;
     }
 
@@ -129,14 +154,12 @@ const App: React.FC = () => {
         cancelText: 'Cancel',
         onOk() {
           setCardEditId(id);
-          setCardViewId(id);
-          setShowCardModal(true);
+          viewCard(id);
         }
       });
     } else {
       setCardEditId(id);
-      setCardViewId(id);
-      setShowCardModal(true);
+      viewCard(id);
     }
   };
 
@@ -152,7 +175,6 @@ const App: React.FC = () => {
         rarity={card.rarity}
         manaCost={card.manaCost}
         backFace
-        keywords={[]}
         collectionNumber={0}
         collectionSize={0}
       />
@@ -182,8 +204,8 @@ const App: React.FC = () => {
 
   let colSpan = 4;
   if (colSpanSetting === -1) {
-    if (sizes.width < 1400) colSpan = 6;
-    if (sizes.width < 1100) colSpan = 8;
+    if (sizes.width < 1700) colSpan = 6;
+    if (sizes.width < 1200) colSpan = 8;
     if (sizes.width < 800) colSpan = 12;
   } else {
     colSpan = colSpanSetting;
@@ -208,6 +230,11 @@ const App: React.FC = () => {
       }
     }
 
+    const seenCardObject: { [key: string]: boolean } = {};
+    seenCardUuids.forEach((uuid: string) => {
+      seenCardObject[uuid] = true;
+    });
+
     return (
       <Row>
         <MechanicModal visible={mechanicsVisible} setVisible={setMechanicsVisible} />
@@ -223,7 +250,8 @@ const App: React.FC = () => {
             downloadJson={id => downloadJson(getCard(collection, id))}
             viewCard={viewCard}
             colSpan={colSpan}
-            keywords={[]}
+            seenCardUuids={seenCardObject}
+            addSeenCard={addSeenCard}
           />
         </Col>
         <Col
@@ -266,7 +294,23 @@ const App: React.FC = () => {
       )}
       <Row className={styles.app}>
         <Col span={isMobile ? 0 : 3}>
-          <CollectionStats collection={mergedCollection} />
+          <div className={styles.sortControls}>
+            <h3>Filter Collection By</h3>
+            <Select
+              className={styles.sortSelect}
+              size="small"
+              // @ts-ignore
+              value={sortBy || SortByType.Color}
+              // @ts-ignore
+              onChange={(newSortByValue: SortByType) => setSortBy(newSortByValue)}
+            >
+              {Object.keys(SortByType).map((d: any) => (
+                <Select.Option key={`collection-filter-key-${d}`} value={SortByType[d]}>
+                  {SortByType[d]}
+                </Select.Option>
+              ))}
+            </Select>
+          </div>
           <CollectionFilterControls
             collection={cards}
             setCollectionColSpan={setColSpanSetting}
@@ -349,7 +393,6 @@ const App: React.FC = () => {
                 creator={getCard(filteredCollection, cardViewId).creator}
                 rarity={getCard(filteredCollection, cardViewId).rarity}
                 manaCost={getCard(filteredCollection, cardViewId).manaCost}
-                keywords={[]}
                 collectionNumber={0}
                 collectionSize={0}
               />

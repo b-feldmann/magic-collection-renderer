@@ -28,6 +28,17 @@
     margin-top: 8px;
     width: 100%;
   }
+
+  .sortControls {
+    position: fixed;
+    margin-top: 16px;
+    margin-left: 16px;
+    width: calc(100 / 24 * 18 / 24 * 4vw - 32px);
+  }
+
+  .sortSelect {
+    width: 100%;
+  }
 }
 
 .modalCardViewWrapper {

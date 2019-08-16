@@ -21,7 +21,6 @@ import NoCover from './images/no-cover.jpg';
 // @ts-ignore
 
 import {
-  injectKeywords,
   injectManaIcons,
   injectMechanics,
   injectName,
@@ -47,7 +46,6 @@ interface CardRender {
   flavourAuthor?: string;
   cover?: string;
   backFace?: boolean;
-  keywords: string[];
   collectionNumber: number;
   collectionSize: number;
   containerWidth?: number;
@@ -57,7 +55,7 @@ const CardRender = (cardRender: CardRender) => {
   const { legendary, cardMainType, cardSubTypes, rarity } = cardRender;
   const { name, manaCost, cardStats, cover, creator } = cardRender;
   const { cardText, flavourText, flavourAuthor, cardID } = cardRender;
-  const { backFace, keywords, collectionNumber, collectionSize } = cardRender;
+  const { backFace, collectionNumber, collectionSize } = cardRender;
   const { containerWidth = 488 } = cardRender;
 
   const { mechanics } = useContext<StoreType>(Store);
@@ -228,4 +226,4 @@ const CardRender = (cardRender: CardRender) => {
   );
 };
 
-export default CardRender;
+export default React.memo(CardRender);
