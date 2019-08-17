@@ -18,6 +18,8 @@
     "js-file-download": "^0.4.7",
     "jspdf": "^1.5.3",
     "jszip": "^3.2.2",
+    "less": "^3.10.0",
+    "less-loader": "^5.0.0",
     "lodash": "^4.17.14",
     "logrocket": "^1.0.3",
     "logrocket-react": "^3.0.0",

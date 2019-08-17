@@ -9,7 +9,6 @@ import styles from './styles.module.scss';
 import { CardMainType, CardVersion, Creators, RarityType } from '../../interfaces/enums';
 import EditField from './EditField';
 
-import useWindowDimensions from '../../useWindowDimensions';
 import CardFaceInterface from '../../interfaces/CardFaceInterface';
 import EditorTooltip from '../EditorTooltip/EditorTooltip';
 import { updateCard } from '../../actions/cardActions';
@@ -50,14 +49,6 @@ const CardEditor: React.FC<CardEditorInterface> = ({
   const [editBack, setEditBack] = useState<boolean>(false);
 
   const { dispatch, cards } = useContext<StoreType>(Store);
-
-  const { height } = useWindowDimensions();
-
-  let small = false;
-  let tiny = false;
-
-  if (height < 1000) small = true;
-  if (height < 860) tiny = true;
 
   const getCurrentFace = (currentCard: CardInterface): CardFaceInterface => {
     if (currentCard.back && editBack) return currentCard.back;
@@ -133,33 +124,49 @@ const CardEditor: React.FC<CardEditorInterface> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [card.uuid]);
 
+  const isCreature = () => getValue('cardMainType') === CardMainType.Creature;
+  const isPlaneswalker = () => getValue('cardMainType') === CardMainType.Planeswalker;
+  const hasMana = () =>
+    getValue('cardMainType') !== CardMainType.Land &&
+    getValue('cardMainType') !== CardMainType.Emblem;
+
+  const hasStats = () => isCreature() || isPlaneswalker();
+
   const inputConfig = [
     { key: 'name', type: 'input', name: 'Card Name' },
     { key: 'cover', type: 'input', name: 'Cover (URL)' },
-    { key: 'manaCost', type: 'input', name: 'Mana Cost' },
     { key: 'legendary', type: 'bool', name: 'Legendary?' },
-    {
-      key: 'cardMainType',
-      type: 'select',
-      name: 'Card Type',
-      data: Object.keys(CardMainType).map((type: any) => CardMainType[type])
-    },
-    { key: 'cardSubTypes', type: 'input', name: 'Card Sub Types' },
+    { key: 'manaCost', type: 'input', name: 'Mana Cost', width: hasMana() ? 50 : 0 },
     {
       key: 'rarity',
       type: 'select',
       name: 'Rarity',
-      data: Object.keys(RarityType).map((type: any) => RarityType[type])
+      data: Object.keys(RarityType).map((type: any) => RarityType[type]),
+      width: hasMana() ? 50 : 100
     },
+    {
+      key: 'cardMainType',
+      type: 'select',
+      name: 'Card Type',
+      data: Object.keys(CardMainType).map((type: any) => CardMainType[type]),
+      width: 50
+    },
+    { key: 'cardSubTypes', type: 'input', name: 'Card Sub Types', width: 50 },
     { key: 'cardText', type: 'list', name: 'Card Text' },
-    { key: 'flavourText', type: 'area-small', name: 'Flavour Text' },
+    { key: 'flavourText', type: 'area', name: 'Flavour Text' },
     { key: 'flavourAuthor', type: 'input', name: 'Flavour Text Author' },
-    { key: 'cardStats', type: 'input', name: 'Power / Toughness' },
+    {
+      key: 'cardStats',
+      type: isPlaneswalker() ? 'input' : 'split-input',
+      name: isPlaneswalker() ? 'Loyalty' : 'Power/Toughness',
+      width: hasStats() ? 50 : 0
+    },
     {
       key: 'creator',
       type: 'select',
       name: 'Card Creator',
-      data: Object.keys(Creators).map((type: any) => Creators[type])
+      data: Object.keys(Creators).map((type: any) => Creators[type]),
+      width: hasStats() ? 50 : 100
     }
   ];
 
@@ -194,9 +201,9 @@ const CardEditor: React.FC<CardEditorInterface> = ({
 
   return (
     <div className={styles.editor}>
-      <Row className={tiny ? styles.tiny : ''}>
+      <Row>
         <EditorTooltip className={styles.tooltip} />
-        <Button.Group className={styles.smallButtonGroup} size={small ? 'small' : 'default'}>
+        <Button.Group className={styles.smallButtonGroup} size="small">
           {card.back && editBack && (
             <Button type="ghost" onClick={() => setEditBack(false)}>
               <span>Edit Front Face</span>
@@ -215,20 +222,31 @@ const CardEditor: React.FC<CardEditorInterface> = ({
           {!card.back && <Button onClick={addBackFace}>Add Back Face</Button>}
         </Button.Group>
       </Row>
-      {inputConfig.map(config => (
-        <div key={`card-editor-key:${config.key}`}>
-          <EditField
-            fieldKey={config.key}
-            type={config.type}
-            data={config.data}
-            name={config.name}
-            saveValue={saveValue}
-            getValue={getValue}
-          />
-        </div>
-      ))}
-      <Row className={tiny ? styles.tiny : ''}>
-        <Button.Group className={styles.buttonGroup} size={small ? 'small' : 'default'}>
+      <Row>
+        {inputConfig.map(config => {
+          const style: any = {};
+          if (config.width === 0) style.display = 'none';
+          if (config.width) style.width = `${config.width}%`;
+          return (
+            <div
+              key={`card-editor-key:${config.key}`}
+              className={config.width ? styles.partialField : styles.fullField}
+              style={style}
+            >
+              <EditField
+                fieldKey={config.key}
+                type={config.type}
+                data={config.data}
+                name={config.name}
+                saveValue={saveValue}
+                getValue={getValue}
+              />
+            </div>
+          );
+        })}
+      </Row>
+      <Row>
+        <Button.Group className={styles.buttonGroup} size="small">
           <Button disabled={!contentChanged} onClick={saveChanges} type="primary">
             <span>Save Changes</span>
           </Button>

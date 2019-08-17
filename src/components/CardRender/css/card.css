@@ -51,7 +51,12 @@
     padding: 50px 6px;
     box-sizing: border-box;
     font-size: 1.2em;
-    line-height: 1.2em;
+    line-height: 1.1em;
+}
+
+.frame-text-small {
+    font-size: 1.15em;
+    line-height: 1em;
 }
 
 .new-instruction {

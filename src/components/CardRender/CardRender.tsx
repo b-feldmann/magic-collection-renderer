@@ -49,6 +49,7 @@ interface CardRender {
   collectionNumber: number;
   collectionSize: number;
   containerWidth?: number;
+  smallText?: boolean;
 }
 
 const CardRender = (cardRender: CardRender) => {
@@ -56,7 +57,7 @@ const CardRender = (cardRender: CardRender) => {
   const { name, manaCost, cardStats, cover, creator } = cardRender;
   const { cardText, flavourText, flavourAuthor, cardID } = cardRender;
   const { backFace, collectionNumber, collectionSize } = cardRender;
-  const { containerWidth = 488 } = cardRender;
+  const { containerWidth = 488, smallText } = cardRender;
 
   const { mechanics } = useContext<StoreType>(Store);
 
@@ -140,7 +141,9 @@ const CardRender = (cardRender: CardRender) => {
               </div>
 
               <div
-                className={`frame-text-box frame-text-box-${color} frame-text-box-${cssColorName}`}
+                className={`frame-text-box frame-text-box-${color} frame-text-box-${cssColorName} ${
+                  smallText ? 'frame-text-small' : ''
+                }`}
               >
                 <p className="description ftb-inner-margin">
                   {cardText.map(val => (

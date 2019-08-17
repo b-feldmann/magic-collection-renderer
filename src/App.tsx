@@ -27,7 +27,7 @@ import { hasAccessToken, updateAccessToken } from './dropboxService';
 import { getMechanics } from './actions/mechanicActions';
 import MechanicModal from './components/MechanicModal/MechanicModal';
 import useLocalStorage from './utils/useLocalStorageHook';
-import UpdateLogModal from './components/UpdateLogModal/UpdateLogModal';
+import ChangeLogModal from './components/ChangeLogModal/ChangeLogModal';
 
 const { Search } = Input;
 const { confirm } = Modal;
@@ -175,8 +175,11 @@ const App: React.FC = () => {
         rarity={card.rarity}
         manaCost={card.manaCost}
         backFace
-        collectionNumber={0}
-        collectionSize={0}
+        collectionNumber={_.findIndex(
+          filteredCollection,
+          (o: CardInterface) => o.uuid === cardViewId
+        )}
+        collectionSize={filteredCollection.length}
       />
     );
   };
@@ -237,7 +240,7 @@ const App: React.FC = () => {
 
     return (
       <Row>
-        <UpdateLogModal />
+        <ChangeLogModal />
         <MechanicModal visible={mechanicsVisible} setVisible={setMechanicsVisible} />
         <Col span={collectionSpan} className={styles.collection}>
           <CardCollection
@@ -394,8 +397,11 @@ const App: React.FC = () => {
                 creator={getCard(filteredCollection, cardViewId).creator}
                 rarity={getCard(filteredCollection, cardViewId).rarity}
                 manaCost={getCard(filteredCollection, cardViewId).manaCost}
-                collectionNumber={0}
-                collectionSize={0}
+                collectionNumber={_.findIndex(
+                  filteredCollection,
+                  (o: CardInterface) => o.uuid === cardViewId
+                )}
+                collectionSize={filteredCollection.length}
               />
             </div>
             {getCard(filteredCollection, cardViewId).back && (

@@ -1,7 +1,6 @@
 import { Button, Checkbox, Icon, Input, List, Select } from 'antd';
 import React from 'react';
 import styles from './styles.module.scss';
-import useWindowDimensions from '../../useWindowDimensions';
 
 const { TextArea } = Input;
 
@@ -17,49 +16,53 @@ interface EditFieldInterface {
 const EditField = (props: EditFieldInterface) => {
   const { type, fieldKey, name, data, getValue, saveValue } = props;
 
-  const { height } = useWindowDimensions();
-
-  let small = false;
-  let tiny = false;
-
-  if (height < 1000) small = true;
-  if (height < 860) tiny = true;
-
   if (type === 'input') {
     return (
-      <span className={tiny ? styles.tiny : ''}>
+      <span>
         <p className={styles.label}>{name}</p>
         <Input
-          size={small ? 'small' : 'default'}
+          size="small"
           value={getValue(fieldKey)}
           onChange={e => saveValue(fieldKey, e.target.value)}
         />
+      </span>
+    );
+  }
+
+  if (type === 'split-input') {
+    const splitArray = getValue(fieldKey) ? getValue(fieldKey).split('/') : ['', ''];
+    if (splitArray.length < 2) splitArray.push('');
+
+    return (
+      <span>
+        <div className={styles.splitInput}>
+          <p className={styles.label}>{name.split('/')[0]}</p>
+          <Input
+            size="small"
+            value={splitArray[0]}
+            onChange={e => saveValue(fieldKey, `${e.target.value}/${splitArray[1]}`)}
+          />
+        </div>
+        <div className={styles.splitInput}>
+          <p className={styles.label}>{name.split('/')[1]}</p>
+          <Input
+            size="small"
+            value={splitArray[1]}
+            onChange={e => saveValue(fieldKey, `${splitArray[0]}/${e.target.value}`)}
+          />
+        </div>
       </span>
     );
   }
 
   if (type === 'area') {
     return (
-      <span className={tiny ? styles.tiny : ''}>
+      <span>
         <p className={styles.label}>{name}</p>
         <TextArea
           value={getValue(fieldKey)}
           onChange={e => saveValue(fieldKey, e.target.value)}
-          rows={small ? 2 : 4}
-        />
-      </span>
-    );
-  }
-
-  if (type === 'area-small') {
-    return (
-      <span className={tiny ? styles.tiny : ''}>
-        <p className={styles.label}>{name}</p>
-        <TextArea
-          value={getValue(fieldKey)}
-          onChange={e => saveValue(fieldKey, e.target.value)}
-          rows={2}
-          autosize={{ minRows: 1, maxRows: 2 }}
+          autosize
         />
       </span>
     );
@@ -67,7 +70,7 @@ const EditField = (props: EditFieldInterface) => {
 
   if (type === 'bool') {
     return (
-      <div className={tiny ? styles.tiny : ''}>
+      <div>
         <div className={styles.label}>
           <Checkbox
             checked={getValue(fieldKey)}
@@ -82,10 +85,10 @@ const EditField = (props: EditFieldInterface) => {
 
   if (type === 'select' && data) {
     return (
-      <span className={tiny ? styles.tiny : ''}>
+      <span>
         <p className={styles.label}>{name}</p>
         <Select
-          size={small ? 'small' : 'default'}
+          size="small"
           value={getValue(fieldKey)}
           onChange={(value: string) => saveValue(fieldKey, value)}
           style={{ width: '100%' }}
@@ -102,10 +105,10 @@ const EditField = (props: EditFieldInterface) => {
 
   if (type === 'list') {
     return (
-      <span className={tiny ? styles.tiny : ''}>
+      <span>
         <p className={styles.label}>{name}</p>
         <List
-          size={small ? 'small' : 'default'}
+          size="small"
           bordered
           dataSource={getValue(fieldKey)}
           renderItem={(item: string, i) => (
@@ -138,7 +141,7 @@ const EditField = (props: EditFieldInterface) => {
           footer={
             <div className={styles.centerParent}>
               <Button
-                size={small ? 'small' : 'default'}
+                size="small"
                 onClick={() => {
                   const list = getValue(fieldKey);
                   list.push('');

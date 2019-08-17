@@ -1,0 +1,30 @@
+.entry {
+  margin-bottom: 32px;
+  font-size: 16px;
+
+  .title {
+    font-size: 18px;
+    font-weight: bold;
+  }
+
+  .delete {
+    code {
+      background: #f5222d;
+      color: whitesmoke;
+    }
+  }
+
+  .new {
+    code {
+      background: #389e0d;
+      color: whitesmoke;
+    }
+  }
+
+  .change {
+    code {
+      background: #fa8c16;
+      color: whitesmoke;
+    }
+  }
+}

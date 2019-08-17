@@ -69,3 +69,13 @@ export enum SortByType {
   LastUpdated = 'Last Updated',
   Creator = 'Creator'
 }
+
+export enum ChangeLogFeatureType {
+  Added = 'Added',
+  Changed = 'Changed',
+  Deprecated = 'Deprecated',
+  Removed = 'Removed',
+  Fixed = 'Fixed',
+  Security = 'Security',
+  None = ''
+}

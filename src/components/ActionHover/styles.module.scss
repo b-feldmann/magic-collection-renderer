@@ -1,5 +1,6 @@
 $action-offset-normal: 100px;
-$action-offset-hover: 30px;
+$action-offset-hover: 32px;
+$action-offset-icon-size: 24px;
 
 .hovereffect .overlay {
     width: 100%;
@@ -60,7 +61,8 @@ $action-offset-hover: 30px;
 }
 
 .hovereffect hr {
-    width: 50%;
+    border: solid 1px white;
+    width: 56%;
     opacity: 0;
     filter: alpha(opacity=0);
 }
@@ -99,10 +101,10 @@ $action-offset-hover: 30px;
     transition: opacity 0.35s, transform 0.35s;
     color:white;
     position: absolute;
-    top: calc(50% - 10px);
-    left: calc(50% - 10px);
+    top: calc(50% - #{$action-offset-icon-size} * 0.5);
+    left: calc(50% - #{$action-offset-icon-size} * 0.5);
     display: inline-block;
-    font-size: 20px;
+    font-size: $action-offset-icon-size;
 }
 
 .hovereffect .eastAction {

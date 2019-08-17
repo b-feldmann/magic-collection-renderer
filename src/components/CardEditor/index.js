@@ -1,3 +1,3 @@
-import CardEditor from './CardCollection';
+import CardEditor from './CardEditor';
 
 export default CardEditor;

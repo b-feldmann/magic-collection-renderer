@@ -71,18 +71,18 @@ const CardCollection = ({
                   icon: 'edit',
                   action: () => editCard(card.uuid)
                 }}
-                eastAction={{
-                  icon: 'eye',
-                  action: () => viewCard(card.uuid)
-                }}
+                // eastAction={{
+                //   icon: 'eye',
+                //   action: () => viewCard(card.uuid)
+                // }}
                 southAction={{
                   icon: 'download',
-                  action: () => message.error('Currently not implemented')
-                }}
-                westAction={{
-                  icon: 'file-text',
                   action: () => downloadJson(card.uuid)
                 }}
+                // westAction={{
+                //   icon: 'file-text',
+                //   action: () => downloadJson(card.uuid)
+                // }}
               >
                 <CardRender
                   containerWidth={(sizes.width / 24) * colSpan - 8}
@@ -93,6 +93,7 @@ const CardCollection = ({
                   creator={card.creator}
                   collectionNumber={i + 1}
                   collectionSize={cards.length}
+                  smallText
                 />
               </ActionHover>
             </Spin>

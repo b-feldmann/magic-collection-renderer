@@ -1,10 +1,27 @@
 .noCard {
+    padding-left: 32px;
     margin-top: 50vh;
     text-align: center;
 }
 
 .editor {
-    margin: 16px;
+    margin: 16px 8px 8px;
+}
+
+.splitInput {
+    display: inline-block;
+    width: 50%;
+}
+
+.partialField {
+    display: inline-block;
+    padding-right: 8px;
+    padding-left: 8px;
+}
+
+.fullField {
+    padding-right: 8px;
+    padding-left: 8px;
 }
 
 .listItem {
@@ -29,6 +46,10 @@
         margin-top: 4px;
         margin-bottom: 1px;
     }
+
+    .button {
+        margin-top: 4px;
+    }
 }
 
 .buttonGroup {
@@ -41,12 +62,6 @@
     width: 100%;
     text-align: center;
     margin-bottom: -8px;
-}
-
-.tiny {
-    .button {
-        margin-top: 4px;
-    }
 }
 
 .tooltip {
