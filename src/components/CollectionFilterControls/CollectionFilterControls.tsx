@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Checkbox, Input, Radio, Row } from 'antd';
+import { Checkbox, Input, Radio, Row, Slider } from 'antd';
 import { CardMainType, ColorType, mapEnum, RarityType } from '../../interfaces/enums';
 
 import styles from './styles.module.scss';
@@ -65,9 +65,15 @@ const CollectionFilterControls = ({
     fct(newState);
   };
 
-  const updateColSpan = (nextColSpan: number) => {
-    setColSpanSetting(nextColSpan);
-    setCollectionColSpan(nextColSpan);
+  const updateColSpan = (nextColSpan: number | [number, number]) => {
+    let number = -1;
+    if (typeof nextColSpan === 'number') {
+      number = nextColSpan;
+    }
+
+    if (number === 0) number = -1;
+    setColSpanSetting(number);
+    setCollectionColSpan(number);
   };
 
   const cardCountStats: CardCountStats = {};
@@ -93,6 +99,19 @@ const CollectionFilterControls = ({
       types: shownCardTypes
     });
   }, [shownColors, shownRarities, shownCardTypes, setCollectionFilter]);
+
+  const spanMarks = {
+    0: 'Auto',
+    1: '1',
+    2: '2',
+    3: '3',
+    4: '4',
+    5: '5',
+    6: '6',
+    7: '7',
+    8: '8'
+  };
+
   return (
     <div className={styles.controls}>
       <Row>
@@ -104,21 +123,15 @@ const CollectionFilterControls = ({
           {showColSpan && (
             <div className={styles.controlItem}>
               <h4>Cards per row</h4>
-              <Radio.Group
-                size="small"
-                value={colSpanSetting.toString(10)}
-                onChange={e => updateColSpan(parseInt(e.target.value, 10))}
-              >
-                <Radio.Button value="-1">Auto</Radio.Button>
-                <Radio.Button value="24">1</Radio.Button>
-                <Radio.Button value="12">2</Radio.Button>
-                <Radio.Button value="8">3</Radio.Button>
-                <Radio.Button value="6">4</Radio.Button>
-                <Radio.Button value="4">6</Radio.Button>
-                <Radio.Button value="3">8</Radio.Button>
-                <Radio.Button value="2">12</Radio.Button>
-                <Radio.Button value="1">24</Radio.Button>
-              </Radio.Group>
+              <Slider
+                defaultValue={0}
+                marks={spanMarks}
+                step={1}
+                included={false}
+                min={0}
+                max={8}
+                onAfterChange={value => updateColSpan(value)}
+              />
             </div>
           )}
         </div>

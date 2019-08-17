@@ -15,7 +15,9 @@
     width: calc(100vw / 24 * 9);
   }
 
-  .collection {}
+  .collection {
+    height: 100vh;
+  }
 
   .addButton {
     position: fixed;

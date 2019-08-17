@@ -205,18 +205,19 @@ const App: React.FC = () => {
 
   const [resizeListener, sizes] = useResizeAware();
 
-  let colSpan = 4;
+  let columns = 6;
   if (colSpanSetting === -1) {
-    if (sizes.width < 1700) colSpan = 6;
-    if (sizes.width < 1200) colSpan = 8;
-    if (sizes.width < 800) colSpan = 12;
+    if (sizes.width < 1700) columns = 5;
+    if (sizes.width < 1500) columns = 4;
+    if (sizes.width < 1100) columns = 3;
+    if (sizes.width < 800) columns = 2;
   } else {
-    colSpan = colSpanSetting;
+    columns = colSpanSetting;
   }
 
   if (isMobile) {
-    if (isLandScape) colSpan = 8;
-    else colSpan = 12;
+    if (isLandScape) columns = 3;
+    else columns = 2;
   }
 
   const createGrid = (collection: CardInterface[]) => {
@@ -252,8 +253,7 @@ const App: React.FC = () => {
             }}
             downloadImage={id => downloadImage(id, getCard(collection, id).name)}
             downloadJson={id => downloadJson(getCard(collection, id))}
-            viewCard={viewCard}
-            colSpan={colSpan}
+            columns={columns}
             seenCardUuids={seenCardObject}
             addSeenCard={addSeenCard}
           />
