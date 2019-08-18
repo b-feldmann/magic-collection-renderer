@@ -1,8 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Button, Col, Input, Modal, Row, Select } from 'antd';
 import _ from 'lodash';
-// @ts-ignore
-import useResizeAware from 'react-resize-aware';
+
 import fileDownload from 'js-file-download';
 import useWindowDimensions from './useWindowDimensions';
 
@@ -16,7 +15,6 @@ import { Store, StoreType } from './store';
 import styles from './App.module.scss';
 import './card-modal.scss';
 
-import { NonMemoCardRender as CardRender } from './components/CardRender/CardRender';
 import CollectionFilterControls, {
   CollectionFilterInterface
 } from './components/CollectionFilterControls/CollectionFilterControls';
@@ -28,6 +26,8 @@ import { getMechanics } from './actions/mechanicActions';
 import MechanicModal from './components/MechanicModal/MechanicModal';
 import useLocalStorage from './utils/useLocalStorageHook';
 import ChangeLogModal from './components/ChangeLogModal/ChangeLogModal';
+import BigCardRenderModal from './components/BigCardRenderModal/BigCardRenderModal';
+import { getAnnotations } from './actions/annotationActions';
 
 const { Search } = Input;
 const { confirm } = Modal;
@@ -41,7 +41,7 @@ const App: React.FC = () => {
   const [showCardModal, setShowCardModal] = useState<boolean>(false);
   const [cardNameFilter, setCardNameFilter] = useState<string>('');
   const [mechanicsVisible, setMechanicsVisible] = useState(false);
-  const [sortBy, setSortBy] = useLocalStorage('mtg-funset:SortBy', SortByType.Color);
+  const [sortBy, setSortBy] = useLocalStorage('mtg-funset:SortBy', SortByType.LastUpdated);
   const [seenCardUuids, setSeenCardUuids] = useLocalStorage(
     'mtg-funset:seen-card-uuids',
     '[]',
@@ -56,10 +56,17 @@ const App: React.FC = () => {
 
   const [colSpanSetting, setColSpanSetting] = useState<number>(-1);
 
-  const { cards, newUuid, dispatch } = useContext<StoreType>(Store);
+  const { cards, newUuid, dispatch, annotationAccessor } = useContext<StoreType>(Store);
 
   const mergedCollection = [...cards.filter(card => card.uuid !== (tmpCard ? tmpCard.uuid : ''))];
   if (tmpCard) mergedCollection.push(tmpCard);
+
+  const lastUpdated = (card: CardInterface) => {
+    const annotations = annotationAccessor[card.uuid];
+    if (!annotations) return card.lastUpdated;
+
+    return annotations.reduce((a, b) => (a.datetime > b.datetime ? a : b)).datetime;
+  };
 
   const sortList = [];
   if (sortBy === SortByType.Color) {
@@ -78,7 +85,7 @@ const App: React.FC = () => {
     sortList.push((o: CardInterface) => o.front.name.toLowerCase());
   }
   if (sortBy === SortByType.LastUpdated) {
-    sortList.push((o: CardInterface) => o.lastUpdated * -1);
+    sortList.push((o: CardInterface) => -1 * lastUpdated(o));
   }
 
   const filteredCollection = _.sortBy(mergedCollection, sortList).filter(
@@ -97,6 +104,7 @@ const App: React.FC = () => {
 
   useEffect(() => {
     if (newUuid) {
+      addSeenCard(newUuid);
       // eslint-disable-next-line @typescript-eslint/no-use-before-define
       if (cardEditId === NO_CARD) openCardInEditor(newUuid, '');
       // eslint-disable-next-line @typescript-eslint/no-use-before-define
@@ -105,10 +113,13 @@ const App: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [newUuid]);
 
-  useEffect(() => {
+  const refresh = () => {
     refreshCollection(dispatch);
     getMechanics(dispatch);
-  }, []); // eslint-disable-next-line react-hooks/exhaustive-deps
+    getAnnotations(dispatch);
+  };
+
+  useEffect(refresh, []);
 
   const downloadJson = (card: CardInterface) => {
     const data = { ...card };
@@ -151,10 +162,13 @@ const App: React.FC = () => {
         okText: 'Yes discard all changes',
         type: 'danger',
         okType: 'danger',
-        cancelText: 'Cancel',
+        cancelText: 'Edit old card',
         onOk() {
           setCardEditId(id);
           viewCard(id);
+        },
+        onCancel() {
+          viewCard(cardEditId);
         }
       });
     } else {
@@ -163,69 +177,17 @@ const App: React.FC = () => {
     }
   };
 
-  const modalBack = (card: CardInterface, width: number) => {
-    if (!card.back) return <div />;
-
-    return (
-      <CardRender
-        containerWidth={width}
-        {...card.back}
-        cardID={card.uuid}
-        creator={card.creator}
-        rarity={card.rarity}
-        manaCost={card.manaCost}
-        backFace
-        collectionNumber={_.findIndex(
-          filteredCollection,
-          (o: CardInterface) => o.uuid === cardViewId
-        )}
-        collectionSize={filteredCollection.length}
-      />
-    );
-  };
-
   const { width, height } = useWindowDimensions();
 
   const isMobile = width < 900 && height < 900;
-  const isLandScape = width > height;
-
-  const wOffset = isMobile ? 50 : 100;
-  const hOffset = isMobile ? 50 : 200;
-
-  const dimFactor = 488 / 680;
-
-  let modalMaxWidth = (width / 100) * 62.5 - wOffset;
-  if (isMobile) {
-    if (isLandScape) modalMaxWidth = (width / 24) * 15 - wOffset;
-    else modalMaxWidth = width - wOffset;
-  }
-  const modalMaxHeight = height - hOffset;
-  const modalSingleCardWidth = Math.min(modalMaxWidth, modalMaxHeight * dimFactor);
-  const modalDoubleCardWidth = Math.min(modalMaxWidth, modalMaxHeight * dimFactor * 2);
-
-  const [resizeListener, sizes] = useResizeAware();
-
-  let columns = 6;
-  if (colSpanSetting === -1) {
-    if (sizes.width < 1700) columns = 5;
-    if (sizes.width < 1500) columns = 4;
-    if (sizes.width < 1100) columns = 3;
-    if (sizes.width < 800) columns = 2;
-  } else {
-    columns = colSpanSetting;
-  }
-
-  if (isMobile) {
-    if (isLandScape) columns = 3;
-    else columns = 2;
-  }
+  const isLandscape = width > height;
 
   const createGrid = (collection: CardInterface[]) => {
     let collectionSpan = 18;
     let editorSpan = 6;
 
     if (isMobile) {
-      if (isLandScape) {
+      if (isLandscape) {
         collectionSpan = 15;
         editorSpan = 9;
       } else {
@@ -249,13 +211,15 @@ const App: React.FC = () => {
             currentEditId={cardEditId}
             editCard={id => {
               if (cardEditId === NO_CARD) openCardInEditor(id, '');
-              else openCardInEditor(id, getCard(collection, id).name);
+              else openCardInEditor(id, getCard(collection, cardEditId).name);
             }}
             downloadImage={id => downloadImage(id, getCard(collection, id).name)}
             downloadJson={id => downloadJson(getCard(collection, id))}
-            columns={columns}
+            colSpanSetting={colSpanSetting}
             seenCardUuids={seenCardObject}
             addSeenCard={addSeenCard}
+            isMobile={isMobile}
+            isLandscape={isLandscape}
           />
         </Col>
         <Col
@@ -284,7 +248,7 @@ const App: React.FC = () => {
 
   return (
     <div>
-      {isMobile && isLandScape && (
+      {isMobile && isLandscape && (
         <div className={styles.landscapeAddButton}>
           <Button
             icon="plus"
@@ -323,10 +287,7 @@ const App: React.FC = () => {
             setNameFilter={setCardNameFilter}
           />
         </Col>
-        <Col span={isMobile ? 24 : 21}>
-          {resizeListener}
-          {createGrid(filteredCollection)}
-        </Col>
+        <Col span={isMobile ? 24 : 21}>{createGrid(filteredCollection)}</Col>
         {!isMobile && (
           <div className={styles.addButton}>
             <Button
@@ -353,71 +314,23 @@ const App: React.FC = () => {
             >
               JSON
             </Button>
-            <Button
-              icon="reload"
-              type="primary"
-              onClick={() => refreshCollection(dispatch)}
-              className={styles.fullWidth}
-            >
+            <Button icon="reload" type="primary" onClick={refresh} className={styles.fullWidth}>
               Reload Collection
             </Button>
           </div>
         )}
       </Row>
-      <Modal
-        className={styles.modalCardViewWrapper}
-        wrapClassName="card-view"
-        title={`View ${getCard(filteredCollection, cardViewId)}`}
+      <BigCardRenderModal
+        card={getCard(filteredCollection, cardViewId)}
         visible={showCardModal}
-        onOk={() => setShowCardModal(false)}
-        onCancel={() => setShowCardModal(false)}
-      >
-        {getCard(filteredCollection, cardViewId) && (
-          <div
-            className={`${styles.modalCardGroupWrapper} ${
-              getCard(filteredCollection, cardViewId).back
-                ? styles.modalCardGroupWrapperDouble
-                : styles.modalCardGroupWrapperSingle
-            }`}
-            style={{
-              width: getCard(filteredCollection, cardViewId).back
-                ? modalDoubleCardWidth
-                : modalSingleCardWidth
-            }}
-          >
-            <div className={styles.modalCardWrapper}>
-              <CardRender
-                containerWidth={
-                  getCard(filteredCollection, cardViewId).back
-                    ? modalDoubleCardWidth / 2
-                    : modalSingleCardWidth
-                }
-                {...getCard(filteredCollection, cardViewId).front}
-                cardID={getCard(filteredCollection, cardViewId).uuid}
-                creator={getCard(filteredCollection, cardViewId).creator}
-                rarity={getCard(filteredCollection, cardViewId).rarity}
-                manaCost={getCard(filteredCollection, cardViewId).manaCost}
-                collectionNumber={_.findIndex(
-                  filteredCollection,
-                  (o: CardInterface) => o.uuid === cardViewId
-                )}
-                collectionSize={filteredCollection.length}
-              />
-            </div>
-            {getCard(filteredCollection, cardViewId).back && (
-              <div className={styles.modalCardWrapper}>
-                {modalBack(
-                  getCard(filteredCollection, cardViewId),
-                  getCard(filteredCollection, cardViewId).back
-                    ? modalDoubleCardWidth / 2
-                    : modalSingleCardWidth
-                )}
-              </div>
-            )}
-          </div>
+        hide={() => setShowCardModal(false)}
+        collectionNumber={_.findIndex(
+          filteredCollection,
+          (o: CardInterface) => o.uuid === cardViewId
         )}
-      </Modal>
-      {isMobile && !isLandScape && (
+        collectionSize={filteredCollection.length}
+      />
+      {isMobile && !isLandscape && (
         <div className={styles.landscapeReminder}>Use Landscape Mode to edit cards!</div>
       )}
     </div>

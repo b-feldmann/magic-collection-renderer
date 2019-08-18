@@ -1,0 +1,44 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.flexWrapper {
+  background: white;
+  overflow: auto;
+  flex-basis: 0;
+  flex-grow: 1;
+}
+
+.list {
+  background: white;
+  padding: 12px;
+}
+
+.entry {
+  margin-left: -12px;
+
+  span {
+    color: rgb(255 * 0.4, 255 * 0.4, 255 * 0.4);
+  }
+}
+
+.editor {
+  background: white;
+  padding: 12px;
+  margin-bottom: -16px;
+  margin-top: -16px;
+}
+
+.fullWidth {
+  width: 100%;
+}
+
+.button {
+  width: 100%;
+}
+
+.button > * {
+  color: white !important;
+}

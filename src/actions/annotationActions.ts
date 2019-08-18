@@ -10,7 +10,7 @@ import AnnotationInterface from '../interfaces/AnnotationInterface';
 const MIDDLEWARE_ENDPOINT =
   process.env.NODE_ENV === 'production' ? '/annotations' : 'http://localhost:3001/annotations';
 
-export const getAnnotatopns = (dispatch: (value: Action) => void) => {
+export const getAnnotations = (dispatch: (value: Action) => void) => {
   axios
     .get(MIDDLEWARE_ENDPOINT)
     .then(result => {
@@ -35,7 +35,7 @@ export const createAnnotation = (
   axios
     .post(MIDDLEWARE_ENDPOINT, args)
     .then(result => {
-      message.success('Successfully Created Mechanic!');
+      message.success('Successfully Created Annotation!');
       return dispatch({
         type: AnnotationActionType.CreateAnnotation,
         payload: {
@@ -44,7 +44,7 @@ export const createAnnotation = (
       });
     })
     .catch(error => {
-      message.error('Failed creating a new mechanic :(');
+      message.error('Failed creating a new annotation :(');
       console.log(error);
     });
 };
@@ -56,7 +56,7 @@ export const updateAnnotation = (
   axios
     .put(MIDDLEWARE_ENDPOINT, { mechanic: updated, accessKey: getAccessToken() })
     .then(result => {
-      message.success('Successfully Updated Mechanic');
+      message.success('Successfully Updated Annotation');
       return dispatch({
         type: AnnotationActionType.UpdateAnnotation,
         payload: {
@@ -65,7 +65,7 @@ export const updateAnnotation = (
       });
     })
     .catch(error => {
-      message.error("Could'nt update mechanic");
+      message.error("Could'nt update annotation");
       console.log(error);
     });
 };

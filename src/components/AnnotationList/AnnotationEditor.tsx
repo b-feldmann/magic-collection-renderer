@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Button, Form, Input, Select } from 'antd';
 import { Creators } from '../../interfaces/enums';
 
+import styles from './Annotations.module.scss';
+
 const { TextArea } = Input;
 
 interface AnnotationEditorProps {
@@ -22,7 +24,6 @@ const AnnotationEditor = ({
 
   useEffect(() => {
     if (!submitting) {
-      setAuthor(Creators.UNKNOWN);
       setContent('');
     }
   }, [submitting]);
@@ -30,33 +31,34 @@ const AnnotationEditor = ({
   useEffect(() => setAuthor(defaultAuthor), [defaultAuthor]);
 
   return (
-    <div>
-      <Form.Item>
-        <Select
-          size="small"
-          value={author}
-          onChange={(newAuthor: Creators) => setAuthor(newAuthor)}
-        >
-          {Object.values(Creators).map(d => (
-            <Select.Option key={`annotation-add-key-author-${d}`} value={d}>
-              {d}
-            </Select.Option>
-          ))}
-        </Select>
-      </Form.Item>
-      <Form.Item>
-        <TextArea rows={4} value={content} onChange={e => setContent(e.target.value)} />
-      </Form.Item>
-      <Form.Item>
-        <Button
-          htmlType="submit"
-          loading={submitting}
-          onClick={() => onSubmit(content, author)}
-          type="primary"
-        >
-          Add Comment
-        </Button>
-      </Form.Item>
+    <div className={styles.editor}>
+      <Select
+        size="small"
+        value={author}
+        onChange={(newAuthor: Creators) => setAuthor(newAuthor)}
+        className={styles.fullWidth}
+      >
+        {Object.values(Creators).map(d => (
+          <Select.Option key={`annotation-add-key-author-${d}`} value={d}>
+            {d}
+          </Select.Option>
+        ))}
+      </Select>
+      <TextArea
+        autosize={{ minRows: 2, maxRows: 5 }}
+        value={content}
+        onChange={e => setContent(e.target.value)}
+        placeholder="Your comment"
+      />
+      <Button
+        className={styles.button}
+        htmlType="submit"
+        loading={submitting}
+        onClick={() => onSubmit(content, author)}
+        type="primary"
+      >
+        Add Comment
+      </Button>
     </div>
   );
 };

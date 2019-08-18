@@ -13,9 +13,11 @@ export interface CardCollectionInterface {
   downloadImage: (id: string) => void;
   downloadJson: (id: string) => void;
   currentEditId: string;
-  columns: number;
+  colSpanSetting: number;
   seenCardUuids: { [key: string]: boolean };
   addSeenCard: (uuid: string) => void;
+  isMobile: boolean;
+  isLandscape: boolean;
 }
 
 export interface BackConfigInterface {
@@ -27,9 +29,11 @@ const CardCollection = ({
   editCard,
   downloadJson,
   currentEditId,
-  columns,
+  colSpanSetting,
   seenCardUuids,
-  addSeenCard
+  addSeenCard,
+  isMobile,
+  isLandscape
 }: CardCollectionInterface) => {
   const [showBackFaceConfig, setShowBackFaceConfig] = useState<BackConfigInterface>({});
 
@@ -42,6 +46,21 @@ const CardCollection = ({
   return (
     <AutoSizer>
       {({ height, width }) => {
+        let columns = 6;
+        if (colSpanSetting === -1) {
+          if (width < 1700) columns = 5;
+          if (width < 1500) columns = 4;
+          if (width < 1100) columns = 3;
+          if (width < 800) columns = 2;
+        } else {
+          columns = colSpanSetting;
+        }
+
+        if (isMobile) {
+          if (isLandscape) columns = 3;
+          else columns = 2;
+        }
+
         const columnWidth: number = width / columns;
         const columnHeight: number = (columnWidth / 488) * 680;
         const rows: number = Math.ceil(cards.length / columns);

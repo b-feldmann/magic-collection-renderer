@@ -81,4 +81,41 @@ updateLog.push({
   ]
 });
 
+updateLog.push({
+  version: '1.0.0',
+  title: 'New Major Version!',
+  content: [
+    {
+      type: ChangeLogFeatureType.Changed,
+      feature:
+        'Is now working accordingly on FireFox (Why use this Browser anywhy? :p). Works also on Microsoft Edge (Not in any way better than FireFox).'
+    },
+    {
+      type: ChangeLogFeatureType.Added,
+      feature:
+        "Added Annotations! When editing a card you can view and write card annotations. It's recommended to add an annotation when creating a card to explain the reasoning behind that card."
+    },
+    {
+      type: ChangeLogFeatureType.Changed,
+      feature:
+        'Sort by "Last Updated" includes the last time someone added an annotation to a card.'
+    },
+    {
+      type: ChangeLogFeatureType.Changed,
+      feature: 'Card Sorting and Filtering are really fast now!'
+    }
+  ]
+});
+
+// updateLog.push({
+//   version: '1.0.1',
+//   title: 'New Card Type Update',
+//   content: [
+//     {
+//       type: ChangeLogFeatureType.Added,
+//       feature: 'Introduce Split Cards.'
+//     }
+//   ]
+// });
+
 export default updateLog;

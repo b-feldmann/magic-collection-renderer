@@ -43,28 +43,6 @@
   }
 }
 
-.modalCardViewWrapper {
-  width: 0px !important;
-  height: 0px !important;
-}
-
-.modalCardGroupWrapper {
-  display: flex;
-  flex-direction: row;
-  transform: translateX(-50%);
-}
-
-.modalCardGroupWrapperSingle {
-  .modalCardWrapper {
-    width: 100%;
-  }
-}
-.modalCardGroupWrapperDouble {
-  .modalCardWrapper {
-    width: 50%;
-  }
-}
-
 .landscapeReminder {
   z-index: 99999;
   position: fixed;
