@@ -1,5 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Form, Input, Select } from 'antd';
+import { Button, Input, Popover, Select } from 'antd';
+
+import 'emoji-mart/css/emoji-mart.css';
+import data from 'emoji-mart/data/apple.json';
+import { BaseEmoji, Emoji, NimblePicker as Picker } from 'emoji-mart';
+
 import { Creators } from '../../interfaces/enums';
 
 import styles from './Annotations.module.scss';
@@ -30,6 +35,10 @@ const AnnotationEditor = ({
   useEffect(() => setContent(defaultContent), [defaultContent]);
   useEffect(() => setAuthor(defaultAuthor), [defaultAuthor]);
 
+  const onEmoji = (emoji: BaseEmoji) => {
+    setContent(content + emoji.native);
+  };
+
   return (
     <div className={styles.editor}>
       <Select
@@ -50,6 +59,13 @@ const AnnotationEditor = ({
         onChange={e => setContent(e.target.value)}
         placeholder="Your comment"
       />
+      <Popover
+        content={<Picker onClick={onEmoji} data={data} showSkinTones={false} showPreview={false} />}
+      >
+        <div>
+          <Emoji emoji="smiley" set="apple" size={16} />
+        </div>
+      </Popover>
       <Button
         className={styles.button}
         htmlType="submit"

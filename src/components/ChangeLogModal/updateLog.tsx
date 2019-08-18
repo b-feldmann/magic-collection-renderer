@@ -107,6 +107,17 @@ updateLog.push({
   ]
 });
 
+updateLog.push({
+  version: '1.0.1',
+  title: 'Awesome Yeah 👍🏼',
+  content: [
+    {
+      type: ChangeLogFeatureType.Added,
+      feature: 'You can now add emojis to your annotations.'
+    }
+  ]
+});
+
 // updateLog.push({
 //   version: '1.0.1',
 //   title: 'New Card Type Update',
