@@ -118,8 +118,34 @@ updateLog.push({
   ]
 });
 
+updateLog.push({
+  version: '1.1.0',
+  title: 'Big User Update',
+  content: [
+    {
+      type: ChangeLogFeatureType.Added,
+      feature:
+        'Un-secure Login. (When creating a card the creator is automatically set. Same for the annotations)'
+    },
+    {
+      type: ChangeLogFeatureType.Changed,
+      feature:
+        'Cards have now different states. [Draft, To Rate, Approved]. You can change stages in the card-edit-view. You can release any card for the rating process.'
+    },
+    {
+      type: ChangeLogFeatureType.Added,
+      feature:
+        'You can now like or dislike a card if it is in the rating process. You can approve a card if at least 5 people liked that card.'
+    },
+    {
+      type: ChangeLogFeatureType.Fixed,
+      feature: 'Typos'
+    }
+  ]
+});
+
 // updateLog.push({
-//   version: '1.0.1',
+//   version: '1.0.2',
 //   title: 'New Card Type Update',
 //   content: [
 //     {

@@ -78,7 +78,7 @@ const Cell = ({ style, columnIndex, rowIndex, data }: CellProps) => {
             cardID={card.uuid}
             rarity={card.rarity}
             manaCost={card.manaCost}
-            creator={card.creator}
+            creator={card.creator.name}
             collectionNumber={index + 1}
             collectionSize={cards.length}
             smallText

@@ -1,13 +1,18 @@
 import React, { useContext } from 'react';
-import { Modal } from 'antd';
+import { Button, Card, Icon, Modal, Tooltip } from 'antd';
+
 import _ from 'lodash';
+
 import CardInterface from '../../interfaces/CardInterface';
 import styles from './BigCardRenderModal.module.scss';
 import { NonMemoCardRender as CardRender } from '../CardRender/CardRender';
+// import CardRender from '../CardPixiRender';
 import { Store, StoreType } from '../../store';
 import useWindowDimensions from '../../useWindowDimensions';
 import AnnotationList from '../AnnotationList/AnnotationList';
 import { createAnnotation } from '../../actions/annotationActions';
+import { CardState } from '../../interfaces/enums';
+import { updateCard } from '../../actions/cardActions';
 
 interface BigCardRenderModalProps {
   card: CardInterface;
@@ -24,7 +29,7 @@ const BigCardRenderModal = ({
   collectionNumber,
   collectionSize
 }: BigCardRenderModalProps) => {
-  const { annotationAccessor, dispatch } = useContext<StoreType>(Store);
+  const { annotationAccessor, currentUser, user, dispatch } = useContext<StoreType>(Store);
 
   const annotations = annotationAccessor[card.uuid] || [];
 
@@ -50,6 +55,91 @@ const BigCardRenderModal = ({
   const annotationWidth = faces.length === 2 ? fullCardWidth : modalMaxWidth - singleCardWidth;
   const annotationHeight =
     faces.length === 2 ? modalMaxHeight - cardHeight + hEditorSpace : cardHeight;
+
+  const updateState = (newState: CardState) => {
+    const updatedCard = { ...card };
+    updatedCard.meta.state = newState;
+    updateCard(dispatch, updatedCard);
+  };
+
+  const draftView = (
+    <Button
+      ghost
+      type="danger"
+      size="small"
+      style={{ width: '100%' }}
+      onClick={() => updateState(CardState.Rate)}
+    >
+      Release for Rating!
+    </Button>
+  );
+
+  const liked = !!_.find(card.meta.likes, o => o === currentUser.uuid);
+  const disliked = !liked && !!_.find(card.meta.dislikes, o => o === currentUser.uuid);
+
+  const like = () => {
+    if (liked) return;
+
+    const updatedCard = { ...card };
+    if (disliked) {
+      updatedCard.meta.dislikes = updatedCard.meta.dislikes.filter(o => o !== currentUser.uuid);
+    }
+    updatedCard.meta.likes.push(currentUser.uuid);
+    updateCard(dispatch, updatedCard);
+  };
+
+  const dislike = () => {
+    if (disliked) return;
+
+    const updatedCard = { ...card };
+    if (liked) {
+      updatedCard.meta.likes = updatedCard.meta.likes.filter(o => o !== currentUser.uuid);
+    }
+    updatedCard.meta.dislikes.push(currentUser.uuid);
+    updateCard(dispatch, updatedCard);
+  };
+
+  const userUuidToNames = (uuids: string[]) =>
+    uuids
+      .map(uuid => _.find(user, u => u.uuid === uuid) || { name: '' })
+      .map(u => u.name)
+      .join(', ');
+
+  const rateView = (
+    <div>
+      <span onClick={like} style={{ cursor: 'pointer' }}>
+        <Tooltip title={userUuidToNames(card.meta.likes)}>
+          <Icon type="like" theme={liked ? 'filled' : 'outlined'} />
+        </Tooltip>
+        <span style={{ paddingLeft: 4 }}>{card.meta.likes.length}</span>
+      </span>
+      <span onClick={dislike} style={{ paddingLeft: 8, cursor: 'pointer' }}>
+        <Tooltip title={userUuidToNames(card.meta.dislikes)}>
+          <Icon type="dislike" theme={disliked ? 'filled' : 'outlined'} />
+        </Tooltip>
+        <span style={{ paddingLeft: 4 }}>{card.meta.dislikes.length}</span>
+      </span>
+      <span>
+        <Button
+          disabled={card.meta.likes.length < 5}
+          className={styles.stateButton}
+          ghost={card.meta.likes.length >= 5}
+          type="danger"
+          size="small"
+          onClick={() => updateState(CardState.Approved)}
+        >
+          {`Approve!${
+            card.meta.likes.length < 5 ? ` (need ${5 - card.meta.likes.length} more likes)` : ''
+          }`}
+        </Button>
+      </span>
+    </div>
+  );
+
+  let view = <div />;
+  if (card.meta.state === CardState.Draft) view = draftView;
+  if (card.meta.state === CardState.Rate) view = rateView;
+  // view = rateView;
 
   return (
     <Modal
@@ -88,7 +178,7 @@ const BigCardRenderModal = ({
                 containerWidth={singleCardWidth}
                 {...face}
                 cardID={card.uuid}
-                creator={card.creator}
+                creator={card.creator.name}
                 rarity={card.rarity}
                 manaCost={card.manaCost}
                 collectionNumber={collectionNumber}
@@ -111,7 +201,12 @@ const BigCardRenderModal = ({
             createAnnotation={(content, author) =>
               createAnnotation(dispatch, content, author, card.uuid)
             }
-          />
+          >
+            <Card size="small" bordered={false} className={styles.cardComment}>
+              {card.meta.comment && <p>{card.meta.comment}</p>}
+              {view}
+            </Card>
+          </AnnotationList>
         </div>
       </div>
     </Modal>

@@ -6,13 +6,14 @@ import moment from 'moment';
 import CardInterface from '../../interfaces/CardInterface';
 
 import styles from './styles.module.scss';
-import { CardMainType, CardVersion, Creators, RarityType } from '../../interfaces/enums';
+import { CardMainType, CardState, RarityType } from '../../interfaces/enums';
 import EditField from './EditField';
 
 import CardFaceInterface from '../../interfaces/CardFaceInterface';
 import EditorTooltip from '../EditorTooltip/EditorTooltip';
 import { updateCard } from '../../actions/cardActions';
 import { Store, StoreType } from '../../store';
+import { UNKNOWN_CREATOR } from '../../interfaces/constants';
 
 interface CardEditorInterface {
   card?: CardInterface;
@@ -31,10 +32,15 @@ const dummyCard: CardInterface = {
     cardMainType: CardMainType.Creature,
     cardText: []
   },
-  version: CardVersion.V1,
-  lastUpdated: moment().valueOf(),
-  createdAt: moment().valueOf(),
-  creator: Creators.UNKNOWN
+  creator: UNKNOWN_CREATOR,
+  meta: {
+    comment: '',
+    likes: [],
+    dislikes: [],
+    lastUpdated: moment().valueOf(),
+    createdAt: moment().valueOf(),
+    state: CardState.Draft
+  }
 };
 
 const CardEditor: React.FC<CardEditorInterface> = ({
@@ -48,7 +54,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
 
   const [editBack, setEditBack] = useState<boolean>(false);
 
-  const { dispatch, cards } = useContext<StoreType>(Store);
+  const { dispatch, user } = useContext<StoreType>(Store);
 
   const getCurrentFace = (currentCard: CardInterface): CardFaceInterface => {
     if (currentCard.back && editBack) return currentCard.back;
@@ -56,7 +62,9 @@ const CardEditor: React.FC<CardEditorInterface> = ({
   };
 
   const getValue = (key: string): any => {
-    if (key === 'rarity' || key === 'creator' || key === 'manaCost') return tmpCard[key];
+    if (key === 'creator') return tmpCard[key].uuid;
+    if (key === 'rarity' || key === 'manaCost') return tmpCard[key];
+    if (key === 'comment') return tmpCard.meta[key];
     return getCurrentFace(tmpCard)[key];
   };
 
@@ -69,8 +77,12 @@ const CardEditor: React.FC<CardEditorInterface> = ({
       } else {
         newTmpCard.name = `${newTmpCard.front.name}`;
       }
-    } else if (key === 'rarity' || key === 'creator' || key === 'manaCost') {
+    } else if (key === 'creator') {
+      newTmpCard[key] = _.find(user, o => o.uuid === value) || UNKNOWN_CREATOR;
+    } else if (key === 'rarity' || key === 'manaCost') {
       newTmpCard[key] = value;
+    } else if (key === 'comment') {
+      newTmpCard.meta[key] = value;
     } else {
       getCurrentFace(newTmpCard)[key] = value;
     }
@@ -141,14 +153,20 @@ const CardEditor: React.FC<CardEditorInterface> = ({
       key: 'rarity',
       type: 'select',
       name: 'Rarity',
-      data: Object.keys(RarityType).map((type: any) => RarityType[type]),
+      data: Object.keys(RarityType).map((type: any) => ({
+        key: RarityType[type],
+        value: RarityType[type]
+      })),
       width: hasMana() ? 50 : 100
     },
     {
       key: 'cardMainType',
       type: 'select',
       name: 'Card Type',
-      data: Object.keys(CardMainType).map((type: any) => CardMainType[type]),
+      data: Object.keys(CardMainType).map((type: any) => ({
+        key: CardMainType[type],
+        value: CardMainType[type]
+      })),
       width: 50
     },
     { key: 'cardSubTypes', type: 'input', name: 'Card Sub Types', width: 50 },
@@ -165,9 +183,10 @@ const CardEditor: React.FC<CardEditorInterface> = ({
       key: 'creator',
       type: 'select',
       name: 'Card Creator',
-      data: Object.keys(Creators).map((type: any) => Creators[type]),
+      data: user.map(o => ({ key: o.uuid, value: o.name })),
       width: hasStats() ? 50 : 100
-    }
+    },
+    { key: 'comment', type: 'area', name: 'Comment' }
   ];
 
   if (card.uuid === NO_CARD)

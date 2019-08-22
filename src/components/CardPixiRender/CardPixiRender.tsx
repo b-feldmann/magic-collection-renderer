@@ -3,7 +3,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import 'mana-font/css/mana.css';
 
 import * as PIXI from 'pixi.js';
-import { CardMainType, ColorType, Creators, RarityType } from '../../interfaces/enums';
+import { CardMainType, ColorType, RarityType } from '../../interfaces/enums';
 
 import CommonIcon from './images/rarity/common.png';
 import UncommonIcon from './images/rarity/uncommon.png';
@@ -47,17 +47,17 @@ interface CardWebGLRender {
   flavourAuthor?: string;
   cover?: string;
   backFace?: boolean;
-  keywords: string[];
   collectionNumber: number;
   collectionSize: number;
   containerWidth?: number;
+  smallText?: boolean;
 }
 
 const CardPixiRender: React.FC<CardWebGLRender> = (cardRender: CardWebGLRender) => {
   const { legendary, cardMainType, cardSubTypes, rarity } = cardRender;
   const { name, manaCost, cardStats, cover, creator } = cardRender;
   const { cardText, flavourText, flavourAuthor, cardID } = cardRender;
-  const { backFace, keywords, collectionNumber, collectionSize } = cardRender;
+  const { backFace, collectionNumber, collectionSize } = cardRender;
   const { containerWidth = 488 } = cardRender;
 
   const { color, allColors } = cardToColor(cardMainType, manaCost);
@@ -214,4 +214,4 @@ const CardPixiRender: React.FC<CardWebGLRender> = (cardRender: CardWebGLRender) 
   );
 };
 
-export default CardPixiRender;
+export default React.memo(CardPixiRender);

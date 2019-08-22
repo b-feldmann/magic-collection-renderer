@@ -4,10 +4,12 @@ import axios from 'axios';
 import { message } from 'antd';
 import moment from 'moment';
 import { Action, CardActionType } from '../cardReducer';
-import { CardMainType, CardVersion, Creators, RarityType } from '../interfaces/enums';
+import { CardMainType, CardState, RarityType } from '../interfaces/enums';
 
 import CardInterface from '../interfaces/CardInterface';
 import { getAccessToken } from '../dropboxService';
+import { UNKNOWN_CREATOR } from '../interfaces/constants';
+import UserInterface from "../interfaces/UserInterface";
 
 const MIDDLEWARE_ENDPOINT = process.env.NODE_ENV === 'production' ? '' : 'http://localhost:3001';
 
@@ -21,10 +23,15 @@ export const EMPTY_CARD = (): CardInterface => ({
   },
   manaCost: '',
   rarity: RarityType.Common,
-  creator: Creators.UNKNOWN,
-  version: CardVersion.V1,
-  lastUpdated: moment().valueOf(),
-  createdAt: moment().valueOf()
+  creator: UNKNOWN_CREATOR,
+  meta: {
+    comment: '',
+    likes: [],
+    dislikes: [],
+    lastUpdated: moment().valueOf(),
+    createdAt: moment().valueOf(),
+    state: CardState.Draft
+  }
 });
 
 export const refreshCollection = (dispatch: (value: Action) => void) => {
@@ -53,9 +60,9 @@ export const refreshCollection = (dispatch: (value: Action) => void) => {
     });
 };
 
-export const createCard = (dispatch: (value: Action) => void, card?: CardInterface) => {
+export const createCard = (dispatch: (value: Action) => void, creator: UserInterface) => {
   const request = `${MIDDLEWARE_ENDPOINT}/cards`;
-  const args = card ? { card, accessKey: getAccessToken() } : { accessKey: getAccessToken() };
+  const args = { accessKey: getAccessToken(), creator };
 
   axios
     .post(request, args)

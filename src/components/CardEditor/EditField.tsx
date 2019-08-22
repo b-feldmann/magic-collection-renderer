@@ -1,5 +1,6 @@
 import { Button, Checkbox, Icon, Input, List, Select } from 'antd';
 import React from 'react';
+import _ from 'lodash';
 import styles from './styles.module.scss';
 
 const { TextArea } = Input;
@@ -8,7 +9,7 @@ interface EditFieldInterface {
   fieldKey: string;
   type: string;
   name: string;
-  data?: string[];
+  data?: { key: string; value: string }[];
   getValue: (key: string) => any;
   saveValue: (key: string, value: any) => void;
 }
@@ -90,12 +91,12 @@ const EditField = (props: EditFieldInterface) => {
         <Select
           size="small"
           value={getValue(fieldKey)}
-          onChange={(value: string) => saveValue(fieldKey, value)}
+          onChange={(key: string) => saveValue(fieldKey, key)}
           style={{ width: '100%' }}
         >
           {data.map(d => (
-            <Select.Option key={`${fieldKey} + ${d}`} value={d}>
-              {d}
+            <Select.Option key={`${fieldKey} + ${d.key}`} value={d.key}>
+              {d.value}
             </Select.Option>
           ))}
         </Select>

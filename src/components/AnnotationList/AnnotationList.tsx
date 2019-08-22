@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import { List, Comment } from 'antd';
 
 import _ from 'lodash';
@@ -6,20 +6,27 @@ import _ from 'lodash';
 import AnnotationInterface from '../../interfaces/AnnotationInterface';
 import Annotation from './Annotation';
 import AnnotationEditor from './AnnotationEditor';
-import { Creators } from '../../interfaces/enums';
 
 import styles from './Annotations.module.scss';
+import UserInterface from '../../interfaces/UserInterface';
+import {Store, StoreType} from "../../store";
 
 interface AnnotationListProps {
   annotations: AnnotationInterface[];
-  createAnnotation: (content: string, author: Creators) => void;
+  createAnnotation: (content: string, author: UserInterface) => void;
   split?: boolean;
+  children?: JSX.Element | string;
 }
 
-const AnnotationList = ({ annotations, createAnnotation, split }: AnnotationListProps) => {
+const AnnotationList = ({
+  annotations,
+  createAnnotation,
+  split,
+  children
+}: AnnotationListProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (content: string, author: Creators) => {
+  const handleSubmit = (content: string, author: UserInterface) => {
     setIsSubmitting(true);
     createAnnotation(content, author);
   };
@@ -28,6 +35,7 @@ const AnnotationList = ({ annotations, createAnnotation, split }: AnnotationList
 
   return (
     <div className={styles.container} style={{ flexDirection: split ? 'row-reverse' : 'column' }}>
+      {children}
       <div className={styles.flexWrapper}>
         <List
           className={styles.list}

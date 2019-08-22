@@ -2,6 +2,7 @@ import CardInterface from './interfaces/CardInterface';
 import MechanicInterface from './interfaces/MechanicInterface';
 import AnnotationInterface from './interfaces/AnnotationInterface';
 import AnnotationAccessorInterface from './interfaces/AnnotationAccessorInterface';
+import UserInterface from './interfaces/UserInterface';
 
 export enum CardActionType {
   RefreshCollection = 'refresh-collection',
@@ -26,10 +27,16 @@ export enum AnnotationActionType {
   DeleteAnnotation = 'delete-annotation'
 }
 
+export enum UserActionType {
+  GetUser = 'get-user',
+  SetCurrentUser = 'set-current-user'
+}
+
 type State = {
   cards: CardInterface[];
   mechanics: MechanicInterface[];
   annotationAccessor: AnnotationAccessorInterface;
+  user: UserInterface[];
   newUuid?: string;
 };
 
@@ -47,7 +54,9 @@ export type Action =
   | { type: AnnotationActionType.GetAnnotations; payload: { annotations: AnnotationInterface[] } }
   | { type: AnnotationActionType.CreateAnnotation; payload: { annotation: AnnotationInterface } }
   | { type: AnnotationActionType.UpdateAnnotation; payload: { annotation: AnnotationInterface } }
-  | { type: AnnotationActionType.DeleteAnnotation; payload: { uuid: string } };
+  | { type: AnnotationActionType.DeleteAnnotation; payload: { uuid: string } }
+  | { type: UserActionType.GetUser; payload: { user: UserInterface[] } }
+  | { type: UserActionType.SetCurrentUser; payload: { user: UserInterface } };
 
 const cardReducer: React.Reducer<State, Action> = (state, action) => {
   let annotationAccessor: AnnotationAccessorInterface;
@@ -169,6 +178,18 @@ const cardReducer: React.Reducer<State, Action> = (state, action) => {
       return {
         ...state,
         annotationAccessor
+      };
+
+    case UserActionType.GetUser:
+      return {
+        ...state,
+        user: action.payload.user
+      };
+
+    case UserActionType.SetCurrentUser:
+      return {
+        ...state,
+        currentUser: action.payload.user
       };
 
     default:

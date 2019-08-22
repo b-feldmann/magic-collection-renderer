@@ -19,6 +19,10 @@
     height: 100vh;
   }
 
+  .tabBadge > sup {
+    margin-right: -18px;
+  }
+
   .addButton {
     position: fixed;
     bottom: 8px;
@@ -29,6 +33,10 @@
   .fullWidth {
     margin-top: 8px;
     width: 100%;
+  }
+
+  .fullHeight {
+    height: 100%;
   }
 
   .sortControls {
@@ -65,4 +73,14 @@
   color: whitesmoke;
   padding: 4px;
   background: rgba(0,0,0,0.4);
+}
+
+.loginWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(255 * 0.2, 255 * 0.2, 255 * 0.2, 1);
 }

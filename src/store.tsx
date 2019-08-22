@@ -3,15 +3,16 @@ import reducer, { Action } from './cardReducer';
 import CardInterface from './interfaces/CardInterface';
 import MechanicInterface from './interfaces/MechanicInterface';
 import AnnotationAccessorInterface from './interfaces/AnnotationAccessorInterface';
+import UserInterface from './interfaces/UserInterface';
+import { UNKNOWN_CREATOR } from './interfaces/constants';
 
 export type StoreType = {
   cards: CardInterface[];
   newUuid?: string;
   mechanics: MechanicInterface[];
   annotationAccessor: AnnotationAccessorInterface;
-  keywords: string[];
-  cardSubTypes: string[];
-  creators: string[];
+  user: UserInterface[];
+  currentUser: UserInterface;
   dispatch: (value: Action) => void;
 };
 
@@ -20,9 +21,8 @@ const initialState = {
   newUuid: undefined,
   mechanics: [],
   annotationAccessor: {},
-  keywords: [],
-  cardSubTypes: [],
-  creators: ['']
+  user: [],
+  currentUser: UNKNOWN_CREATOR
 };
 
 const initialStore = {

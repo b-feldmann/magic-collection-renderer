@@ -1,12 +1,12 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Button, Col, Input, Modal, Row, Select } from 'antd';
+import { Button, Col, Input, Modal, Row, Select, Tabs, Badge, Card } from 'antd';
 import _ from 'lodash';
 
 import fileDownload from 'js-file-download';
 import useWindowDimensions from './useWindowDimensions';
 
 import CardInterface from './interfaces/CardInterface';
-import { ColorType, Creators, SortByType } from './interfaces/enums';
+import { CardState, ColorType, SortByType } from './interfaces/enums';
 import CardCollection from './components/CardCollection/CardCollection';
 import CardEditor from './components/CardEditor/CardEditor';
 
@@ -14,6 +14,7 @@ import { Store, StoreType } from './store';
 
 import styles from './App.module.scss';
 import './card-modal.scss';
+import './ant-tabs.scss';
 
 import CollectionFilterControls, {
   CollectionFilterInterface
@@ -28,9 +29,12 @@ import useLocalStorage from './utils/useLocalStorageHook';
 import ChangeLogModal from './components/ChangeLogModal/ChangeLogModal';
 import BigCardRenderModal from './components/BigCardRenderModal/BigCardRenderModal';
 import { getAnnotations } from './actions/annotationActions';
+import { getUser, setCurrentUser } from './actions/userActions';
+import { UNKNOWN_CREATOR } from './interfaces/constants';
 
 const { Search } = Input;
 const { confirm } = Modal;
+const { TabPane } = Tabs;
 
 const NO_CARD = '-1';
 
@@ -56,16 +60,19 @@ const App: React.FC = () => {
 
   const [colSpanSetting, setColSpanSetting] = useState<number>(-1);
 
-  const { cards, newUuid, dispatch, annotationAccessor } = useContext<StoreType>(Store);
+  const { cards, newUuid, dispatch, annotationAccessor, user, currentUser } = useContext<StoreType>(
+    Store
+  );
 
   const mergedCollection = [...cards.filter(card => card.uuid !== (tmpCard ? tmpCard.uuid : ''))];
   if (tmpCard) mergedCollection.push(tmpCard);
 
-  const lastUpdated = (card: CardInterface) => {
+  const lastUpdated = (card: CardInterface): number => {
     const annotations = annotationAccessor[card.uuid];
-    if (!annotations) return card.lastUpdated;
+    if (!annotations) return card.meta.lastUpdated;
 
-    return annotations.reduce((a, b) => (a.datetime > b.datetime ? a : b)).datetime;
+    const lastAnnotatoin = annotations.reduce((a, b) => (a.datetime > b.datetime ? a : b));
+    return Math.max(lastAnnotatoin.datetime, card.meta.lastUpdated);
   };
 
   const sortList = [];
@@ -77,7 +84,7 @@ const App: React.FC = () => {
   }
   if (sortBy === SortByType.Creator) {
     sortList.push((o: CardInterface) =>
-      o.creator === Creators.UNKNOWN ? 999 : _.indexOf(Object.values(Creators), o.creator)
+      o.creator.uuid === UNKNOWN_CREATOR.uuid ? 'zzzzz' : o.creator.name
     );
     sortList.push((o: CardInterface) =>
       _.indexOf(Object.values(ColorType), cardToColor(o.front.cardMainType, o.manaCost).color)
@@ -117,6 +124,7 @@ const App: React.FC = () => {
     refreshCollection(dispatch);
     getMechanics(dispatch);
     getAnnotations(dispatch);
+    getUser(dispatch);
   };
 
   useEffect(refresh, []);
@@ -201,26 +209,61 @@ const App: React.FC = () => {
       seenCardObject[uuid] = true;
     });
 
+    const cardTabs = [
+      { name: 'All', filter: (o: CardInterface) => true },
+      {
+        name: 'Card Drafts / Idea Dump',
+        filter: (o: CardInterface) => o.meta.state === CardState.Draft
+      },
+      {
+        name: 'Cards to Rate',
+        filter: (o: CardInterface) => o.meta.state === CardState.Rate
+      },
+      {
+        name: 'Approved Cards',
+        filter: (o: CardInterface) => o.meta.state === CardState.Approved
+      }
+    ];
+
     return (
       <Row>
         <ChangeLogModal />
         <MechanicModal visible={mechanicsVisible} setVisible={setMechanicsVisible} />
         <Col span={collectionSpan} className={styles.collection}>
-          <CardCollection
-            cards={filteredCollection}
-            currentEditId={cardEditId}
-            editCard={id => {
-              if (cardEditId === NO_CARD) openCardInEditor(id, '');
-              else openCardInEditor(id, getCard(collection, cardEditId).name);
-            }}
-            downloadImage={id => downloadImage(id, getCard(collection, id).name)}
-            downloadJson={id => downloadJson(getCard(collection, id))}
-            colSpanSetting={colSpanSetting}
-            seenCardUuids={seenCardObject}
-            addSeenCard={addSeenCard}
-            isMobile={isMobile}
-            isLandscape={isLandscape}
-          />
+          <Tabs defaultActiveKey="tab-key-Card Drafts / Idea Dump" className={styles.collection}>
+            {cardTabs.map(tabObj => (
+              <TabPane
+                tab={
+                  <Badge
+                    className={styles.tabBadge}
+                    count={_.filter(filteredCollection, tabObj.filter).length}
+                    showZero
+                    overflowCount={999}
+                  >
+                    {tabObj.name}
+                  </Badge>
+                }
+                key={`tab-key-${tabObj.name}`}
+                className={styles.fullHeight}
+              >
+                <CardCollection
+                  cards={_.filter(filteredCollection, tabObj.filter)}
+                  currentEditId={cardEditId}
+                  editCard={id => {
+                    if (cardEditId === NO_CARD) openCardInEditor(id, '');
+                    else openCardInEditor(id, getCard(collection, cardEditId).name);
+                  }}
+                  downloadImage={id => downloadImage(id, getCard(collection, id).name)}
+                  downloadJson={id => downloadJson(getCard(collection, id))}
+                  colSpanSetting={colSpanSetting}
+                  seenCardUuids={seenCardObject}
+                  addSeenCard={addSeenCard}
+                  isMobile={isMobile}
+                  isLandscape={isLandscape}
+                />
+              </TabPane>
+            ))}
+          </Tabs>
         </Col>
         <Col
           span={editorSpan}
@@ -246,6 +289,28 @@ const App: React.FC = () => {
     );
   }
 
+  if (currentUser.uuid === UNKNOWN_CREATOR.uuid) {
+    return (
+      <div className={styles.loginWrapper}>
+        <Card title="Choose Current User" style={{ width: '300px' }}>
+          <Select
+            size="large"
+            onChange={(key: string) =>
+              setCurrentUser(dispatch, _.find(user, o => o.uuid === key) || UNKNOWN_CREATOR)
+            }
+            style={{ width: '100%' }}
+          >
+            {user.map(d => (
+              <Select.Option key={`login-user-${d.uuid}`} value={d.uuid}>
+                {d.name}
+              </Select.Option>
+            ))}
+          </Select>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div>
       {isMobile && isLandscape && (
@@ -253,7 +318,7 @@ const App: React.FC = () => {
           <Button
             icon="plus"
             type="primary"
-            onClick={() => createCard(dispatch)}
+            onClick={() => createCard(dispatch, currentUser)}
             className={styles.fullWidth}
           >
             Add Card
@@ -263,7 +328,7 @@ const App: React.FC = () => {
       <Row className={styles.app}>
         <Col span={isMobile ? 0 : 3}>
           <div className={styles.sortControls}>
-            <h3>Filter Collection By</h3>
+            <h3>Sort Collection By</h3>
             <Select
               className={styles.sortSelect}
               size="small"
@@ -301,7 +366,7 @@ const App: React.FC = () => {
             <Button
               icon="plus"
               type="primary"
-              onClick={() => createCard(dispatch)}
+              onClick={() => createCard(dispatch, currentUser)}
               className={styles.fullWidth}
             >
               Add Card

@@ -39,31 +39,6 @@ export enum ColorType {
   Planeswalker = 'planeswalker'
 }
 
-export enum Creators {
-  UNKNOWN = 'Unknown Goomy Follower',
-  Anger = 'Goomy our Anger',
-  Breath = 'Goomy our Breath',
-  Faith = 'Goomy our Faith',
-  Greed = 'Goomy our Greed',
-  Hope = 'Goomy our Hope',
-  Leader = 'Goomy our Leader',
-  Light = 'Goomy our Light',
-  Lord = 'Goomy our Lord',
-  Pledge = 'Goomy our Pledge',
-  Pride = 'Goomy our Pride',
-  Purity = 'Goomy our Purity',
-  Soul = 'Goomy our Soul',
-  Truth = 'Goomy our Truth',
-  NobleTwo = 'NobleTwo',
-  Kant = 'Kantiger als Kant',
-  kleinFlopsi = 'kleinFlopsi'
-}
-
-export enum CardVersion {
-  V1 = 'v1',
-  V2 = 'v2'
-}
-
 export enum SortByType {
   Color = 'Color',
   LastUpdated = 'Last Updated',
@@ -78,4 +53,10 @@ export enum ChangeLogFeatureType {
   Fixed = 'Fixed',
   Security = 'Security',
   None = ''
+}
+
+export enum CardState {
+  Draft = 'Draft',
+  Rate = 'Rate',
+  Approved = 'Approved'
 }

@@ -1,31 +1,36 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Button, Input, Popover, Select } from 'antd';
 
 import 'emoji-mart/css/emoji-mart.css';
 import data from 'emoji-mart/data/apple.json';
 import { BaseEmoji, Emoji, NimblePicker as Picker } from 'emoji-mart';
 
-import { Creators } from '../../interfaces/enums';
+import _ from 'lodash';
 
 import styles from './Annotations.module.scss';
+import { UNKNOWN_CREATOR } from '../../interfaces/constants';
+import UserInterface from '../../interfaces/UserInterface';
+import { Store, StoreType } from '../../store';
 
 const { TextArea } = Input;
 
 interface AnnotationEditorProps {
   defaultContent?: string;
-  defaultAuthor?: Creators;
+  defaultAuthor?: UserInterface;
   submitting: boolean;
-  onSubmit: (content: string, author: Creators) => void;
+  onSubmit: (content: string, author: UserInterface) => void;
 }
 
 const AnnotationEditor = ({
   onSubmit,
   submitting,
   defaultContent = '',
-  defaultAuthor = Creators.UNKNOWN
+  defaultAuthor
 }: AnnotationEditorProps) => {
+  const { user, currentUser } = useContext<StoreType>(Store);
+
   const [content, setContent] = useState(defaultContent);
-  const [author, setAuthor] = useState(defaultAuthor);
+  const [author, setAuthor] = useState(defaultAuthor || currentUser || UNKNOWN_CREATOR);
 
   useEffect(() => {
     if (!submitting) {
@@ -33,7 +38,10 @@ const AnnotationEditor = ({
     }
   }, [submitting]);
   useEffect(() => setContent(defaultContent), [defaultContent]);
-  useEffect(() => setAuthor(defaultAuthor), [defaultAuthor]);
+  useEffect(() => setAuthor(defaultAuthor || currentUser || UNKNOWN_CREATOR), [
+    defaultAuthor,
+    currentUser
+  ]);
 
   const onEmoji = (emoji: BaseEmoji) => {
     setContent(content + emoji.native);
@@ -41,18 +49,21 @@ const AnnotationEditor = ({
 
   return (
     <div className={styles.editor}>
-      <Select
-        size="small"
-        value={author}
-        onChange={(newAuthor: Creators) => setAuthor(newAuthor)}
-        className={styles.fullWidth}
-      >
-        {Object.values(Creators).map(d => (
-          <Select.Option key={`annotation-add-key-author-${d}`} value={d}>
-            {d}
-          </Select.Option>
-        ))}
-      </Select>
+      <h3>{`Author: ${author.name}`}</h3>
+      {/* <Select */}
+      {/*  size="small" */}
+      {/*  value={author.uuid} */}
+      {/*  onChange={(uuid: string) => */}
+      {/*    setAuthor(_.find(user, o => o.uuid === uuid) || UNKNOWN_CREATOR) */}
+      {/*  } */}
+      {/*  className={styles.fullWidth} */}
+      {/* > */}
+      {/*  {user.map(d => ( */}
+      {/*    <Select.Option key={`annotation-add-key-author-${d.uuid}`} value={d.uuid}> */}
+      {/*      {d.name} */}
+      {/*    </Select.Option> */}
+      {/*  ))} */}
+      {/* </Select> */}
       <TextArea
         autosize={{ minRows: 2, maxRows: 5 }}
         value={content}

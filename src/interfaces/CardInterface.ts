@@ -1,17 +1,32 @@
 import CardFaceInterface from './CardFaceInterface';
-import { CardVersion, RarityType } from './enums';
+import { CardState, RarityType } from './enums';
+import UserInterface from './UserInterface';
+
+export interface CardMeta {
+  comment: string;
+  likes: string[];
+  dislikes: string[];
+  lastUpdated: number;
+  createdAt: number;
+  state: CardState;
+}
 
 export default interface CardInterface {
-  [key: string]: number | string | CardFaceInterface | boolean | undefined;
+  [key: string]:
+    | number
+    | string
+    | CardFaceInterface
+    | CardMeta
+    | UserInterface
+    | boolean
+    | undefined;
   name: string;
   rarity: RarityType;
-  creator: string;
+  creator: UserInterface;
   uuid: string;
   manaCost: string;
   front: CardFaceInterface;
   back?: CardFaceInterface;
-  lastUpdated: number;
-  createdAt: number;
-  version: CardVersion;
   loading?: boolean;
+  meta: CardMeta;
 }

@@ -4,8 +4,8 @@ import { message } from 'antd';
 import { Action, AnnotationActionType } from '../cardReducer';
 
 import { getAccessToken } from '../dropboxService';
-import { Creators } from '../interfaces/enums';
 import AnnotationInterface from '../interfaces/AnnotationInterface';
+import UserInterface from '../interfaces/UserInterface';
 
 const MIDDLEWARE_ENDPOINT =
   process.env.NODE_ENV === 'production' ? '/annotations' : 'http://localhost:3001/annotations';
@@ -27,10 +27,10 @@ export const getAnnotations = (dispatch: (value: Action) => void) => {
 export const createAnnotation = (
   dispatch: (value: Action) => void,
   content: string,
-  author: Creators,
+  author: UserInterface,
   cardReference: string
 ) => {
-  const args = { accessKey: getAccessToken(), content, author, cardReference };
+  const args = { accessKey: getAccessToken(), content, author: author.uuid, cardReference };
 
   axios
     .post(MIDDLEWARE_ENDPOINT, args)

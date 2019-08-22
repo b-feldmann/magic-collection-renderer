@@ -9,7 +9,7 @@ import './css/borders.scss';
 import './css/icons.css';
 import './css/card.css';
 
-import { CardMainType, Creators, RarityType } from '../../interfaces/enums';
+import { CardMainType, RarityType } from '../../interfaces/enums';
 
 import CommonIcon from './images/rarity/common.png';
 import UncommonIcon from './images/rarity/uncommon.png';
@@ -17,7 +17,6 @@ import RareIcon from './images/rarity/rare.png';
 import MythicRareIcon from './images/rarity/mythic.png';
 
 import NoCover from './images/no-cover.jpg';
-// @ts-ignore
 
 import {
   injectManaIcons,
@@ -29,6 +28,7 @@ import {
 import cardToColor from './cardToColor';
 import ImageLoader from '../ImageLoader/ImageLoader';
 import { Store, StoreType } from '../../store';
+import { UNKNOWN_CREATOR } from '../../interfaces/constants';
 
 interface CardRender {
   name: string;
@@ -209,7 +209,7 @@ const CardRender = (cardRender: CardRender) => {
                     src="https://image.ibb.co/e2VxAS/paintbrush_white.png"
                     alt="paintbrush icon"
                   />
-                  {creator || Creators.UNKNOWN}
+                  {creator || UNKNOWN_CREATOR.name}
                 </p>
               </div>
 
