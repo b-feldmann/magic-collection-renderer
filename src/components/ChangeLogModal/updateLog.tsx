@@ -1,5 +1,5 @@
 import React from 'react';
-import { List, Typography } from 'antd';
+import { Typography } from 'antd';
 import ChangeLogEntryInterface from '../../interfaces/ChangeLogEntryInterface';
 import { ChangeLogFeatureType } from '../../interfaces/enums';
 
@@ -130,7 +130,7 @@ updateLog.push({
     {
       type: ChangeLogFeatureType.Changed,
       feature:
-        'Cards have now different states. [Draft, To Rate, Approved]. You can change stages in the card-edit-view. You can release any card for the rating process.'
+        'Cards have now different states. [Draft, To Rate, Approved]. You can change stages in the card-edit-view. There you can release any card for the rating process.'
     },
     {
       type: ChangeLogFeatureType.Added,
@@ -140,12 +140,25 @@ updateLog.push({
     {
       type: ChangeLogFeatureType.Fixed,
       feature: 'Typos'
+    },
+    {
+      type: ChangeLogFeatureType.Added,
+      feature:
+        "You can now add comments to a card. It's like a description of the meaning of that card."
+    },
+    {
+      type: ChangeLogFeatureType.Changed,
+      feature: 'Mechanics Editor is now more intuitive.'
+    },
+    {
+      type: ChangeLogFeatureType.Changed,
+      feature: 'Introduced new Mobile Design.'
     }
   ]
 });
 
 // updateLog.push({
-//   version: '1.0.2',
+//   version: '1.1.1',
 //   title: 'New Card Type Update',
 //   content: [
 //     {

@@ -13,15 +13,7 @@ interface ActionHoverInterface {
 }
 
 const ActionHover: React.FC<ActionHoverInterface> = actions => {
-  const empty = { icon: '', action: () => {} };
-  const {
-    northAction = empty,
-    eastAction = empty,
-    westAction = empty,
-    southAction = empty,
-    active,
-    onHover = () => {}
-  } = actions;
+  const { northAction, eastAction, westAction, southAction, active, onHover = () => {} } = actions;
 
   return (
     <div
@@ -31,26 +23,34 @@ const ActionHover: React.FC<ActionHoverInterface> = actions => {
       <div className={styles.hovereffect}>
         <div className={styles.target}>{actions.children}</div>
         <div className={styles.overlay}>
-          <Icon
-            className={`${styles.action} ${styles.eastAction}`}
-            type={eastAction.icon}
-            onClick={eastAction.action}
-          />
-          <Icon
-            className={`${styles.action} ${styles.northAction}`}
-            type={northAction.icon}
-            onClick={northAction.action}
-          />
-          <Icon
-            className={`${styles.action} ${styles.westAction}`}
-            type={westAction.icon}
-            onClick={westAction.action}
-          />
-          <Icon
-            className={`${styles.action} ${styles.southAction}`}
-            type={southAction.icon}
-            onClick={southAction.action}
-          />
+          {eastAction && (
+            <Icon
+              className={`${styles.action} ${styles.eastAction}`}
+              type={eastAction.icon}
+              onClick={eastAction.action}
+            />
+          )}
+          {northAction && (
+            <Icon
+              className={`${styles.action} ${styles.northAction}`}
+              type={northAction.icon}
+              onClick={northAction.action}
+            />
+          )}
+          {westAction && (
+            <Icon
+              className={`${styles.action} ${styles.westAction}`}
+              type={westAction.icon}
+              onClick={westAction.action}
+            />
+          )}
+          {southAction && (
+            <Icon
+              className={`${styles.action} ${styles.southAction}`}
+              type={southAction.icon}
+              onClick={southAction.action}
+            />
+          )}
           <div className={styles.rotate}>
             <hr />
             <hr />

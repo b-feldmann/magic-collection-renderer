@@ -1,13 +1,12 @@
 import { Button, Spin } from 'antd';
 import React from 'react';
 import { areEqual } from 'react-window';
-import styles from './styles.module.css';
+import styles from './styles.module.scss';
 import ActionHover from '../ActionHover/ActionHover';
 import CardRender from '../CardRender/CardRender';
 import GlowingStar from '../GlowingStar';
 import CardInterface from '../../interfaces/CardInterface';
 import CardFaceInterface from '../../interfaces/CardFaceInterface';
-import { BackConfigInterface } from './CardCollection';
 
 interface CellDataProps {
   columnCount: number;
@@ -19,7 +18,8 @@ interface CellDataProps {
   downloadCard: (uuid: string) => void;
   toggleShowBackConfig: (uuid: string) => void;
   width: number;
-  showBackFaceConfig: BackConfigInterface;
+  showBackFaceConfig: { [key: string]: boolean };
+  mobile?: boolean;
 }
 
 interface CellProps {
@@ -40,7 +40,8 @@ const Cell = ({ style, columnIndex, rowIndex, data }: CellProps) => {
     editCard,
     toggleShowBackConfig,
     width,
-    showBackFaceConfig
+    showBackFaceConfig,
+    mobile
   } = data;
 
   const index = columnIndex + rowIndex * columnCount;
@@ -61,16 +62,25 @@ const Cell = ({ style, columnIndex, rowIndex, data }: CellProps) => {
         <ActionHover
           onHover={() => {
             if (isNew) addSeenCard(card.uuid);
+            if (mobile) editCard(card.uuid);
           }}
           active={card.uuid === currentEditId}
-          northAction={{
-            icon: 'edit',
-            action: () => editCard(card.uuid)
-          }}
-          southAction={{
-            icon: 'download',
-            action: () => downloadCard(card.uuid)
-          }}
+          northAction={
+            mobile
+              ? undefined
+              : {
+                  icon: 'edit',
+                  action: () => editCard(card.uuid)
+                }
+          }
+          southAction={
+            mobile
+              ? undefined
+              : {
+                  icon: 'download',
+                  action: () => downloadCard(card.uuid)
+                }
+          }
         >
           <CardRender
             containerWidth={width}

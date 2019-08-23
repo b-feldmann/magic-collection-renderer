@@ -7,35 +7,31 @@ import AutoSizer from 'react-virtualized-auto-sizer';
 import CardInterface from '../../interfaces/CardInterface';
 import Cell from './Cell';
 
+import styles from './styles.module.scss';
+
 export interface CardCollectionInterface {
   cards?: CardInterface[];
   editCard: (id: string) => void;
-  downloadImage: (id: string) => void;
-  downloadJson: (id: string) => void;
+  downloadImage?: (id: string) => void;
+  downloadJson?: (id: string) => void;
   currentEditId: string;
-  colSpanSetting: number;
+  colSpanSetting?: number;
   seenCardUuids: { [key: string]: boolean };
   addSeenCard: (uuid: string) => void;
-  isMobile: boolean;
-  isLandscape: boolean;
-}
-
-export interface BackConfigInterface {
-  [key: string]: boolean;
+  mobile?: boolean;
 }
 
 const CardCollection = ({
   cards = [],
   editCard,
-  downloadJson,
+  downloadJson = () => {},
   currentEditId,
-  colSpanSetting,
+  colSpanSetting = 4,
   seenCardUuids,
   addSeenCard,
-  isMobile,
-  isLandscape
+  mobile
 }: CardCollectionInterface) => {
-  const [showBackFaceConfig, setShowBackFaceConfig] = useState<BackConfigInterface>({});
+  const [showBackFaceConfig, setShowBackFaceConfig] = useState<{ [key: string]: boolean }>({});
 
   const toggleShowBackConfig = (id: string) => {
     const newConfig = { ...showBackFaceConfig };
@@ -56,8 +52,8 @@ const CardCollection = ({
           columns = colSpanSetting;
         }
 
-        if (isMobile) {
-          if (isLandscape) columns = 3;
+        if (mobile) {
+          if (width > height) columns = 3;
           else columns = 2;
         }
 
@@ -75,11 +71,13 @@ const CardCollection = ({
           toggleShowBackConfig,
           editCard,
           width: columnWidth - 4,
-          showBackFaceConfig
+          showBackFaceConfig,
+          mobile
         };
 
         return (
           <Grid
+            className={styles.collection}
             columnWidth={columnWidth}
             rowHeight={columnHeight}
             columnCount={columns}

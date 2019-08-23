@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import { List, Comment } from 'antd';
 
 import _ from 'lodash';
@@ -9,7 +9,6 @@ import AnnotationEditor from './AnnotationEditor';
 
 import styles from './Annotations.module.scss';
 import UserInterface from '../../interfaces/UserInterface';
-import {Store, StoreType} from "../../store";
 
 interface AnnotationListProps {
   annotations: AnnotationInterface[];
@@ -35,7 +34,7 @@ const AnnotationList = ({
 
   return (
     <div className={styles.container} style={{ flexDirection: split ? 'row-reverse' : 'column' }}>
-      {children}
+      <div className={split ? styles.flexWrapper : ''}>{children}</div>
       <div className={styles.flexWrapper}>
         <List
           className={styles.list}

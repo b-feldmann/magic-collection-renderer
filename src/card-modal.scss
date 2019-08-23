@@ -1,16 +1,10 @@
 .ant-modal-wrap, .ant-modal-mask {
   width: calc(100vw / 24 * 21 / 24 * 18 + 4px);
   margin-left: calc(100vw / 24 * 3 - 4px);
+  overflow: visible;
 }
 
 @media only screen and (max-width: 900px) {
-  .ant-modal-wrap, .ant-modal-mask {
-    width: calc(100vw / 24 * 15);
-    margin-left: 0;
-  }
-}
-
-@media only screen and (max-width: 600px) {
   .ant-modal-wrap, .ant-modal-mask {
     width: 100vw;
     margin-left: 0;
@@ -18,6 +12,9 @@
 }
 
 .card-view {
+  //top: 50%;
+  //transform: translateY(-50%);
+
   .ant-modal-header, .ant-modal-close, .ant-modal-footer {
     visibility: hidden;
     height: 0;
@@ -32,6 +29,7 @@
   }
 
   .ant-modal-body > * {
+    overflow: auto;
     margin-top: -1px;
     margin-left: -9px;
   }

@@ -5,6 +5,13 @@
     width: calc(100 / 24 * 18 / 24 * 4vw);
     height: calc(100vh - 32px);
     padding: 8px 24px 8px 8px;
+
+    @media only screen and (max-width: 900px) {
+        position: relative;
+        width: 100%;
+        height: auto;
+        top: 0;
+    }
 }
 
 .controlItem > * {

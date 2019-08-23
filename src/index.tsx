@@ -4,8 +4,11 @@ import ReactDOM from 'react-dom';
 import LogRocket from 'logrocket';
 import setupLogRocketReact from 'logrocket-react';
 
+import { BrowserView, MobileView } from 'react-device-detect';
+
 import './index.css';
 import App from './App';
+import MobileApp from './MobileApp';
 import * as serviceWorker from './serviceWorker';
 import { StoreProvider } from './store';
 
@@ -14,7 +17,12 @@ setupLogRocketReact(LogRocket);
 
 ReactDOM.render(
   <StoreProvider>
-    <App />
+    <BrowserView>
+      <App />
+    </BrowserView>
+    <MobileView>
+      <MobileApp />
+    </MobileView>
   </StoreProvider>,
   document.getElementById('root')
 );

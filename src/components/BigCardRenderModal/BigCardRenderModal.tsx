@@ -20,6 +20,7 @@ interface BigCardRenderModalProps {
   hide: () => void;
   collectionNumber: number;
   collectionSize: number;
+  mobile?: boolean;
 }
 
 const BigCardRenderModal = ({
@@ -27,7 +28,8 @@ const BigCardRenderModal = ({
   visible,
   hide,
   collectionNumber,
-  collectionSize
+  collectionSize,
+  mobile
 }: BigCardRenderModalProps) => {
   const { annotationAccessor, currentUser, user, dispatch } = useContext<StoreType>(Store);
 
@@ -37,13 +39,15 @@ const BigCardRenderModal = ({
   if (card.back) faces.push(card.back);
 
   const { width, height } = useWindowDimensions();
-  const wOffset = 100;
-  const hEditorSpace = faces.length === 2 ? 200 : 0;
-  const hOffset = 200;
+  const rowLayout = mobile ? height > width : faces.length === 2;
+
+  const wOffset = mobile ? 20 : 50;
+  const hEditorSpace = rowLayout ? 200 : 0;
+  const hOffset = mobile ? 50 : 200;
 
   const dimFactor = 488 / 680;
 
-  const modalMaxWidth = (width / 100) * 62.5 - wOffset;
+  const modalMaxWidth = mobile ? width - wOffset : (width / 100) * 62.5 - wOffset;
   const modalMaxHeight = height - hOffset - hEditorSpace;
   const modalSingleCardWidth = Math.min(modalMaxWidth, modalMaxHeight * dimFactor);
   const modalDoubleCardWidth = Math.min(modalMaxWidth, modalMaxHeight * dimFactor * 2);
@@ -52,9 +56,10 @@ const BigCardRenderModal = ({
   const fullCardWidth = faces.length === 2 ? modalDoubleCardWidth : modalSingleCardWidth;
   const cardHeight = singleCardWidth / dimFactor;
 
-  const annotationWidth = faces.length === 2 ? fullCardWidth : modalMaxWidth - singleCardWidth;
-  const annotationHeight =
-    faces.length === 2 ? modalMaxHeight - cardHeight + hEditorSpace : cardHeight;
+  let annotationWidth = rowLayout ? singleCardWidth * 2 : modalMaxWidth - singleCardWidth;
+  if (mobile && faces.length === 1)
+    annotationWidth = rowLayout ? singleCardWidth : modalMaxWidth - singleCardWidth;
+  const annotationHeight = rowLayout ? modalMaxHeight - cardHeight + hEditorSpace : cardHeight;
 
   const updateState = (newState: CardState) => {
     const updatedCard = { ...card };
@@ -141,8 +146,12 @@ const BigCardRenderModal = ({
   if (card.meta.state === CardState.Rate) view = rateView;
   // view = rateView;
 
+  const modalHeight = rowLayout ? modalMaxHeight + hEditorSpace : cardHeight;
+  const modalWidth = modalMaxWidth;
+
   return (
     <Modal
+      style={mobile ? { top: (height - modalHeight) * 0.5, left: (width - modalWidth) * 0.5 } : {}}
       className={styles.modalCardViewWrapper}
       wrapClassName="card-view"
       title={`View ${card.name}`}
@@ -153,8 +162,8 @@ const BigCardRenderModal = ({
       <div
         className={styles.view}
         style={{
-          width: faces.length === 2 ? fullCardWidth : modalMaxWidth,
-          flexDirection: faces.length === 2 ? 'column' : 'row'
+          width: rowLayout ? fullCardWidth : modalMaxWidth,
+          flexDirection: rowLayout ? 'column' : 'row'
         }}
       >
         <div
@@ -190,13 +199,12 @@ const BigCardRenderModal = ({
         <div
           className={styles.annotationView}
           style={{
-            width: `${faces.length === 2 ? modalMaxWidth : annotationWidth}px`,
+            width: `${annotationWidth}px`,
             height: `${annotationHeight}px`,
-            marginLeft: faces.length === 2 ? `-${(modalMaxWidth - annotationWidth) * 0.5}px` : '0px'
           }}
         >
           <AnnotationList
-            split={faces.length === 2}
+            split={mobile && faces.length === 2 ? false : rowLayout}
             annotations={annotations}
             createAnnotation={(content, author) =>
               createAnnotation(dispatch, content, author, card.uuid)

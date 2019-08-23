@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Checkbox, Input, Radio, Row, Slider } from 'antd';
+import { Checkbox, Input, Row, Slider } from 'antd';
 import { CardMainType, ColorType, mapEnum, RarityType } from '../../interfaces/enums';
 
 import styles from './styles.module.scss';
@@ -13,9 +13,8 @@ export interface CollectionFilterInterface {
 }
 
 interface CollectionFilterControlsInterface {
-  showColSpan?: boolean;
-  setCollectionColSpan: (span: number) => void;
-  setCollectionFilter: (filter: CollectionFilterInterface) => void;
+  setCollectionColSpan?: (span: number) => void;
+  setCollectionFilter?: (filter: CollectionFilterInterface) => void;
   collection: CardInterface[];
   setNameFilter: (filter: string) => void;
 }
@@ -31,7 +30,6 @@ interface CardCountStats {
 const CollectionFilterControls = ({
   setCollectionColSpan,
   setCollectionFilter,
-  showColSpan = true,
   collection,
   setNameFilter
 }: CollectionFilterControlsInterface) => {
@@ -73,7 +71,7 @@ const CollectionFilterControls = ({
 
     if (number === 0) number = -1;
     setColSpanSetting(number);
-    setCollectionColSpan(number);
+    setCollectionColSpan && setCollectionColSpan(number);
   };
 
   const cardCountStats: CardCountStats = {};
@@ -93,11 +91,12 @@ const CollectionFilterControls = ({
   });
 
   useEffect(() => {
-    setCollectionFilter({
-      colors: shownColors,
-      rarity: shownRarities,
-      types: shownCardTypes
-    });
+    setCollectionFilter &&
+      setCollectionFilter({
+        colors: shownColors,
+        rarity: shownRarities,
+        types: shownCardTypes
+      });
   }, [shownColors, shownRarities, shownCardTypes, setCollectionFilter]);
 
   const spanMarks = {
@@ -119,68 +118,73 @@ const CollectionFilterControls = ({
           <h4>Filter by name</h4>
           <Input placeholder="Card Name" allowClear onChange={e => setNameFilter(e.target.value)} />
         </div>
-        <div>
-          {showColSpan && (
+        {setCollectionColSpan && (
+          <div className={styles.controlItem}>
+            <h4>Cards per row</h4>
+            <Slider
+              defaultValue={0}
+              marks={spanMarks}
+              step={1}
+              included={false}
+              min={0}
+              max={8}
+              onAfterChange={value => updateColSpan(value)}
+            />
+          </div>
+        )}
+        {setCollectionFilter && (
+          <div>
             <div className={styles.controlItem}>
-              <h4>Cards per row</h4>
-              <Slider
-                defaultValue={0}
-                marks={spanMarks}
-                step={1}
-                included={false}
-                min={0}
-                max={8}
-                onAfterChange={value => updateColSpan(value)}
-              />
+              <h4>Shown Card Types</h4>
+              {mapEnum(CardMainType, (key: string) => (
+                <Checkbox
+                  key={`collection-filter-controls-checkbox-cardmaintype-${key}`}
+                  checked={shownCardTypes[key]}
+                  disabled={cardCountStats[key] === 0}
+                  onChange={e =>
+                    updateEnumState(key, e.target.checked, shownCardTypes, setShownCardTypes)
+                  }
+                >
+                  {`${key} (${cardCountStats[key]})`}
+                </Checkbox>
+              ))}
             </div>
-          )}
-        </div>
-        <div className={styles.controlItem}>
-          <h4>Shown Card Types</h4>
-          {mapEnum(CardMainType, (key: string) => (
-            <Checkbox
-              key={`collection-filter-controls-checkbox-cardmaintype-${key}`}
-              checked={shownCardTypes[key]}
-              disabled={cardCountStats[key] === 0}
-              onChange={e =>
-                updateEnumState(key, e.target.checked, shownCardTypes, setShownCardTypes)
-              }
-            >
-              {`${key} (${cardCountStats[key]})`}
-            </Checkbox>
-          ))}
-        </div>
-        <div className={styles.controlItem}>
-          <h4>Shown Colors</h4>
-          {Object.values(ColorType).map((key: string) => {
-            if (key === ColorType.Planeswalker) return '';
-            return (
-              <Checkbox
-                key={`collection-filter-controls-checkbox-color-${key}`}
-                checked={shownColors[key]}
-                disabled={cardCountStats[key] === 0}
-                onChange={e => updateEnumState(key, e.target.checked, shownColors, setShownColors)}
-              >
-                {`${key} (${cardCountStats[key]})`}
-              </Checkbox>
-            );
-          })}
-        </div>
-        <div className={styles.controlItem}>
-          <h4>Shown Rarities</h4>
-          {mapEnum(RarityType, (key: string) => (
-            <Checkbox
-              key={`collection-filter-controls-checkbox-rarity-${key}`}
-              checked={shownRarities[key]}
-              disabled={cardCountStats[key] === 0}
-              onChange={e =>
-                updateEnumState(key, e.target.checked, shownRarities, setShownRarities)
-              }
-            >
-              {`${key} (${cardCountStats[key]})`}
-            </Checkbox>
-          ))}
-        </div>
+            <div className={styles.controlItem}>
+              <h4>Shown Colors</h4>
+              {Object.values(ColorType).map((key: string) => {
+                if (key === ColorType.Planeswalker) return '';
+                return (
+                  <Checkbox
+                    key={`collection-filter-controls-checkbox-color-${key}`}
+                    checked={shownColors[key]}
+                    disabled={cardCountStats[key] === 0}
+                    onChange={e =>
+                      updateEnumState(key, e.target.checked, shownColors, setShownColors)
+                    }
+                  >
+                    {`${key} (${cardCountStats[key]})`}
+                  </Checkbox>
+                );
+              })}
+            </div>
+            <div className={styles.controlItem}>
+              <h4>Shown Rarities</h4>
+              {mapEnum(RarityType, (key: string) => (
+                <Checkbox
+                  key={`collection-filter-controls-checkbox-rarity-${key}`}
+                  checked={shownRarities[key]}
+                  disabled={cardCountStats[key] === 0}
+                  onChange={e =>
+                    updateEnumState(key, e.target.checked, shownRarities, setShownRarities)
+                  }
+                >
+                  {`${key} (${cardCountStats[key]})`}
+                </Checkbox>
+              ))}
+            </div>
+            <span> </span>
+          </div>
+        )}
       </Row>
     </div>
   );

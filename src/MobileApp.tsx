@@ -38,27 +38,18 @@ const { TabPane } = Tabs;
 
 const NO_CARD = '-1';
 
-const App: React.FC = () => {
+const MobileApp: React.FC = () => {
   const [tmpCard, setTmpCard] = useState<CardInterface | null>(null);
   const [cardEditId, setCardEditId] = useState<string>(NO_CARD);
   const [cardViewId, setCardViewId] = useState<string>(NO_CARD);
   const [showCardModal, setShowCardModal] = useState<boolean>(false);
   const [cardNameFilter, setCardNameFilter] = useState<string>('');
   const [mechanicsVisible, setMechanicsVisible] = useState(false);
-  const [sortBy, setSortBy] = useLocalStorage('mtg-funset:SortBy', SortByType.LastUpdated);
   const [seenCardUuids, setSeenCardUuids] = useLocalStorage(
     'mtg-funset:seen-card-uuids',
     '[]',
     true
   );
-
-  const [collectionFilter, setCollectionFilter] = useState<CollectionFilterInterface>({
-    colors: {},
-    rarity: {},
-    types: {}
-  });
-
-  const [colSpanSetting, setColSpanSetting] = useState<number>(-1);
 
   const { cards, newUuid, dispatch, annotationAccessor, user, currentUser } = useContext<StoreType>(
     Store
@@ -75,79 +66,15 @@ const App: React.FC = () => {
     return Math.max(lastAnnotatoin.datetime, card.meta.lastUpdated);
   };
 
-  const sortList = [];
-  if (sortBy === SortByType.Color) {
-    sortList.push((o: CardInterface) =>
-      _.indexOf(Object.values(ColorType), cardToColor(o.front.cardMainType, o.manaCost).color)
-    );
-    sortList.push((o: CardInterface) => o.front.name.toLowerCase());
-  }
-  if (sortBy === SortByType.Creator) {
-    sortList.push((o: CardInterface) =>
-      o.creator.uuid === UNKNOWN_CREATOR.uuid ? 'zzzzz' : o.creator.name
-    );
-    sortList.push((o: CardInterface) =>
-      _.indexOf(Object.values(ColorType), cardToColor(o.front.cardMainType, o.manaCost).color)
-    );
-    sortList.push((o: CardInterface) => o.front.name.toLowerCase());
-  }
-  if (sortBy === SortByType.LastUpdated) {
-    sortList.push((o: CardInterface) => -1 * lastUpdated(o));
-  }
-
-  const filteredCollection = _.sortBy(mergedCollection, sortList).filter(
-    o =>
-      o.name.toLowerCase().includes(cardNameFilter.toLowerCase()) &&
-      collectionFilter.colors[cardToColor(o.front.cardMainType, o.manaCost).color] &&
-      collectionFilter.rarity[o.rarity] &&
-      collectionFilter.types[o.front.cardMainType]
-  );
+  const filteredCollection = _.sortBy(mergedCollection, [
+    (o: CardInterface) => -1 * lastUpdated(o)
+  ]).filter(o => o.name.toLowerCase().includes(cardNameFilter.toLowerCase()));
 
   const getCard = (collection: CardInterface[], uuid: string) =>
     filteredCollection.find(card => card.uuid === uuid) || EMPTY_CARD();
 
   const getCardUndefined = (collection: CardInterface[], uuid: string) =>
     filteredCollection.find(card => card.uuid === uuid);
-
-  useEffect(() => {
-    if (newUuid) {
-      addSeenCard(newUuid);
-      // eslint-disable-next-line @typescript-eslint/no-use-before-define
-      if (cardEditId === NO_CARD) openCardInEditor(newUuid, '');
-      // eslint-disable-next-line @typescript-eslint/no-use-before-define
-      else openCardInEditor(newUuid, getCard(filteredCollection, cardEditId).name);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [newUuid]);
-
-  const refresh = () => {
-    refreshCollection(dispatch);
-    getMechanics(dispatch);
-    getAnnotations(dispatch);
-    getUser(dispatch);
-  };
-
-  useEffect(refresh, []);
-
-  const downloadJson = (card: CardInterface) => {
-    const data = { ...card };
-
-    fileDownload(JSON.stringify(data), `${card.name}.json`);
-  };
-
-  const downloadCollectionAsJson = (cardCollection: CardInterface[]) => {
-    const collectionData: object[] = [];
-
-    cardCollection.forEach(card => {
-      collectionData.push(card);
-    });
-
-    fileDownload(JSON.stringify(collectionData), `magic-collection.json`);
-  };
-
-  const downloadImage = (id: string, name: string) => {
-    console.log(`image download: ${id} - ${name}`);
-  };
 
   const addSeenCard = (uuid: string) => {
     setSeenCardUuids([...seenCardUuids, uuid]);
@@ -185,9 +112,27 @@ const App: React.FC = () => {
     }
   };
 
+  useEffect(() => {
+    if (newUuid) {
+      addSeenCard(newUuid);
+      if (cardEditId === NO_CARD) openCardInEditor(newUuid, '');
+      else openCardInEditor(newUuid, getCard(filteredCollection, cardEditId).name);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [newUuid]);
+
+  const refresh = () => {
+    refreshCollection(dispatch);
+    getMechanics(dispatch);
+    getAnnotations(dispatch);
+    getUser(dispatch);
+  };
+
+  useEffect(refresh, []);
+
   const createGrid = (collection: CardInterface[]) => {
-    const collectionSpan = 18;
-    const editorSpan = 6;
+    const collectionSpan = 24;
+    const editorSpan = 0;
 
     const seenCardObject: { [key: string]: boolean } = {};
     seenCardUuids.forEach((uuid: string) => {
@@ -238,11 +183,9 @@ const App: React.FC = () => {
                     if (cardEditId === NO_CARD) openCardInEditor(id, '');
                     else openCardInEditor(id, getCard(collection, cardEditId).name);
                   }}
-                  downloadImage={id => downloadImage(id, getCard(collection, id).name)}
-                  downloadJson={id => downloadJson(getCard(collection, id))}
-                  colSpanSetting={colSpanSetting}
                   seenCardUuids={seenCardObject}
                   addSeenCard={addSeenCard}
+                  mobile
                 />
               </TabPane>
             ))}
@@ -294,33 +237,11 @@ const App: React.FC = () => {
   return (
     <div>
       <Row className={styles.app}>
-        <Col span={3}>
-          <div className={styles.sortControls}>
-            <h3>Sort Collection By</h3>
-            <Select
-              className={styles.sortSelect}
-              size="small"
-              // @ts-ignore
-              value={sortBy || SortByType.Color}
-              // @ts-ignore
-              onChange={(newSortByValue: SortByType) => setSortBy(newSortByValue)}
-            >
-              {Object.keys(SortByType).map((d: any) => (
-                <Select.Option key={`collection-filter-key-${d}`} value={SortByType[d]}>
-                  {SortByType[d]}
-                </Select.Option>
-              ))}
-            </Select>
-          </div>
-          <CollectionFilterControls
-            collection={cards}
-            setCollectionColSpan={setColSpanSetting}
-            setCollectionFilter={setCollectionFilter}
-            setNameFilter={setCardNameFilter}
-          />
+        <Col span={24} className={styles.collectionWrapper}>
+          {createGrid(filteredCollection)}
         </Col>
-        <Col span={21}>{createGrid(filteredCollection)}</Col>
-        <div className={styles.desktopControls}>
+        <div className={styles.mobileControls}>
+          <CollectionFilterControls collection={cards} setNameFilter={setCardNameFilter} />
           <Button
             icon="edit"
             onClick={() => setMechanicsVisible(true)}
@@ -337,20 +258,13 @@ const App: React.FC = () => {
           >
             Add Card
           </Button>
-          <Button
-            icon="download"
-            type="primary"
-            onClick={() => downloadCollectionAsJson(filteredCollection)}
-            className={styles.fullWidth}
-          >
-            JSON
-          </Button>
           <Button icon="reload" type="primary" onClick={refresh} className={styles.fullWidth}>
             Reload Collection
           </Button>
         </div>
       </Row>
       <BigCardRenderModal
+        mobile
         card={getCard(filteredCollection, cardViewId)}
         visible={showCardModal}
         hide={() => setShowCardModal(false)}
@@ -364,4 +278,4 @@ const App: React.FC = () => {
   );
 };
 
-export default App;
+export default MobileApp;
