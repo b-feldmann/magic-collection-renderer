@@ -135,7 +135,7 @@ updateLog.push({
     {
       type: ChangeLogFeatureType.Added,
       feature:
-        'You can now like or dislike a card if it is in the rating process. You can approve a card if at least 5 people liked that card.'
+        'You can now like or dislike a card if it is in the rating process. You can approve a card if 4 people liked that card more than people disliked the card.'
     },
     {
       type: ChangeLogFeatureType.Fixed,
