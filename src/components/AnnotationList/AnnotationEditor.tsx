@@ -5,8 +5,6 @@ import 'emoji-mart/css/emoji-mart.css';
 import data from 'emoji-mart/data/apple.json';
 import { BaseEmoji, Emoji, NimblePicker as Picker } from 'emoji-mart';
 
-import _ from 'lodash';
-
 import styles from './Annotations.module.scss';
 import { UNKNOWN_CREATOR } from '../../interfaces/constants';
 import UserInterface from '../../interfaces/UserInterface';
@@ -27,7 +25,7 @@ const AnnotationEditor = ({
   defaultContent = '',
   defaultAuthor
 }: AnnotationEditorProps) => {
-  const { user, currentUser } = useContext<StoreType>(Store);
+  const { currentUser } = useContext<StoreType>(Store);
 
   const [content, setContent] = useState(defaultContent);
   const [author, setAuthor] = useState(defaultAuthor || currentUser || UNKNOWN_CREATOR);

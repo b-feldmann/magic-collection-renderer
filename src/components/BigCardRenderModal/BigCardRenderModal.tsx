@@ -13,6 +13,7 @@ import AnnotationList from '../AnnotationList/AnnotationList';
 import { createAnnotation } from '../../actions/annotationActions';
 import { CardState } from '../../interfaces/enums';
 import { updateCard } from '../../actions/cardActions';
+import { NEEDED_LIKES_TO_APPROVE } from '../../interfaces/constants';
 
 interface BigCardRenderModalProps {
   card: CardInterface;
@@ -82,6 +83,11 @@ const BigCardRenderModal = ({
   const liked = !!_.find(card.meta.likes, o => o === currentUser.uuid);
   const disliked = !liked && !!_.find(card.meta.dislikes, o => o === currentUser.uuid);
 
+  const neededLikesCount = Math.max(
+    NEEDED_LIKES_TO_APPROVE - card.meta.likes.length + card.meta.dislikes.length,
+    0
+  );
+
   const like = () => {
     if (liked) return;
 
@@ -126,16 +132,14 @@ const BigCardRenderModal = ({
       </span>
       <span>
         <Button
-          disabled={card.meta.likes.length < 5}
+          disabled={neededLikesCount > 0}
           className={styles.stateButton}
-          ghost={card.meta.likes.length >= 5}
+          ghost={neededLikesCount === 0}
           type="danger"
           size="small"
           onClick={() => updateState(CardState.Approved)}
         >
-          {`Approve!${
-            card.meta.likes.length < 5 ? ` (need ${5 - card.meta.likes.length} more likes)` : ''
-          }`}
+          {`Approve!${neededLikesCount > 0 ? ` (need ${neededLikesCount} more likes)` : ''}`}
         </Button>
       </span>
     </div>
@@ -200,7 +204,7 @@ const BigCardRenderModal = ({
           className={styles.annotationView}
           style={{
             width: `${annotationWidth}px`,
-            height: `${annotationHeight}px`,
+            height: `${annotationHeight}px`
           }}
         >
           <AnnotationList

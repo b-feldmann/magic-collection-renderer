@@ -1,9 +1,7 @@
-import UserInterface from './UserInterface';
-
 export default interface AnnotationInterface {
   uuid: string;
   datetime: number;
-  author: UserInterface;
+  author: string;
   content: string;
   cardReference: string;
   edited: boolean;
