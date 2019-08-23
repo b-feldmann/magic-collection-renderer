@@ -1,6 +1,8 @@
 import React, { useEffect } from 'react';
 import { Modal } from 'antd';
 
+import styles from './logEntry.module.scss';
+
 import useLocalStorage from '../../utils/useLocalStorageHook';
 import updateLog from './updateLog';
 import LogEntry from './LogEntry';
@@ -23,10 +25,11 @@ const ChangeLogModal = () => {
         title: 'Change Log',
         content: renderLog(),
         width: '90%',
+        className: styles.modal,
         onOk() {
           updateLastSeenVersion(updateLog.length - 1);
         },
-        okText: "Thanks for the info!"
+        okText: 'Thanks for the info!'
       });
     }
   }, [lastSeenVersion]);
