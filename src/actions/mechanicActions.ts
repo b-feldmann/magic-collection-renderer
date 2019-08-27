@@ -1,16 +1,17 @@
 import axios from 'axios';
 
+import LogRocket from 'logrocket';
 import { message } from 'antd';
 import { Action, MechanicActionType } from '../cardReducer';
 
 import { getAccessToken } from '../utils/accessService';
 import MechanicInterface from '../interfaces/MechanicInterface';
-import { captureError, captureRequest, ActionTag, RequestTag } from './errorLog';
+import { captureError, ActionTag, RequestTag } from './errorLog';
 
 const MIDDLEWARE_ENDPOINT = process.env.NODE_ENV === 'production' ? '' : 'http://localhost:3001';
 
 export const getMechanics = (dispatch: (value: Action) => void) => {
-  captureRequest('Try to get all mechanics', ActionTag.Mechanic, RequestTag.Get, {});
+  LogRocket.log('Try to get all mechanics');
 
   const request = `${MIDDLEWARE_ENDPOINT}/mechanics`;
   const args = { params: { accessKey: getAccessToken() } };
@@ -24,12 +25,11 @@ export const getMechanics = (dispatch: (value: Action) => void) => {
     })
     .catch(error => {
       captureError(error, ActionTag.Mechanic, RequestTag.Get, {});
-      console.log(error);
     });
 };
 
 export const createMechanic = (dispatch: (value: Action) => void) => {
-  captureRequest('Try to create mechanic', ActionTag.Mechanic, RequestTag.Create, {});
+  LogRocket.log('Try to create mechanic');
 
   const request = `${MIDDLEWARE_ENDPOINT}/mechanics`;
   const args = { accessKey: getAccessToken() };
@@ -48,12 +48,11 @@ export const createMechanic = (dispatch: (value: Action) => void) => {
     .catch(error => {
       message.error('Failed creating a new mechanic :(');
       captureError(error, ActionTag.Mechanic, RequestTag.Create, {});
-      console.log(error);
     });
 };
 
 export const updateMechanic = (dispatch: (value: Action) => void, updated: MechanicInterface) => {
-  captureRequest('Try to update mechanic', ActionTag.Mechanic, RequestTag.Update, { ...updated });
+  LogRocket.log('Try to update mechanic', updated);
 
   const request = `${MIDDLEWARE_ENDPOINT}/mechanics`;
   axios
@@ -70,6 +69,5 @@ export const updateMechanic = (dispatch: (value: Action) => void, updated: Mecha
     .catch(error => {
       captureError(error, ActionTag.Mechanic, RequestTag.Update, {});
       message.error("Could'nt update mechanic");
-      console.log(error);
     });
 };

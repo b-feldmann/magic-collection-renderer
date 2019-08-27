@@ -1,18 +1,19 @@
 import axios from 'axios';
 
+import LogRocket from 'logrocket';
 import { message } from 'antd';
 import { Action, AnnotationActionType } from '../cardReducer';
 
 import { getAccessToken } from '../utils/accessService';
 import AnnotationInterface from '../interfaces/AnnotationInterface';
 import UserInterface from '../interfaces/UserInterface';
-import { captureError, captureRequest, ActionTag, RequestTag } from './errorLog';
+import { captureError, ActionTag, RequestTag } from './errorLog';
 
 const MIDDLEWARE_ENDPOINT =
   process.env.NODE_ENV === 'production' ? '/annotations' : 'http://localhost:3001/annotations';
 
 export const getAnnotations = (dispatch: (value: Action) => void) => {
-  captureRequest('Try to get all annotations', ActionTag.Annotation, RequestTag.Get, {});
+  LogRocket.log('Try to get all annotations');
   const args = { params: { accessKey: getAccessToken() } };
   axios
     .get(MIDDLEWARE_ENDPOINT, args)
@@ -24,7 +25,6 @@ export const getAnnotations = (dispatch: (value: Action) => void) => {
     })
     .catch(error => {
       captureError(error, ActionTag.Annotation, RequestTag.Get, {});
-      console.log(error);
     });
 };
 
@@ -34,11 +34,7 @@ export const createAnnotation = (
   author: UserInterface,
   cardReference: string
 ) => {
-  captureRequest('Try to create annotation', ActionTag.Annotation, RequestTag.Create, {
-    content,
-    cardReference,
-    ...author
-  });
+  LogRocket.log('Try to create annotation', content, cardReference, author);
   const args = { accessKey: getAccessToken(), content, author: author.uuid, cardReference };
 
   axios
@@ -55,7 +51,6 @@ export const createAnnotation = (
     .catch(error => {
       captureError(error, ActionTag.Annotation, RequestTag.Create, {});
       message.error('Failed creating a new annotation :(');
-      console.log(error);
     });
 };
 
@@ -63,9 +58,7 @@ export const updateAnnotation = (
   dispatch: (value: Action) => void,
   updated: AnnotationInterface
 ) => {
-  captureRequest('Try to update annotation', ActionTag.Annotation, RequestTag.Update, {
-    ...updated
-  });
+  LogRocket.log('Try to update annotation', updated);
 
   axios
     .put(MIDDLEWARE_ENDPOINT, { mechanic: updated, accessKey: getAccessToken() })
@@ -81,6 +74,5 @@ export const updateAnnotation = (
     .catch(error => {
       captureError(error, ActionTag.Annotation, RequestTag.Update, {});
       message.error("Could'nt update annotation");
-      console.log(error);
     });
 };

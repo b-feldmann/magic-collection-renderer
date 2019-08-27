@@ -3,6 +3,7 @@ import axios from 'axios';
 
 import { message } from 'antd';
 import moment from 'moment';
+import LogRocket from 'logrocket';
 import { Action, CardActionType } from '../cardReducer';
 import { CardMainType, CardState, RarityType } from '../interfaces/enums';
 
@@ -10,7 +11,7 @@ import CardInterface from '../interfaces/CardInterface';
 import { getAccessToken, deleteAccessToken } from '../utils/accessService';
 import { UNKNOWN_CREATOR } from '../interfaces/constants';
 import UserInterface from '../interfaces/UserInterface';
-import { captureError, captureRequest, ActionTag, RequestTag } from './errorLog';
+import { captureError, ActionTag, RequestTag } from './errorLog';
 
 const MIDDLEWARE_ENDPOINT = process.env.NODE_ENV === 'production' ? '' : 'http://localhost:3001';
 
@@ -36,7 +37,7 @@ export const EMPTY_CARD = (): CardInterface => ({
 });
 
 export const refreshCollection = (dispatch: (value: Action) => void) => {
-  captureRequest('Try to get all cards', ActionTag.Card, RequestTag.Update, {});
+  LogRocket.log('Try to get all cards');
   dispatch({
     type: CardActionType.RefreshCollection
   });
@@ -63,6 +64,7 @@ export const refreshCollection = (dispatch: (value: Action) => void) => {
         const { response } = error;
         if (response.status && response.status === 401) {
           deleteAccessToken();
+          LogRocket.error('Wrong access token! You are not authorized to use this service :(');
           message.error('Wrong access token! You are not authorized to use this service :(', 3);
           return;
         }
@@ -70,12 +72,11 @@ export const refreshCollection = (dispatch: (value: Action) => void) => {
 
       captureError(error, ActionTag.Card, RequestTag.Get, {});
       message.error("Could'nt load collection. Maybe you access token is wrong.");
-      console.log(error);
     });
 };
 
 export const createCard = (dispatch: (value: Action) => void, creator: UserInterface) => {
-  captureRequest('Try to create a card', ActionTag.Card, RequestTag.Create, { ...creator });
+  LogRocket.log('Try to create a card', creator);
   const request = `${MIDDLEWARE_ENDPOINT}/cards`;
   const args = { accessKey: getAccessToken(), creator };
 
@@ -93,17 +94,15 @@ export const createCard = (dispatch: (value: Action) => void, creator: UserInter
     .catch(error => {
       captureError(error, ActionTag.Card, RequestTag.Create, {});
       message.error('Failed creating a new card :(');
-      console.log(error);
     });
 };
 
 export const updateCard = (dispatch: (value: Action) => void, updated: CardInterface) => {
-  const { name, rarity, uuid, manaCost, ...rest } = updated;
-  captureRequest('Try to update a card', ActionTag.Card, RequestTag.Update, {
+  const { name, uuid } = updated;
+  LogRocket.log('Try to update a card', {
     name,
-    rarity,
     uuid,
-    manaCost
+    updated
   });
   const request = `${MIDDLEWARE_ENDPOINT}/cards`;
   axios
@@ -120,6 +119,5 @@ export const updateCard = (dispatch: (value: Action) => void, updated: CardInter
     .catch(error => {
       captureError(error, ActionTag.Card, RequestTag.Update, {});
       message.error("Could'nt update the card");
-      console.log(error);
     });
 };

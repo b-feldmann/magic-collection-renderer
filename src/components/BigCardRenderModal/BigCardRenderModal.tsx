@@ -3,6 +3,7 @@ import { Button, Card, Icon, Modal, Tooltip } from 'antd';
 
 import _ from 'lodash';
 
+import LogRocket from 'logrocket';
 import CardInterface from '../../interfaces/CardInterface';
 import styles from './BigCardRenderModal.module.scss';
 import { NonMemoCardRender as CardRender } from '../CardRender/CardRender';
@@ -63,6 +64,7 @@ const BigCardRenderModal = ({
   const annotationHeight = rowLayout ? modalMaxHeight - cardHeight + hEditorSpace : cardHeight;
 
   const updateState = (newState: CardState) => {
+    LogRocket.log(`Update Card State to ${newState}`, card.name);
     const updatedCard = { ...card };
     updatedCard.meta.state = newState;
     updateCard(dispatch, updatedCard);
@@ -91,6 +93,7 @@ const BigCardRenderModal = ({
   const like = () => {
     if (liked) return;
 
+    LogRocket.log('Like Card', card.name, card);
     const updatedCard = { ...card };
     if (disliked) {
       updatedCard.meta.dislikes = updatedCard.meta.dislikes.filter(o => o !== currentUser.uuid);
@@ -102,6 +105,7 @@ const BigCardRenderModal = ({
   const dislike = () => {
     if (disliked) return;
 
+    LogRocket.log('Dislike Card', card.name, card);
     const updatedCard = { ...card };
     if (liked) {
       updatedCard.meta.likes = updatedCard.meta.likes.filter(o => o !== currentUser.uuid);

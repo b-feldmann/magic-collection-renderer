@@ -30,6 +30,7 @@ import BigCardRenderModal from './components/BigCardRenderModal/BigCardRenderMod
 import { getAnnotations } from './actions/annotationActions';
 import { getUser, setCurrentUser } from './actions/userActions';
 import { UNKNOWN_CREATOR } from './interfaces/constants';
+import LogRocket from 'logrocket';
 
 const { Search } = Input;
 const { confirm } = Modal;
@@ -153,6 +154,7 @@ const App: React.FC = () => {
   };
 
   const viewCard = (id: string) => {
+    LogRocket.log('View card');
     setCardViewId(id);
     setShowCardModal(true);
   };
