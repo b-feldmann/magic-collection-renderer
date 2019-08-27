@@ -10,7 +10,7 @@ import CardInterface from '../interfaces/CardInterface';
 import { getAccessToken, deleteAccessToken } from '../utils/accessService';
 import { UNKNOWN_CREATOR } from '../interfaces/constants';
 import UserInterface from '../interfaces/UserInterface';
-import captureError, { ActionTag, RequestTag } from './errorLog';
+import { captureError, captureRequest, ActionTag, RequestTag } from './errorLog';
 
 const MIDDLEWARE_ENDPOINT = process.env.NODE_ENV === 'production' ? '' : 'http://localhost:3001';
 
@@ -36,6 +36,7 @@ export const EMPTY_CARD = (): CardInterface => ({
 });
 
 export const refreshCollection = (dispatch: (value: Action) => void) => {
+  captureRequest('Try to get all cards', ActionTag.Card, RequestTag.Update, {});
   dispatch({
     type: CardActionType.RefreshCollection
   });
@@ -74,6 +75,7 @@ export const refreshCollection = (dispatch: (value: Action) => void) => {
 };
 
 export const createCard = (dispatch: (value: Action) => void, creator: UserInterface) => {
+  captureRequest('Try to create a card', ActionTag.Card, RequestTag.Create, { ...creator });
   const request = `${MIDDLEWARE_ENDPOINT}/cards`;
   const args = { accessKey: getAccessToken(), creator };
 
@@ -96,6 +98,13 @@ export const createCard = (dispatch: (value: Action) => void, creator: UserInter
 };
 
 export const updateCard = (dispatch: (value: Action) => void, updated: CardInterface) => {
+  const { name, rarity, uuid, manaCost, ...rest } = updated;
+  captureRequest('Try to update a card', ActionTag.Card, RequestTag.Update, {
+    name,
+    rarity,
+    uuid,
+    manaCost
+  });
   const request = `${MIDDLEWARE_ENDPOINT}/cards`;
   axios
     .put(request, { card: updated, accessKey: getAccessToken() })

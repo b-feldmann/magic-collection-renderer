@@ -5,11 +5,13 @@ import { Action, MechanicActionType } from '../cardReducer';
 
 import { getAccessToken } from '../utils/accessService';
 import MechanicInterface from '../interfaces/MechanicInterface';
-import captureError, { ActionTag, RequestTag } from './errorLog';
+import { captureError, captureRequest, ActionTag, RequestTag } from './errorLog';
 
 const MIDDLEWARE_ENDPOINT = process.env.NODE_ENV === 'production' ? '' : 'http://localhost:3001';
 
 export const getMechanics = (dispatch: (value: Action) => void) => {
+  captureRequest('Try to get all mechanics', ActionTag.Mechanic, RequestTag.Get, {});
+
   const request = `${MIDDLEWARE_ENDPOINT}/mechanics`;
   const args = { params: { accessKey: getAccessToken() } };
   axios
@@ -27,6 +29,8 @@ export const getMechanics = (dispatch: (value: Action) => void) => {
 };
 
 export const createMechanic = (dispatch: (value: Action) => void) => {
+  captureRequest('Try to create mechanic', ActionTag.Mechanic, RequestTag.Create, {});
+
   const request = `${MIDDLEWARE_ENDPOINT}/mechanics`;
   const args = { accessKey: getAccessToken() };
 
@@ -49,7 +53,7 @@ export const createMechanic = (dispatch: (value: Action) => void) => {
 };
 
 export const updateMechanic = (dispatch: (value: Action) => void, updated: MechanicInterface) => {
-  console.log(updated);
+  captureRequest('Try to update mechanic', ActionTag.Mechanic, RequestTag.Update, { ...updated });
 
   const request = `${MIDDLEWARE_ENDPOINT}/mechanics`;
   axios

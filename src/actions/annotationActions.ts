@@ -6,12 +6,13 @@ import { Action, AnnotationActionType } from '../cardReducer';
 import { getAccessToken } from '../utils/accessService';
 import AnnotationInterface from '../interfaces/AnnotationInterface';
 import UserInterface from '../interfaces/UserInterface';
-import captureError, {ActionTag, RequestTag} from "./errorLog";
+import { captureError, captureRequest, ActionTag, RequestTag } from './errorLog';
 
 const MIDDLEWARE_ENDPOINT =
   process.env.NODE_ENV === 'production' ? '/annotations' : 'http://localhost:3001/annotations';
 
 export const getAnnotations = (dispatch: (value: Action) => void) => {
+  captureRequest('Try to get all annotations', ActionTag.Annotation, RequestTag.Get, {});
   const args = { params: { accessKey: getAccessToken() } };
   axios
     .get(MIDDLEWARE_ENDPOINT, args)
@@ -33,6 +34,11 @@ export const createAnnotation = (
   author: UserInterface,
   cardReference: string
 ) => {
+  captureRequest('Try to create annotation', ActionTag.Annotation, RequestTag.Create, {
+    content,
+    cardReference,
+    ...author
+  });
   const args = { accessKey: getAccessToken(), content, author: author.uuid, cardReference };
 
   axios
@@ -57,6 +63,10 @@ export const updateAnnotation = (
   dispatch: (value: Action) => void,
   updated: AnnotationInterface
 ) => {
+  captureRequest('Try to update annotation', ActionTag.Annotation, RequestTag.Update, {
+    ...updated
+  });
+
   axios
     .put(MIDDLEWARE_ENDPOINT, { mechanic: updated, accessKey: getAccessToken() })
     .then(result => {
