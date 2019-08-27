@@ -3,16 +3,18 @@ import axios from 'axios';
 import { message } from 'antd';
 import { Action, AnnotationActionType } from '../cardReducer';
 
-import { getAccessToken } from '../dropboxService';
+import { getAccessToken } from '../utils/accessService';
 import AnnotationInterface from '../interfaces/AnnotationInterface';
 import UserInterface from '../interfaces/UserInterface';
+import captureError, {ActionTag, RequestTag} from "./errorLog";
 
 const MIDDLEWARE_ENDPOINT =
   process.env.NODE_ENV === 'production' ? '/annotations' : 'http://localhost:3001/annotations';
 
 export const getAnnotations = (dispatch: (value: Action) => void) => {
+  const args = { params: { accessKey: getAccessToken() } };
   axios
-    .get(MIDDLEWARE_ENDPOINT)
+    .get(MIDDLEWARE_ENDPOINT, args)
     .then(result => {
       dispatch({
         type: AnnotationActionType.GetAnnotations,
@@ -20,6 +22,7 @@ export const getAnnotations = (dispatch: (value: Action) => void) => {
       });
     })
     .catch(error => {
+      captureError(error, ActionTag.Annotation, RequestTag.Get, {});
       console.log(error);
     });
 };
@@ -44,6 +47,7 @@ export const createAnnotation = (
       });
     })
     .catch(error => {
+      captureError(error, ActionTag.Annotation, RequestTag.Create, {});
       message.error('Failed creating a new annotation :(');
       console.log(error);
     });
@@ -65,6 +69,7 @@ export const updateAnnotation = (
       });
     })
     .catch(error => {
+      captureError(error, ActionTag.Annotation, RequestTag.Update, {});
       message.error("Could'nt update annotation");
       console.log(error);
     });

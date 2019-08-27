@@ -42,7 +42,7 @@ const BigCardRenderModal = ({
   const { width, height } = useWindowDimensions();
   const rowLayout = mobile ? height > width : faces.length === 2;
 
-  const wOffset = mobile ? 20 : 50;
+  const wOffset = mobile ? 40 : 50;
   const hEditorSpace = rowLayout ? 200 : 0;
   const hOffset = mobile ? 50 : 200;
 
@@ -155,7 +155,11 @@ const BigCardRenderModal = ({
 
   return (
     <Modal
-      style={mobile ? { top: (height - modalHeight) * 0.5, left: (width - modalWidth) * 0.5 } : {}}
+      style={
+        mobile
+          ? { top: (height - modalHeight) * 0.5, left: (width - modalWidth - wOffset * 0.5) * 0.5 }
+          : {}
+      }
       className={styles.modalCardViewWrapper}
       wrapClassName="card-view"
       title={`View ${card.name}`}

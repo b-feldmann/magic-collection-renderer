@@ -7,9 +7,10 @@ import { Action, CardActionType } from '../cardReducer';
 import { CardMainType, CardState, RarityType } from '../interfaces/enums';
 
 import CardInterface from '../interfaces/CardInterface';
-import { getAccessToken } from '../dropboxService';
+import { getAccessToken, deleteAccessToken } from '../utils/accessService';
 import { UNKNOWN_CREATOR } from '../interfaces/constants';
-import UserInterface from "../interfaces/UserInterface";
+import UserInterface from '../interfaces/UserInterface';
+import captureError, { ActionTag, RequestTag } from './errorLog';
 
 const MIDDLEWARE_ENDPOINT = process.env.NODE_ENV === 'production' ? '' : 'http://localhost:3001';
 
@@ -40,8 +41,9 @@ export const refreshCollection = (dispatch: (value: Action) => void) => {
   });
 
   const request = `${MIDDLEWARE_ENDPOINT}/cards`;
+  const args = { params: { accessKey: getAccessToken() } };
   axios
-    .get(request)
+    .get(request, args)
     .then(result => {
       // result.data.cards.forEach((card: CardInterface) => {
       //   if (!card.createdAt) {
@@ -56,6 +58,17 @@ export const refreshCollection = (dispatch: (value: Action) => void) => {
       });
     })
     .catch(error => {
+      if (error.response) {
+        const { response } = error;
+        if (response.status && response.status === 401) {
+          deleteAccessToken();
+          message.error('Wrong access token! You are not authorized to use this service :(', 3);
+          return;
+        }
+      }
+
+      captureError(error, ActionTag.Card, RequestTag.Get, {});
+      message.error("Could'nt load collection. Maybe you access token is wrong.");
       console.log(error);
     });
 };
@@ -76,6 +89,7 @@ export const createCard = (dispatch: (value: Action) => void, creator: UserInter
       });
     })
     .catch(error => {
+      captureError(error, ActionTag.Card, RequestTag.Create, {});
       message.error('Failed creating a new card :(');
       console.log(error);
     });
@@ -95,6 +109,7 @@ export const updateCard = (dispatch: (value: Action) => void, updated: CardInter
       });
     })
     .catch(error => {
+      captureError(error, ActionTag.Card, RequestTag.Update, {});
       message.error("Could'nt update the card");
       console.log(error);
     });

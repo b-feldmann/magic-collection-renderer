@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 
-import { Comment, Tooltip, List } from 'antd';
+import { Comment, Tooltip } from 'antd';
 import moment from 'moment';
 
 import _ from 'lodash';
@@ -9,6 +9,7 @@ import AnnotationInterface from '../../interfaces/AnnotationInterface';
 
 import styles from './Annotations.module.scss';
 import { Store, StoreType } from '../../store';
+import { injectManaIcons } from '../CardRender/injectUtils';
 
 interface AnnotationProps {
   annotation: AnnotationInterface;
@@ -29,8 +30,13 @@ const Annotation = ({ annotation }: AnnotationProps) => {
     <Comment
       className={styles.entry}
       author={author ? author.name : annotation.author}
-      content={annotation.content.split('\n').map(item => {
-        return <p>{item}</p>;
+      content={annotation.content.split('\n').map((item, i) => {
+        return (
+          <span>
+            {i > 0 && <br />}
+            {injectManaIcons(item)}
+          </span>
+        );
       })}
       datetime={datetimeRender(annotation.datetime)}
     />

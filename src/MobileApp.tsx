@@ -1,12 +1,9 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Button, Col, Input, Modal, Row, Select, Tabs, Badge, Card } from 'antd';
+import { Badge, Button, Card, Col, Input, Modal, Result, Row, Select, Tabs } from 'antd';
 import _ from 'lodash';
 
-import fileDownload from 'js-file-download';
-import useWindowDimensions from './useWindowDimensions';
-
 import CardInterface from './interfaces/CardInterface';
-import { CardState, ColorType, SortByType } from './interfaces/enums';
+import { CardState } from './interfaces/enums';
 import CardCollection from './components/CardCollection/CardCollection';
 import CardEditor from './components/CardEditor/CardEditor';
 
@@ -16,13 +13,10 @@ import styles from './App.module.scss';
 import './card-modal.scss';
 import './ant-tabs.scss';
 
-import CollectionFilterControls, {
-  CollectionFilterInterface
-} from './components/CollectionFilterControls/CollectionFilterControls';
-import cardToColor from './components/CardRender/cardToColor';
+import CollectionFilterControls from './components/CollectionFilterControls/CollectionFilterControls';
 import { createCard, EMPTY_CARD, refreshCollection } from './actions/cardActions';
 
-import { hasAccessToken, updateAccessToken } from './dropboxService';
+import { hasAccessToken, updateAccessToken } from './utils/accessService';
 import { getMechanics } from './actions/mechanicActions';
 import MechanicModal from './components/MechanicModal/MechanicModal';
 import useLocalStorage from './utils/useLocalStorageHook';
@@ -200,21 +194,33 @@ const MobileApp: React.FC = () => {
 
   if (!hasAccessToken()) {
     return (
-      <Search
-        placeholder="Input Api Key"
-        enterButton="Enter"
-        size="large"
-        onSearch={value => {
-          updateAccessToken(value);
-          window.location.reload();
-        }}
-      />
+      <div className={styles.authWrapper}>
+        <Result
+          status="403"
+          title="401"
+          subTitle="Sorry, you are not authorized to access this page. But please try to authenticate yourself."
+          extra={
+            <Search
+              placeholder="Input Access Key"
+              enterButton="Enter"
+              onSearch={value => {
+                updateAccessToken(value);
+                window.location.reload();
+              }}
+            />
+          }
+        />
+      </div>
     );
   }
 
-  if (currentUser.uuid === UNKNOWN_CREATOR.uuid) {
-    return (
-      <div className={styles.loginWrapper}>
+  return (
+    <div>
+      <div
+        className={`${styles.loginWrapper} ${
+          currentUser.uuid !== UNKNOWN_CREATOR.uuid ? styles.authenticated : ''
+        }`}
+      >
         <Card title="Choose Current User" style={{ width: '300px' }}>
           <Select
             size="large"
@@ -231,12 +237,11 @@ const MobileApp: React.FC = () => {
           </Select>
         </Card>
       </div>
-    );
-  }
-
-  return (
-    <div>
-      <Row className={styles.app}>
+      <Row
+        className={`${styles.app} ${
+          currentUser.uuid === UNKNOWN_CREATOR.uuid ? styles.unauthenticated : styles.authenticated
+        }`}
+      >
         <Col span={24} className={styles.collectionWrapper}>
           {createGrid(filteredCollection)}
         </Col>

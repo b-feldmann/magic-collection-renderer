@@ -157,8 +157,27 @@ updateLog.push({
   ]
 });
 
+updateLog.push({
+  version: '1.1.1',
+  title: 'New Card Type Update',
+  content: [
+    {
+      type: ChangeLogFeatureType.Added,
+      feature: 'Annotations now support mana icons and new-lines.'
+    },
+    {
+      type: ChangeLogFeatureType.Fixed,
+      feature: 'Added Access Key Security Patch.'
+    },
+    {
+      type: ChangeLogFeatureType.Changed,
+      feature: 'You can now re-enter the access key if it was wrong.'
+    }
+  ]
+});
+
 // updateLog.push({
-//   version: '1.1.1',
+//   version: '1.1.2',
 //   title: 'New Card Type Update',
 //   content: [
 //     {
