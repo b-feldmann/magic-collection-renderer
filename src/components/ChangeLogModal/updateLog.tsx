@@ -176,8 +176,41 @@ updateLog.push({
   ]
 });
 
+updateLog.push({
+  version: '1.1.2',
+  title: 'Mechanics Update',
+  content: [
+    {
+      type: ChangeLogFeatureType.Changed,
+      feature: (
+        <div>
+          Rewrote Mechanic Parsing and fixed some old error.
+          <h5>Parser:</h5>
+          <ul>
+            <li>"[-Miracle]" is rendered as "(...)" without the Name of the mechanic</li>
+            <li>"[Explore]" is rendered as "Explore (...)" with the Name of the mechanic</li>
+            <li>{'"[Cycling {2}]" is rendered as "Cycling {2} (...)"'}</li>
+            <li>
+              {
+                '"[Cycling {2}]" is rendered as "Cycling {2} ({2}, ...)" if the description of the mechanic is "{ref}, ..."'
+              }
+            </li>
+            <li>
+              {
+                '"[Surveil 2]" is rendered as "Surveil 2 (... 2 ...)" if the description of the mechanic is "... {ref} ..."'
+              }
+            </li>
+            <li>"[Enrage] xyz" is rendered as "Enrage — ... xyz"</li>
+            <li>"[Raid abc] xyz" is rendered as "Raid — abc ... xyz"</li>
+          </ul>
+        </div>
+      )
+    }
+  ]
+});
+
 // updateLog.push({
-//   version: '1.1.2',
+//   version: '1.1.3',
 //   title: 'New Card Type Update',
 //   content: [
 //     {

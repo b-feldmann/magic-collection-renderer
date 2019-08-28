@@ -154,7 +154,7 @@ const App: React.FC = () => {
   };
 
   const viewCard = (id: string) => {
-    LogRocket.log('View card');
+    LogRocket.log(`View card ${getCard(filteredCollection, id).name}`);
     setCardViewId(id);
     setShowCardModal(true);
   };

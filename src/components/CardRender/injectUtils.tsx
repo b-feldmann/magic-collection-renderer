@@ -25,10 +25,6 @@ interface InjectionConfig {
   style?: InjectStyle;
 }
 
-export const simpleReplaceAll = (target: string, toRemove: string, toInject: string) => {
-  return target.split(toRemove).join(toInject);
-};
-
 const injectDomElement: InjectFunc = (
   text,
   toReplace,
@@ -102,39 +98,6 @@ export const injectWithConfig = (
   });
 
   return workingArray;
-};
-
-export const injectMechanics = (
-  text: string | JSX.Element | (string | JSX.Element)[],
-  mechanics: MechanicInterface[]
-) => {
-  const config: InjectionConfig[] = [];
-  mechanics.forEach(mechanic => {
-    config.push({
-      toReplace: new RegExp(`[\\s]*\\[([\\s]*${mechanic.name}[\\s]*{.*}[\\s]*)\\]$`),
-      style: InjectStyle.ITALIC,
-      toInject: '',
-      toInjectClose: ` (${mechanic.description})`
-    });
-    config.push({
-      toReplace: new RegExp(`[\\s]*\\[([\\s]*${mechanic.name}[\\s]*\\d+[\\s]*)\\]$`),
-      style: InjectStyle.ITALIC,
-      toInject: '',
-      toInjectClose: ` (${mechanic.description})`
-    });
-    config.push({
-      toReplace: new RegExp(`[\\s]*\\[([\\s]*${mechanic.name}[\\s]*)\\]$`),
-      style: InjectStyle.ITALIC,
-      toInject: '',
-      toInjectClose: ` (${mechanic.description})`
-    });
-    config.push({
-      toReplace: new RegExp(`[\\s]*\\[[\\s]*${mechanic.name}[\\s]*(.*)\\]`),
-      toInject: ` ${mechanic.name} — `,
-      toInjectClose: ` ${mechanic.description}`
-    });
-  });
-  return injectWithConfig(text, config);
 };
 
 export const injectManaIcons = (
@@ -279,13 +242,6 @@ export const injectPlaneswalkerIcons = (text: string | JSX.Element | (string | J
   return injectWithConfig(text, config);
 };
 
-export const injectNewLine = (text: string | JSX.Element | (string | JSX.Element)[]) => {
-  return injectWithConfig(text, {
-    toReplace: /\|/,
-    toInject: <span className="new-instruction" />
-  });
-};
-
 export const injectName = (text: string | JSX.Element | (string | JSX.Element)[], name: string) => {
   return injectWithConfig(text, {
     toReplace: /~/,
@@ -302,18 +258,55 @@ export const injectQuotationMarks = (text: string | JSX.Element | (string | JSX.
   });
 };
 
-export const injectKeywords = (
+export const injectMechanics = (
   text: string | JSX.Element | (string | JSX.Element)[],
-  keywords: string[]
+  mechanics: MechanicInterface[],
+  cardName = ''
 ) => {
-  const config: InjectionConfig[] = [];
-  keywords.forEach(word => {
-    config.push({
-      toReplace: new RegExp(`${word}`),
-      toInject: 'italic',
-      toInjectClose: word
+  const arr: (string | JSX.Element)[] = Array.isArray(text) ? text : [text];
+
+  const result: (string | JSX.Element)[] = [];
+  arr.forEach(elem => {
+    if (typeof elem !== 'string') {
+      result.push(elem);
+      return;
+    }
+
+    const lines = elem.split(/(\[.*\])/).filter(line => line.length > 0 && !line.match(/^\s*$/));
+    lines.forEach((line, i) => {
+      if (line.indexOf('[') === -1 || line.indexOf(']') === -1) {
+        result.push(line);
+        return;
+      }
+      const usedMechanic = mechanics.find(
+        mechanic => line.indexOf(mechanic.name) !== -1 && !mechanic.name.match(/^\s*$/)
+      );
+      if (!usedMechanic) {
+        result.push(line);
+        return;
+      }
+      const cleanedLine = line.replace(usedMechanic.name, '').replace(/\[|\]|\s*/g, '');
+      if (cleanedLine === '-') {
+        result.push(<span style={{ fontStyle: 'italic' }}>{`(${usedMechanic.description})`}</span>);
+        return;
+      }
+      const braces = i === lines.length - 1 && !!cleanedLine.match(/^\d{0,2}$|^(\{.{1,2}\})+$/);
+      console.log(cleanedLine.length);
+      console.log(cleanedLine, usedMechanic, braces ? 'braces' : 'minus');
+      const injectedRef = usedMechanic.description.replace(/\{ref\}/g, cleanedLine);
+      const parsedDescription = injectManaIcons(
+        injectQuotationMarks(injectName(injectedRef, cardName))
+      );
+      if (braces) {
+        result.push(`${usedMechanic.name} ${cleanedLine} (`);
+        result.push(<span style={{ fontStyle: 'italic' }}>{parsedDescription}</span>);
+        result.push(')');
+      } else {
+        result.push(`${usedMechanic.name} — ${cleanedLine} `);
+        result.push(<span>{parsedDescription}</span>);
+      }
     });
   });
 
-  return injectWithConfig(text, config);
+  return result;
 };

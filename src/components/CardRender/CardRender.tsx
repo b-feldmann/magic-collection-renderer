@@ -149,7 +149,7 @@ const CardRender = (cardRender: CardRender) => {
                   <span className="new-instruction">
                     {injectQuotationMarks(
                       injectPlaneswalkerIcons(
-                        injectManaIcons(injectName(injectMechanics(val, mechanics), name))
+                        injectManaIcons(injectName(injectMechanics(val, mechanics, name), name))
                       )
                     )}
                   </span>
