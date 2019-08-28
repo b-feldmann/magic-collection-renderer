@@ -291,8 +291,6 @@ export const injectMechanics = (
         return;
       }
       const braces = i === lines.length - 1 && !!cleanedLine.match(/^\d{0,2}$|^(\{.{1,2}\})+$/);
-      console.log(cleanedLine.length);
-      console.log(cleanedLine, usedMechanic, braces ? 'braces' : 'minus');
       const injectedRef = usedMechanic.description.replace(/\{ref\}/g, cleanedLine);
       const parsedDescription = injectManaIcons(
         injectQuotationMarks(injectName(injectedRef, cardName))
