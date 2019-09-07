@@ -3,7 +3,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import 'mana-font/css/mana.css';
 
 import * as PIXI from 'pixi.js';
-import { CardMainType, ColorType, RarityType } from '../../interfaces/enums';
+import { CardMainType, ColorTypePlus, RarityType } from '../../interfaces/enums';
 
 import CommonIcon from './images/rarity/common.png';
 import UncommonIcon from './images/rarity/uncommon.png';
@@ -22,11 +22,11 @@ import BackgroundColorless from './images/artifact.png';
 import TextboxTile from './images/tile_bg_2.jpg';
 
 import NoCover from './images/no-cover.jpg';
-import cardToColor from './cardToColor';
 
 import { renderBackground, RenderBackgroundCache } from './renderBackground';
 import { renderArtBox, RenderArtBoxCache } from './renderArtBox';
 import { renderTextBox, RenderTextBoxCache } from './renderTextBox';
+import cardToColor from "../../utils/cardToColor";
 
 export interface Images {
   [key: string]: PIXI.Texture;
@@ -64,21 +64,21 @@ const CardPixiRender: React.FC<CardWebGLRender> = (cardRender: CardWebGLRender) 
 
   const colorToBackground = () => {
     switch (color) {
-      case ColorType.White:
+      case ColorTypePlus.White:
         return BackgroundWhite;
-      case ColorType.Blue:
+      case ColorTypePlus.Blue:
         return BackgroundBlue;
-      case ColorType.Black:
+      case ColorTypePlus.Black:
         return BackgroundBlack;
-      case ColorType.Red:
+      case ColorTypePlus.Red:
         return BackgroundRed;
-      case ColorType.Green:
+      case ColorTypePlus.Green:
         return BackgroundGreen;
-      case ColorType.Gold:
+      case ColorTypePlus.Gold:
         return BackgroundGold;
-      case ColorType.Land:
+      case ColorTypePlus.Land:
         return BackgroundLand;
-      case ColorType.Colorless:
+      case ColorTypePlus.Colorless:
         return BackgroundColorless;
       default:
         return BackgroundColorless;
@@ -87,21 +87,21 @@ const CardPixiRender: React.FC<CardWebGLRender> = (cardRender: CardWebGLRender) 
 
   const borderColor = (): number => {
     switch (color) {
-      case ColorType.White:
+      case ColorTypePlus.White:
         return 0xe0e4e3;
-      case ColorType.Blue:
+      case ColorTypePlus.Blue:
         return 0x0456a8;
-      case ColorType.Black:
+      case ColorTypePlus.Black:
         return 0x464e39;
-      case ColorType.Red:
+      case ColorTypePlus.Red:
         return 0xdf3619;
-      case ColorType.Green:
+      case ColorTypePlus.Green:
         return 0x26714a;
-      case ColorType.Gold:
+      case ColorTypePlus.Gold:
         return 0xeed66b;
-      case ColorType.Land:
+      case ColorTypePlus.Land:
         return 0xeed66b;
-      case ColorType.Colorless:
+      case ColorTypePlus.Colorless:
         return 0xd9d7da;
       default:
         return 0xd9d7da;

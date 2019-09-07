@@ -4,7 +4,7 @@ import axios from 'axios';
 import { message } from 'antd';
 import moment from 'moment';
 import LogRocket from 'logrocket';
-import { Action, CardActionType } from '../cardReducer';
+import { Action, CardActionType } from '../reducer';
 import { CardMainType, CardState, RarityType } from '../interfaces/enums';
 
 import CardInterface from '../interfaces/CardInterface';

@@ -30,13 +30,18 @@ const LogEntry = (entry: ChangeLogEntryInterface) => {
         size="small"
         dataSource={entry.content}
         renderItem={item => (
-          <ListItem>
-            {item.type !== ChangeLogFeatureType.None && (
-              <Text code className={typeColor(item.type)}>
-                {item.type}
+          <ListItem className={styles.item}>
+            <Row>
+              {item.type !== ChangeLogFeatureType.None && (
+                <Text code className={typeColor(item.type)}>
+                  {item.type}
+                </Text>
+              )}
+              <Text strong className={styles.featureName}>
+                {item.feature}
               </Text>
-            )}
-            <Text>{item.feature}</Text>
+            </Row>
+            <Text className={styles.description}>{item.description}</Text>
           </ListItem>
         )}
       />

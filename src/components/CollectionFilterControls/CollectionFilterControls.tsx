@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Checkbox, Input, Row, Slider } from 'antd';
-import { CardMainType, ColorType, mapEnum, RarityType } from '../../interfaces/enums';
+import { CardMainType, ColorTypePlus, mapEnum, RarityType } from '../../interfaces/enums';
 
 import styles from './styles.module.scss';
 import CardInterface from '../../interfaces/CardInterface';
-import cardToColor from '../CardRender/cardToColor';
+import cardToColor from '../../utils/cardToColor';
 
 export interface CollectionFilterInterface {
   colors: CheckBoxGroupInterface;
@@ -46,7 +46,7 @@ const CollectionFilterControls = ({
     createEnumInitState(Object.values(CardMainType))
   );
   const [shownColors, setShownColors] = useState<CheckBoxGroupInterface>(
-    createEnumInitState(Object.values(ColorType))
+    createEnumInitState(Object.values(ColorTypePlus))
   );
   const [shownRarities, setShownRarities] = useState<CheckBoxGroupInterface>(
     createEnumInitState(Object.values(RarityType))
@@ -81,7 +81,7 @@ const CollectionFilterControls = ({
   Object.values(RarityType).forEach(key => {
     cardCountStats[key] = 0;
   });
-  Object.values(ColorType).forEach(key => {
+  Object.values(ColorTypePlus).forEach(key => {
     cardCountStats[key] = 0;
   });
   collection.forEach(card => {
@@ -151,8 +151,8 @@ const CollectionFilterControls = ({
             </div>
             <div className={styles.controlItem}>
               <h4>Shown Colors</h4>
-              {Object.values(ColorType).map((key: string) => {
-                if (key === ColorType.Planeswalker) return '';
+              {Object.values(ColorTypePlus).map((key: string) => {
+                if (key === ColorTypePlus.Planeswalker) return '';
                 return (
                   <Checkbox
                     key={`collection-filter-controls-checkbox-color-${key}`}

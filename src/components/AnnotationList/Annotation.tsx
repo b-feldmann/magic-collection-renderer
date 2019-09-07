@@ -9,7 +9,7 @@ import AnnotationInterface from '../../interfaces/AnnotationInterface';
 
 import styles from './Annotations.module.scss';
 import { Store, StoreType } from '../../store';
-import { injectManaIcons } from '../CardRender/injectUtils';
+import { injectManaIcons } from '../../utils/injectUtils';
 
 interface AnnotationProps {
   annotation: AnnotationInterface;

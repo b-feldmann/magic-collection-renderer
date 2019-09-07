@@ -1,5 +1,5 @@
 import React from 'react';
-import { Typography } from 'antd';
+import { Typography, Row } from 'antd';
 import ChangeLogEntryInterface from '../../interfaces/ChangeLogEntryInterface';
 import { ChangeLogFeatureType } from '../../interfaces/enums';
 
@@ -36,12 +36,14 @@ updateLog.push({
   content: [
     {
       type: ChangeLogFeatureType.Added,
-      feature:
+      feature: 'Mechanics',
+      description:
         'You can now add mechanics. At the bottom left is a button that opens the mechanic edit dialog. Mechanics are predefined effects that you only have to write once, but can use them on many cards. A Mechanic has a name and a description. You can render it on a card by putting the name in square brackets.'
     },
     {
       type: ChangeLogFeatureType.None,
-      feature: (
+      feature: '',
+      description: (
         <div>
           <Text>Examples:</Text>
           {exampleMechanics.map(m => (
@@ -86,13 +88,15 @@ updateLog.push({
   title: 'New Major Version!',
   content: [
     {
-      type: ChangeLogFeatureType.Changed,
-      feature:
+      type: ChangeLogFeatureType.Fixed,
+      feature: 'FireFox Bug Fix',
+      description:
         'Is now working accordingly on FireFox (Why use this Browser anywhy? :p). Works also on Microsoft Edge (Not in any way better than FireFox).'
     },
     {
       type: ChangeLogFeatureType.Added,
-      feature:
+      feature: 'Card Annotations',
+      description:
         "Added Annotations! When editing a card you can view and write card annotations. It's recommended to add an annotation when creating a card to explain the reasoning behind that card."
     },
     {
@@ -124,26 +128,26 @@ updateLog.push({
   content: [
     {
       type: ChangeLogFeatureType.Added,
-      feature:
+      feature: 'Authentication',
+      description:
         'Un-secure Login. (When creating a card the creator is automatically set. Same for the annotations)'
     },
     {
       type: ChangeLogFeatureType.Changed,
-      feature:
+      feature: 'Card States',
+      description:
         'Cards have now different states. [Draft, To Rate, Approved]. You can change stages in the card-edit-view. There you can release any card for the rating process.'
     },
     {
       type: ChangeLogFeatureType.Added,
-      feature:
+      feature: 'Card Rating',
+      description:
         'You can now like or dislike a card if it is in the rating process. You can approve a card if 4 people liked that card more than people disliked the card.'
     },
     {
-      type: ChangeLogFeatureType.Fixed,
-      feature: 'Typos'
-    },
-    {
       type: ChangeLogFeatureType.Added,
-      feature:
+      feature: 'Card Comment',
+      description:
         "You can now add comments to a card. It's like a description of the meaning of that card."
     },
     {
@@ -159,7 +163,7 @@ updateLog.push({
 
 updateLog.push({
   version: '1.1.1',
-  title: 'New Card Type Update',
+  title: 'Small Fixes',
   content: [
     {
       type: ChangeLogFeatureType.Added,
@@ -171,7 +175,8 @@ updateLog.push({
     },
     {
       type: ChangeLogFeatureType.Changed,
-      feature: 'You can now re-enter the access key if it was wrong.'
+      feature: 'Better Login',
+      description: 'You can now re-enter the access key if it was wrong.'
     }
   ]
 });
@@ -182,9 +187,9 @@ updateLog.push({
   content: [
     {
       type: ChangeLogFeatureType.Changed,
-      feature: (
+      feature: 'Rewrote Mechanic Parsing and fixed some old error',
+      description: (
         <div>
-          Rewrote Mechanic Parsing and fixed some old error.
           <h5>Parser:</h5>
           <ul>
             <li>"[-Miracle]" is rendered as "(...)" without the Name of the mechanic</li>
@@ -209,13 +214,52 @@ updateLog.push({
   ]
 });
 
+updateLog.push({
+  version: '1.2.0',
+  title: 'Rendering Update',
+  content: [
+    {
+      type: ChangeLogFeatureType.Added,
+      feature: 'Added "Artifact Creature" card type with specialized rendering.'
+    },
+    {
+      type: ChangeLogFeatureType.Added,
+      feature: 'Added "Basic Land" card type with specialized (Unstable) rendering.'
+    },
+    {
+      type: ChangeLogFeatureType.Added,
+      feature: 'Smooth Image Loading',
+      description:
+        'Rendered cards background have three stages that are loaded subsequently: Only-Color-Background, Low-Res-Image, High-Res-Image'
+    },
+    {
+      type: ChangeLogFeatureType.Changed,
+      feature: 'New Card Renderer',
+      description: (
+        <Row>
+          <Row>Replaced card renderer with new one that works with image templates</Row>
+          <Row>Special Focus on Artifacts, Planeswalkers, Lands (+ Basic Lands) and Multi-colored spells</Row>
+        </Row>
+      )
+    },
+    {
+      type: ChangeLogFeatureType.Changed,
+      feature: 'New Log Rendering'
+    },
+    {
+      type: ChangeLogFeatureType.Removed,
+      feature: 'LocalStorage as User info dump'
+    }
+  ]
+});
+
 // updateLog.push({
 //   version: '1.1.3',
 //   title: 'New Card Type Update',
 //   content: [
 //     {
 //       type: ChangeLogFeatureType.Added,
-//       feature: 'Introduce Split Cards.'
+//       description: 'Introduce Split Cards.'
 //     }
 //   ]
 // });

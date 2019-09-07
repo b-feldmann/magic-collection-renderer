@@ -3,7 +3,8 @@ import React from 'react';
 import { areEqual } from 'react-window';
 import styles from './styles.module.scss';
 import ActionHover from '../ActionHover/ActionHover';
-import CardRender from '../CardRender/CardRender';
+// import CardRender from '../CardRender/CardRender';
+import CardRender from '../TemplatingCardRender';
 import GlowingStar from '../GlowingStar';
 import CardInterface from '../../interfaces/CardInterface';
 import CardFaceInterface from '../../interfaces/CardFaceInterface';
@@ -91,7 +92,6 @@ const Cell = ({ style, columnIndex, rowIndex, data }: CellProps) => {
             creator={card.creator.name}
             collectionNumber={index + 1}
             collectionSize={cards.length}
-            smallText
           />
         </ActionHover>
       </Spin>

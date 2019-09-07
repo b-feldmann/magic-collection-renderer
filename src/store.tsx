@@ -1,5 +1,5 @@
 import React, { createContext, useReducer } from 'react';
-import reducer, { Action } from './cardReducer';
+import reducer, { Action } from './reducer';
 import CardInterface from './interfaces/CardInterface';
 import MechanicInterface from './interfaces/MechanicInterface';
 import AnnotationAccessorInterface from './interfaces/AnnotationAccessorInterface';

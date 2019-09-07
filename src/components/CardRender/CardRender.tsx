@@ -24,8 +24,8 @@ import {
   injectName,
   injectPlaneswalkerIcons,
   injectQuotationMarks
-} from './injectUtils';
-import cardToColor from './cardToColor';
+} from '../../utils/injectUtils';
+import cardToColor from '../../utils/cardToColor';
 import ImageLoader from '../ImageLoader/ImageLoader';
 import { Store, StoreType } from '../../store';
 import { UNKNOWN_CREATOR } from '../../interfaces/constants';
@@ -159,8 +159,8 @@ const CardRender = (cardRender: CardRender) => {
                 {flavourText && (
                   <span>
                     {flavourAuthor
-                      ? `“${injectName(flavourText, name)}”`
-                      : injectName(flavourText, name)}
+                      ? `“${injectQuotationMarks(injectName(flavourText, name))}”`
+                      : injectQuotationMarks(injectName(flavourText, name))}
                     {flavourAuthor ? (
                       <span>
                         <br />
@@ -176,7 +176,10 @@ const CardRender = (cardRender: CardRender) => {
 
             <div
               className={`${
-                cardMainType === CardMainType.Creature ? 'frame-stats' : 'hidden'
+                cardMainType === CardMainType.Creature ||
+                cardMainType === CardMainType.ArtifactCreature
+                  ? 'frame-stats'
+                  : 'hidden'
               } frame-stats-${color}`}
             >
               <div className={`frame-inner-stats frame-inner-stats-${color}`}>

@@ -2,7 +2,7 @@ import axios from 'axios';
 
 import LogRocket from 'logrocket';
 import { message } from 'antd';
-import { Action, AnnotationActionType } from '../cardReducer';
+import { Action, AnnotationActionType } from '../reducer';
 
 import { getAccessToken } from '../utils/accessService';
 import AnnotationInterface from '../interfaces/AnnotationInterface';

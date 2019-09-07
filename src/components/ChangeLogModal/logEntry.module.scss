@@ -1,10 +1,30 @@
 .entry {
   margin-bottom: 32px;
+  margin-right: 36px;
   font-size: 16px;
+
+  .item {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 4px;
+  }
+
+  .item > * {
+    width: 100%;
+  }
 
   .title {
     font-size: 18px;
     font-weight: bold;
+  }
+
+  .featureName {
+    margin-left: 4px;
+  }
+
+  .description {
+    margin-left: 4px;
+    margin-top: 4px;
   }
 
   .delete {

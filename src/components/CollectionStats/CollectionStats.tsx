@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button, Popover, Table } from 'antd';
 import CardInterface from '../../interfaces/CardInterface';
-import cardToColor from '../CardRender/cardToColor';
+import cardToColor from '../../utils/cardToColor';
 import { CardMainType } from '../../interfaces/enums';
 
 import styles from './collectionStats.module.scss';

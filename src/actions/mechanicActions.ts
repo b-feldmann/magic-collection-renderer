@@ -2,7 +2,7 @@ import axios from 'axios';
 
 import LogRocket from 'logrocket';
 import { message } from 'antd';
-import { Action, MechanicActionType } from '../cardReducer';
+import { Action, MechanicActionType } from '../reducer';
 
 import { getAccessToken } from '../utils/accessService';
 import MechanicInterface from '../interfaces/MechanicInterface';

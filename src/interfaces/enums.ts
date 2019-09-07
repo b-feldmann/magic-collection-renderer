@@ -15,9 +15,19 @@ export enum CardMainType {
   Sorcery = 'Sorcery',
   Enchantment = 'Enchantment',
   Artifact = 'Artifact',
+  ArtifactCreature = 'Artifact Creature',
   Land = 'Land',
+  BasicLand = 'Basic Land',
   Planeswalker = 'Planeswalker',
   Emblem = 'Emblem'
+}
+
+export enum BasicLandType {
+  Plains = 'Plains',
+  Island = 'Island',
+  Swamp = 'Swamp',
+  Mountain = 'Mountain',
+  Forest = 'Forest'
 }
 
 export enum RarityType {
@@ -28,6 +38,16 @@ export enum RarityType {
 }
 
 export enum ColorType {
+  White = 'white',
+  Blue = 'blue',
+  Black = 'black',
+  Red = 'red',
+  Green = 'green',
+  Colorless = 'colorless',
+  Gold = 'gold'
+}
+
+export enum ColorTypePlus {
   White = 'white',
   Blue = 'blue',
   Black = 'black',

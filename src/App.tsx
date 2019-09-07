@@ -4,8 +4,9 @@ import _ from 'lodash';
 
 import fileDownload from 'js-file-download';
 
+import LogRocket from 'logrocket';
 import CardInterface from './interfaces/CardInterface';
-import { CardState, ColorType, SortByType } from './interfaces/enums';
+import { CardState, ColorTypePlus, SortByType } from './interfaces/enums';
 import CardCollection from './components/CardCollection/CardCollection';
 import CardEditor from './components/CardEditor/CardEditor';
 
@@ -18,7 +19,7 @@ import './ant-tabs.scss';
 import CollectionFilterControls, {
   CollectionFilterInterface
 } from './components/CollectionFilterControls/CollectionFilterControls';
-import cardToColor from './components/CardRender/cardToColor';
+import cardToColor from './utils/cardToColor';
 import { createCard, EMPTY_CARD, refreshCollection } from './actions/cardActions';
 
 import { hasAccessToken, updateAccessToken } from './utils/accessService';
@@ -28,9 +29,8 @@ import useLocalStorage from './utils/useLocalStorageHook';
 import ChangeLogModal from './components/ChangeLogModal/ChangeLogModal';
 import BigCardRenderModal from './components/BigCardRenderModal/BigCardRenderModal';
 import { getAnnotations } from './actions/annotationActions';
-import { getUser, setCurrentUser } from './actions/userActions';
+import { addSeenCard, getUser, setCurrentUser } from './actions/userActions';
 import { UNKNOWN_CREATOR } from './interfaces/constants';
-import LogRocket from 'logrocket';
 
 const { Search } = Input;
 const { confirm } = Modal;
@@ -46,11 +46,6 @@ const App: React.FC = () => {
   const [cardNameFilter, setCardNameFilter] = useState<string>('');
   const [mechanicsVisible, setMechanicsVisible] = useState(false);
   const [sortBy, setSortBy] = useLocalStorage('mtg-funset:SortBy', SortByType.LastUpdated);
-  const [seenCardUuids, setSeenCardUuids] = useLocalStorage(
-    'mtg-funset:seen-card-uuids',
-    '[]',
-    true
-  );
 
   const [collectionFilter, setCollectionFilter] = useState<CollectionFilterInterface>({
     colors: {},
@@ -64,10 +59,17 @@ const App: React.FC = () => {
     Store
   );
 
+  const seenCardObject: { [key: string]: boolean } = {};
+  currentUser.seenCards.forEach((uuid: string) => {
+    seenCardObject[uuid] = true;
+  });
+
   const mergedCollection = [...cards.filter(card => card.uuid !== (tmpCard ? tmpCard.uuid : ''))];
   if (tmpCard) mergedCollection.push(tmpCard);
 
   const lastUpdated = (card: CardInterface): number => {
+    if (!seenCardObject[card.uuid]) return Number.MAX_SAFE_INTEGER;
+
     const annotations = annotationAccessor[card.uuid];
     if (!annotations) return card.meta.lastUpdated;
 
@@ -78,7 +80,7 @@ const App: React.FC = () => {
   const sortList = [];
   if (sortBy === SortByType.Color) {
     sortList.push((o: CardInterface) =>
-      _.indexOf(Object.values(ColorType), cardToColor(o.front.cardMainType, o.manaCost).color)
+      _.indexOf(Object.values(ColorTypePlus), cardToColor(o.front.cardMainType, o.manaCost).color)
     );
     sortList.push((o: CardInterface) => o.front.name.toLowerCase());
   }
@@ -87,7 +89,7 @@ const App: React.FC = () => {
       o.creator.uuid === UNKNOWN_CREATOR.uuid ? 'zzzzz' : o.creator.name
     );
     sortList.push((o: CardInterface) =>
-      _.indexOf(Object.values(ColorType), cardToColor(o.front.cardMainType, o.manaCost).color)
+      _.indexOf(Object.values(ColorTypePlus), cardToColor(o.front.cardMainType, o.manaCost).color)
     );
     sortList.push((o: CardInterface) => o.front.name.toLowerCase());
   }
@@ -109,13 +111,9 @@ const App: React.FC = () => {
   const getCardUndefined = (collection: CardInterface[], uuid: string) =>
     filteredCollection.find(card => card.uuid === uuid);
 
-  const addSeenCard = (uuid: string) => {
-    setSeenCardUuids([...seenCardUuids, uuid]);
-  };
-
   useEffect(() => {
     if (newUuid) {
-      addSeenCard(newUuid);
+      addSeenCard(dispatch, newUuid, currentUser);
       // eslint-disable-next-line @typescript-eslint/no-use-before-define
       if (cardEditId === NO_CARD) openCardInEditor(newUuid, '');
       // eslint-disable-next-line @typescript-eslint/no-use-before-define
@@ -190,11 +188,6 @@ const App: React.FC = () => {
     const collectionSpan = 18;
     const editorSpan = 6;
 
-    const seenCardObject: { [key: string]: boolean } = {};
-    seenCardUuids.forEach((uuid: string) => {
-      seenCardObject[uuid] = true;
-    });
-
     const cardTabs = [
       { name: 'All', filter: (o: CardInterface) => true },
       {
@@ -243,7 +236,7 @@ const App: React.FC = () => {
                   downloadJson={id => downloadJson(getCard(collection, id))}
                   colSpanSetting={colSpanSetting}
                   seenCardUuids={seenCardObject}
-                  addSeenCard={addSeenCard}
+                  addSeenCard={uuid => addSeenCard(dispatch, uuid, currentUser)}
                 />
               </TabPane>
             ))}
@@ -294,11 +287,13 @@ const App: React.FC = () => {
             }
             style={{ width: '100%' }}
           >
-            {user.map(d => (
-              <Select.Option key={`login-user-${d.uuid}`} value={d.uuid}>
-                {d.name}
-              </Select.Option>
-            ))}
+            {user
+              .filter(u => u.name !== 'ADMIN')
+              .map(d => (
+                <Select.Option key={`login-user-${d.uuid}`} value={d.uuid}>
+                  {d.name}
+                </Select.Option>
+              ))}
           </Select>
         </Card>
       </div>

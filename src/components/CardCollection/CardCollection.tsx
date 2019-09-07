@@ -58,7 +58,7 @@ const CardCollection = ({
         }
 
         const columnWidth: number = width / columns;
-        const columnHeight: number = (columnWidth / 488) * 680;
+        const columnHeight: number = (columnWidth / 720.0) * 1020.0;
         const rows: number = Math.ceil(cards.length / columns);
 
         const data = {

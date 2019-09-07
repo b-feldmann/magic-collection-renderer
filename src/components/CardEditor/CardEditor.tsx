@@ -6,7 +6,7 @@ import moment from 'moment';
 import CardInterface from '../../interfaces/CardInterface';
 
 import styles from './styles.module.scss';
-import { CardMainType, CardState, RarityType } from '../../interfaces/enums';
+import { BasicLandType, CardMainType, CardState, RarityType } from '../../interfaces/enums';
 import EditField from './EditField';
 
 import CardFaceInterface from '../../interfaces/CardFaceInterface';
@@ -136,7 +136,9 @@ const CardEditor: React.FC<CardEditorInterface> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [card.uuid]);
 
-  const isCreature = () => getValue('cardMainType') === CardMainType.Creature;
+  const isCreature = () =>
+    getValue('cardMainType') === CardMainType.Creature ||
+    getValue('cardMainType') === CardMainType.ArtifactCreature;
   const isPlaneswalker = () => getValue('cardMainType') === CardMainType.Planeswalker;
   const hasMana = () =>
     getValue('cardMainType') !== CardMainType.Land &&
@@ -144,7 +146,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
 
   const hasStats = () => isCreature() || isPlaneswalker();
 
-  const inputConfig = [
+  let inputConfig = [
     { key: 'name', type: 'input', name: 'Card Name' },
     { key: 'cover', type: 'input', name: 'Cover (URL)' },
     { key: 'legendary', type: 'bool', name: 'Legendary?' },
@@ -183,11 +185,37 @@ const CardEditor: React.FC<CardEditorInterface> = ({
       key: 'creator',
       type: 'select',
       name: 'Card Creator',
-      data: user.map(o => ({ key: o.uuid, value: o.name })),
+      data: user.filter(u => u.name !== 'ADMIN').map(o => ({ key: o.uuid, value: o.name })),
       width: hasStats() ? 50 : 100
     },
     { key: 'comment', type: 'area', name: 'Comment' }
   ];
+
+  if (getValue('cardMainType') === CardMainType.BasicLand) {
+    inputConfig = [
+      { key: 'cover', type: 'input', name: 'Cover (URL)' },
+      {
+        key: 'cardMainType',
+        type: 'select',
+        name: 'Card Type',
+        data: Object.keys(CardMainType).map((type: any) => ({
+          key: CardMainType[type],
+          value: CardMainType[type]
+        })),
+        width: 100
+      },
+      {
+        key: 'cardSubTypes',
+        type: 'select',
+        name: 'Land Types',
+        data: Object.keys(BasicLandType).map((type: any) => ({
+          key: BasicLandType[type],
+          value: BasicLandType[type]
+        })),
+        width: 100
+      }
+    ];
+  }
 
   if (card.uuid === NO_CARD)
     return (

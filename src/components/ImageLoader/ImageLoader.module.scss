@@ -2,12 +2,45 @@
     from { opacity: 0 }
     to { opacity: 1 }
 }
+@keyframes fadeOutImg{
+    from { opacity: 1 }
+    to { opacity: 0 }
+}
+
 .imgLoading {
     opacity: 0;
 }
 .imgLoaded {
+    background-size: cover;
     animation: fadeInImg cubic-bezier(0.23, 1, 0.32, 1) 1;
     opacity: 0;
+    animation-fill-mode: forwards;
+    animation-duration: 1.3s;
+    animation-delay: 0.1s;
+}
+
+.lowResPlaceholder {
+    background-size: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+}
+
+.placeholder,
+.hidePlaceholder {
+    background-size: cover;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    opacity: 1;
+}
+
+.hidePlaceholder {
+    background-size: cover;
+    animation: fadeOutImg cubic-bezier(0.23, 1, 0.32, 1) 1;
     animation-fill-mode: forwards;
     animation-duration: 1.7s;
     animation-delay: 0.1s;

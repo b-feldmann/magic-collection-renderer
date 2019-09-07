@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Badge, Button, Card, Col, Input, Modal, Result, Row, Select, Tabs } from 'antd';
 import _ from 'lodash';
+import LogRocket from 'logrocket';
 
 import CardInterface from './interfaces/CardInterface';
 import { CardState } from './interfaces/enums';
@@ -19,13 +20,11 @@ import { createCard, EMPTY_CARD, refreshCollection } from './actions/cardActions
 import { hasAccessToken, updateAccessToken } from './utils/accessService';
 import { getMechanics } from './actions/mechanicActions';
 import MechanicModal from './components/MechanicModal/MechanicModal';
-import useLocalStorage from './utils/useLocalStorageHook';
 import ChangeLogModal from './components/ChangeLogModal/ChangeLogModal';
 import BigCardRenderModal from './components/BigCardRenderModal/BigCardRenderModal';
 import { getAnnotations } from './actions/annotationActions';
-import { getUser, setCurrentUser } from './actions/userActions';
+import { addSeenCard, getUser, setCurrentUser } from './actions/userActions';
 import { UNKNOWN_CREATOR } from './interfaces/constants';
-import LogRocket from 'logrocket';
 
 const { Search } = Input;
 const { confirm } = Modal;
@@ -40,20 +39,22 @@ const MobileApp: React.FC = () => {
   const [showCardModal, setShowCardModal] = useState<boolean>(false);
   const [cardNameFilter, setCardNameFilter] = useState<string>('');
   const [mechanicsVisible, setMechanicsVisible] = useState(false);
-  const [seenCardUuids, setSeenCardUuids] = useLocalStorage(
-    'mtg-funset:seen-card-uuids',
-    '[]',
-    true
-  );
 
   const { cards, newUuid, dispatch, annotationAccessor, user, currentUser } = useContext<StoreType>(
     Store
   );
 
+  const seenCardObject: { [key: string]: boolean } = {};
+  currentUser.seenCards.forEach((uuid: string) => {
+    seenCardObject[uuid] = true;
+  });
+
   const mergedCollection = [...cards.filter(card => card.uuid !== (tmpCard ? tmpCard.uuid : ''))];
   if (tmpCard) mergedCollection.push(tmpCard);
 
   const lastUpdated = (card: CardInterface): number => {
+    if (!seenCardObject[card.uuid]) return Number.MAX_SAFE_INTEGER;
+
     const annotations = annotationAccessor[card.uuid];
     if (!annotations) return card.meta.lastUpdated;
 
@@ -70,10 +71,6 @@ const MobileApp: React.FC = () => {
 
   const getCardUndefined = (collection: CardInterface[], uuid: string) =>
     filteredCollection.find(card => card.uuid === uuid);
-
-  const addSeenCard = (uuid: string) => {
-    setSeenCardUuids([...seenCardUuids, uuid]);
-  };
 
   const viewCard = (id: string) => {
     LogRocket.log(`View card ${getCard(filteredCollection, id).name}`);
@@ -110,7 +107,7 @@ const MobileApp: React.FC = () => {
 
   useEffect(() => {
     if (newUuid) {
-      addSeenCard(newUuid);
+      addSeenCard(dispatch, newUuid, currentUser);
       if (cardEditId === NO_CARD) openCardInEditor(newUuid, '');
       else openCardInEditor(newUuid, getCard(filteredCollection, cardEditId).name);
     }
@@ -129,11 +126,6 @@ const MobileApp: React.FC = () => {
   const createGrid = (collection: CardInterface[]) => {
     const collectionSpan = 24;
     const editorSpan = 0;
-
-    const seenCardObject: { [key: string]: boolean } = {};
-    seenCardUuids.forEach((uuid: string) => {
-      seenCardObject[uuid] = true;
-    });
 
     const cardTabs = [
       { name: 'All', filter: (o: CardInterface) => true },
@@ -180,7 +172,7 @@ const MobileApp: React.FC = () => {
                     else openCardInEditor(id, getCard(collection, cardEditId).name);
                   }}
                   seenCardUuids={seenCardObject}
-                  addSeenCard={addSeenCard}
+                  addSeenCard={uuid => addSeenCard(dispatch, uuid, currentUser)}
                   mobile
                 />
               </TabPane>
@@ -231,11 +223,13 @@ const MobileApp: React.FC = () => {
             }
             style={{ width: '100%' }}
           >
-            {user.map(d => (
-              <Select.Option key={`login-user-${d.uuid}`} value={d.uuid}>
-                {d.name}
-              </Select.Option>
-            ))}
+            {user
+              .filter(u => u.name !== 'ADMIN')
+              .map(d => (
+                <Select.Option key={`login-user-${d.uuid}`} value={d.uuid}>
+                  {d.name}
+                </Select.Option>
+              ))}
           </Select>
         </Card>
       </div>

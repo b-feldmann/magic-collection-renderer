@@ -1,0 +1,122 @@
+@font-face {
+  font-family: "MPlantin";
+  src: url("./font/MPlantin.ttf");
+}
+
+@font-face {
+  font-family: "Beleren Bold";
+  src: url("./font/BelerenB.ttf");
+}
+
+@font-face {
+  font-family: "Beleren Bold Small Caps";
+  src: url("./font/BelerenBoldSmallCaps.ttf");
+}
+
+.cardRender {
+  font-size: 16px;
+  color: black;
+
+  .mainframe {
+    border-radius: 25px;
+    z-index: -1;
+    background-size: cover;
+  }
+
+  .innerBorderFrame {
+    position: absolute;
+    top: 0;
+    left: 0;
+    opacity: 0;
+  }
+
+  .title {
+    font-family: "Beleren Bold", sans-serif;
+    position: absolute;
+    font-size: 2.1em;
+    top: 48px;
+    left: 51px;
+  }
+
+  .type {
+    font-family: "Beleren Bold", sans-serif;
+    position: absolute;
+    font-size: 2em;
+    top: 582px;
+    left: 51px;
+  }
+
+  .cost {
+    position: absolute;
+    font-size: 1.8em;
+    top: 46px;
+    width: 677px;
+    text-align: right;
+  }
+
+  .cost > * {
+    margin-left: 6px;
+  }
+
+  .rarity {
+    position: absolute;
+    left: 675px - 36px;
+    top: 604px - 21px;
+    height: 42px;
+  }
+
+  .cover {
+    position: absolute;
+    z-index: -2;
+    top: 107px;
+    left: 43px;
+    width: 631px;
+    height: 462px;
+  }
+
+  .basicLandCover {
+    border-radius: 25px;
+    position: absolute;
+    background-size: cover;
+    z-index: -2;
+    top: 0;
+    left: 0;
+    width: 745px;
+    height: 1040px;
+  }
+
+  .basicLandTitle {
+    color: white;
+    font-family: "Beleren Bold", sans-serif;
+    position: absolute;
+    font-size: 2.3em;
+    top: 8px;
+    left: 0;
+    text-align: center;
+    width: 745px;
+  }
+
+  .text {
+    font-family: "MPlantin", sans-serif;
+    position: absolute;
+    font-size: 1.625em;
+    top: 647px;
+    height: 930px - 647px;
+    left: 52px;
+    width: 662px - 52px;
+  }
+
+  .flavour {
+    font-style: italic;
+  }
+
+  .artist {
+    color: white;
+    font-family: "Beleren Bold Small Caps", sans-serif;
+    position: absolute;
+    //font-size: 0.875em;
+    font-size: 1em;
+    top: 996px;
+    left: 160px;
+  }
+}
