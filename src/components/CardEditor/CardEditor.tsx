@@ -213,7 +213,15 @@ const CardEditor: React.FC<CardEditorInterface> = ({
           value: BasicLandType[type]
         })),
         width: 100
-      }
+      },
+      {
+        key: 'creator',
+        type: 'select',
+        name: 'Card Creator',
+        data: user.filter(u => u.name !== 'ADMIN').map(o => ({ key: o.uuid, value: o.name })),
+        width: hasStats() ? 50 : 100
+      },
+      { key: 'comment', type: 'area', name: 'Comment' }
     ];
   }
 

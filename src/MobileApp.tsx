@@ -13,6 +13,7 @@ import { Store, StoreType } from './store';
 import styles from './App.module.scss';
 import './card-modal.scss';
 import './ant-tabs.scss';
+import './reset.css';
 
 import CollectionFilterControls from './components/CollectionFilterControls/CollectionFilterControls';
 import { createCard, EMPTY_CARD, refreshCollection } from './actions/cardActions';

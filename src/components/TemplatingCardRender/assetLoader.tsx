@@ -41,13 +41,43 @@ import WhiteBlueInnerBorder from './images/borders/WU.png';
 import GoldInnerBorder from './images/borders/Gld.png';
 
 import LandOverlay from './images/overlay/C-overlay.png';
+import PtArt from './images/pt/Art.png';
+import PtW from './images/pt/W.png';
+import PtU from './images/pt/U.png';
+import PtB from './images/pt/B.png';
+import PtR from './images/pt/R.png';
+import PtG from './images/pt/G.png';
+import PtCl from './images/pt/C.png';
+import PtGld from './images/pt/Gld.png';
 
-import MythicRareIcon from '../CardRender/images/rarity/mythic.png';
-import RareIcon from '../CardRender/images/rarity/rare.png';
-import UncommonIcon from '../CardRender/images/rarity/uncommon.png';
-import CommonIcon from '../CardRender/images/rarity/common.png';
+import MythicRareIcon from './images/rarity/mythic.png';
+import RareIcon from './images/rarity/rare.png';
+import UncommonIcon from './images/rarity/uncommon.png';
+import CommonIcon from './images/rarity/common.png';
 
-import {BasicLandType, ColorType, RarityType} from '../../interfaces/enums';
+import { BasicLandType, ColorType, RarityType } from '../../interfaces/enums';
+
+export const getPt = (color: ColorType) => {
+  switch (color) {
+    case ColorType.White:
+      return PtW;
+    case ColorType.Blue:
+      return PtU;
+    case ColorType.Black:
+      return PtB;
+    case ColorType.Red:
+      return PtR;
+    case ColorType.Green:
+      return PtG;
+    case ColorType.Gold:
+      return PtGld;
+    default:
+      return PtCl;
+  }
+};
+
+export const getArtifactPt = (color: ColorType) =>
+  color === ColorType.Colorless ? PtArt : getPt(color);
 
 export const getColorMainframe = (color: ColorType) => {
   switch (color) {

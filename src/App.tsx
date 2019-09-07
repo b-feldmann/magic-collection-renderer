@@ -15,6 +15,7 @@ import { Store, StoreType } from './store';
 import styles from './App.module.scss';
 import './card-modal.scss';
 import './ant-tabs.scss';
+import './reset.css';
 
 import CollectionFilterControls, {
   CollectionFilterInterface

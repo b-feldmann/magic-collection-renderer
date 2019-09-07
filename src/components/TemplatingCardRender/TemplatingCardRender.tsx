@@ -1,20 +1,24 @@
 import React, { useContext } from 'react';
 
 import 'mana-font/css/mana.css';
+// @ts-ignore
+import { Mana } from '@saeris/react-mana';
 
 import { BasicLandType, CardMainType, RarityType } from '../../interfaces/enums';
 import { Store, StoreType } from '../../store';
-import { getColor, getColorIdentity, getBasicLandColor } from '../../utils/cardToColor';
+import { getBasicLandColor, getColor, getColorIdentity } from '../../utils/cardToColor';
 
 import styles from './TemplatingCardRender.module.scss';
 import {
   getArtifactMainframe,
+  getArtifactPt,
   getBasicLandMainframe,
   getColorMainframe,
   getInnerBorderFrame,
   getLandMainframe,
   getLandOverlay,
   getLowResColorMainframe,
+  getPt,
   getRarityIcon
 } from './assetLoader';
 import {
@@ -24,8 +28,9 @@ import {
   injectPlaneswalkerIcons,
   injectQuotationMarks
 } from '../../utils/injectUtils';
-import NoCover from '../CardRender/images/no-cover.jpg';
+import NoCover from './images/no-cover.jpg';
 import ImageLoader from '../ImageLoader/ImageLoader';
+import TextResizer from '../TextResizer/TextResizer';
 
 interface TemplatingCardRenderProps {
   name: string;
@@ -60,6 +65,7 @@ const TemplatingCardRender = (cardRender: TemplatingCardRenderProps) => {
   const { mechanics } = useContext<StoreType>(Store);
 
   const rarityCode = () => {
+    if (cardMainType === CardMainType.BasicLand) return 'L';
     if (rarity === RarityType.Uncommon) return 'U';
     if (rarity === RarityType.Rare) return 'R';
     if (rarity === RarityType.MythicRare) return 'M';
@@ -101,20 +107,33 @@ const TemplatingCardRender = (cardRender: TemplatingCardRenderProps) => {
             className={styles.cardRender}
           >
             <ImageLoader src={cover || NoCover} alt="cover" className={styles.basicLandCover} />
-            <ImageLoader src={mainframe} className={styles.mainframe} fallBackColor={getBasicLandColor(cardSubTypes || BasicLandType.Plains)} />
-            <div className={styles.basicLandTitle}>{cardSubTypes}</div>
+            <ImageLoader
+              src={mainframe}
+              className={styles.mainframe}
+              fallBackColor={getBasicLandColor(cardSubTypes || BasicLandType.Plains)}
+            />
+            <div className={styles.basicLandTitle}>{cardSubTypes || 'Plains'}</div>
           </div>
         </div>
       </div>
     );
   }
 
+  const isArtifact =
+    cardMainType === CardMainType.Artifact || cardMainType === CardMainType.ArtifactCreature;
+  const isCreature =
+    cardMainType === CardMainType.Creature || cardMainType === CardMainType.ArtifactCreature;
+
   const { color, allColors, orderedCost, hexColor } = getColor(manaCost);
   let mainframe = getColorMainframe(color);
   const lowResMainframe = getLowResColorMainframe(color);
+
+  let pt = getPt(color);
+
   // @ts-ignore
-  if (cardMainType === CardMainType.Artifact || cardMainType === CardMainType.ArtifactCreature) {
+  if (isArtifact) {
     mainframe = getArtifactMainframe();
+    pt = getArtifactPt(color);
   }
 
   let innerBorderFrame = getInnerBorderFrame(allColors);
@@ -128,6 +147,14 @@ const TemplatingCardRender = (cardRender: TemplatingCardRenderProps) => {
     if (identity.length === 2) overlay = getLandOverlay();
   }
 
+  const parseCollectionNumber = (n: number): string => {
+    const res = n.toString(10);
+    if (res.length === 0) return '000';
+    if (res.length === 1) return `00${res}`;
+    if (res.length === 2) return `0${res}`;
+    return res;
+  };
+
   return (
     <div style={{ height: `${getHeight(containerWidth)}px` }}>
       <div
@@ -139,7 +166,10 @@ const TemplatingCardRender = (cardRender: TemplatingCardRenderProps) => {
         }}
       >
         <div
-          style={{ width: `${CARD_WIDTH}px`, height: `${CARD_HEIGHT}px` }}
+          style={{
+            width: `${CARD_WIDTH}px`,
+            height: `${CARD_HEIGHT}px`
+          }}
           className={styles.cardRender}
         >
           <ImageLoader src={cover || NoCover} alt="cover" className={styles.cover} />
@@ -167,29 +197,58 @@ const TemplatingCardRender = (cardRender: TemplatingCardRenderProps) => {
           </div>
 
           <div className={styles.text}>
-            {cardText.map(val => (
-              <p>
-                {injectQuotationMarks(
-                  injectPlaneswalkerIcons(
-                    injectManaIcons(injectName(injectMechanics(val, mechanics, name), name))
-                  )
+            <TextResizer
+              defaultFontSize={26}
+              maxFontSize={36}
+              minFontSize={20}
+              className={styles.textWrap}
+            >
+              <div>
+                {cardText.map(val => (
+                  <p>
+                    {injectQuotationMarks(
+                      injectPlaneswalkerIcons(
+                        injectManaIcons(injectName(injectMechanics(val, mechanics, name), name))
+                      )
+                    )}
+                  </p>
+                ))}
+                {flavourText && (
+                  <div className={styles.flavour}>
+                    <div className={styles.flavourSeparator} />
+                    {flavourAuthor
+                      ? `“${injectQuotationMarks(injectName(flavourText, name))}”`
+                      : injectQuotationMarks(injectName(flavourText, name))}
+                    {flavourAuthor && (
+                      <span>
+                        <br />
+                        {`— ${flavourAuthor}`}
+                      </span>
+                    )}
+                  </div>
                 )}
-              </p>
-            ))}
-            <div className={styles.flavour}>
-              {flavourAuthor
-                ? `“${injectQuotationMarks(injectName(flavourText, name))}”`
-                : injectQuotationMarks(injectName(flavourText, name))}
-              {flavourAuthor && (
-                <span>
-                  <br />
-                  {`— ${flavourAuthor}`}
-                </span>
-              )}
-            </div>
+              </div>
+            </TextResizer>
           </div>
 
-          <div className={styles.artist}>{creator}</div>
+          {isCreature && (
+            <div>
+              <img className={styles.innerBorderFrame} src={pt} alt="" />
+              <div className={styles.stats}>{cardStats}</div>
+            </div>
+          )}
+
+          <div className={styles.collectionBlock}>
+            {`${parseCollectionNumber(collectionNumber)}/${parseCollectionNumber(collectionSize)}`}
+            {` ${rarityCode()}`}
+          </div>
+          <div className={styles.collectionBlock2}>
+            MFS &#x2022; EN
+            <span className={styles.brush}>
+              <Mana symbol="artist-nib" />
+            </span>
+            <span className={styles.artist}>{creator}</span>
+          </div>
         </div>
       </div>
     </div>

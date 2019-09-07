@@ -27,14 +27,13 @@
     position: absolute;
     top: 0;
     left: 0;
-    opacity: 0;
   }
 
   .title {
     font-family: "Beleren Bold", sans-serif;
     position: absolute;
-    font-size: 2.1em;
-    top: 48px;
+    font-size: 2.45em;
+    top: 44px;
     left: 51px;
   }
 
@@ -42,7 +41,7 @@
     font-family: "Beleren Bold", sans-serif;
     position: absolute;
     font-size: 2em;
-    top: 582px;
+    top: 581px;
     left: 51px;
   }
 
@@ -89,34 +88,94 @@
     color: white;
     font-family: "Beleren Bold", sans-serif;
     position: absolute;
-    font-size: 2.3em;
-    top: 8px;
+    font-size: 2.5em;
+    top: 4px;
     left: 0;
     text-align: center;
     width: 745px;
   }
 
+  .textWrap {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+  }
+
   .text {
+    //display: flex;
+    //flex-direction: column;
+    //justify-content: space-around;
+
     font-family: "MPlantin", sans-serif;
     position: absolute;
     font-size: 1.625em;
+    //line-height: 1.2em;
     top: 647px;
     height: 930px - 647px;
     left: 52px;
     width: 662px - 52px;
+
+    p {
+      margin-top: 12px;
+      margin-bottom: 12px;
+    }
+
+    i {
+      margin-top: -6px;
+      font-size: 0.8em;
+    }
+  }
+
+  .flavourSeparator {
+    height: 1px;
+    width: 90%;
+    margin-left: 5%;
+    background-color: lighten(#171314, 50);
+    box-shadow: 0 0 3px 0px #171314;
+    margin-bottom: 10px;
   }
 
   .flavour {
+    margin-top: 2px;
     font-style: italic;
   }
 
-  .artist {
-    color: white;
+  .stats {
     font-family: "Beleren Bold Small Caps", sans-serif;
+    font-size: 2.3em;
     position: absolute;
-    //font-size: 0.875em;
-    font-size: 1em;
-    top: 996px;
-    left: 160px;
+    top: 919px;
+    left: 629px - 47.5px;
+    width: 95px;
+    text-align: center;
+  }
+
+  .collectionBlock {
+    letter-spacing: 1.4px;
+    color: white;
+    font-family: "MPlantin", sans-serif;
+    position: absolute;
+    left: 37px;
+    top: 958px;
+  }
+  .collectionBlock2 {
+    color: white;
+    font-family: "MPlantin", sans-serif;
+    position: absolute;
+    left: 37px;
+    top: 977px;
+  }
+
+  .brush {
+    position: absolute;
+    top: -1px;
+    margin-left: 8px;
+    margin-right: 4px;
+  }
+
+  .artist {
+    font-family: "Beleren Bold Small Caps", sans-serif;
+    letter-spacing: 1px;
+    margin-left: 28px;
   }
 }
