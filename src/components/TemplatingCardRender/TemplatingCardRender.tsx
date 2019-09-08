@@ -4,15 +4,23 @@ import 'mana-font/css/mana.css';
 // @ts-ignore
 import { Mana } from '@saeris/react-mana';
 
-import { BasicLandType, CardMainType, RarityType } from '../../interfaces/enums';
+import TextResize from 'react-resize-text';
+
+import {
+  BasicLandArtStyles,
+  BasicLandType,
+  CardMainType,
+  NoLandPlaneswalkerArtStyles,
+  RarityType,
+  SplitArtStyles
+} from '../../interfaces/enums';
 import { Store, StoreType } from '../../store';
-import { getBasicLandColor, getColor, getColorIdentity } from '../../utils/cardToColor';
+import { getColor, getColorIdentity } from '../../utils/cardToColor';
 
 import styles from './TemplatingCardRender.module.scss';
 import {
   getArtifactMainframe,
   getArtifactPt,
-  getBasicLandMainframe,
   getColorMainframe,
   getInnerBorderFrame,
   getLandMainframe,
@@ -30,9 +38,12 @@ import {
 } from '../../utils/injectUtils';
 import NoCover from './images/no-cover.jpg';
 import ImageLoader from '../ImageLoader/ImageLoader';
-import TextResizer from '../TextResizer/TextResizer';
+import BasicLandCardRender from './BasicLandCardRender';
+
+// import TextResizer from '../TextResizer/TextResizer';
 
 interface TemplatingCardRenderProps {
+  artStyle?: BasicLandArtStyles | NoLandPlaneswalkerArtStyles | SplitArtStyles;
   name: string;
   rarity: RarityType;
   creator?: string;
@@ -60,12 +71,43 @@ const TemplatingCardRender = (cardRender: TemplatingCardRenderProps) => {
   const { name, manaCost, cardStats, cover, creator } = cardRender;
   const { cardText, flavourText = '', flavourAuthor, cardID } = cardRender;
   const { backFace, collectionNumber, collectionSize } = cardRender;
-  const { containerWidth = CARD_WIDTH } = cardRender;
+  const { containerWidth = CARD_WIDTH, artStyle } = cardRender;
 
   const { mechanics } = useContext<StoreType>(Store);
 
+  if (cardMainType === CardMainType.BasicLand) {
+    let landType: BasicLandType = BasicLandType.Plains;
+    if (cardSubTypes && Object.values(BasicLandType).includes(cardSubTypes)) {
+      // @ts-ignore
+      landType = BasicLandType[cardSubTypes];
+    }
+
+    let landArtStyle = BasicLandArtStyles.Regular;
+    if (artStyle) {
+      Object.keys(BasicLandArtStyles).forEach(key => {
+        // @ts-ignore
+        if (BasicLandArtStyles[key] === artStyle) {
+          // @ts-ignore
+          landArtStyle = BasicLandArtStyles[key];
+        }
+      });
+    }
+
+    return (
+      <BasicLandCardRender
+        artStyle={landArtStyle}
+        landType={landType}
+        cardID={cardID}
+        creator={creator}
+        collectionNumber={collectionNumber}
+        collectionSize={collectionSize}
+        cover={cover}
+        containerWidth={containerWidth}
+      />
+    );
+  }
+
   const rarityCode = () => {
-    if (cardMainType === CardMainType.BasicLand) return 'L';
     if (rarity === RarityType.Uncommon) return 'U';
     if (rarity === RarityType.Rare) return 'R';
     if (rarity === RarityType.MythicRare) return 'M';
@@ -80,45 +122,6 @@ const TemplatingCardRender = (cardRender: TemplatingCardRenderProps) => {
     return resizeFactor(width) * CARD_HEIGHT;
   };
 
-  if (cardMainType === CardMainType.BasicLand) {
-    const customResizeFactor = (width: number) => {
-      return width / 745.0;
-    };
-
-    const customGetHeight = (width: number) => {
-      return customResizeFactor(width) * 1040.0;
-    };
-
-    const mainframe = getBasicLandMainframe(cardSubTypes || BasicLandType.Plains);
-    return (
-      <div style={{ height: `${customGetHeight(containerWidth)}px` }}>
-        <div
-          id={`card-id-${cardID}`}
-          style={{
-            transform: `scaleX(${customResizeFactor(containerWidth)}) scaleY(${customResizeFactor(
-              (containerWidth * 1040.0) / CARD_HEIGHT
-            )})`,
-            transformOrigin: 'top left',
-            width: `${(CARD_WIDTH / containerWidth) * 100}%`
-          }}
-        >
-          <div
-            style={{ width: `${CARD_WIDTH}px`, height: `${CARD_HEIGHT}px` }}
-            className={styles.cardRender}
-          >
-            <ImageLoader src={cover || NoCover} alt="cover" className={styles.basicLandCover} />
-            <ImageLoader
-              src={mainframe}
-              className={styles.mainframe}
-              fallBackColor={getBasicLandColor(cardSubTypes || BasicLandType.Plains)}
-            />
-            <div className={styles.basicLandTitle}>{cardSubTypes || 'Plains'}</div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   const isArtifact =
     cardMainType === CardMainType.Artifact || cardMainType === CardMainType.ArtifactCreature;
   const isCreature =
@@ -130,7 +133,6 @@ const TemplatingCardRender = (cardRender: TemplatingCardRenderProps) => {
 
   let pt = getPt(color);
 
-  // @ts-ignore
   if (isArtifact) {
     mainframe = getArtifactMainframe();
     pt = getArtifactPt(color);
@@ -197,10 +199,10 @@ const TemplatingCardRender = (cardRender: TemplatingCardRenderProps) => {
           </div>
 
           <div className={styles.text}>
-            <TextResizer
-              defaultFontSize={26}
+            <TextResize
+              defaultFontSize={20}
               maxFontSize={36}
-              minFontSize={20}
+              minFontSize={14}
               className={styles.textWrap}
             >
               <div>
@@ -228,7 +230,7 @@ const TemplatingCardRender = (cardRender: TemplatingCardRenderProps) => {
                   </div>
                 )}
               </div>
-            </TextResizer>
+            </TextResize>
           </div>
 
           {isCreature && (
@@ -248,6 +250,9 @@ const TemplatingCardRender = (cardRender: TemplatingCardRenderProps) => {
               <Mana symbol="artist-nib" />
             </span>
             <span className={styles.artist}>{creator}</span>
+          </div>
+          <div className={isCreature ? styles.copyrightStats : styles.copyright}>
+            &#8482; &amp; &#169; 2019 Wizards of the Coast
           </div>
         </div>
       </div>

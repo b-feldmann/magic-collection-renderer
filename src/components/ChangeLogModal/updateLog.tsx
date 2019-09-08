@@ -238,13 +238,21 @@ updateLog.push({
       description: (
         <Row>
           <Row>Replaced card renderer with new one that works with image templates</Row>
-          <Row>Special Focus on Artifacts, Planeswalkers, Lands (+ Basic Lands) and Multi-colored spells</Row>
+          <Row>
+            Special Focus on Artifacts, Planeswalkers, Lands (+ Basic Lands) and Multi-colored
+            spells
+          </Row>
         </Row>
       )
     },
     {
       type: ChangeLogFeatureType.Changed,
       feature: 'New Log Rendering'
+    },
+    {
+      type: ChangeLogFeatureType.Fixed,
+      feature: 'Card Text Size',
+      description: 'Text resizes now to fit into the text box'
     },
     {
       type: ChangeLogFeatureType.Removed,

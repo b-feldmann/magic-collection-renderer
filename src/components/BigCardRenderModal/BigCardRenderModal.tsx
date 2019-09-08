@@ -47,7 +47,7 @@ const BigCardRenderModal = ({
   const hEditorSpace = rowLayout ? 200 : 0;
   const hOffset = mobile ? 50 : 200;
 
-  const dimFactor = 488 / 680;
+  const dimFactor = 720.0 / 1020.0;
 
   const modalMaxWidth = mobile ? width - wOffset : (width / 100) * 62.5 - wOffset;
   const modalMaxHeight = height - hOffset - hEditorSpace;

@@ -6,7 +6,13 @@ import moment from 'moment';
 import CardInterface from '../../interfaces/CardInterface';
 
 import styles from './styles.module.scss';
-import { BasicLandType, CardMainType, CardState, RarityType } from '../../interfaces/enums';
+import {
+  BasicLandArtStyles,
+  BasicLandType,
+  CardMainType,
+  CardState,
+  RarityType
+} from '../../interfaces/enums';
 import EditField from './EditField';
 
 import CardFaceInterface from '../../interfaces/CardFaceInterface';
@@ -42,6 +48,14 @@ const dummyCard: CardInterface = {
     state: CardState.Draft
   }
 };
+
+interface InputConfigInterface {
+  key: string;
+  type: 'input' | 'split-input' | 'select' | 'area' | 'radio' | 'list' | 'bool';
+  name: string;
+  data?: { key: string; value: string }[];
+  width?: number;
+}
 
 const CardEditor: React.FC<CardEditorInterface> = ({
   card = dummyCard,
@@ -86,6 +100,19 @@ const CardEditor: React.FC<CardEditorInterface> = ({
     } else {
       getCurrentFace(newTmpCard)[key] = value;
     }
+
+    if (key === 'cardMainType' && value === CardMainType.BasicLand) {
+      if (
+        getValue('cardSubTypes') !== BasicLandType.Plains &&
+        getValue('cardSubTypes') !== BasicLandType.Island &&
+        getValue('cardSubTypes') !== BasicLandType.Swamp &&
+        getValue('cardSubTypes') !== BasicLandType.Mountain &&
+        getValue('cardSubTypes') !== BasicLandType.Forest
+      ) {
+        saveValue('cardSubTypes', BasicLandType.Plains);
+      }
+    }
+
     setTmpCard(newTmpCard);
 
     setContentChanged(true);
@@ -146,7 +173,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
 
   const hasStats = () => isCreature() || isPlaneswalker();
 
-  let inputConfig = [
+  let inputConfig: InputConfigInterface[] = [
     { key: 'name', type: 'input', name: 'Card Name' },
     { key: 'cover', type: 'input', name: 'Cover (URL)' },
     { key: 'legendary', type: 'bool', name: 'Legendary?' },
@@ -193,6 +220,16 @@ const CardEditor: React.FC<CardEditorInterface> = ({
 
   if (getValue('cardMainType') === CardMainType.BasicLand) {
     inputConfig = [
+      {
+        key: 'artStyle',
+        type: 'radio',
+        name: 'Art Style',
+        data: Object.keys(BasicLandArtStyles).map((type: any) => ({
+          key: BasicLandArtStyles[type],
+          value: BasicLandArtStyles[type]
+        })),
+        width: 100
+      },
       { key: 'cover', type: 'input', name: 'Cover (URL)' },
       {
         key: 'cardMainType',

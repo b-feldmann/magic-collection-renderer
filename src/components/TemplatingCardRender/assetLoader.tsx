@@ -15,12 +15,27 @@ import LowResGreenMainframe from './images/mainframes/lowRes/G.png';
 import LowResGoldMainframe from './images/mainframes/lowRes/Gld.png';
 import LowResColorlessMainframe from './images/mainframes/lowRes/Art.png';
 
+import UnstableBasicLandWhiteMainframe from './images/mainframes/lands/unstable/W.png';
+import UnstableBasicLandBlueMainframe from './images/mainframes/lands/unstable/U.png';
+import UnstableBasicLandBlackMainframe from './images/mainframes/lands/unstable/B.png';
+import UnstableBasicLandRedMainframe from './images/mainframes/lands/unstable/R.png';
+import UnstableBasicLandGreenMainframe from './images/mainframes/lands/unstable/G.png';
+import UnstableBasicLandGoldMainframe from './images/mainframes/lands/unstable/Gld.png';
+
+import FullArtBasicLandWhiteMainframe from './images/mainframes/lands/fullArt/W.png';
+import FullArtBasicLandBlueMainframe from './images/mainframes/lands/fullArt/U.png';
+import FullArtBasicLandBlackMainframe from './images/mainframes/lands/fullArt/B.png';
+import FullArtBasicLandRedMainframe from './images/mainframes/lands/fullArt/R.png';
+import FullArtBasicLandGreenMainframe from './images/mainframes/lands/fullArt/G.png';
+import FullArtBasicLandGoldMainframe from './images/mainframes/lands/fullArt/A.png';
+
 import BasicLandWhiteMainframe from './images/mainframes/lands/W.png';
 import BasicLandBlueMainframe from './images/mainframes/lands/U.png';
 import BasicLandBlackMainframe from './images/mainframes/lands/B.png';
 import BasicLandRedMainframe from './images/mainframes/lands/R.png';
 import BasicLandGreenMainframe from './images/mainframes/lands/G.png';
-import BasicLandGoldMainframe from './images/mainframes/lands/Gld.png';
+import BasicLandGoldMainframe from './images/mainframes/lands/A.png';
+
 import LandColorlessMainframe from './images/mainframes/lands/C.png';
 
 import WhiteInnerBorder from './images/borders/W.png';
@@ -50,12 +65,19 @@ import PtG from './images/pt/G.png';
 import PtCl from './images/pt/C.png';
 import PtGld from './images/pt/Gld.png';
 
+import SymbolLandWhite from './images/symbols/land/W.png';
+import SymbolLandBlue from './images/symbols/land/U.png';
+import SymbolLandBlack from './images/symbols/land/B.png';
+import SymbolLandRed from './images/symbols/land/R.png';
+import SymbolLandGreen from './images/symbols/land/G.png';
+import SymbolLandColorless from './images/symbols/land/C.png';
+
 import MythicRareIcon from './images/rarity/mythic.png';
 import RareIcon from './images/rarity/rare.png';
 import UncommonIcon from './images/rarity/uncommon.png';
 import CommonIcon from './images/rarity/common.png';
 
-import { BasicLandType, ColorType, RarityType } from '../../interfaces/enums';
+import { BasicLandArtStyles, BasicLandType, ColorType, RarityType } from '../../interfaces/enums';
 
 export const getPt = (color: ColorType) => {
   switch (color) {
@@ -159,19 +181,48 @@ export const getArtifactMainframe = () => ArtifactMainframe;
 
 export const getLandMainframe = () => LandColorlessMainframe;
 
-export const getBasicLandMainframe = (color: string) => {
+export const getBasicLandSymbols = (landType: BasicLandType) => {
+  switch (landType) {
+    case BasicLandType.Plains:
+      return SymbolLandWhite;
+    case BasicLandType.Island:
+      return SymbolLandBlue;
+    case BasicLandType.Swamp:
+      return SymbolLandBlack;
+    case BasicLandType.Mountain:
+      return SymbolLandRed;
+    case BasicLandType.Forest:
+      return SymbolLandGreen;
+    default:
+      return SymbolLandColorless;
+  }
+};
+
+export const getBasicLandMainframe = (color: string, artStyle: BasicLandArtStyles) => {
   switch (color) {
     case BasicLandType.Plains:
+      if (artStyle === BasicLandArtStyles.Unstable) return UnstableBasicLandWhiteMainframe;
+      if (artStyle === BasicLandArtStyles.FullArt) return FullArtBasicLandWhiteMainframe;
       return BasicLandWhiteMainframe;
     case BasicLandType.Island:
+      if (artStyle === BasicLandArtStyles.Unstable) return UnstableBasicLandBlueMainframe;
+      if (artStyle === BasicLandArtStyles.FullArt) return FullArtBasicLandBlueMainframe;
       return BasicLandBlueMainframe;
     case BasicLandType.Swamp:
+      if (artStyle === BasicLandArtStyles.Unstable) return UnstableBasicLandBlackMainframe;
+      if (artStyle === BasicLandArtStyles.FullArt) return FullArtBasicLandBlackMainframe;
       return BasicLandBlackMainframe;
     case BasicLandType.Mountain:
+      if (artStyle === BasicLandArtStyles.Unstable) return UnstableBasicLandRedMainframe;
+      if (artStyle === BasicLandArtStyles.FullArt) return FullArtBasicLandRedMainframe;
       return BasicLandRedMainframe;
     case BasicLandType.Forest:
+      if (artStyle === BasicLandArtStyles.Unstable) return UnstableBasicLandGreenMainframe;
+      if (artStyle === BasicLandArtStyles.FullArt) return FullArtBasicLandGreenMainframe;
       return BasicLandGreenMainframe;
     default:
+      if (artStyle === BasicLandArtStyles.Unstable) return UnstableBasicLandGoldMainframe;
+      if (artStyle === BasicLandArtStyles.FullArt) return FullArtBasicLandGoldMainframe;
       return BasicLandGoldMainframe;
   }
 };

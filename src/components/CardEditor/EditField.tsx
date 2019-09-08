@@ -1,4 +1,4 @@
-import { Button, Checkbox, Icon, Input, List, Select } from 'antd';
+import {Button, Checkbox, Icon, Input, List, Radio, Select} from 'antd';
 import React from 'react';
 import _ from 'lodash';
 import styles from './styles.module.scss';
@@ -7,7 +7,7 @@ const { TextArea } = Input;
 
 interface EditFieldInterface {
   fieldKey: string;
-  type: string;
+  type: 'input' | 'split-input' | 'select' | 'area' | 'radio' | 'list' | 'bool';
   name: string;
   data?: { key: string; value: string }[];
   getValue: (key: string) => any;
@@ -100,6 +100,26 @@ const EditField = (props: EditFieldInterface) => {
             </Select.Option>
           ))}
         </Select>
+      </span>
+    );
+  }
+
+  if (type === 'radio' && data) {
+    return (
+      <span>
+        <p className={styles.label}>{name}</p>
+        <Radio.Group
+          buttonStyle="solid"
+          value={getValue(fieldKey) || 'Regular'}
+          onChange={e => saveValue(fieldKey, e.target.value)}
+          style={{ width: '100%' }}
+        >
+          {data.map(d => (
+            <Radio.Button key={`${fieldKey} + ${d.key}`} value={d.key}>
+              {d.value}
+            </Radio.Button>
+          ))}
+        </Radio.Group>
       </span>
     );
   }

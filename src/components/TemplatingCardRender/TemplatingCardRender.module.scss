@@ -71,17 +71,7 @@
     left: 43px;
     width: 631px;
     height: 462px;
-  }
-
-  .basicLandCover {
-    border-radius: 25px;
-    position: absolute;
     background-size: cover;
-    z-index: -2;
-    top: 0;
-    left: 0;
-    width: 745px;
-    height: 1040px;
   }
 
   .basicLandTitle {
@@ -89,7 +79,7 @@
     font-family: "Beleren Bold", sans-serif;
     position: absolute;
     font-size: 2.5em;
-    top: 4px;
+    top: 6px;
     left: 0;
     text-align: center;
     width: 745px;
@@ -102,16 +92,11 @@
   }
 
   .text {
-    //display: flex;
-    //flex-direction: column;
-    //justify-content: space-around;
-
     font-family: "MPlantin", sans-serif;
     position: absolute;
     font-size: 1.625em;
-    //line-height: 1.2em;
     top: 647px;
-    height: 930px - 647px;
+    height: 283px;
     left: 52px;
     width: 662px - 52px;
 
@@ -150,19 +135,35 @@
     text-align: center;
   }
 
-  .collectionBlock {
-    letter-spacing: 1.4px;
+  .collectionBlock,
+  .collectionBlock2,
+  .copyright,
+  .copyrightStats {
     color: white;
     font-family: "MPlantin", sans-serif;
     position: absolute;
+  }
+
+  .collectionBlock {
+    letter-spacing: 1.4px;
     left: 37px;
     top: 958px;
   }
+
   .collectionBlock2 {
-    color: white;
-    font-family: "MPlantin", sans-serif;
-    position: absolute;
     left: 37px;
+    top: 977px;
+  }
+
+  .copyright {
+    text-align: right;
+    right: 40px;
+    top: 958px;
+  }
+
+  .copyrightStats {
+    text-align: right;
+    right: 40px;
     top: 977px;
   }
 
@@ -177,5 +178,60 @@
     font-family: "Beleren Bold Small Caps", sans-serif;
     letter-spacing: 1px;
     margin-left: 28px;
+  }
+
+  .landSymbol {
+    position: absolute;
+    top: 640px;
+    width: 100%;
+    text-align: center;
+  }
+}
+
+.unstableStyle {
+  .cover {
+    border-radius: 25px;
+    top: 0;
+    left: 0;
+    width: 745px;
+    height: 1040px;
+  }
+
+  .collectionBlock,
+  .copyright {
+    top: 971px;
+  }
+
+  .collectionBlock2 {
+    top: 990px;
+  }
+}
+
+.landFullArtStyle {
+  .cover {
+    height: 722px;
+  }
+
+  .type,
+  .type2,
+  .rarity {
+    top: 843px;
+  }
+
+  .type2 {
+    font-family: "Beleren Bold", sans-serif;
+    position: absolute;
+    font-size: 2em;
+    left: 536px;
+    transform: translateX(-50%);
+  }
+
+  .landSymbol {
+    left: 4px;
+    top: 804px;
+  }
+
+  .landSymbol > * > * {
+    width: 120px;
   }
 }

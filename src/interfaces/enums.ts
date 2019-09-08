@@ -80,3 +80,19 @@ export enum CardState {
   Rate = 'Rate',
   Approved = 'Approved'
 }
+
+export enum NoLandPlaneswalkerArtStyles {
+  Regular = 'Regular',
+  Invocation = 'Invocation'
+}
+
+export enum SplitArtStyles {
+  Regular = 'Regular',
+  ExplorationDestination = 'Exploration // Destination'
+}
+
+export enum BasicLandArtStyles {
+  Regular = 'Regular',
+  FullArt = 'Full Art',
+  Unstable = 'Unstable'
+}

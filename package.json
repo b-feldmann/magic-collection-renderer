@@ -34,6 +34,7 @@
     "react-device-detect": "^1.7.5",
     "react-dom": "^16.8.6",
     "react-lazy-load": "^3.0.13",
+    "react-resize-text": "^0.1.7",
     "react-scripts": "3.0.1",
     "react-spreadsheet": "^0.4.34",
     "react-virtualized-auto-sizer": "^1.0.2",

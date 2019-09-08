@@ -1,9 +1,9 @@
 import {BasicLandType, CardMainType, ColorType, ColorTypePlus} from '../interfaces/enums';
-import BasicLandBlueMainframe from '../components/TemplatingCardRender/images/mainframes/lands/U.png';
-import BasicLandBlackMainframe from '../components/TemplatingCardRender/images/mainframes/lands/B.png';
-import BasicLandRedMainframe from '../components/TemplatingCardRender/images/mainframes/lands/R.png';
-import BasicLandGreenMainframe from '../components/TemplatingCardRender/images/mainframes/lands/G.png';
-import BasicLandGoldMainframe from '../components/TemplatingCardRender/images/mainframes/lands/Gld.png';
+import BasicLandBlueMainframe from '../components/TemplatingCardRender/images/mainframes/lands/unstable/U.png';
+import BasicLandBlackMainframe from '../components/TemplatingCardRender/images/mainframes/lands/unstable/B.png';
+import BasicLandRedMainframe from '../components/TemplatingCardRender/images/mainframes/lands/unstable/R.png';
+import BasicLandGreenMainframe from '../components/TemplatingCardRender/images/mainframes/lands/unstable/G.png';
+import BasicLandGoldMainframe from '../components/TemplatingCardRender/images/mainframes/lands/unstable/Gld.png';
 
 export const getColorIdentity = (manaCost: string = '', cardText: string[]): ColorType[] => {
   const allColors: ColorType[] = [];
