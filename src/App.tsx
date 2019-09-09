@@ -363,10 +363,9 @@ const App: React.FC = () => {
         card={getCard(filteredCollection, cardViewId)}
         visible={showCardModal}
         hide={() => setShowCardModal(false)}
-        collectionNumber={_.findIndex(
-          filteredCollection,
-          (o: CardInterface) => o.uuid === cardViewId
-        )}
+        collectionNumber={
+          _.findIndex(filteredCollection, (o: CardInterface) => o.uuid === cardViewId) + 1
+        }
         collectionSize={filteredCollection.length}
       />
     </div>

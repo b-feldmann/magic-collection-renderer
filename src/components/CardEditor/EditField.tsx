@@ -1,12 +1,13 @@
-import { Button, Checkbox, Icon, Input, List, Radio, Select } from 'antd';
+import { Button, Checkbox, Icon, Input, List, Radio, Select, Upload } from 'antd';
 import React from 'react';
 import styles from './styles.module.scss';
+import resizeImage from '../../utils/resizeImage';
 
 const { TextArea } = Input;
 
 interface EditFieldInterface {
   fieldKey: string;
-  type: 'input' | 'split-input' | 'select' | 'area' | 'radio' | 'list' | 'bool';
+  type: 'input' | 'split-input' | 'upload-input' | 'select' | 'area' | 'radio' | 'list' | 'bool';
   name: string;
   data?: { key: string; value: string }[];
   getValue: (key: string) => any;
@@ -25,6 +26,41 @@ const EditField = (props: EditFieldInterface) => {
           value={getValue(fieldKey)}
           onChange={e => saveValue(fieldKey, e.target.value)}
         />
+      </span>
+    );
+  }
+
+  if (type === 'upload-input') {
+    return (
+      <span>
+        <p className={styles.label}>{name}</p>
+        <div className={styles.uploadWrapper}>
+          <Upload
+            transformFile={file => {
+              return new Promise(resolve => {
+                const reader = new FileReader();
+                // @ts-ignore
+                reader.readAsDataURL(file);
+                reader.onload = () => {
+                  if (typeof reader.result === 'string') {
+                    resizeImage(reader.result, image => {
+                      saveValue(fieldKey, image);
+                    });
+                  } else {
+                    saveValue(fieldKey, reader.result);
+                  }
+                };
+              });
+            }}
+          >
+            <Button shape="circle" icon="upload" size="small" type="danger" />
+          </Upload>
+          <Input
+            size="small"
+            value={getValue(fieldKey)}
+            onChange={e => saveValue(fieldKey, e.target.value)}
+          />
+        </div>
       </span>
     );
   }

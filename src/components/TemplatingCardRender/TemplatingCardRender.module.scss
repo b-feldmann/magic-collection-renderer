@@ -211,7 +211,7 @@
     height: 48px;
   }
 
-  i {
+  i:not([title="Artist (Nib)"]) {
     font-size: 0.8em;
     background: transparent !important;
     box-shadow: 0 0 1px 1px #111 !important;
@@ -243,11 +243,11 @@
   .text {
     font-family: "Gotham Medium", sans-serif;;
     text-align: center;
-    top: 694px;
+    top: 684px;
     left: 84px;
     width: 587px;
     //height: 190px;
-    height: 190px;
+    height: 200px;
   }
 
   .cover {
@@ -277,7 +277,7 @@
   }
   .copyright {
     top: 976px;
-    right: 30px;
+    right: 50px;
   }
 
   .stats {

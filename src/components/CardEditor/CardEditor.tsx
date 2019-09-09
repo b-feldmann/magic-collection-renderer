@@ -52,7 +52,7 @@ const dummyCard: CardInterface = {
 
 interface InputConfigInterface {
   key: string;
-  type: 'input' | 'split-input' | 'select' | 'area' | 'radio' | 'list' | 'bool';
+  type: 'input' | 'split-input' | 'upload-input' | 'select' | 'area' | 'radio' | 'list' | 'bool';
   name: string;
   data?: { key: string; value: string }[];
   width?: number;
@@ -211,7 +211,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
       width: 100
     },
     { key: 'name', type: 'input', name: 'Card Name' },
-    { key: 'cover', type: 'input', name: 'Cover (URL)' },
+    { key: 'cover', type: 'upload-input', name: 'Cover (URL)' },
     { key: 'legendary', type: 'bool', name: 'Legendary?' },
     { key: 'manaCost', type: 'input', name: 'Mana Cost', width: hasMana() ? 50 : 0 },
     {
@@ -266,7 +266,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
         })),
         width: 100
       },
-      { key: 'cover', type: 'input', name: 'Cover (URL)' },
+      { key: 'cover', type: 'upload-input', name: 'Cover (URL)' },
       {
         key: 'cardMainType',
         type: 'select',
@@ -329,6 +329,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
 
   return (
     <div className={styles.editor}>
+      <canvas id="cover-resize-canvas" className={styles.canvas} />
       <Row>
         <EditorTooltip className={styles.tooltip} />
         <Button.Group className={styles.smallButtonGroup} size="small">

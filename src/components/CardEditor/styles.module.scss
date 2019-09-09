@@ -6,6 +6,10 @@
 
 .editor {
     margin: 16px 8px 8px;
+
+    .canvas {
+        display: none;
+    }
 }
 
 .splitInput {
@@ -70,3 +74,10 @@
     right: 2px;
     z-index: 999;
 }
+
+.uploadWrapper {
+    display: flex;
+    width: 100%;
+}
+
+

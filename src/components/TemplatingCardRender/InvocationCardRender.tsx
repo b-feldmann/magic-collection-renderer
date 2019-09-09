@@ -187,4 +187,4 @@ const InvocationCardRender = (cardRender: InvocationCardRenderProps) => {
   );
 };
 
-export default React.memo(InvocationCardRender);
+export default InvocationCardRender;
