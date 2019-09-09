@@ -52,8 +52,6 @@ const MobileApp: React.FC = () => {
   if (tmpCard) mergedCollection.push(tmpCard);
 
   const lastUpdated = (card: CardInterface): number => {
-    if (!seenCardObject[card.uuid]) return Number.MAX_SAFE_INTEGER;
-
     const annotations = annotationAccessor[card.uuid];
     if (!annotations) return card.meta.lastUpdated;
 
