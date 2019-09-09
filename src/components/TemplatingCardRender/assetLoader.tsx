@@ -86,6 +86,8 @@ import CommonIcon from './images/rarity/common.png';
 
 import { BasicLandArtStyles, BasicLandType, ColorType, RarityType } from '../../interfaces/enums';
 
+export const getFallbackCover = () => 'https://thumbs.gfycat.com/ExhaustedAdmiredKingfisher-size_restricted.gif';
+
 export const getPt = (color: ColorType) => {
   switch (color) {
     case ColorType.White:

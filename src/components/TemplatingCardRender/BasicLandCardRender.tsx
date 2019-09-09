@@ -8,8 +8,7 @@ import { BasicLandArtStyles, BasicLandType, RarityType } from '../../interfaces/
 import { getBasicLandColor } from '../../utils/cardToColor';
 
 import styles from './TemplatingCardRender.module.scss';
-import { getBasicLandMainframe, getBasicLandSymbols, getRarityIcon } from './assetLoader';
-import NoCover from './images/no-cover.jpg';
+import {getBasicLandMainframe, getBasicLandSymbols, getFallbackCover, getRarityIcon} from './assetLoader';
 import ImageLoader from '../ImageLoader/ImageLoader';
 
 interface BasicLandCardRenderProps {
@@ -72,7 +71,7 @@ const BasicLandCardRender = (cardRender: BasicLandCardRenderProps) => {
             ${artStyle === BasicLandArtStyles.FullArt && styles.landFullArtStyle}
           `}
         >
-          <ImageLoader src={cover || NoCover} alt="cover" className={styles.cover} />
+          <ImageLoader src={cover || getFallbackCover()} alt="cover" className={styles.cover} />
           <ImageLoader
             src={mainframe}
             className={styles.mainframe}

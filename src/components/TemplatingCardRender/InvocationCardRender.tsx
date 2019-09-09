@@ -1,19 +1,28 @@
-import React, {useContext} from 'react';
+import React, { useContext } from 'react';
 
 import 'mana-font/css/mana.css';
 // @ts-ignore
-import {Mana} from '@saeris/react-mana';
+import { Mana } from '@saeris/react-mana';
 
 import TextResize from 'react-resize-text';
 
-import {CardMainType, RarityType} from '../../interfaces/enums';
-import {Store, StoreType} from '../../store';
-import {getColor} from '../../utils/cardToColor';
+import { CardMainType, RarityType } from '../../interfaces/enums';
+import { Store, StoreType } from '../../store';
+import { getColor } from '../../utils/cardToColor';
 
 import styles from './TemplatingCardRender.module.scss';
-import {getInvocationMainframe, getInvocationPt, getRarityIcon} from './assetLoader';
-import {injectManaIcons, injectMechanics, injectName, injectQuotationMarks} from '../../utils/injectUtils';
-import NoCover from './images/no-cover.jpg';
+import {
+  getFallbackCover,
+  getInvocationMainframe,
+  getInvocationPt,
+  getRarityIcon
+} from './assetLoader';
+import {
+  injectManaIcons,
+  injectMechanics,
+  injectName,
+  injectQuotationMarks
+} from '../../utils/injectUtils';
 import ImageLoader from '../ImageLoader/ImageLoader';
 
 // import TextResizer from '../TextResizer/TextResizer';
@@ -102,7 +111,7 @@ const InvocationCardRender = (cardRender: InvocationCardRenderProps) => {
           }}
           className={`${styles.cardRender} ${styles.invocation}`}
         >
-          <ImageLoader src={cover || NoCover} alt="cover" className={styles.cover} />
+          <ImageLoader src={cover || getFallbackCover()} alt="cover" className={styles.cover} />
 
           <ImageLoader src={mainframe} className={styles.mainframe} fallBackColor="#eed66b" />
 
@@ -172,9 +181,7 @@ const InvocationCardRender = (cardRender: InvocationCardRenderProps) => {
             </span>
             <span className={styles.artist}>{creator}</span>
           </div>
-          <div className={styles.copyright}>
-            &#8482; &amp; &#169; 2019 Wizards of the Coast
-          </div>
+          <div className={styles.copyright}>&#8482; &amp; &#169; 2019 Wizards of the Coast</div>
         </div>
       </div>
     </div>

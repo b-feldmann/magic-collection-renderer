@@ -21,7 +21,7 @@ import styles from './TemplatingCardRender.module.scss';
 import {
   getArtifactMainframe,
   getArtifactPt,
-  getColorMainframe,
+  getColorMainframe, getFallbackCover,
   getInnerBorderFrame,
   getLandMainframe,
   getLandOverlay,
@@ -201,7 +201,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
             ${artStyle === CardArtStyles.Borderless && styles.borderless}
           `}
         >
-          <ImageLoader src={cover || NoCover} alt="cover" className={styles.cover} />
+          <ImageLoader src={cover || getFallbackCover()} alt="cover" className={styles.cover} />
 
           <ImageLoader
             src={mainframe}

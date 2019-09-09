@@ -16,8 +16,6 @@ import UncommonIcon from './images/rarity/uncommon.png';
 import RareIcon from './images/rarity/rare.png';
 import MythicRareIcon from './images/rarity/mythic.png';
 
-import NoCover from './images/no-cover.jpg';
-
 import {
   injectManaIcons,
   injectMechanics,
@@ -29,6 +27,7 @@ import cardToColor from '../../utils/cardToColor';
 import ImageLoader from '../ImageLoader/ImageLoader';
 import { Store, StoreType } from '../../store';
 import { UNKNOWN_CREATOR } from '../../interfaces/constants';
+import { getFallbackCover } from '../TemplatingCardRender/assetLoader';
 
 interface CardRender {
   name: string;
@@ -122,7 +121,7 @@ const CardRender = (cardRender: CardRender) => {
             </div>
 
             <ImageLoader
-              src={cover || NoCover}
+              src={cover || getFallbackCover()}
               alt="cover"
               className={`frame-art frame-art-${cssColorName}`}
             />
