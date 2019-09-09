@@ -1,9 +1,23 @@
-import {BasicLandType, CardMainType, ColorType, ColorTypePlus} from '../interfaces/enums';
-import BasicLandBlueMainframe from '../components/TemplatingCardRender/images/mainframes/lands/unstable/U.png';
-import BasicLandBlackMainframe from '../components/TemplatingCardRender/images/mainframes/lands/unstable/B.png';
-import BasicLandRedMainframe from '../components/TemplatingCardRender/images/mainframes/lands/unstable/R.png';
-import BasicLandGreenMainframe from '../components/TemplatingCardRender/images/mainframes/lands/unstable/G.png';
-import BasicLandGoldMainframe from '../components/TemplatingCardRender/images/mainframes/lands/unstable/Gld.png';
+import { BasicLandType, CardMainType, ColorType, ColorTypePlus } from '../interfaces/enums';
+
+const colorToColorHex = (color: ColorType): string => {
+  switch (color) {
+    case ColorType.White:
+      return '#e0e4e3';
+    case ColorType.Blue:
+      return '#0456a8';
+    case ColorType.Black:
+      return '#464e39';
+    case ColorType.Red:
+      return '#df3619';
+    case ColorType.Green:
+      return '#26714A';
+    case ColorType.Gold:
+      return '#eed66b';
+    default:
+      return '#d9d7da';
+  }
+};
 
 export const getColorIdentity = (manaCost: string = '', cardText: string[]): ColorType[] => {
   const allColors: ColorType[] = [];
@@ -106,7 +120,7 @@ export const getColor = (manaCost: string = '') => {
       case ColorType.Green:
         colorDict.green.push(cost);
         break;
-      case ColorType.Colorless:
+      default:
         if (cost === 'x' || cost === 'X') colorDict.x.push(cost);
         else if (cost.match(/\d{1,2}/)) colorDict.colorless.push(cost);
         else colorDict.rest.push(cost);
@@ -133,25 +147,6 @@ export const getColor = (manaCost: string = '') => {
     orderedCost: getOrdering(colorDict),
     hexColor: colorToColorHex(parsedColor)
   };
-};
-
-const colorToColorHex = (color: ColorType): string => {
-  switch (color) {
-    case ColorType.White:
-      return '#e0e4e3';
-    case ColorType.Blue:
-      return '#0456a8';
-    case ColorType.Black:
-      return '#464e39';
-    case ColorType.Red:
-      return '#df3619';
-    case ColorType.Green:
-      return '#26714A';
-    case ColorType.Gold:
-      return '#eed66b';
-    default:
-      return '#d9d7da';
-  }
 };
 
 const cardToColor = (
@@ -317,7 +312,9 @@ const addUpColorlessCost = (costs: string[]) => {
     costs.forEach(cost => {
       count += parseInt(cost, 10);
     });
-  } catch (e) {}
+  } catch (e) {
+    console.log(e);
+  }
   if (count === 0) return '';
   return `{${count}}`;
 };

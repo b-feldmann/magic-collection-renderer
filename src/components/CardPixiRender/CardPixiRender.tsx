@@ -26,7 +26,7 @@ import NoCover from './images/no-cover.jpg';
 import { renderBackground, RenderBackgroundCache } from './renderBackground';
 import { renderArtBox, RenderArtBoxCache } from './renderArtBox';
 import { renderTextBox, RenderTextBoxCache } from './renderTextBox';
-import cardToColor from "../../utils/cardToColor";
+import cardToColor from '../../utils/cardToColor';
 
 export interface Images {
   [key: string]: PIXI.Texture;

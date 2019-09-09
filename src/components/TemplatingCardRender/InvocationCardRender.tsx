@@ -25,8 +25,6 @@ import {
 } from '../../utils/injectUtils';
 import ImageLoader from '../ImageLoader/ImageLoader';
 
-// import TextResizer from '../TextResizer/TextResizer';
-
 interface InvocationCardRenderProps {
   name: string;
   rarity: RarityType;
@@ -51,7 +49,7 @@ const CARD_WIDTH = 745.0;
 const CARD_HEIGHT = 1040.0;
 
 const InvocationCardRender = (cardRender: InvocationCardRenderProps) => {
-  const { legendary, cardMainType, cardSubTypes, rarity } = cardRender;
+  const { legendary, cardMainType, cardSubTypes } = cardRender;
   const { name, manaCost, cardStats, cover, creator } = cardRender;
   const { cardText, flavourText = '', flavourAuthor, cardID } = cardRender;
   const { backFace, collectionNumber, collectionSize } = cardRender;
@@ -97,9 +95,10 @@ const InvocationCardRender = (cardRender: InvocationCardRenderProps) => {
       <div
         id={`card-id-${cardID}`}
         style={{
-          transform: `scaleX(${resizeFactor(containerWidth)}) scaleY(${resizeFactor(
-            (containerWidth * CARD_HEIGHT) / 1020.0
-          )})`,
+          transform: `
+            scaleX(${resizeFactor(containerWidth)})
+            scaleY(${resizeFactor((containerWidth * CARD_HEIGHT) / 1020.0)})
+          `,
           transformOrigin: 'top left',
           width: `${(CARD_WIDTH / containerWidth) * 100}%`
         }}

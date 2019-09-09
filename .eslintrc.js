@@ -44,6 +44,7 @@ module.exports = {
      */
     "@typescript-eslint/prefer-interface": "off", // also want to use "type"
     "@typescript-eslint/explicit-function-return-type": "off", // annoying to force return type
+    "@typescript-eslint/no-use-before-define": "off",
 
     /**
      * @description rules of eslint-plugin-react

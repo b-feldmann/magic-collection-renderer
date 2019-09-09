@@ -15,7 +15,6 @@ import { StoreProvider } from './store';
 LogRocket.init('fkb4jh/magic-collection-renderer');
 setupLogRocketReact(LogRocket);
 
-
 ReactDOM.render(
   <StoreProvider>
     <BrowserView>

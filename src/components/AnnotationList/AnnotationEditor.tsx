@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Button, Input, Popover, Select } from 'antd';
+import { Button, Input, Popover } from 'antd';
 
 import 'emoji-mart/css/emoji-mart.css';
 import data from 'emoji-mart/data/apple.json';

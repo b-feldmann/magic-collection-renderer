@@ -41,7 +41,8 @@ addToDataSource(
 addToDataSource(
   '{0} - {20}',
   <span>
-    <Mana symbol="0" shadow /> – <Mana symbol="20" shadow />
+    <Mana symbol="0" shadow /> –
+    <Mana symbol="20" shadow />
   </span>
 );
 addToDataSource(
@@ -125,7 +126,7 @@ const content = (
     size="small"
     showHeader={false}
     pagination={false}
-    bordered={true}
+    bordered
   />
 );
 

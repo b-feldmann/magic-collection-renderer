@@ -16,11 +16,10 @@ import './ant-tabs.scss';
 import './reset.css';
 
 import CollectionFilterControls from './components/CollectionFilterControls/CollectionFilterControls';
-import { createCard, EMPTY_CARD, refreshCollection } from './actions/cardActions';
+import { EMPTY_CARD, refreshCollection } from './actions/cardActions';
 
 import { hasAccessToken, updateAccessToken } from './utils/accessService';
 import { getMechanics } from './actions/mechanicActions';
-import MechanicModal from './components/MechanicModal/MechanicModal';
 import ChangeLogModal from './components/ChangeLogModal/ChangeLogModal';
 import BigCardRenderModal from './components/BigCardRenderModal/BigCardRenderModal';
 import { getAnnotations } from './actions/annotationActions';
@@ -39,7 +38,6 @@ const MobileApp: React.FC = () => {
   const [cardViewId, setCardViewId] = useState<string>(NO_CARD);
   const [showCardModal, setShowCardModal] = useState<boolean>(false);
   const [cardNameFilter, setCardNameFilter] = useState<string>('');
-  const [mechanicsVisible, setMechanicsVisible] = useState(false);
 
   const { cards, newUuid, dispatch, annotationAccessor, user, currentUser } = useContext<StoreType>(
     Store
@@ -59,8 +57,8 @@ const MobileApp: React.FC = () => {
     const annotations = annotationAccessor[card.uuid];
     if (!annotations) return card.meta.lastUpdated;
 
-    const lastAnnotatoin = annotations.reduce((a, b) => (a.datetime > b.datetime ? a : b));
-    return Math.max(lastAnnotatoin.datetime, card.meta.lastUpdated);
+    const lastAnnotation = annotations.reduce((a, b) => (a.datetime > b.datetime ? a : b));
+    return Math.max(lastAnnotation.datetime, card.meta.lastUpdated);
   };
 
   const filteredCollection = _.sortBy(mergedCollection, [
@@ -129,7 +127,7 @@ const MobileApp: React.FC = () => {
     const editorSpan = 0;
 
     const cardTabs = [
-      { name: 'All', filter: (o: CardInterface) => true },
+      { name: 'All', filter: () => true },
       {
         name: 'Card Drafts / Idea Dump',
         filter: (o: CardInterface) => o.meta.state === CardState.Draft
@@ -147,7 +145,6 @@ const MobileApp: React.FC = () => {
     return (
       <Row className={styles.fullHeight}>
         <ChangeLogModal />
-        <MechanicModal visible={mechanicsVisible} setVisible={setMechanicsVisible} />
         <Col span={collectionSpan} className={styles.collection}>
           <Tabs defaultActiveKey="tab-key-Card Drafts / Idea Dump" className={styles.collection}>
             {cardTabs.map(tabObj => (
@@ -244,22 +241,6 @@ const MobileApp: React.FC = () => {
         </Col>
         <div className={styles.mobileControls}>
           <CollectionFilterControls collection={cards} setNameFilter={setCardNameFilter} />
-          <Button
-            icon="edit"
-            onClick={() => setMechanicsVisible(true)}
-            style={{ width: '100%', marginTop: '8px' }}
-            type="primary"
-          >
-            Edit Mechanics
-          </Button>
-          <Button
-            icon="plus"
-            type="primary"
-            onClick={() => createCard(dispatch, currentUser)}
-            className={styles.fullWidth}
-          >
-            Add Card
-          </Button>
           <Button icon="reload" type="primary" onClick={refresh} className={styles.fullWidth}>
             Reload Collection
           </Button>

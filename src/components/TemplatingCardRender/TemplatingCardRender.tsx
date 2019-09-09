@@ -21,7 +21,8 @@ import styles from './TemplatingCardRender.module.scss';
 import {
   getArtifactMainframe,
   getArtifactPt,
-  getColorMainframe, getFallbackCover,
+  getColorMainframe,
+  getFallbackCover,
   getInnerBorderFrame,
   getLandMainframe,
   getLandOverlay,
@@ -36,12 +37,9 @@ import {
   injectPlaneswalkerIcons,
   injectQuotationMarks
 } from '../../utils/injectUtils';
-import NoCover from './images/no-cover.jpg';
 import ImageLoader from '../ImageLoader/ImageLoader';
 import BasicLandCardRender from './BasicLandCardRender';
 import InvocationCardRender from './InvocationCardRender';
-
-// import TextResizer from '../TextResizer/TextResizer';
 
 interface TemplatingCardRenderProps {
   artStyle?: BasicLandArtStyles | CardArtStyles;

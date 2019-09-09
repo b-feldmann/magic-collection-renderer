@@ -192,8 +192,14 @@ updateLog.push({
         <div>
           <h5>Parser:</h5>
           <ul>
-            <li>"[-Miracle]" is rendered as "(...)" without the Name of the mechanic</li>
-            <li>"[Explore]" is rendered as "Explore (...)" with the Name of the mechanic</li>
+            <li>
+              &quot;[-Miracle]&quot; is rendered as &quot;(...)&quot; without the Name of the
+              mechanic
+            </li>
+            <li>
+              &quot;[Explore]&quot; is rendered as &quot;Explore (...)&quot; with the Name of the
+              mechanic
+            </li>
             <li>{'"[Cycling {2}]" is rendered as "Cycling {2} (...)"'}</li>
             <li>
               {
@@ -205,8 +211,8 @@ updateLog.push({
                 '"[Surveil 2]" is rendered as "Surveil 2 (... 2 ...)" if the description of the mechanic is "... {ref} ..."'
               }
             </li>
-            <li>"[Enrage] xyz" is rendered as "Enrage — ... xyz"</li>
-            <li>"[Raid abc] xyz" is rendered as "Raid — abc ... xyz"</li>
+            <li>&quot;[Enrage] xyz&quot; is rendered as &quot;Enrage — ... xyz&quot;</li>
+            <li>&quot;[Raid abc] xyz&quot; is rendered as &quot;Raid — abc ... xyz&quot;</li>
           </ul>
         </div>
       )

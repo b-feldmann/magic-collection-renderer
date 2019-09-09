@@ -1,6 +1,5 @@
-import {Button, Checkbox, Icon, Input, List, Radio, Select} from 'antd';
+import { Button, Checkbox, Icon, Input, List, Radio, Select } from 'antd';
 import React from 'react';
-import _ from 'lodash';
 import styles from './styles.module.scss';
 
 const { TextArea } = Input;

@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Button, Modal, List, Typography, Table } from 'antd';
+import { Button, Modal, Typography, Table } from 'antd';
 
 import _ from 'lodash';
 import { Store, StoreType } from '../../store';

@@ -8,7 +8,12 @@ import { BasicLandArtStyles, BasicLandType, RarityType } from '../../interfaces/
 import { getBasicLandColor } from '../../utils/cardToColor';
 
 import styles from './TemplatingCardRender.module.scss';
-import {getBasicLandMainframe, getBasicLandSymbols, getFallbackCover, getRarityIcon} from './assetLoader';
+import {
+  getBasicLandMainframe,
+  getBasicLandSymbols,
+  getFallbackCover,
+  getRarityIcon
+} from './assetLoader';
 import ImageLoader from '../ImageLoader/ImageLoader';
 
 interface BasicLandCardRenderProps {

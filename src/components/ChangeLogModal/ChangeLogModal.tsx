@@ -3,7 +3,6 @@ import { Modal } from 'antd';
 
 import styles from './logEntry.module.scss';
 
-import useLocalStorage from '../../utils/useLocalStorageHook';
 import updateLog from './updateLog';
 import LogEntry from './LogEntry';
 import { Store, StoreType } from '../../store';

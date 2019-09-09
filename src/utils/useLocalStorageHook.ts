@@ -14,7 +14,7 @@ const useLocalStorage = (
   if (json) {
     return [
       JSON.parse(value),
-      (newValue: any) => {
+      (newValue: object) => {
         setValue(JSON.stringify(newValue));
       }
     ];

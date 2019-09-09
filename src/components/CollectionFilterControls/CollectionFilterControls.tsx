@@ -41,7 +41,6 @@ const CollectionFilterControls = ({
     return group;
   };
 
-  const [colSpanSetting, setColSpanSetting] = useState(-1);
   const [shownCardTypes, setShownCardTypes] = useState<CheckBoxGroupInterface>(
     createEnumInitState(Object.values(CardMainType))
   );
@@ -70,7 +69,6 @@ const CollectionFilterControls = ({
     }
 
     if (number === 0) number = -1;
-    setColSpanSetting(number);
     setCollectionColSpan && setCollectionColSpan(number);
   };
 
