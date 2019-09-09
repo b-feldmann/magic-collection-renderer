@@ -63,14 +63,14 @@ import GoldInnerBorder from './images/borders/Gld.png';
 
 import LandOverlay from './images/overlay/C-overlay.png';
 import InvocationPt from './images/pt/invocation/A.png';
-import PtArt from './images/pt/Art.png';
-import PtW from './images/pt/W.png';
-import PtU from './images/pt/U.png';
-import PtB from './images/pt/B.png';
-import PtR from './images/pt/R.png';
-import PtG from './images/pt/G.png';
-import PtCl from './images/pt/C.png';
-import PtGld from './images/pt/Gld.png';
+import PtArt from './images/pt/regular/Art.png';
+import PtW from './images/pt/regular/W.png';
+import PtU from './images/pt/regular/U.png';
+import PtB from './images/pt/regular/B.png';
+import PtR from './images/pt/regular/R.png';
+import PtG from './images/pt/regular/G.png';
+import PtCl from './images/pt/regular/C.png';
+import PtGld from './images/pt/regular/Gld.png';
 
 import SymbolLandWhite from './images/symbols/land/W.png';
 import SymbolLandBlue from './images/symbols/land/U.png';
@@ -86,8 +86,40 @@ import CommonIcon from './images/rarity/common.png';
 
 import { BasicLandArtStyles, BasicLandType, ColorType, RarityType } from '../../interfaces/enums';
 
-export const getFallbackCover = () =>
-  'https://thumbs.gfycat.com/ExhaustedAdmiredKingfisher-size_restricted.gif';
+import NoCover from './images/no-cover.jpg';
+
+import PlaneswalkerWhiteMainframe from './images/mainframes/planeswalker/W.png';
+import PlaneswalkerWhiteMainframe2 from './images/mainframes/planeswalker/W2.png';
+import PlaneswalkerWhiteMainframe4 from './images/mainframes/planeswalker/W4.png';
+import PlaneswalkerBlueMainframe from './images/mainframes/planeswalker/U.png';
+import PlaneswalkerBlueMainframe2 from './images/mainframes/planeswalker/U2.png';
+import PlaneswalkerBlueMainframe4 from './images/mainframes/planeswalker/U4.png';
+import PlaneswalkerBlackMainframe from './images/mainframes/planeswalker/B.png';
+import PlaneswalkerBlackMainframe2 from './images/mainframes/planeswalker/B2.png';
+import PlaneswalkerBlackMainframe4 from './images/mainframes/planeswalker/B4.png';
+import PlaneswalkerRedMainframe from './images/mainframes/planeswalker/R.png';
+import PlaneswalkerRedMainframe2 from './images/mainframes/planeswalker/R2.png';
+import PlaneswalkerRedMainframe4 from './images/mainframes/planeswalker/R4.png';
+import PlaneswalkerGreenMainframe from './images/mainframes/planeswalker/G.png';
+import PlaneswalkerGreenMainframe2 from './images/mainframes/planeswalker/G2.png';
+import PlaneswalkerGreenMainframe4 from './images/mainframes/planeswalker/G4.png';
+import PlaneswalkerColorlessMainframe from './images/mainframes/planeswalker/Art.png';
+import PlaneswalkerColorlessMainframe2 from './images/mainframes/planeswalker/Art2.png';
+import PlaneswalkerColorlessMainframe4 from './images/mainframes/planeswalker/Art4.png';
+import PlaneswalkerGoldMainframe from './images/mainframes/planeswalker/Gld.png';
+import PlaneswalkerGoldMainframe2 from './images/mainframes/planeswalker/Gld2.png';
+import PlaneswalkerGoldMainframe4 from './images/mainframes/planeswalker/Gld4.png';
+
+import PlaneswalkerPt from './images/pt/planeswalker/LoyaltyBegin.png';
+
+import LoyaltyUp from './images/symbols/loyalty/LoyaltyUp.png';
+import LoyaltyDown from './images/symbols/loyalty/LoyaltyDown.png';
+import LoyaltyZero from './images/symbols/loyalty/LoyaltyZero.png';
+
+export const getFallbackCover = () => {
+  // return NoCover;
+  return 'https://thumbs.gfycat.com/ExhaustedAdmiredKingfisher-size_restricted.gif';
+};
 
 export const getPt = (color: ColorType) => {
   switch (color) {
@@ -127,6 +159,49 @@ export const getColorMainframe = (color: ColorType) => {
       return GoldMainframe;
     default:
       return ColorlessMainframe;
+  }
+};
+
+export const getLoyaltyIcon = (loyaltyAction?: string) => {
+  if (!loyaltyAction) return '';
+  if (loyaltyAction.indexOf('+') !== -1) return LoyaltyUp;
+  if (loyaltyAction.indexOf('-') !== -1) return LoyaltyDown;
+  if (loyaltyAction === '0') return LoyaltyZero;
+  return '';
+};
+
+export const getPlaneswalkerPt = () => PlaneswalkerPt;
+
+export const getPlaneswalkerMainframe = (color: ColorType, lines: 2 | 3 | 4 | undefined) => {
+  switch (color) {
+    case ColorType.White:
+      if (lines === 2) return PlaneswalkerWhiteMainframe2;
+      if (lines === 4) return PlaneswalkerWhiteMainframe4;
+      return PlaneswalkerWhiteMainframe;
+    case ColorType.Blue:
+      if (lines === 2) return PlaneswalkerBlueMainframe2;
+      if (lines === 4) return PlaneswalkerBlueMainframe4;
+      return PlaneswalkerBlueMainframe;
+    case ColorType.Black:
+      if (lines === 2) return PlaneswalkerBlackMainframe2;
+      if (lines === 4) return PlaneswalkerBlackMainframe4;
+      return PlaneswalkerBlackMainframe;
+    case ColorType.Red:
+      if (lines === 2) return PlaneswalkerRedMainframe2;
+      if (lines === 4) return PlaneswalkerRedMainframe4;
+      return PlaneswalkerRedMainframe;
+    case ColorType.Green:
+      if (lines === 2) return PlaneswalkerGreenMainframe2;
+      if (lines === 4) return PlaneswalkerGreenMainframe4;
+      return PlaneswalkerGreenMainframe;
+    case ColorType.Colorless:
+      if (lines === 2) return PlaneswalkerColorlessMainframe2;
+      if (lines === 4) return PlaneswalkerColorlessMainframe4;
+      return PlaneswalkerColorlessMainframe;
+    default:
+      if (lines === 2) return PlaneswalkerGoldMainframe2;
+      if (lines === 4) return PlaneswalkerGoldMainframe4;
+      return PlaneswalkerGoldMainframe;
   }
 };
 

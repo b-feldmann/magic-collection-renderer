@@ -9,7 +9,7 @@ import { CardMainType, CardState, RarityType } from '../interfaces/enums';
 
 import CardInterface from '../interfaces/CardInterface';
 import { getAccessToken, deleteAccessToken } from '../utils/accessService';
-import { UNKNOWN_CREATOR } from '../interfaces/constants';
+import { UNKNOWN_CREATOR } from '../utils/constants';
 import UserInterface from '../interfaces/UserInterface';
 import { captureError, ActionTag, RequestTag } from './errorLog';
 

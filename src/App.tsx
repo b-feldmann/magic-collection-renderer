@@ -31,7 +31,7 @@ import ChangeLogModal from './components/ChangeLogModal/ChangeLogModal';
 import BigCardRenderModal from './components/BigCardRenderModal/BigCardRenderModal';
 import { getAnnotations } from './actions/annotationActions';
 import { addSeenCard, getUser, setCurrentUser } from './actions/userActions';
-import { UNKNOWN_CREATOR } from './interfaces/constants';
+import { UNKNOWN_CREATOR } from './utils/constants';
 
 const { Search } = Input;
 const { confirm } = Modal;

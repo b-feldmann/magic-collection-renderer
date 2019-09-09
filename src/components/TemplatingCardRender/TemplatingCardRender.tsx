@@ -1,8 +1,8 @@
-import React, { useContext } from 'react';
+import React, {useContext} from 'react';
 
 import 'mana-font/css/mana.css';
 // @ts-ignore
-import { Mana } from '@saeris/react-mana';
+import {Mana} from '@saeris/react-mana';
 
 import TextResize from 'react-resize-text';
 
@@ -14,8 +14,8 @@ import {
   ColorType,
   RarityType
 } from '../../interfaces/enums';
-import { Store, StoreType } from '../../store';
-import { getColor, getColorIdentity } from '../../utils/cardToColor';
+import {Store, StoreType} from '../../store';
+import {getColor, getColorIdentity} from '../../utils/cardToColor';
 
 import styles from './TemplatingCardRender.module.scss';
 import {
@@ -40,6 +40,10 @@ import {
 import ImageLoader from '../ImageLoader/ImageLoader';
 import BasicLandCardRender from './BasicLandCardRender';
 import InvocationCardRender from './InvocationCardRender';
+import getRarityCode from '../../utils/getRarityCode';
+import parseStats from '../../utils/parseStats';
+import parseCollectionNumber from '../../utils/parseCollectionNumber';
+import PlaneswalkerCardRender from "./PlaneswalkerCardRender";
 
 interface TemplatingCardRenderProps {
   artStyle?: BasicLandArtStyles | CardArtStyles;
@@ -110,12 +114,9 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
     return <InvocationCardRender {...cardRenderProps} />;
   }
 
-  const rarityCode = () => {
-    if (rarity === RarityType.Uncommon) return 'U';
-    if (rarity === RarityType.Rare) return 'R';
-    if (rarity === RarityType.MythicRare) return 'M';
-    return 'C';
-  };
+  if (cardMainType === CardMainType.Planeswalker) {
+    return <PlaneswalkerCardRender {...cardRenderProps} />;
+  }
 
   const resizeFactor = (width: number) => {
     return width / CARD_WIDTH;
@@ -152,32 +153,14 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
     if (identity.length === 2) overlay = getLandOverlay();
   }
 
-  if (artStyle === CardArtStyles.Borderless && color === ColorType.Colorless) {
+  if (color === ColorType.Colorless) {
     overlay = getLandOverlay();
   }
-
-  const parseCollectionNumber = (n: number): string => {
-    const res = n.toString(10);
-    if (res.length === 0) return '000';
-    if (res.length === 1) return `00${res}`;
-    if (res.length === 2) return `0${res}`;
-    return res;
-  };
 
   if (artStyle === CardArtStyles.Borderless) {
     lowResMainframe = '';
     mainframe = '';
   }
-
-  const parseStats = (): { power: string; toughness: string } => {
-    if (!cardStats) return { power: '0', toughness: '0' };
-
-    const split = cardStats.split('/');
-    if (split.length > 2) return { power: '0', toughness: '0' };
-    if (split.length === 1) return { power: split[0], toughness: '0' };
-
-    return { power: split[0] || '0', toughness: split[1] || '0' };
-  };
 
   return (
     <div style={{ height: `${getHeight(containerWidth)}px` }}>
@@ -262,14 +245,14 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
             <div>
               <img className={styles.overlay} src={pt} alt="" />
               <div className={styles.stats}>
-                {`${parseStats().power}/${parseStats().toughness}`}
+                {`${parseStats(cardStats).power}/${parseStats(cardStats).toughness}`}
               </div>
             </div>
           )}
 
           <div className={styles.collectionBlock}>
             {`${parseCollectionNumber(collectionNumber)}/${parseCollectionNumber(collectionSize)}`}
-            {` ${rarityCode()}`}
+            {` ${getRarityCode(rarity)}`}
           </div>
           <div className={styles.collectionBlock2}>
             MFS &#x2022; EN

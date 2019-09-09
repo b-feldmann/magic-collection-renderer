@@ -24,6 +24,8 @@ import {
   injectQuotationMarks
 } from '../../utils/injectUtils';
 import ImageLoader from '../ImageLoader/ImageLoader';
+import parseStats from '../../utils/parseStats';
+import parseCollectionNumber from '../../utils/parseCollectionNumber';
 
 interface InvocationCardRenderProps {
   name: string;
@@ -72,24 +74,6 @@ const InvocationCardRender = (cardRender: InvocationCardRenderProps) => {
   const mainframe = getInvocationMainframe(color);
   const pt = getInvocationPt();
 
-  const parseCollectionNumber = (n: number): string => {
-    const res = n.toString(10);
-    if (res.length === 0) return '000';
-    if (res.length === 1) return `00${res}`;
-    if (res.length === 2) return `0${res}`;
-    return res;
-  };
-
-  const parseStats = (): { power: string; toughness: string } => {
-    if (!cardStats) return { power: '0', toughness: '0' };
-
-    const split = cardStats.split('/');
-    if (split.length > 2) return { power: '0', toughness: '0' };
-    if (split.length === 1) return { power: split[0], toughness: '0' };
-
-    return { power: split[0] || '0', toughness: split[1] || '0' };
-  };
-
   return (
     <div style={{ height: `${getHeight(containerWidth)}px` }}>
       <div
@@ -114,9 +98,7 @@ const InvocationCardRender = (cardRender: InvocationCardRenderProps) => {
 
           <ImageLoader src={mainframe} className={styles.mainframe} fallBackColor="#eed66b" />
 
-          {cardRender.cardMainType !== CardMainType.Land && !backFace && (
-            <div className={styles.cost}>{injectManaIcons(orderedCost, true)}</div>
-          )}
+          {!backFace && <div className={styles.cost}>{injectManaIcons(orderedCost, true)}</div>}
 
           <ImageLoader src={getRarityIcon(RarityType.Common)} alt="" className={styles.rarity} />
 
@@ -164,8 +146,8 @@ const InvocationCardRender = (cardRender: InvocationCardRenderProps) => {
             <div>
               <img className={styles.overlay} src={pt} alt="" />
               <div className={styles.stats}>
-                <div>{parseStats().power}</div>
-                <div>{parseStats().toughness}</div>
+                <div>{parseStats(cardStats).power}</div>
+                <div>{parseStats(cardStats).toughness}</div>
               </div>
             </div>
           )}

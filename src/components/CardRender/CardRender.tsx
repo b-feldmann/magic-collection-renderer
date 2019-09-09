@@ -26,7 +26,7 @@ import {
 import cardToColor from '../../utils/cardToColor';
 import ImageLoader from '../ImageLoader/ImageLoader';
 import { Store, StoreType } from '../../store';
-import { UNKNOWN_CREATOR } from '../../interfaces/constants';
+import { UNKNOWN_CREATOR } from '../../utils/constants';
 import { getFallbackCover } from '../TemplatingCardRender/assetLoader';
 
 interface CardRender {

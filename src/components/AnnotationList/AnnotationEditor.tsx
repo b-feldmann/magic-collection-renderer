@@ -6,7 +6,7 @@ import data from 'emoji-mart/data/apple.json';
 import { BaseEmoji, Emoji, NimblePicker as Picker } from 'emoji-mart';
 
 import styles from './Annotations.module.scss';
-import { UNKNOWN_CREATOR } from '../../interfaces/constants';
+import { UNKNOWN_CREATOR } from '../../utils/constants';
 import UserInterface from '../../interfaces/UserInterface';
 import { Store, StoreType } from '../../store';
 

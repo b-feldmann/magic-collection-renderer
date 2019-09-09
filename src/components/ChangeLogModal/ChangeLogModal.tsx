@@ -7,7 +7,7 @@ import updateLog from './updateLog';
 import LogEntry from './LogEntry';
 import { Store, StoreType } from '../../store';
 import { addLastSeenVersion } from '../../actions/userActions';
-import { UNKNOWN_CREATOR } from '../../interfaces/constants';
+import { UNKNOWN_CREATOR } from '../../utils/constants';
 
 const ChangeLogModal = () => {
   const { currentUser, dispatch } = useContext<StoreType>(Store);

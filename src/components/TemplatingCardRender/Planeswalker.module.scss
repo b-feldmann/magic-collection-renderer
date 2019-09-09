@@ -1,0 +1,98 @@
+.loyaltyText1,
+.loyaltyText2,
+.loyaltyText3,
+.loyaltyText4 {
+  font-family: "MPlantin", sans-serif;
+  position: absolute;
+  font-size: 1.625em;
+  left: 122px;
+  width: 551px;
+}
+
+.loyaltyIcon1,
+.loyaltyIcon2,
+.loyaltyIcon3,
+.loyaltyIcon4 {
+  position: absolute;
+  left: 60px;
+  transform: translateX(-50%) translateY(-50%);
+  color: white;
+  font-family: MPlantin, sans-serif;
+  font-size: 1.7em;
+
+  p {
+    margin-top: -8px;
+  }
+}
+
+.lines3 {
+  .loyaltyText1 {
+    top: 645px;
+    height: 80px;
+  }
+  .loyaltyText2 {
+    top: 745px;
+    height: 80px;
+  }
+  .loyaltyText3 {
+    top: 840px;
+    height: 70px;
+  }
+  .loyaltyIcon1 {
+    top: 692px;
+  }
+  .loyaltyIcon2 {
+    top: 791px;
+  }
+  .loyaltyIcon3 {
+    top: 881px;
+  }
+}
+
+.lines2 {
+  .loyaltyText1 {
+    top: 655px;
+    height: 115px;
+  }
+  .loyaltyText2 {
+    top: 809px;
+    height: 83px;
+  }
+  .loyaltyIcon1 {
+    top: 717px;
+  }
+  .loyaltyIcon2 {
+    top: 853px;
+  }
+}
+
+.lines4 {
+  .loyaltyText1 {
+    top: 575px;
+    height: 80px;
+  }
+  .loyaltyText2 {
+    top: 667px;
+    height: 80px;
+  }
+  .loyaltyText3 {
+    top: 759px;
+    height: 80px;
+  }
+  .loyaltyText4 {
+    top: 845px;
+    height: 68px;
+  }
+  .loyaltyIcon1 {
+    top: 621px;
+  }
+  .loyaltyIcon2 {
+    top: 712px;
+  }
+  .loyaltyIcon3 {
+    top: 805px;
+  }
+  .loyaltyIcon4 {
+    top: 886px;
+  }
+}

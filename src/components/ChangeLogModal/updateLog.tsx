@@ -226,6 +226,10 @@ updateLog.push({
   content: [
     {
       type: ChangeLogFeatureType.Added,
+      feature: 'Image Uploading.'
+    },
+    {
+      type: ChangeLogFeatureType.Added,
       feature: 'Added "Artifact Creature" and "Basic Land" card types with specialized rendering.'
     },
     {
@@ -240,7 +244,7 @@ updateLog.push({
       description: (
         <Row>
           <Row>Replaced card renderer with new one that works with image templates</Row>
-          <Row>Special Focus on Artifacts, Planeswalkers, Lands and Multi-colored spells</Row>
+          <Row>Special Focus on Artifacts, Planeswalker, Lands and Multi-colored spells</Row>
         </Row>
       )
     },
@@ -248,12 +252,17 @@ updateLog.push({
       type: ChangeLogFeatureType.Added,
       feature: 'Art Styles',
       description:
-        'Renderer supports different art styles of cards (Look at you Basic Lands). Some cards can be rendered Borderless or as Invocations.'
+        'Renderer supports different art styles of cards (Look at you Basic Lands). Some cards can be rendered Borderless or as Invocations. (I am not kidding)'
     },
     {
       type: ChangeLogFeatureType.Fixed,
       feature: 'Card Text Size',
       description: 'Text resizes now to fit into the text box'
+    },
+    {
+      type: ChangeLogFeatureType.Changed,
+      feature: 'Mobile Version',
+      description: 'Mobile is now VIEW-ONLY'
     },
     {
       type: ChangeLogFeatureType.Removed,

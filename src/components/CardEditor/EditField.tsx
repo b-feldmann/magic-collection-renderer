@@ -4,10 +4,20 @@ import styles from './styles.module.scss';
 import resizeImage from '../../utils/resizeImage';
 
 const { TextArea } = Input;
+const InputGroup = Input.Group;
 
 interface EditFieldInterface {
   fieldKey: string;
-  type: 'input' | 'split-input' | 'upload-input' | 'select' | 'area' | 'radio' | 'list' | 'bool';
+  type:
+    | 'input'
+    | 'split-input'
+    | 'upload-input'
+    | 'select'
+    | 'area'
+    | 'radio'
+    | 'list'
+    | 'split-list'
+    | 'bool';
   name: string;
   data?: { key: string; value: string }[];
   getValue: (key: string) => any;
@@ -159,7 +169,16 @@ const EditField = (props: EditFieldInterface) => {
     );
   }
 
-  if (type === 'list') {
+  if (type === 'list' || type === 'split-list') {
+    const split = (line: string) => {
+      if (!line) return { cost: '', text: '' };
+
+      const splitIndex = line.indexOf('|');
+      if (splitIndex === -1) return { cost: '', text: line };
+
+      return { cost: line.substring(0, splitIndex), text: line.substring(splitIndex + 1) };
+    };
+
     return (
       <span>
         <p className={styles.label}>{name}</p>
@@ -183,20 +202,45 @@ const EditField = (props: EditFieldInterface) => {
                 />
               ]}
             >
-              <TextArea
-                value={item}
-                onChange={e => {
-                  const list = getValue(fieldKey);
-                  list[i] = e.target.value;
-                  saveValue(fieldKey, list);
-                }}
-                autosize
-              />
+              {type === 'list' ? (
+                <TextArea
+                  value={item}
+                  onChange={e => {
+                    const list = getValue(fieldKey);
+                    list[i] = e.target.value;
+                    saveValue(fieldKey, list);
+                  }}
+                  autosize
+                />
+              ) : (
+                <InputGroup compact>
+                  <Input
+                    style={{ width: '20%' }}
+                    value={split(item).cost}
+                    onChange={e => {
+                      const list = getValue(fieldKey);
+                      list[i] = `${e.target.value}|${split(item).text}`;
+                      saveValue(fieldKey, list);
+                    }}
+                  />
+                  <TextArea
+                    style={{ width: '80%' }}
+                    value={split(item).text}
+                    onChange={e => {
+                      const list = getValue(fieldKey);
+                      list[i] = `${split(item).cost}|${e.target.value}`;
+                      saveValue(fieldKey, list);
+                    }}
+                    autosize
+                  />
+                </InputGroup>
+              )}
             </List.Item>
           )}
           footer={
             <div className={styles.centerParent}>
               <Button
+                disabled={type === 'split-list' && getValue(fieldKey).length === 4}
                 size="small"
                 onClick={() => {
                   const list = getValue(fieldKey);

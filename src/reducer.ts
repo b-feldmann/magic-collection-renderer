@@ -3,7 +3,7 @@ import MechanicInterface from './interfaces/MechanicInterface';
 import AnnotationInterface from './interfaces/AnnotationInterface';
 import AnnotationAccessorInterface from './interfaces/AnnotationAccessorInterface';
 import UserInterface from './interfaces/UserInterface';
-import { UNKNOWN_CREATOR } from './interfaces/constants';
+import { UNKNOWN_CREATOR } from './utils/constants';
 
 export enum CardActionType {
   RefreshCollection = 'refresh-collection',

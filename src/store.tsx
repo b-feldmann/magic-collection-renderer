@@ -4,7 +4,7 @@ import CardInterface from './interfaces/CardInterface';
 import MechanicInterface from './interfaces/MechanicInterface';
 import AnnotationAccessorInterface from './interfaces/AnnotationAccessorInterface';
 import UserInterface from './interfaces/UserInterface';
-import { UNKNOWN_CREATOR } from './interfaces/constants';
+import { UNKNOWN_CREATOR } from './utils/constants';
 
 export type StoreType = {
   cards: CardInterface[];

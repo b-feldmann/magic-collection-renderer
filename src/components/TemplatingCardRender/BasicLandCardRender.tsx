@@ -15,6 +15,7 @@ import {
   getRarityIcon
 } from './assetLoader';
 import ImageLoader from '../ImageLoader/ImageLoader';
+import parseCollectionNumber from '../../utils/parseCollectionNumber';
 
 interface BasicLandCardRenderProps {
   cardID: string;
@@ -31,14 +32,6 @@ const BasicLandCardRender = (cardRender: BasicLandCardRenderProps) => {
   const { creator, collectionNumber, collectionSize } = cardRender;
   const { landType, cover, artStyle, cardID } = cardRender;
   const { containerWidth = 720 } = cardRender;
-
-  const parseCollectionNumber = (n: number): string => {
-    const res = n.toString(10);
-    if (res.length === 0) return '000';
-    if (res.length === 1) return `00${res}`;
-    if (res.length === 2) return `0${res}`;
-    return res;
-  };
 
   let CARD_WIDTH = 720.0;
   let CARD_HEIGHT = 1020.0;

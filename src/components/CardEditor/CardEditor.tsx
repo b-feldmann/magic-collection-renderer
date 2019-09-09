@@ -1,5 +1,4 @@
 import React, { useContext, useEffect, useState } from 'react';
-// import CardFaceInterface from '../../interfaces/CardFaceInterface';
 import { Button, Row } from 'antd';
 import _ from 'lodash';
 import moment from 'moment';
@@ -20,7 +19,7 @@ import CardFaceInterface from '../../interfaces/CardFaceInterface';
 import EditorTooltip from '../EditorTooltip/EditorTooltip';
 import { updateCard } from '../../actions/cardActions';
 import { Store, StoreType } from '../../store';
-import { UNKNOWN_CREATOR } from '../../interfaces/constants';
+import { EDIT_TIME_OFFSET, UNKNOWN_CREATOR } from '../../utils/constants';
 
 interface CardEditorInterface {
   card?: CardInterface;
@@ -52,7 +51,16 @@ const dummyCard: CardInterface = {
 
 interface InputConfigInterface {
   key: string;
-  type: 'input' | 'split-input' | 'upload-input' | 'select' | 'area' | 'radio' | 'list' | 'bool';
+  type:
+    | 'input'
+    | 'split-input'
+    | 'upload-input'
+    | 'select'
+    | 'area'
+    | 'radio'
+    | 'list'
+    | 'split-list'
+    | 'bool';
   name: string;
   data?: { key: string; value: string }[];
   width?: number;
@@ -120,10 +128,12 @@ const CardEditor: React.FC<CardEditorInterface> = ({
         ) {
           saveValue('artStyle', BasicLandArtStyles.Regular);
         }
-      } else if (value === CardMainType.Land || value === CardMainType.Planeswalker) {
+      } else if (value === CardMainType.Land) {
         if (getValue('artStyle') !== CardArtStyles.Borderless) {
           saveValue('artStyle', CardArtStyles.Regular);
         }
+      } else if (value === CardMainType.Planeswalker) {
+        saveValue('artStyle', CardArtStyles.Regular);
       } else if (
         getValue('artStyle') !== CardArtStyles.Borderless &&
         getValue('artStyle') !== CardArtStyles.Invocation
@@ -139,7 +149,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
     clearTimeout(timerId);
     const tmpId = setTimeout(() => {
       saveTmpCard(newTmpCard);
-    }, 300);
+    }, EDIT_TIME_OFFSET);
     setTimerId(tmpId);
   };
 
@@ -199,7 +209,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
       name: 'Art Style',
       data: Object.keys(CardArtStyles)
         .filter(style =>
-          style === CardArtStyles.Invocation
+          style !== CardArtStyles.Regular
             ? getValue('cardMainType') !== CardMainType.Planeswalker &&
               getValue('cardMainType') !== CardMainType.Land
             : true
@@ -235,9 +245,14 @@ const CardEditor: React.FC<CardEditorInterface> = ({
       width: 50
     },
     { key: 'cardSubTypes', type: 'input', name: 'Card Sub Types', width: 50 },
-    { key: 'cardText', type: 'list', name: 'Card Text' },
-    { key: 'flavourText', type: 'area', name: 'Flavour Text' },
-    { key: 'flavourAuthor', type: 'input', name: 'Flavour Text Author' },
+    { key: 'cardText', type: isPlaneswalker() ? 'split-list' : 'list', name: 'Card Text' },
+    { key: 'flavourText', type: 'area', name: 'Flavour Text', width: isPlaneswalker() ? 0 : 100 },
+    {
+      key: 'flavourAuthor',
+      type: 'input',
+      name: 'Flavour Text Author',
+      width: isPlaneswalker() ? 0 : 100
+    },
     {
       key: 'cardStats',
       type: isPlaneswalker() ? 'input' : 'split-input',

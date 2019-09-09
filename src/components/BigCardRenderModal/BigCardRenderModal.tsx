@@ -13,7 +13,7 @@ import AnnotationList from '../AnnotationList/AnnotationList';
 import { createAnnotation } from '../../actions/annotationActions';
 import { CardState } from '../../interfaces/enums';
 import { updateCard } from '../../actions/cardActions';
-import { NEEDED_LIKES_TO_APPROVE } from '../../interfaces/constants';
+import { NEEDED_LIKES_TO_APPROVE } from '../../utils/constants';
 import MobileBigCardRenderModal from './MobileBigCardRenderModal';
 
 interface BigCardRenderModalProps {

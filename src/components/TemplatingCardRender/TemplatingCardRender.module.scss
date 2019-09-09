@@ -75,9 +75,9 @@
 
   .rarity {
     position: absolute;
-    left: 639px;
-    top: 583px;
-    height: 42px;
+    left: 637px;
+    top: 578px;
+    height: 48px;
   }
 
   .cover {
@@ -111,10 +111,11 @@
     font-family: "MPlantin", sans-serif;
     position: absolute;
     font-size: 1.625em;
-    top: 647px;
-    height: 283px;
-    left: 52px;
-    width: 662px - 52px;
+    top: 642px;
+    height: 290px;
+    left: 48px;
+    width: 622px;
+    //border: black solid;
 
     p {
       margin-top: 12px;
@@ -204,6 +205,39 @@
   }
 }
 
+.planeswalker.lines4 {
+  .type,
+  .rarity {
+    top: 510px;
+  }
+}
+
+.planeswalker {
+  .title {
+    font-size: 2.3em;
+    top: 29px;
+  }
+
+  .cost {
+    top: 29px;
+  }
+
+  .cover {
+    top: 90px;
+    left: 36px;
+    width: 648px;
+    height: 852px;
+  }
+
+  .stats {
+    font-size: 2em;
+    top: 943px;
+    left: 641px;
+    transform: translateX(-50%) translateY(-50%);
+    color: white;
+  }
+}
+
 .invocation {
   .rarity {
     left: 649px;
@@ -212,7 +246,7 @@
   }
 
   i:not([title="Artist (Nib)"]) {
-    font-size: 0.8em;
+    font-size: 0.9em;
     background: transparent !important;
     box-shadow: 0 0 1px 1px #111 !important;
     margin-left: 4px;
@@ -321,7 +355,7 @@
   }
 
   .innerBorderFrame {
-    //opacity: 0.9;
+    opacity: 0.75;
     //$clipTop: 107px;
     //$clipBottom: 570px;
     //-webkit-clip-path: polygon(0% 0%, 0% 100%, 0 100%, 0 $clipTop, 100% $clipTop, 100% $clipBottom, 0 $clipBottom, 0 100%, 100% 100%, 100% 0%);
