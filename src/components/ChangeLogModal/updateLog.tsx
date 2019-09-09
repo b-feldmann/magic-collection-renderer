@@ -220,11 +220,7 @@ updateLog.push({
   content: [
     {
       type: ChangeLogFeatureType.Added,
-      feature: 'Added "Artifact Creature" card type with specialized rendering.'
-    },
-    {
-      type: ChangeLogFeatureType.Added,
-      feature: 'Added "Basic Land" card type with specialized (Unstable) rendering.'
+      feature: 'Added "Artifact Creature" and "Basic Land" card types with specialized rendering.'
     },
     {
       type: ChangeLogFeatureType.Added,
@@ -238,16 +234,15 @@ updateLog.push({
       description: (
         <Row>
           <Row>Replaced card renderer with new one that works with image templates</Row>
-          <Row>
-            Special Focus on Artifacts, Planeswalkers, Lands (+ Basic Lands) and Multi-colored
-            spells
-          </Row>
+          <Row>Special Focus on Artifacts, Planeswalkers, Lands and Multi-colored spells</Row>
         </Row>
       )
     },
     {
-      type: ChangeLogFeatureType.Changed,
-      feature: 'New Log Rendering'
+      type: ChangeLogFeatureType.Added,
+      feature: 'Art Styles',
+      description:
+        'Renderer supports different art styles of cards (Look at you Basic Lands). Some cards can be rendered Borderless or as Invocations.'
     },
     {
       type: ChangeLogFeatureType.Fixed,
@@ -257,6 +252,10 @@ updateLog.push({
     {
       type: ChangeLogFeatureType.Removed,
       feature: 'LocalStorage as User info dump'
+    },
+    {
+      type: ChangeLogFeatureType.Changed,
+      feature: 'New Log Rendering'
     }
   ]
 });

@@ -4,6 +4,21 @@
 }
 
 @font-face {
+  font-family: "Gotham Medium";
+  src: url("./font/GothamMedium.ttf");
+}
+
+@font-face {
+  font-family: "Invocation V1";
+  src: url("./font/Invocation_v1.ttf");
+}
+
+@font-face {
+  font-family: "Invocation";
+  src: url("./font/Invocation.ttf");
+}
+
+@font-face {
   font-family: "Beleren Bold";
   src: url("./font/BelerenB.ttf");
 }
@@ -18,12 +33,13 @@
   color: black;
 
   .mainframe {
-    border-radius: 25px;
+    border-radius: 29.5px;
     z-index: -1;
     background-size: cover;
   }
 
-  .innerBorderFrame {
+  .innerBorderFrame,
+  .overlay {
     position: absolute;
     top: 0;
     left: 0;
@@ -59,8 +75,8 @@
 
   .rarity {
     position: absolute;
-    left: 675px - 36px;
-    top: 604px - 21px;
+    left: 639px;
+    top: 583px;
     height: 42px;
   }
 
@@ -140,7 +156,7 @@
   .copyright,
   .copyrightStats {
     color: white;
-    font-family: "MPlantin", sans-serif;
+    font-family: "Gotham Medium", sans-serif;
     position: absolute;
   }
 
@@ -188,6 +204,94 @@
   }
 }
 
+.invocation {
+  .rarity {
+    left: 649px;
+    top: 588px;
+    height: 48px;
+  }
+
+  i {
+    font-size: 0.8em;
+    background: transparent !important;
+    box-shadow: 0 0 1px 1px #111 !important;
+    margin-left: 4px;
+  }
+
+  .cost {
+    top: 56px;
+    width: 697px;
+  }
+
+  .title,
+  .type {
+    font-family: "Invocation V1", sans-serif;
+    //font-weight: bold;
+    letter-spacing: -1px;
+  }
+
+  .title {
+    top: 44px;
+    font-size: 3.1em;
+  }
+
+  .type {
+    top: 576px;
+    font-size: 3.3em;
+  }
+
+  .text {
+    font-family: "Gotham Medium", sans-serif;;
+    text-align: center;
+    top: 714px;
+    left: 84px;
+    width: 587px;
+    //height: 190px;
+    height: 180px;
+  }
+
+  .cover {
+    top: 156px;
+    left: 82px;
+    height: 407px;
+    width: 577px;
+  }
+
+  .flavourSeparator {
+    background-color: #171314;
+  }
+
+  .collectionBlock,
+  .collectionBlock2,
+  .copyright {
+    color: black;
+  }
+
+  .collectionBlock {
+    left: 65px;
+    top: 948px;
+  }
+  .collectionBlock2 {
+    left: 59px;
+    top: 964px;
+  }
+  .copyright {
+    top: 976px;
+    right: 30px;
+  }
+
+  .stats {
+    top: 862px;
+    left: 665px;
+    transform: translateX(-50%);
+  }
+
+  .stats > * {
+    margin-top: -4px;
+    margin-bottom: -4px;
+  }
+}
+
 .unstableStyle {
   .cover {
     border-radius: 25px;
@@ -204,6 +308,24 @@
 
   .collectionBlock2 {
     top: 990px;
+  }
+}
+
+.borderless {
+  .cover {
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 100%;
+    border-radius: 25px;
+  }
+
+  .innerBorderFrame {
+    //opacity: 0.9;
+    //$clipTop: 107px;
+    //$clipBottom: 570px;
+    //-webkit-clip-path: polygon(0% 0%, 0% 100%, 0 100%, 0 $clipTop, 100% $clipTop, 100% $clipBottom, 0 $clipBottom, 0 100%, 100% 100%, 100% 0%);
+    //clip-path: polygon(0% 0%, 0% 100%, 0 100%, 0 $clipTop, 100% $clipTop, 100% $clipBottom, 0 $clipBottom, 0 100%, 100% 100%, 100% 0%);
   }
 }
 

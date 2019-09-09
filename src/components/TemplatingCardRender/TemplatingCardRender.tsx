@@ -9,10 +9,10 @@ import TextResize from 'react-resize-text';
 import {
   BasicLandArtStyles,
   BasicLandType,
+  CardArtStyles,
   CardMainType,
-  NoLandPlaneswalkerArtStyles,
-  RarityType,
-  SplitArtStyles
+  ColorType,
+  RarityType
 } from '../../interfaces/enums';
 import { Store, StoreType } from '../../store';
 import { getColor, getColorIdentity } from '../../utils/cardToColor';
@@ -39,11 +39,12 @@ import {
 import NoCover from './images/no-cover.jpg';
 import ImageLoader from '../ImageLoader/ImageLoader';
 import BasicLandCardRender from './BasicLandCardRender';
+import InvocationCardRender from './InvocationCardRender';
 
 // import TextResizer from '../TextResizer/TextResizer';
 
 interface TemplatingCardRenderProps {
-  artStyle?: BasicLandArtStyles | NoLandPlaneswalkerArtStyles | SplitArtStyles;
+  artStyle?: BasicLandArtStyles | CardArtStyles;
   name: string;
   rarity: RarityType;
   creator?: string;
@@ -66,12 +67,12 @@ interface TemplatingCardRenderProps {
 const CARD_WIDTH = 720.0;
 const CARD_HEIGHT = 1020.0;
 
-const TemplatingCardRender = (cardRender: TemplatingCardRenderProps) => {
-  const { legendary, cardMainType, cardSubTypes, rarity } = cardRender;
-  const { name, manaCost, cardStats, cover, creator } = cardRender;
-  const { cardText, flavourText = '', flavourAuthor, cardID } = cardRender;
-  const { backFace, collectionNumber, collectionSize } = cardRender;
-  const { containerWidth = CARD_WIDTH, artStyle } = cardRender;
+const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
+  const { legendary, cardMainType, cardSubTypes, rarity } = cardRenderProps;
+  const { name, manaCost, cardStats, cover, creator } = cardRenderProps;
+  const { cardText, flavourText = '', flavourAuthor, cardID } = cardRenderProps;
+  const { backFace, collectionNumber, collectionSize } = cardRenderProps;
+  const { containerWidth = CARD_WIDTH, artStyle } = cardRenderProps;
 
   const { mechanics } = useContext<StoreType>(Store);
 
@@ -107,6 +108,10 @@ const TemplatingCardRender = (cardRender: TemplatingCardRenderProps) => {
     );
   }
 
+  if (artStyle === CardArtStyles.Invocation) {
+    return <InvocationCardRender {...cardRenderProps} />;
+  }
+
   const rarityCode = () => {
     if (rarity === RarityType.Uncommon) return 'U';
     if (rarity === RarityType.Rare) return 'R';
@@ -129,7 +134,7 @@ const TemplatingCardRender = (cardRender: TemplatingCardRenderProps) => {
 
   const { color, allColors, orderedCost, hexColor } = getColor(manaCost);
   let mainframe = getColorMainframe(color);
-  const lowResMainframe = getLowResColorMainframe(color);
+  let lowResMainframe = getLowResColorMainframe(color);
 
   let pt = getPt(color);
 
@@ -149,12 +154,31 @@ const TemplatingCardRender = (cardRender: TemplatingCardRenderProps) => {
     if (identity.length === 2) overlay = getLandOverlay();
   }
 
+  if (artStyle === CardArtStyles.Borderless && color === ColorType.Colorless) {
+    overlay = getLandOverlay();
+  }
+
   const parseCollectionNumber = (n: number): string => {
     const res = n.toString(10);
     if (res.length === 0) return '000';
     if (res.length === 1) return `00${res}`;
     if (res.length === 2) return `0${res}`;
     return res;
+  };
+
+  if (artStyle === CardArtStyles.Borderless) {
+    lowResMainframe = '';
+    mainframe = '';
+  }
+
+  const parseStats = (): { power: string; toughness: string } => {
+    if (!cardStats) return { power: '0', toughness: '0' };
+
+    const split = cardStats.split('/');
+    if (split.length > 2) return { power: '0', toughness: '0' };
+    if (split.length === 1) return { power: split[0], toughness: '0' };
+
+    return { power: split[0] || '0', toughness: split[1] || '0' };
   };
 
   return (
@@ -172,7 +196,10 @@ const TemplatingCardRender = (cardRender: TemplatingCardRenderProps) => {
             width: `${CARD_WIDTH}px`,
             height: `${CARD_HEIGHT}px`
           }}
-          className={styles.cardRender}
+          className={`
+            ${styles.cardRender} 
+            ${artStyle === CardArtStyles.Borderless && styles.borderless}
+          `}
         >
           <ImageLoader src={cover || NoCover} alt="cover" className={styles.cover} />
 
@@ -180,12 +207,12 @@ const TemplatingCardRender = (cardRender: TemplatingCardRenderProps) => {
             src={mainframe}
             lowResSrc={lowResMainframe}
             className={styles.mainframe}
-            fallBackColor={hexColor}
+            fallBackColor={artStyle !== CardArtStyles.Borderless ? hexColor : undefined}
           />
           <img className={styles.innerBorderFrame} src={innerBorderFrame} alt="" />
-          <img className={styles.innerBorderFrame} src={overlay} alt="" />
+          <img className={styles.overlay} src={overlay} alt="" />
 
-          {cardRender.cardMainType !== CardMainType.Land && !backFace && (
+          {cardRenderProps.cardMainType !== CardMainType.Land && !backFace && (
             <div className={styles.cost}>{injectManaIcons(orderedCost, true)}</div>
           )}
 
@@ -201,7 +228,7 @@ const TemplatingCardRender = (cardRender: TemplatingCardRenderProps) => {
           <div className={styles.text}>
             <TextResize
               defaultFontSize={20}
-              maxFontSize={36}
+              maxFontSize={32}
               minFontSize={14}
               className={styles.textWrap}
             >
@@ -235,8 +262,10 @@ const TemplatingCardRender = (cardRender: TemplatingCardRenderProps) => {
 
           {isCreature && (
             <div>
-              <img className={styles.innerBorderFrame} src={pt} alt="" />
-              <div className={styles.stats}>{cardStats}</div>
+              <img className={styles.overlay} src={pt} alt="" />
+              <div className={styles.stats}>
+                {`${parseStats().power}/${parseStats().toughness}`}
+              </div>
             </div>
           )}
 
@@ -259,5 +288,7 @@ const TemplatingCardRender = (cardRender: TemplatingCardRenderProps) => {
     </div>
   );
 };
+
+export const NonMemoCardRender = TemplatingCardRender;
 
 export default React.memo(TemplatingCardRender);

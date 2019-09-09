@@ -1,4 +1,3 @@
-import ArtifactMainframe from './images/mainframes/Art.png';
 import ColorlessMainframe from './images/mainframes/Art.png';
 import WhiteMainframe from './images/mainframes/W.png';
 import BlueMainframe from './images/mainframes/U.png';
@@ -6,6 +5,13 @@ import BlackMainframe from './images/mainframes/B.png';
 import RedMainframe from './images/mainframes/R.png';
 import GreenMainframe from './images/mainframes/G.png';
 import GoldMainframe from './images/mainframes/Gld.png';
+
+import InvocationWhiteMainframe from './images/mainframes/invocation/W.png';
+import InvocationBlueMainframe from './images/mainframes/invocation/U.png';
+import InvocationBlackMainframe from './images/mainframes/invocation/B.png';
+import InvocationRedMainframe from './images/mainframes/invocation/R.png';
+import InvocationGreenMainframe from './images/mainframes/invocation/G.png';
+import InvocationGoldMainframe from './images/mainframes/invocation/Gld.png';
 
 import LowResWhiteMainframe from './images/mainframes/lowRes/W.png';
 import LowResBlueMainframe from './images/mainframes/lowRes/U.png';
@@ -56,6 +62,7 @@ import WhiteBlueInnerBorder from './images/borders/WU.png';
 import GoldInnerBorder from './images/borders/Gld.png';
 
 import LandOverlay from './images/overlay/C-overlay.png';
+import InvocationPt from './images/pt/invocation/A.png';
 import PtArt from './images/pt/Art.png';
 import PtW from './images/pt/W.png';
 import PtU from './images/pt/U.png';
@@ -120,6 +127,25 @@ export const getColorMainframe = (color: ColorType) => {
   }
 };
 
+export const getInvocationPt = () => InvocationPt;
+
+export const getInvocationMainframe = (color: ColorType) => {
+  switch (color) {
+    case ColorType.White:
+      return InvocationWhiteMainframe;
+    case ColorType.Blue:
+      return InvocationBlueMainframe;
+    case ColorType.Black:
+      return InvocationBlackMainframe;
+    case ColorType.Red:
+      return InvocationRedMainframe;
+    case ColorType.Green:
+      return InvocationGreenMainframe;
+    default:
+      return InvocationGoldMainframe;
+  }
+};
+
 export const getLowResColorMainframe = (color: ColorType) => {
   switch (color) {
     case ColorType.White:
@@ -172,12 +198,12 @@ export const getInnerBorderFrame = (colors: ColorType[]) => {
     if (colors.includes(ColorType.Blue)) return GreenBlueInnerBorder;
     if (colors.includes(ColorType.White)) return GreenWhiteInnerBorder;
   }
-  return '';
+  return GoldInnerBorder;
 };
 
 export const getLandOverlay = () => LandOverlay;
 
-export const getArtifactMainframe = () => ArtifactMainframe;
+export const getArtifactMainframe = () => ColorlessMainframe;
 
 export const getLandMainframe = () => LandColorlessMainframe;
 

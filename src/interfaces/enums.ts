@@ -81,8 +81,9 @@ export enum CardState {
   Approved = 'Approved'
 }
 
-export enum NoLandPlaneswalkerArtStyles {
+export enum CardArtStyles {
   Regular = 'Regular',
+  Borderless = 'Borderless',
   Invocation = 'Invocation'
 }
 

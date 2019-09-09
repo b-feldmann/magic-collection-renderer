@@ -9,6 +9,7 @@ import styles from './styles.module.scss';
 import {
   BasicLandArtStyles,
   BasicLandType,
+  CardArtStyles,
   CardMainType,
   CardState,
   RarityType
@@ -101,15 +102,33 @@ const CardEditor: React.FC<CardEditorInterface> = ({
       getCurrentFace(newTmpCard)[key] = value;
     }
 
-    if (key === 'cardMainType' && value === CardMainType.BasicLand) {
-      if (
-        getValue('cardSubTypes') !== BasicLandType.Plains &&
-        getValue('cardSubTypes') !== BasicLandType.Island &&
-        getValue('cardSubTypes') !== BasicLandType.Swamp &&
-        getValue('cardSubTypes') !== BasicLandType.Mountain &&
-        getValue('cardSubTypes') !== BasicLandType.Forest
+    if (key === 'cardMainType') {
+      if (value === CardMainType.BasicLand) {
+        if (
+          getValue('cardSubTypes') !== BasicLandType.Plains &&
+          getValue('cardSubTypes') !== BasicLandType.Island &&
+          getValue('cardSubTypes') !== BasicLandType.Swamp &&
+          getValue('cardSubTypes') !== BasicLandType.Mountain &&
+          getValue('cardSubTypes') !== BasicLandType.Forest
+        ) {
+          saveValue('cardSubTypes', BasicLandType.Plains);
+        }
+
+        if (
+          getValue('artStyle') !== BasicLandArtStyles.Unstable &&
+          getValue('artStyle') !== BasicLandArtStyles.Regular
+        ) {
+          saveValue('artStyle', BasicLandArtStyles.Regular);
+        }
+      } else if (value === CardMainType.Land || value === CardMainType.Planeswalker) {
+        if (getValue('artStyle') !== CardArtStyles.Borderless) {
+          saveValue('artStyle', CardArtStyles.Regular);
+        }
+      } else if (
+        getValue('artStyle') !== CardArtStyles.Borderless &&
+        getValue('artStyle') !== CardArtStyles.Invocation
       ) {
-        saveValue('cardSubTypes', BasicLandType.Plains);
+        saveValue('artStyle', CardArtStyles.Regular);
       }
     }
 
@@ -174,6 +193,23 @@ const CardEditor: React.FC<CardEditorInterface> = ({
   const hasStats = () => isCreature() || isPlaneswalker();
 
   let inputConfig: InputConfigInterface[] = [
+    {
+      key: 'artStyle',
+      type: 'radio',
+      name: 'Art Style',
+      data: Object.keys(CardArtStyles)
+        .filter(style =>
+          style === CardArtStyles.Invocation
+            ? getValue('cardMainType') !== CardMainType.Planeswalker &&
+              getValue('cardMainType') !== CardMainType.Land
+            : true
+        )
+        .map((type: any) => ({
+          key: CardArtStyles[type],
+          value: CardArtStyles[type]
+        })),
+      width: 100
+    },
     { key: 'name', type: 'input', name: 'Card Name' },
     { key: 'cover', type: 'input', name: 'Cover (URL)' },
     { key: 'legendary', type: 'bool', name: 'Legendary?' },
