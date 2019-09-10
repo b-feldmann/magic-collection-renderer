@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 
 import styles from './RotateToMouse.module.scss';
 
-const UPDATE_RATE = 10;
+const UPDATE_RATE = 2;
 
 const RotateToMouse = ({
   children,
@@ -32,11 +32,14 @@ const RotateToMouse = ({
     const relativeY =
       (y - ref.current.getBoundingClientRect().top) / ref.current.getBoundingClientRect().height;
 
-    const currentRelativeX = (lastRelativeMouse.x + relativeX) * 0.5;
-    const currentRelativeY = (lastRelativeMouse.y + relativeY) * 0.5;
+    // const currentRelativeX = (lastRelativeMouse.x + relativeX) * 0.5;
+    // const currentRelativeY = (lastRelativeMouse.y + relativeY) * 0.5;
 
-    const minRotate = -1;
-    const maxRotate = 1;
+    const currentRelativeX = relativeX;
+    const currentRelativeY = relativeY;
+
+    const minRotate = -1.5;
+    const maxRotate = 1.5;
 
     const rotateX = (maxRotate - minRotate) * currentRelativeX + minRotate;
     const rotateY = (maxRotate - minRotate) * currentRelativeY + minRotate;
@@ -48,12 +51,10 @@ const RotateToMouse = ({
     if (covers) {
       for (let i = 0; i < covers.length; i += 1) {
         const coverStyle = `transform: 
-        translateX(${rotateX * 20}px) 
-        translateY(${rotateY * 20}px) 
-        rotateX(${-rotateY * -0.5}deg) 
-        rotateY(${rotateX * -0.5}deg)
+        translateX(${rotateX * 10}px) 
+        translateY(${rotateY * 10}px) 
         scale(1.1); 
-        transition: transform 1.5s;`;
+        transition: transform 1.0s;`;
         const item = covers.item(i);
 
         if (item) {
@@ -73,7 +74,7 @@ const RotateToMouse = ({
       for (let i = 0; i < covers.length; i += 1) {
         const coverStyle = `transform: 
         scale(1); 
-        transition: transform 1.5s;`;
+        transition: transform 0.5s;`;
         const item = covers.item(i);
         if (item) {
           item.setAttribute('style', coverStyle);
