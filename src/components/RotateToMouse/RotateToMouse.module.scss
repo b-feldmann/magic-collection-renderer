@@ -1,0 +1,9 @@
+.rotateToMouse {
+  perspective: 50px;
+}
+
+.inner {
+  display: flex;
+  flex-direction: row;
+  transition: transform 1.5s;
+}

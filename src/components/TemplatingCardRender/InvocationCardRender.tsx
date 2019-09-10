@@ -17,15 +17,11 @@ import {
   getInvocationPt,
   getRarityIcon
 } from './assetLoader';
-import {
-  injectManaIcons,
-  injectMechanics,
-  injectName,
-  injectQuotationMarks
-} from '../../utils/injectUtils';
+import { injectForText, injectManaIcons } from '../../utils/injectUtils';
 import ImageLoader from '../ImageLoader/ImageLoader';
 import parseStats from '../../utils/parseStats';
 import parseCollectionNumber from '../../utils/parseCollectionNumber';
+import FlavourText from './FlavourText';
 
 interface InvocationCardRenderProps {
   name: string;
@@ -94,9 +90,18 @@ const InvocationCardRender = (cardRender: InvocationCardRenderProps) => {
           }}
           className={`${styles.cardRender} ${styles.invocation}`}
         >
-          <ImageLoader src={cover || getFallbackCover()} alt="cover" className={styles.cover} />
-
+          <ImageLoader src={cover || getFallbackCover()} alt="cover" className={`${styles.cover} card-cover`} />
           <ImageLoader src={mainframe} className={styles.mainframe} fallBackColor="#eed66b" />
+
+          {isCreature && (
+            <div>
+              <img className={styles.overlay} src={pt} alt="" />
+              <div className={styles.stats}>
+                <div>{parseStats(cardStats).power}</div>
+                <div>{parseStats(cardStats).toughness}</div>
+              </div>
+            </div>
+          )}
 
           {!backFace && <div className={styles.cost}>{injectManaIcons(orderedCost, true)}</div>}
 
@@ -118,39 +123,12 @@ const InvocationCardRender = (cardRender: InvocationCardRenderProps) => {
             >
               <div>
                 {cardText.map(val => (
-                  <p>
-                    {injectQuotationMarks(
-                      injectManaIcons(injectName(injectMechanics(val, mechanics, name), name))
-                    )}
-                  </p>
+                  <p>{injectForText(val, name, mechanics)}</p>
                 ))}
-                {flavourText && (
-                  <div className={styles.flavour}>
-                    <div className={styles.flavourSeparator} />
-                    {flavourAuthor
-                      ? `“${injectQuotationMarks(injectName(flavourText, name))}”`
-                      : injectQuotationMarks(injectName(flavourText, name))}
-                    {flavourAuthor && (
-                      <span>
-                        <br />
-                        {`— ${flavourAuthor}`}
-                      </span>
-                    )}
-                  </div>
-                )}
+                <FlavourText name={name} flavourText={flavourText} flavourAuthor={flavourAuthor} />
               </div>
             </TextResize>
           </div>
-
-          {isCreature && (
-            <div>
-              <img className={styles.overlay} src={pt} alt="" />
-              <div className={styles.stats}>
-                <div>{parseStats(cardStats).power}</div>
-                <div>{parseStats(cardStats).toughness}</div>
-              </div>
-            </div>
-          )}
 
           <div className={styles.collectionBlock}>
             {`${parseCollectionNumber(collectionNumber)}/${parseCollectionNumber(collectionSize)} `}

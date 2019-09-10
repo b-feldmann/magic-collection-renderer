@@ -1,8 +1,8 @@
-import React, {useContext} from 'react';
+import React, { useContext } from 'react';
 
 import 'mana-font/css/mana.css';
 // @ts-ignore
-import {Mana} from '@saeris/react-mana';
+import { Mana } from '@saeris/react-mana';
 
 import TextResize from 'react-resize-text';
 
@@ -14,8 +14,8 @@ import {
   ColorType,
   RarityType
 } from '../../interfaces/enums';
-import {Store, StoreType} from '../../store';
-import {getColor, getColorIdentity} from '../../utils/cardToColor';
+import { Store, StoreType } from '../../store';
+import { getColor, getColorIdentity } from '../../utils/cardToColor';
 
 import styles from './TemplatingCardRender.module.scss';
 import {
@@ -30,20 +30,15 @@ import {
   getPt,
   getRarityIcon
 } from './assetLoader';
-import {
-  injectManaIcons,
-  injectMechanics,
-  injectName,
-  injectPlaneswalkerIcons,
-  injectQuotationMarks
-} from '../../utils/injectUtils';
+import { injectForText, injectManaIcons } from '../../utils/injectUtils';
 import ImageLoader from '../ImageLoader/ImageLoader';
 import BasicLandCardRender from './BasicLandCardRender';
 import InvocationCardRender from './InvocationCardRender';
 import getRarityCode from '../../utils/getRarityCode';
 import parseStats from '../../utils/parseStats';
 import parseCollectionNumber from '../../utils/parseCollectionNumber';
-import PlaneswalkerCardRender from "./PlaneswalkerCardRender";
+import PlaneswalkerCardRender from './PlaneswalkerCardRender';
+import FlavourText from './FlavourText';
 
 interface TemplatingCardRenderProps {
   artStyle?: BasicLandArtStyles | CardArtStyles;
@@ -182,7 +177,11 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
             ${artStyle === CardArtStyles.Borderless && styles.borderless}
           `}
         >
-          <ImageLoader src={cover || getFallbackCover()} alt="cover" className={styles.cover} />
+          <ImageLoader
+            src={cover || getFallbackCover()}
+            alt="cover"
+            className={`${styles.cover} ${artStyle !== CardArtStyles.Borderless && 'card-cover'}`}
+          />
 
           <ImageLoader
             src={mainframe}
@@ -193,11 +192,20 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
           <img className={styles.innerBorderFrame} src={innerBorderFrame} alt="" />
           <img className={styles.overlay} src={overlay} alt="" />
 
+          <ImageLoader src={getRarityIcon(rarity)} alt="" className={styles.rarity} />
+
+          {isCreature && (
+            <div>
+              <img className={styles.overlay} src={pt} alt="" />
+              <div className={styles.stats}>
+                {`${parseStats(cardStats).power}/${parseStats(cardStats).toughness}`}
+              </div>
+            </div>
+          )}
+
           {cardRenderProps.cardMainType !== CardMainType.Land && !backFace && (
             <div className={styles.cost}>{injectManaIcons(orderedCost, true)}</div>
           )}
-
-          <ImageLoader src={getRarityIcon(rarity)} alt="" className={styles.rarity} />
 
           <div className={styles.title}>{name}</div>
           <div className={styles.type}>
@@ -215,40 +223,12 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
             >
               <div>
                 {cardText.map(val => (
-                  <p>
-                    {injectQuotationMarks(
-                      injectPlaneswalkerIcons(
-                        injectManaIcons(injectName(injectMechanics(val, mechanics, name), name))
-                      )
-                    )}
-                  </p>
+                  <p>{injectForText(val, name, mechanics)}</p>
                 ))}
-                {flavourText && (
-                  <div className={styles.flavour}>
-                    <div className={styles.flavourSeparator} />
-                    {flavourAuthor
-                      ? `“${injectQuotationMarks(injectName(flavourText, name))}”`
-                      : injectQuotationMarks(injectName(flavourText, name))}
-                    {flavourAuthor && (
-                      <span>
-                        <br />
-                        {`— ${flavourAuthor}`}
-                      </span>
-                    )}
-                  </div>
-                )}
+                <FlavourText name={name} flavourText={flavourText} flavourAuthor={flavourAuthor} />
               </div>
             </TextResize>
           </div>
-
-          {isCreature && (
-            <div>
-              <img className={styles.overlay} src={pt} alt="" />
-              <div className={styles.stats}>
-                {`${parseStats(cardStats).power}/${parseStats(cardStats).toughness}`}
-              </div>
-            </div>
-          )}
 
           <div className={styles.collectionBlock}>
             {`${parseCollectionNumber(collectionNumber)}/${parseCollectionNumber(collectionSize)}`}

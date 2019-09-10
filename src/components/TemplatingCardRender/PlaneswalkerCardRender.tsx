@@ -20,12 +20,7 @@ import {
   getPlaneswalkerPt,
   getRarityIcon
 } from './assetLoader';
-import {
-  injectManaIcons,
-  injectMechanics,
-  injectName,
-  injectQuotationMarks
-} from '../../utils/injectUtils';
+import { injectForText, injectManaIcons } from '../../utils/injectUtils';
 import ImageLoader from '../ImageLoader/ImageLoader';
 import getRarityCode from '../../utils/getRarityCode';
 import parseCollectionNumber from '../../utils/parseCollectionNumber';
@@ -114,10 +109,17 @@ const PlaneswalkerCardRender = (cardRender: PlaneswalkerCardRenderProps) => {
             src={cover || getFallbackCover()}
             alt="cover"
             fallBackColor="black"
-            className={styles.cover}
+            className={`${styles.cover} card-cover`}
           />
           <ImageLoader src={mainframe} className={styles.mainframe} fallBackColor="#eed66b" />
           <ImageLoader src={getRarityIcon(rarity)} alt="" className={styles.rarity} />
+
+          <div>
+            <img className={styles.overlay} src={pt} alt="" />
+            <div className={styles.stats}>
+              <div>{cardStats}</div>
+            </div>
+          </div>
 
           {!backFace && <div className={styles.cost}>{injectManaIcons(orderedCost, true)}</div>}
 
@@ -146,23 +148,12 @@ const PlaneswalkerCardRender = (cardRender: PlaneswalkerCardRenderProps) => {
                       minFontSize={14}
                       className={styles.textWrap}
                     >
-                      <div>
-                        {injectQuotationMarks(
-                          injectManaIcons(injectName(injectMechanics(text, mechanics, name), name))
-                        )}
-                      </div>
+                      <div>{injectForText(text, name, mechanics)}</div>
                     </TextResize>
                   </div>
                 </div>
               );
             })}
-          </div>
-
-          <div>
-            <img className={styles.overlay} src={pt} alt="" />
-            <div className={styles.stats}>
-              <div>{cardStats}</div>
-            </div>
           </div>
 
           <div className={styles.collectionBlock}>

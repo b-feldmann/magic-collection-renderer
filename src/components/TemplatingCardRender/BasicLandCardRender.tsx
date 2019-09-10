@@ -4,7 +4,12 @@ import 'mana-font/css/mana.css';
 // @ts-ignore
 import { Mana } from '@saeris/react-mana';
 
-import { BasicLandArtStyles, BasicLandType, RarityType } from '../../interfaces/enums';
+import {
+  BasicLandArtStyles,
+  BasicLandType,
+  CardArtStyles,
+  RarityType
+} from '../../interfaces/enums';
 import { getBasicLandColor } from '../../utils/cardToColor';
 
 import styles from './TemplatingCardRender.module.scss';
@@ -69,7 +74,12 @@ const BasicLandCardRender = (cardRender: BasicLandCardRenderProps) => {
             ${artStyle === BasicLandArtStyles.FullArt && styles.landFullArtStyle}
           `}
         >
-          <ImageLoader src={cover || getFallbackCover()} alt="cover" className={styles.cover} />
+          <ImageLoader
+            src={cover || getFallbackCover()}
+            alt="cover"
+            className={`${styles.cover} ${artStyle !== BasicLandArtStyles.Unstable &&
+              'card-cover'}`}
+          />
           <ImageLoader
             src={mainframe}
             className={styles.mainframe}

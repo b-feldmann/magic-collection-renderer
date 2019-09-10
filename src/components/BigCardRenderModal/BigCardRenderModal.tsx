@@ -15,6 +15,7 @@ import { CardState } from '../../interfaces/enums';
 import { updateCard } from '../../actions/cardActions';
 import { NEEDED_LIKES_TO_APPROVE } from '../../utils/constants';
 import MobileBigCardRenderModal from './MobileBigCardRenderModal';
+import RotateToMouse from '../RotateToMouse/RotateToMouse';
 
 interface BigCardRenderModalProps {
   card: CardInterface;
@@ -191,25 +192,31 @@ const BigCardRenderModal = ({
             width: fullCardWidth
           }}
         >
-          {faces.map(face => (
-            <div
-              className={styles.modalCardWrapper}
-              style={{
-                width: singleCardWidth
-              }}
-            >
-              <CardRender
-                containerWidth={singleCardWidth}
-                {...face}
-                cardID={card.uuid}
-                creator={card.creator.name}
-                rarity={card.rarity}
-                manaCost={card.manaCost}
-                collectionNumber={collectionNumber}
-                collectionSize={collectionSize}
-              />
-            </div>
-          ))}
+          <RotateToMouse
+            style={{
+              width: fullCardWidth
+            }}
+          >
+            {faces.map(face => (
+              <div
+                className={styles.modalCardWrapper}
+                style={{
+                  width: singleCardWidth
+                }}
+              >
+                <CardRender
+                  containerWidth={singleCardWidth}
+                  {...face}
+                  cardID={card.uuid}
+                  creator={card.creator.name}
+                  rarity={card.rarity}
+                  manaCost={card.manaCost}
+                  collectionNumber={collectionNumber}
+                  collectionSize={collectionSize}
+                />
+              </div>
+            ))}
+          </RotateToMouse>
         </div>
         <div
           className={styles.annotationView}

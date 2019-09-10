@@ -3,6 +3,16 @@ import React from 'react';
 import { Mana } from '@saeris/react-mana';
 import MechanicInterface from '../interfaces/MechanicInterface';
 
+export const injectForText = (line: string, cardName: string, mechanics: MechanicInterface[]) => {
+  return injectQuotationMarks(
+    injectManaIcons(injectName(injectMechanics(line, mechanics, cardName), cardName))
+  );
+};
+
+export const injectForFlavour = (line: string, cardName: string) => {
+  return injectQuotationMarks(injectName(line, cardName));
+};
+
 interface InjectFunc {
   (
     text: (string | JSX.Element) | (string | JSX.Element)[],
