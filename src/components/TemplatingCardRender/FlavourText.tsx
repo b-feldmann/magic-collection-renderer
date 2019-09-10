@@ -11,6 +11,8 @@ interface FlavourTextProps {
 }
 
 const FlavourText = ({ name, flavourText = '', flavourAuthor }: FlavourTextProps) => {
+  if (!flavourText || flavourText.length === 0) return <div />;
+
   return (
     <div className={styles.flavour}>
       <div className={styles.flavourSeparator} />
