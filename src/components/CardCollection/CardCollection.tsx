@@ -92,7 +92,7 @@ const CardCollection = ({
             onItemsRendered={({ overscanRowStartIndex, overscanRowStopIndex }) => {
               for (
                 let i = overscanRowStartIndex * columns;
-                i < overscanRowStopIndex * columns;
+                i <= overscanRowStopIndex * columns;
                 i += 1
               ) {
                 if (data.cards[i]) {
