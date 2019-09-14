@@ -275,6 +275,19 @@ updateLog.push({
   ]
 });
 
+updateLog.push({
+  version: '1.2.1',
+  title: 'Uploading Hot Fix',
+  content: [
+    {
+      type: ChangeLogFeatureType.Fixed,
+      feature: 'Image Uploading',
+      description:
+        'Images are now separated from card and are lazy loaded just before the card is shown.'
+    }
+  ]
+});
+
 // updateLog.push({
 //   version: '1.1.3',
 //   title: 'New Card Type Update',

@@ -1,5 +1,5 @@
-const MAX_WIDTH = 720;
-const MAX_HEIGHT = 1020;
+const MAX_WIDTH = 360;
+const MAX_HEIGHT = 510;
 
 const resizeImage = (base64: string, cb: (image: string) => void) => {
   const img = new Image();

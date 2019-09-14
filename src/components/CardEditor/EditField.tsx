@@ -41,6 +41,22 @@ const EditField = (props: EditFieldInterface) => {
   }
 
   if (type === 'upload-input') {
+    const stripValue = (value?: string) => {
+      if (!value) return '';
+      if (value.startsWith('base64:') || value === 'loading') return '';
+      if (value.startsWith('url:')) return value.substring(4);
+
+      return value;
+    };
+
+    const getPlaceholder = (value?: string) => {
+      if (!value) return '';
+      if (value.startsWith('base64:')) return 'Use Uploaded Image';
+      if (value === 'loading') return 'Loading Image';
+
+      return '';
+    };
+
     return (
       <span>
         <p className={styles.label}>{name}</p>
@@ -54,10 +70,10 @@ const EditField = (props: EditFieldInterface) => {
                 reader.onload = () => {
                   if (typeof reader.result === 'string') {
                     resizeImage(reader.result, image => {
-                      saveValue(fieldKey, image);
+                      saveValue(fieldKey, `base64:${image}`);
                     });
                   } else {
-                    saveValue(fieldKey, reader.result);
+                    saveValue(fieldKey, `base64:${reader.result}`);
                   }
                 };
               });
@@ -67,8 +83,9 @@ const EditField = (props: EditFieldInterface) => {
           </Upload>
           <Input
             size="small"
-            value={getValue(fieldKey)}
-            onChange={e => saveValue(fieldKey, e.target.value)}
+            placeholder={getPlaceholder(getValue(fieldKey))}
+            value={stripValue(getValue(fieldKey))}
+            onChange={e => saveValue(fieldKey, `url:${e.target.value}`)}
           />
         </div>
       </span>

@@ -39,6 +39,7 @@ import parseStats from '../../utils/parseStats';
 import parseCollectionNumber from '../../utils/parseCollectionNumber';
 import PlaneswalkerCardRender from './PlaneswalkerCardRender';
 import FlavourText from './FlavourText';
+import { getImage } from '../../actions/imageActions';
 
 interface TemplatingCardRenderProps {
   artStyle?: BasicLandArtStyles | CardArtStyles;
@@ -73,6 +74,17 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
 
   const { mechanics } = useContext<StoreType>(Store);
 
+  const stripCoverValue = (value?: string) => {
+    if (!value) return '';
+    if (value === 'loading') return '';
+    if (value.startsWith('url:')) return value.substring(4);
+    if (value.startsWith('base64:')) return value.substring(7);
+
+    return value;
+  };
+
+  const parsedCover = stripCoverValue(cover);
+
   if (cardMainType === CardMainType.BasicLand) {
     let landType: BasicLandType = BasicLandType.Plains;
     if (cardSubTypes && Object.values(BasicLandType).includes(cardSubTypes)) {
@@ -99,18 +111,18 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
         creator={creator}
         collectionNumber={collectionNumber}
         collectionSize={collectionSize}
-        cover={cover}
+        cover={parsedCover}
         containerWidth={containerWidth}
       />
     );
   }
 
   if (artStyle === CardArtStyles.Invocation) {
-    return <InvocationCardRender {...cardRenderProps} />;
+    return <InvocationCardRender {...cardRenderProps} cover={parsedCover} />;
   }
 
   if (cardMainType === CardMainType.Planeswalker) {
-    return <PlaneswalkerCardRender {...cardRenderProps} />;
+    return <PlaneswalkerCardRender {...cardRenderProps} cover={parsedCover} />;
   }
 
   const resizeFactor = (width: number) => {
@@ -178,7 +190,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
           `}
         >
           <ImageLoader
-            src={cover || getFallbackCover()}
+            src={parsedCover || getFallbackCover()}
             alt="cover"
             className={`${styles.cover} ${artStyle !== CardArtStyles.Borderless && 'card-cover'}`}
           />

@@ -5,6 +5,11 @@ import AnnotationAccessorInterface from './interfaces/AnnotationAccessorInterfac
 import UserInterface from './interfaces/UserInterface';
 import { UNKNOWN_CREATOR } from './utils/constants';
 
+export enum ImageActionType {
+  CreateImage = 'create-image',
+  ReadImage = 'read-image'
+}
+
 export enum CardActionType {
   RefreshCollection = 'refresh-collection',
   CreateCard = 'create-card',
@@ -60,7 +65,15 @@ export type Action =
   | { type: AnnotationActionType.DeleteAnnotation; payload: { uuid: string } }
   | { type: UserActionType.GetUser; payload: { user: UserInterface[] } }
   | { type: UserActionType.UpdateUser; payload: { user: UserInterface } }
-  | { type: UserActionType.SetCurrentUser; payload: { user: UserInterface } };
+  | { type: UserActionType.SetCurrentUser; payload: { user: UserInterface } }
+  | {
+      type: ImageActionType.CreateImage;
+      payload: { base64: string; cardUuid: string; face: number };
+    }
+  | {
+      type: ImageActionType.ReadImage;
+      payload: { base64: string; cardUuid: string; face: number };
+    };
 
 const reducer: React.Reducer<State, Action> = (state, action) => {
   let annotationAccessor: AnnotationAccessorInterface;
@@ -219,6 +232,24 @@ const reducer: React.Reducer<State, Action> = (state, action) => {
       return {
         ...state,
         currentUser: action.payload.user
+      };
+
+    case ImageActionType.ReadImage:
+    case ImageActionType.CreateImage:
+      return {
+        ...state,
+        cards: state.cards.map(card => {
+          if (action.payload.cardUuid !== card.uuid) return card;
+
+          const result: CardInterface = { ...card };
+          if (action.payload.face === 1 && result.back) {
+            result.back.cover = `base64:${action.payload.base64}`;
+          } else {
+            result.front.cover = `base64:${action.payload.base64}`;
+          }
+
+          return result;
+        })
       };
 
     default:

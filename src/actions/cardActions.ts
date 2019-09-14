@@ -12,6 +12,7 @@ import { getAccessToken, deleteAccessToken } from '../utils/accessService';
 import { UNKNOWN_CREATOR } from '../utils/constants';
 import UserInterface from '../interfaces/UserInterface';
 import { captureError, ActionTag, RequestTag } from './errorLog';
+import { createImage, getImage } from './imageActions';
 
 const MIDDLEWARE_ENDPOINT = process.env.NODE_ENV === 'production' ? '' : 'http://localhost:3001';
 
@@ -105,10 +106,41 @@ export const updateCard = (dispatch: (value: Action) => void, updated: CardInter
     updated
   });
   const request = `${MIDDLEWARE_ENDPOINT}/cards`;
+  const parsed = { ...updated };
+  if (updated.front.cover && updated.front.cover.startsWith('base64:')) {
+    createImage(dispatch, updated.front.cover.substring(7), updated, 0);
+    parsed.front.cover = 'loading';
+  }
+  if (
+    updated.back &&
+    parsed.back &&
+    updated.back.cover &&
+    updated.back.cover.startsWith('base64:')
+  ) {
+    createImage(dispatch, updated.back.cover.substring(7), updated, 1);
+    parsed.back.cover = 'loading';
+  }
+
   axios
-    .put(request, { card: updated, accessKey: getAccessToken() })
+    .put(request, { card: parsed, accessKey: getAccessToken() })
     .then(result => {
       message.success('Successfully Updated Card');
+      if (
+        result.data.card.front.cover &&
+        (result.data.card.front.cover === 'loading' ||
+          result.data.card.front.cover.startsWith('base64:'))
+      ) {
+        getImage(dispatch, result.data.card, 0);
+      }
+      if (result.data.card.back) {
+        if (
+          result.data.card.back.cover &&
+          (result.data.card.back.cover === 'loading' ||
+            result.data.card.back.cover.startsWith('base64:'))
+        ) {
+          getImage(dispatch, result.data.card, 1);
+        }
+      }
       return dispatch({
         type: CardActionType.UpdateCard,
         payload: {

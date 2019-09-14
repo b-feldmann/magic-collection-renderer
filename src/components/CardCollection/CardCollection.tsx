@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 
 import { FixedSizeGrid as Grid } from 'react-window';
 
@@ -8,6 +8,8 @@ import CardInterface from '../../interfaces/CardInterface';
 import Cell from './Cell';
 
 import styles from './styles.module.scss';
+import { getImage } from '../../actions/imageActions';
+import { Store, StoreType } from '../../store';
 
 export interface CardCollectionInterface {
   cards?: CardInterface[];
@@ -32,6 +34,8 @@ const CardCollection = ({
   mobile
 }: CardCollectionInterface) => {
   const [showBackFaceConfig, setShowBackFaceConfig] = useState<{ [key: string]: boolean }>({});
+
+  const { dispatch } = useContext<StoreType>(Store);
 
   const toggleShowBackConfig = (id: string) => {
     const newConfig = { ...showBackFaceConfig };
@@ -85,6 +89,31 @@ const CardCollection = ({
             height={height}
             width={width + 22}
             itemData={data}
+            onItemsRendered={({ overscanRowStartIndex, overscanRowStopIndex }) => {
+              for (
+                let i = overscanRowStartIndex * columns;
+                i < overscanRowStopIndex * columns;
+                i += 1
+              ) {
+                if (data.cards[i]) {
+                  const frontCover = data.cards[i].front.cover;
+                  if (frontCover) {
+                    if (frontCover && frontCover === 'loading') {
+                      getImage(dispatch, data.cards[i], 0);
+                    }
+                  }
+                  const { back } = data.cards[i];
+                  if (back) {
+                    const backCover = back.cover;
+                    if (backCover) {
+                      if (backCover && backCover === 'loading') {
+                        getImage(dispatch, data.cards[i], 1);
+                      }
+                    }
+                  }
+                }
+              }
+            }}
           >
             {Cell}
           </Grid>

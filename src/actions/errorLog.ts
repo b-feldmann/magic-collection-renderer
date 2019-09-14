@@ -4,7 +4,8 @@ export enum ActionTag {
   Card = 'Card',
   Annotation = 'Annotation',
   Mechanic = 'Mechanic',
-  User = 'User'
+  User = 'User',
+  Image = 'Image'
 }
 
 export enum RequestTag {
