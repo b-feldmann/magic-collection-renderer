@@ -1,10 +1,12 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Badge, Button, Card, Col, Input, Modal, Result, Row, Select, Tabs } from 'antd';
+import { Button, Col, Input, Modal, Row, Select, Tabs, Badge, Card, Result } from 'antd';
 import _ from 'lodash';
-import LogRocket from 'logrocket';
 
+import fileDownload from 'js-file-download';
+
+import LogRocket from 'logrocket';
 import CardInterface from './interfaces/CardInterface';
-import { CardState } from './interfaces/enums';
+import { CardState, ColorTypePlus, SortByType } from './interfaces/enums';
 import CardCollection from './components/CardCollection/CardCollection';
 import CardEditor from './components/CardEditor/CardEditor';
 
@@ -13,13 +15,17 @@ import { Store, StoreType } from './store';
 import styles from './App.module.scss';
 import './card-modal.scss';
 import './ant-tabs.scss';
-import './reset.css';
 
-import CollectionFilterControls from './components/CollectionFilterControls/CollectionFilterControls';
-import { EMPTY_CARD, refreshCollection } from './actions/cardActions';
+import CollectionFilterControls, {
+  CollectionFilterInterface
+} from './components/CollectionFilterControls/CollectionFilterControls';
+import cardToColor from './utils/cardToColor';
+import { createCard, EMPTY_CARD, refreshCollection } from './actions/cardActions';
 
 import { hasAccessToken, updateAccessToken } from './utils/accessService';
 import { getMechanics } from './actions/mechanicActions';
+import MechanicModal from './components/MechanicModal/MechanicModal';
+import useLocalStorage from './utils/useLocalStorageHook';
 import ChangeLogModal from './components/ChangeLogModal/ChangeLogModal';
 import BigCardRenderModal from './components/BigCardRenderModal/BigCardRenderModal';
 import { getAnnotations } from './actions/annotationActions';
@@ -32,12 +38,22 @@ const { TabPane } = Tabs;
 
 const NO_CARD = '-1';
 
-const MobileApp: React.FC = () => {
+const App: React.FC = () => {
   const [tmpCard, setTmpCard] = useState<CardInterface | null>(null);
   const [cardEditId, setCardEditId] = useState<string>(NO_CARD);
   const [cardViewId, setCardViewId] = useState<string>(NO_CARD);
   const [showCardModal, setShowCardModal] = useState<boolean>(false);
   const [cardNameFilter, setCardNameFilter] = useState<string>('');
+  const [mechanicsVisible, setMechanicsVisible] = useState(false);
+  const [sortBy, setSortBy] = useLocalStorage('mtg-funset:SortBy', SortByType.LastUpdated);
+
+  const [collectionFilter, setCollectionFilter] = useState<CollectionFilterInterface>({
+    colors: {},
+    rarity: {},
+    types: {}
+  });
+
+  const [colSpanSetting, setColSpanSetting] = useState<number>(-1);
 
   const { cards, newUuid, dispatch, annotationAccessor, user, currentUser } = useContext<StoreType>(
     Store
@@ -55,19 +71,83 @@ const MobileApp: React.FC = () => {
     const annotations = annotationAccessor[card.uuid];
     if (!annotations) return card.meta.lastUpdated;
 
-    const lastAnnotation = annotations.reduce((a, b) => (a.datetime > b.datetime ? a : b));
-    return Math.max(lastAnnotation.datetime, card.meta.lastUpdated);
+    const lastAnnotatoin = annotations.reduce((a, b) => (a.datetime > b.datetime ? a : b));
+    return Math.max(lastAnnotatoin.datetime, card.meta.lastUpdated);
   };
 
-  const filteredCollection = _.sortBy(mergedCollection, [
-    (o: CardInterface) => -1 * lastUpdated(o)
-  ]).filter(o => o.name.toLowerCase().includes(cardNameFilter.toLowerCase()));
+  const sortList = [];
+  if (sortBy === SortByType.Color) {
+    sortList.push((o: CardInterface) =>
+      _.indexOf(Object.values(ColorTypePlus), cardToColor(o.front.cardMainType, o.manaCost).color)
+    );
+    sortList.push((o: CardInterface) => o.front.name.toLowerCase());
+  }
+  if (sortBy === SortByType.Creator) {
+    sortList.push((o: CardInterface) =>
+      o.creator.uuid === UNKNOWN_CREATOR.uuid ? 'zzzzz' : o.creator.name
+    );
+    sortList.push((o: CardInterface) =>
+      _.indexOf(Object.values(ColorTypePlus), cardToColor(o.front.cardMainType, o.manaCost).color)
+    );
+    sortList.push((o: CardInterface) => o.front.name.toLowerCase());
+  }
+  if (sortBy === SortByType.LastUpdated) {
+    sortList.push((o: CardInterface) => -1 * lastUpdated(o));
+  }
+
+  const filteredCollection = _.sortBy(mergedCollection, sortList).filter(
+    o =>
+      o.name.toLowerCase().includes(cardNameFilter.toLowerCase()) &&
+      collectionFilter.colors[cardToColor(o.front.cardMainType, o.manaCost).color] &&
+      collectionFilter.rarity[o.rarity] &&
+      collectionFilter.types[o.front.cardMainType]
+  );
 
   const getCard = (collection: CardInterface[], uuid: string) =>
     filteredCollection.find(card => card.uuid === uuid) || EMPTY_CARD();
 
   const getCardUndefined = (collection: CardInterface[], uuid: string) =>
     filteredCollection.find(card => card.uuid === uuid);
+
+  useEffect(() => {
+    if (newUuid) {
+      addSeenCard(dispatch, newUuid, currentUser);
+      // eslint-disable-next-line @typescript-eslint/no-use-before-define
+      if (cardEditId === NO_CARD) openCardInEditor(newUuid, '');
+      // eslint-disable-next-line @typescript-eslint/no-use-before-define
+      else openCardInEditor(newUuid, getCard(filteredCollection, cardEditId).name);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [newUuid]);
+
+  const refresh = () => {
+    refreshCollection(dispatch);
+    getMechanics(dispatch);
+    getAnnotations(dispatch);
+    getUser(dispatch);
+  };
+
+  useEffect(refresh, []);
+
+  const downloadJson = (card: CardInterface) => {
+    const data = { ...card };
+
+    fileDownload(JSON.stringify(data), `${card.name}.json`);
+  };
+
+  const downloadCollectionAsJson = (cardCollection: CardInterface[]) => {
+    const collectionData: object[] = [];
+
+    cardCollection.forEach(card => {
+      collectionData.push(card);
+    });
+
+    fileDownload(JSON.stringify(collectionData), `magic-collection.json`);
+  };
+
+  const downloadImage = (id: string, name: string) => {
+    console.log(`image download: ${id} - ${name}`);
+  };
 
   const viewCard = (id: string) => {
     LogRocket.log(`View card ${getCard(filteredCollection, id).name}`);
@@ -102,30 +182,12 @@ const MobileApp: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    if (newUuid) {
-      addSeenCard(dispatch, newUuid, currentUser);
-      if (cardEditId === NO_CARD) openCardInEditor(newUuid, '');
-      else openCardInEditor(newUuid, getCard(filteredCollection, cardEditId).name);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [newUuid]);
-
-  const refresh = () => {
-    refreshCollection(dispatch);
-    getMechanics(dispatch);
-    getAnnotations(dispatch);
-    getUser(dispatch);
-  };
-
-  useEffect(refresh, []);
-
   const createGrid = (collection: CardInterface[]) => {
-    const collectionSpan = 24;
-    const editorSpan = 0;
+    const collectionSpan = 18;
+    const editorSpan = 6;
 
     const cardTabs = [
-      { name: 'All', filter: () => true },
+      { name: 'All', filter: (o: CardInterface) => true },
       {
         name: 'Card Drafts / Idea Dump',
         filter: (o: CardInterface) => o.meta.state === CardState.Draft
@@ -143,6 +205,7 @@ const MobileApp: React.FC = () => {
     return (
       <Row className={styles.fullHeight}>
         <ChangeLogModal />
+        <MechanicModal visible={mechanicsVisible} setVisible={setMechanicsVisible} />
         <Col span={collectionSpan} className={styles.collection}>
           <Tabs defaultActiveKey="tab-key-Card Drafts / Idea Dump" className={styles.collection}>
             {cardTabs.map(tabObj => (
@@ -167,9 +230,11 @@ const MobileApp: React.FC = () => {
                     if (cardEditId === NO_CARD) openCardInEditor(id, '');
                     else openCardInEditor(id, getCard(collection, cardEditId).name);
                   }}
+                  downloadImage={id => downloadImage(id, getCard(collection, id).name)}
+                  downloadJson={id => downloadJson(getCard(collection, id))}
+                  colSpanSetting={colSpanSetting}
                   seenCardUuids={seenCardObject}
                   addSeenCard={uuid => addSeenCard(dispatch, uuid, currentUser)}
-                  mobile
                 />
               </TabPane>
             ))}
@@ -191,6 +256,7 @@ const MobileApp: React.FC = () => {
           subTitle="Sorry, you are not authorized to access this page. But please try to authenticate yourself."
           extra={
             <Search
+              className={styles.accessKeyInput}
               placeholder="Input Access Key"
               enterButton="Enter"
               onSearch={value => {
@@ -234,18 +300,63 @@ const MobileApp: React.FC = () => {
           currentUser.uuid === UNKNOWN_CREATOR.uuid ? styles.unauthenticated : styles.authenticated
         }`}
       >
-        <Col span={24} className={styles.collectionWrapper}>
-          {createGrid(filteredCollection)}
+        <Col span={3}>
+          <div className={styles.sortControls}>
+            <h3>Sort Collection By</h3>
+            <Select
+              className={styles.sortSelect}
+              size="small"
+              // @ts-ignore
+              value={sortBy || SortByType.Color}
+              // @ts-ignore
+              onChange={(newSortByValue: SortByType) => setSortBy(newSortByValue)}
+            >
+              {Object.keys(SortByType).map((d: any) => (
+                <Select.Option key={`collection-filter-key-${d}`} value={SortByType[d]}>
+                  {SortByType[d]}
+                </Select.Option>
+              ))}
+            </Select>
+          </div>
+          <CollectionFilterControls
+            collection={cards}
+            setCollectionColSpan={setColSpanSetting}
+            setCollectionFilter={setCollectionFilter}
+            setNameFilter={setCardNameFilter}
+          />
         </Col>
-        <div className={styles.mobileControls}>
-          <CollectionFilterControls collection={cards} setNameFilter={setCardNameFilter} />
+        <Col span={21}>{createGrid(filteredCollection)}</Col>
+        <div className={styles.desktopControls}>
+          <Button
+            icon="edit"
+            onClick={() => setMechanicsVisible(true)}
+            style={{ width: '100%', marginTop: '8px' }}
+            type="primary"
+          >
+            Edit Mechanics
+          </Button>
+          <Button
+            icon="plus"
+            type="primary"
+            onClick={() => createCard(dispatch, currentUser)}
+            className={styles.fullWidth}
+          >
+            Add Card
+          </Button>
+          <Button
+            icon="download"
+            type="primary"
+            onClick={() => downloadCollectionAsJson(filteredCollection)}
+            className={styles.fullWidth}
+          >
+            JSON
+          </Button>
           <Button icon="reload" type="primary" onClick={refresh} className={styles.fullWidth}>
             Reload Collection
           </Button>
         </div>
       </Row>
       <BigCardRenderModal
-        mobile
         card={getCard(filteredCollection, cardViewId)}
         visible={showCardModal}
         hide={() => setShowCardModal(false)}
@@ -258,4 +369,4 @@ const MobileApp: React.FC = () => {
   );
 };
 
-export default MobileApp;
+export default App;

@@ -4,8 +4,8 @@ import { areEqual } from 'react-window';
 import styles from './styles.module.scss';
 import ActionHover from '../ActionHover/ActionHover';
 // import CardRender from '../CardRender/CardRender';
-import CardRender from '../TemplatingCardRender';
-import GlowingStar from '../GlowingStar';
+import CardRender from '../TemplatingCardRender/index';
+import GlowingStar from '../GlowingStar/index';
 import CardInterface from '../../interfaces/CardInterface';
 import CardFaceInterface from '../../interfaces/CardFaceInterface';
 

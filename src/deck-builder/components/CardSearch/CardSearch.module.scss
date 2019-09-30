@@ -1,0 +1,36 @@
+.cardSearch {
+  width: calc(100vw / 24 * 8 - 8px);
+  height: 100vh;
+
+  .list {
+    height: calc(100% - 56px);
+  }
+
+  .listMeta {
+    span {
+      margin-right: 8px;
+    }
+  }
+
+  .listTitle {
+    i {
+      font-size: 0.8em;
+    }
+
+    a {
+      margin-right: 2px;
+    }
+
+    span {
+      margin-left: 2px;
+      margin-right: 2px;
+    }
+  }
+
+  .cardText {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: calc(100vw / 24 * 8 - 66px);
+  }
+}

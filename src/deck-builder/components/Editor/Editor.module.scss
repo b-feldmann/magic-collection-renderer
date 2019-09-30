@@ -1,0 +1,61 @@
+.cardSearch {
+  height: 100vh;
+}
+
+.deckEditor {
+  padding-left: 16px;
+  padding-right: 8px;
+  margin-right: 8px;
+  margin-left: -8px;
+  border-right: #6a469e solid 2px;
+  height: 100vh;
+
+  .bucket {
+    //margin-top: 4px;
+    margin-bottom: 8px;
+
+    .bucketTitle {
+      display: block;
+      font-weight: bold;
+    }
+
+    .bucketEntry {
+      display: block;
+      margin-top: 2px;
+
+      i {
+        font-size: 0.6em;
+      }
+
+      i:first-child {
+        margin-left: 2px;
+      }
+
+      span {
+        margin-left: 2px;
+        margin-right: 2px;
+      }
+    }
+
+    .closeIcon {
+      color: red;
+      cursor: pointer;
+    }
+  }
+
+  .grid {
+    margin-top: 32px;
+    span {
+      opacity: 1 !important;
+    }
+  }
+}
+
+.cardList {
+  height: 70vh;
+  -webkit-columns: 3 200px;
+  -moz-columns: 3 200px;
+  columns: 3 200px;
+  -moz-column-fill: auto;
+  column-fill: auto;
+}

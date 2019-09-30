@@ -3,7 +3,7 @@ import { Modal } from 'antd';
 
 import CardInterface from '../../interfaces/CardInterface';
 import styles from './BigCardRenderModal.module.scss';
-import { NonMemoCardRender as CardRender } from '../TemplatingCardRender';
+import { NonMemoCardRender as CardRender } from '../TemplatingCardRender/index';
 
 interface MobileBigCardRenderModalProps {
   card: CardInterface;
