@@ -38,6 +38,7 @@ I like to use hobby projects to test new technologies. I test the following tech
 
 ## Prerequisites
 You need to setup a server for the tool. Either write your own or use my implementation that uses a mongodb.
+https://github.com/BJennWare/magic-collection-middleware
 
 ## Available Scripts
 
