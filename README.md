@@ -34,7 +34,8 @@ I like to use hobby projects to test new technologies. I test the following tech
   - Only use the useContext and useReducer Hooks for state management
 
 ## Screenshots
-..
+![Card Collection](/screenshot.png?raw=true "Card Collection")
+![Card Comment Section](/screenshot-annotations.png?raw=true "Card Comment Section")
 
 ## Prerequisites
 You need to setup a server for the tool. Either write your own or use my implementation that uses a mongodb.
