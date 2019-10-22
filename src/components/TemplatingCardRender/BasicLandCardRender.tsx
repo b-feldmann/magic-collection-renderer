@@ -121,7 +121,7 @@ const BasicLandCardRender = (cardRender: BasicLandCardRenderProps) => {
             </span>
             <span className={styles.artist}>{creator}</span>
           </div>
-          <div className={styles.copyright}>&#8482; &amp; &#169; 2019 Wizards of the Coast</div>
+          <div className={styles.copyright}>&#8482; &amp; &#169; 2019 BJennWare</div>
         </div>
       </div>
     </div>

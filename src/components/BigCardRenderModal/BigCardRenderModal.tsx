@@ -8,7 +8,7 @@ import CardInterface from '../../interfaces/CardInterface';
 import styles from './BigCardRenderModal.module.scss';
 import { NonMemoCardRender as CardRender } from '../TemplatingCardRender/index';
 import { Store, StoreType } from '../../store';
-import useWindowDimensions from '../../../useWindowDimensions';
+import useWindowDimensions from '../../useWindowDimensions';
 import AnnotationList from '../AnnotationList/AnnotationList';
 import { createAnnotation } from '../../actions/annotationActions';
 import { CardState } from '../../interfaces/enums';

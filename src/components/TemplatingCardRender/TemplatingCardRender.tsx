@@ -254,7 +254,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
             <span className={styles.artist}>{creator}</span>
           </div>
           <div className={isCreature ? styles.copyrightStats : styles.copyright}>
-            &#8482; &amp; &#169; 2019 Wizards of the Coast
+            &#8482; &amp; &#169; 2019 BJennWare
           </div>
         </div>
       </div>

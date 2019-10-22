@@ -37,7 +37,6 @@
     "react-dom": "^16.8.6",
     "react-lazy-load": "^3.0.13",
     "react-resize-text": "^0.1.7",
-    "react-router-dom": "^5.0.1",
     "react-scripts": "3.0.1",
     "react-spreadsheet": "^0.4.34",
     "react-stack-grid": "^0.7.1",
