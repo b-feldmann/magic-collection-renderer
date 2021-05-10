@@ -24,7 +24,7 @@
     "jszip": "^3.2.2",
     "less": "^3.10.0",
     "less-loader": "^5.0.0",
-    "lodash": "^4.17.14",
+    "lodash": "^4.17.21",
     "logrocket": "^1.0.3",
     "logrocket-react": "^3.0.0",
     "mana-font": "^1.4.1",
