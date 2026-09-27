@@ -13,13 +13,7 @@ export interface CardMeta {
 
 export default interface CardInterface {
   [key: string]:
-    | number
-    | string
-    | CardFaceInterface
-    | CardMeta
-    | UserInterface
-    | boolean
-    | undefined;
+    number | string | CardFaceInterface | CardMeta | UserInterface | boolean | undefined;
   name: string;
   rarity: RarityType;
   creator: UserInterface;

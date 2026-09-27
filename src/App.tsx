@@ -2,6 +2,8 @@ import React, { useContext, useEffect, useState } from 'react';
 import { Button, Col, Input, Modal, Row, Select, Tabs, Badge, Card, Result } from 'antd';
 import _ from 'lodash';
 
+import AntIcon from './components/AntIcon/AntIcon';
+
 import fileDownload from 'js-file-download';
 
 import LogRocket from 'logrocket';
@@ -17,7 +19,7 @@ import './card-modal.scss';
 import './ant-tabs.scss';
 
 import CollectionFilterControls, {
-  CollectionFilterInterface
+  CollectionFilterInterface,
 } from './components/CollectionFilterControls/CollectionFilterControls';
 import cardToColor from './utils/cardToColor';
 import { createCard, EMPTY_CARD, refreshCollection } from './actions/cardActions';
@@ -34,7 +36,6 @@ import { UNKNOWN_CREATOR } from './utils/constants';
 
 const { Search } = Input;
 const { confirm } = Modal;
-const { TabPane } = Tabs;
 
 const NO_CARD = '-1';
 
@@ -50,21 +51,20 @@ const App: React.FC = () => {
   const [collectionFilter, setCollectionFilter] = useState<CollectionFilterInterface>({
     colors: {},
     rarity: {},
-    types: {}
+    types: {},
   });
 
   const [colSpanSetting, setColSpanSetting] = useState<number>(-1);
 
-  const { cards, newUuid, dispatch, annotationAccessor, user, currentUser } = useContext<StoreType>(
-    Store
-  );
+  const { cards, newUuid, dispatch, annotationAccessor, user, currentUser } =
+    useContext<StoreType>(Store);
 
   const seenCardObject: { [key: string]: boolean } = {};
   currentUser.seenCards.forEach((uuid: string) => {
     seenCardObject[uuid] = true;
   });
 
-  const mergedCollection = [...cards.filter(card => card.uuid !== (tmpCard ? tmpCard.uuid : ''))];
+  const mergedCollection = [...cards.filter((card) => card.uuid !== (tmpCard ? tmpCard.uuid : ''))];
   if (tmpCard) mergedCollection.push(tmpCard);
 
   const lastUpdated = (card: CardInterface): number => {
@@ -78,16 +78,16 @@ const App: React.FC = () => {
   const sortList = [];
   if (sortBy === SortByType.Color) {
     sortList.push((o: CardInterface) =>
-      _.indexOf(Object.values(ColorTypePlus), cardToColor(o.front.cardMainType, o.manaCost).color)
+      _.indexOf(Object.values(ColorTypePlus), cardToColor(o.front.cardMainType, o.manaCost).color),
     );
     sortList.push((o: CardInterface) => o.front.name.toLowerCase());
   }
   if (sortBy === SortByType.Creator) {
     sortList.push((o: CardInterface) =>
-      o.creator.uuid === UNKNOWN_CREATOR.uuid ? 'zzzzz' : o.creator.name
+      o.creator.uuid === UNKNOWN_CREATOR.uuid ? 'zzzzz' : o.creator.name,
     );
     sortList.push((o: CardInterface) =>
-      _.indexOf(Object.values(ColorTypePlus), cardToColor(o.front.cardMainType, o.manaCost).color)
+      _.indexOf(Object.values(ColorTypePlus), cardToColor(o.front.cardMainType, o.manaCost).color),
     );
     sortList.push((o: CardInterface) => o.front.name.toLowerCase());
   }
@@ -96,25 +96,24 @@ const App: React.FC = () => {
   }
 
   const filteredCollection = _.sortBy(mergedCollection, sortList).filter(
-    o =>
+    (o) =>
       o.name.toLowerCase().includes(cardNameFilter.toLowerCase()) &&
       collectionFilter.colors[cardToColor(o.front.cardMainType, o.manaCost).color] &&
       collectionFilter.rarity[o.rarity] &&
-      collectionFilter.types[o.front.cardMainType]
+      collectionFilter.types[o.front.cardMainType],
   );
 
   const getCard = (collection: CardInterface[], uuid: string) =>
-    filteredCollection.find(card => card.uuid === uuid) || EMPTY_CARD();
+    filteredCollection.find((card) => card.uuid === uuid) || EMPTY_CARD();
 
   const getCardUndefined = (collection: CardInterface[], uuid: string) =>
-    filteredCollection.find(card => card.uuid === uuid);
+    filteredCollection.find((card) => card.uuid === uuid);
 
   useEffect(() => {
     if (newUuid) {
       addSeenCard(dispatch, newUuid, currentUser);
-      // eslint-disable-next-line @typescript-eslint/no-use-before-define
+
       if (cardEditId === NO_CARD) openCardInEditor(newUuid, '');
-      // eslint-disable-next-line @typescript-eslint/no-use-before-define
       else openCardInEditor(newUuid, getCard(filteredCollection, cardEditId).name);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -138,7 +137,7 @@ const App: React.FC = () => {
   const downloadCollectionAsJson = (cardCollection: CardInterface[]) => {
     const collectionData: object[] = [];
 
-    cardCollection.forEach(card => {
+    cardCollection.forEach((card) => {
       collectionData.push(card);
     });
 
@@ -165,7 +164,6 @@ const App: React.FC = () => {
       confirm({
         title: `${oldCardName} has unsaved changes`,
         okText: 'Yes discard all changes',
-        type: 'danger',
         okType: 'danger',
         cancelText: 'Edit old card',
         onOk() {
@@ -174,7 +172,7 @@ const App: React.FC = () => {
         },
         onCancel() {
           viewCard(cardEditId);
-        }
+        },
       });
     } else {
       setCardEditId(id);
@@ -190,16 +188,16 @@ const App: React.FC = () => {
       { name: 'All', filter: (o: CardInterface) => true },
       {
         name: 'Card Drafts / Idea Dump',
-        filter: (o: CardInterface) => o.meta.state === CardState.Draft
+        filter: (o: CardInterface) => o.meta.state === CardState.Draft,
       },
       {
         name: 'Cards to Rate',
-        filter: (o: CardInterface) => o.meta.state === CardState.Rate
+        filter: (o: CardInterface) => o.meta.state === CardState.Rate,
       },
       {
         name: 'Approved Cards',
-        filter: (o: CardInterface) => o.meta.state === CardState.Approved
-      }
+        filter: (o: CardInterface) => o.meta.state === CardState.Approved,
+      },
     ];
 
     return (
@@ -207,38 +205,40 @@ const App: React.FC = () => {
         <ChangeLogModal />
         <MechanicModal visible={mechanicsVisible} setVisible={setMechanicsVisible} />
         <Col span={collectionSpan} className={styles.collection}>
-          <Tabs defaultActiveKey="tab-key-Card Drafts / Idea Dump" className={styles.collection}>
-            {cardTabs.map(tabObj => (
-              <TabPane
-                tab={
-                  <Badge
-                    className={styles.tabBadge}
-                    count={_.filter(filteredCollection, tabObj.filter).length}
-                    showZero
-                    overflowCount={999}
-                  >
-                    {tabObj.name}
-                  </Badge>
-                }
-                key={`tab-key-${tabObj.name}`}
-                className={styles.fullHeight}
-              >
-                <CardCollection
-                  cards={_.filter(filteredCollection, tabObj.filter)}
-                  currentEditId={cardEditId}
-                  editCard={id => {
-                    if (cardEditId === NO_CARD) openCardInEditor(id, '');
-                    else openCardInEditor(id, getCard(collection, cardEditId).name);
-                  }}
-                  downloadImage={id => downloadImage(id, getCard(collection, id).name)}
-                  downloadJson={id => downloadJson(getCard(collection, id))}
-                  colSpanSetting={colSpanSetting}
-                  seenCardUuids={seenCardObject}
-                  addSeenCard={uuid => addSeenCard(dispatch, uuid, currentUser)}
-                />
-              </TabPane>
-            ))}
-          </Tabs>
+          <Tabs
+            defaultActiveKey="tab-key-Card Drafts / Idea Dump"
+            className={styles.collection}
+            items={cardTabs.map((tabObj) => ({
+              key: `tab-key-${tabObj.name}`,
+              label: (
+                <Badge
+                  className={styles.tabBadge}
+                  count={_.filter(filteredCollection, tabObj.filter).length}
+                  showZero
+                  overflowCount={999}
+                >
+                  {tabObj.name}
+                </Badge>
+              ),
+              children: (
+                <div className={styles.fullHeight}>
+                  <CardCollection
+                    cards={_.filter(filteredCollection, tabObj.filter)}
+                    currentEditId={cardEditId}
+                    editCard={(id) => {
+                      if (cardEditId === NO_CARD) openCardInEditor(id, '');
+                      else openCardInEditor(id, getCard(collection, cardEditId).name);
+                    }}
+                    downloadImage={(id) => downloadImage(id, getCard(collection, id).name)}
+                    downloadJson={(id) => downloadJson(getCard(collection, id))}
+                    colSpanSetting={colSpanSetting}
+                    seenCardUuids={seenCardObject}
+                    addSeenCard={(uuid) => addSeenCard(dispatch, uuid, currentUser)}
+                  />
+                </div>
+              ),
+            }))}
+          />
         </Col>
         <Col span={editorSpan} className={styles.editor}>
           <CardEditor card={getCardUndefined(collection, cardEditId)} saveTmpCard={setTmpCard} />
@@ -259,7 +259,7 @@ const App: React.FC = () => {
               className={styles.accessKeyInput}
               placeholder="Input Access Key"
               enterButton="Enter"
-              onSearch={value => {
+              onSearch={(value) => {
                 updateAccessToken(value);
                 window.location.reload();
               }}
@@ -281,13 +281,13 @@ const App: React.FC = () => {
           <Select
             size="large"
             onChange={(key: string) =>
-              setCurrentUser(dispatch, _.find(user, o => o.uuid === key) || UNKNOWN_CREATOR)
+              setCurrentUser(dispatch, _.find(user, (o) => o.uuid === key) || UNKNOWN_CREATOR)
             }
             style={{ width: '100%' }}
           >
             {user
-              .filter(u => u.name !== 'ADMIN')
-              .map(d => (
+              .filter((u) => u.name !== 'ADMIN')
+              .map((d) => (
                 <Select.Option key={`login-user-${d.uuid}`} value={d.uuid}>
                   {d.name}
                 </Select.Option>
@@ -311,7 +311,7 @@ const App: React.FC = () => {
               // @ts-ignore
               onChange={(newSortByValue: SortByType) => setSortBy(newSortByValue)}
             >
-              {Object.keys(SortByType).map((d: any) => (
+              {(Object.keys(SortByType) as (keyof typeof SortByType)[]).map((d) => (
                 <Select.Option key={`collection-filter-key-${d}`} value={SortByType[d]}>
                   {SortByType[d]}
                 </Select.Option>
@@ -328,7 +328,7 @@ const App: React.FC = () => {
         <Col span={21}>{createGrid(filteredCollection)}</Col>
         <div className={styles.desktopControls}>
           <Button
-            icon="edit"
+            icon={<AntIcon type="edit" />}
             onClick={() => setMechanicsVisible(true)}
             style={{ width: '100%', marginTop: '8px' }}
             type="primary"
@@ -336,7 +336,7 @@ const App: React.FC = () => {
             Edit Mechanics
           </Button>
           <Button
-            icon="plus"
+            icon={<AntIcon type="plus" />}
             type="primary"
             onClick={() => createCard(dispatch, currentUser)}
             className={styles.fullWidth}
@@ -344,14 +344,19 @@ const App: React.FC = () => {
             Add Card
           </Button>
           <Button
-            icon="download"
+            icon={<AntIcon type="download" />}
             type="primary"
             onClick={() => downloadCollectionAsJson(filteredCollection)}
             className={styles.fullWidth}
           >
             JSON
           </Button>
-          <Button icon="reload" type="primary" onClick={refresh} className={styles.fullWidth}>
+          <Button
+            icon={<AntIcon type="reload" />}
+            type="primary"
+            onClick={refresh}
+            className={styles.fullWidth}
+          >
             Reload Collection
           </Button>
         </div>

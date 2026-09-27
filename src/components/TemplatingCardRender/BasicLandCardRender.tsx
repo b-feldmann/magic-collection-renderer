@@ -2,13 +2,13 @@ import React from 'react';
 
 import 'mana-font/css/mana.css';
 // @ts-ignore
-import { Mana } from '@saeris/react-mana';
+import { Mana } from '../Mana/Mana';
 
 import {
   BasicLandArtStyles,
   BasicLandType,
   CardArtStyles,
-  RarityType
+  RarityType,
 } from '../../interfaces/enums';
 import { getBasicLandColor } from '../../utils/cardToColor';
 
@@ -17,7 +17,7 @@ import {
   getBasicLandMainframe,
   getBasicLandSymbols,
   getFallbackCover,
-  getRarityIcon
+  getRarityIcon,
 } from './assetLoader';
 import ImageLoader from '../ImageLoader/ImageLoader';
 import parseCollectionNumber from '../../utils/parseCollectionNumber';
@@ -61,10 +61,10 @@ const BasicLandCardRender = (cardRender: BasicLandCardRenderProps) => {
         id={`card-id-${cardID}`}
         style={{
           transform: `scaleX(${resizeFactor(containerWidth)}) scaleY(${resizeFactor(
-            (containerWidth * CARD_HEIGHT) / 1020.0
+            (containerWidth * CARD_HEIGHT) / 1020.0,
           )})`,
           transformOrigin: 'top left',
-          width: `${(CARD_WIDTH / containerWidth) * 100}%`
+          width: `${(CARD_WIDTH / containerWidth) * 100}%`,
         }}
       >
         <div
@@ -77,8 +77,9 @@ const BasicLandCardRender = (cardRender: BasicLandCardRenderProps) => {
           <ImageLoader
             src={cover || getFallbackCover()}
             alt="cover"
-            className={`${styles.cover} ${artStyle !== BasicLandArtStyles.Unstable &&
-              'card-cover'}`}
+            className={`${styles.cover} ${
+              artStyle !== BasicLandArtStyles.Unstable && 'card-cover'
+            }`}
           />
           <ImageLoader
             src={mainframe}

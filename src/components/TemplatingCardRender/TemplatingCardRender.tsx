@@ -2,9 +2,9 @@ import React, { useContext } from 'react';
 
 import 'mana-font/css/mana.css';
 // @ts-ignore
-import { Mana } from '@saeris/react-mana';
+import { Mana } from '../Mana/Mana';
 
-import TextResize from 'react-resize-text';
+import TextResize from '../TextResize/TextResize';
 
 import {
   BasicLandArtStyles,
@@ -12,7 +12,7 @@ import {
   CardArtStyles,
   CardMainType,
   ColorType,
-  RarityType
+  RarityType,
 } from '../../interfaces/enums';
 import { Store, StoreType } from '../../store';
 import { getColor, getColorIdentity } from '../../utils/cardToColor';
@@ -28,7 +28,7 @@ import {
   getLandOverlay,
   getLowResColorMainframe,
   getPt,
-  getRarityIcon
+  getRarityIcon,
 } from './assetLoader';
 import { injectForText, injectManaIcons } from '../../utils/injectUtils';
 import ImageLoader from '../ImageLoader/ImageLoader';
@@ -87,14 +87,14 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
 
   if (cardMainType === CardMainType.BasicLand) {
     let landType: BasicLandType = BasicLandType.Plains;
-    if (cardSubTypes && Object.values(BasicLandType).includes(cardSubTypes)) {
+    if (cardSubTypes && (Object.values(BasicLandType) as string[]).includes(cardSubTypes)) {
       // @ts-ignore
       landType = BasicLandType[cardSubTypes];
     }
 
     let landArtStyle = BasicLandArtStyles.Regular;
     if (artStyle) {
-      Object.keys(BasicLandArtStyles).forEach(key => {
+      Object.keys(BasicLandArtStyles).forEach((key) => {
         // @ts-ignore
         if (BasicLandArtStyles[key] === artStyle) {
           // @ts-ignore
@@ -176,13 +176,13 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
         style={{
           transform: `scale(${resizeFactor(containerWidth)})`,
           transformOrigin: 'top left',
-          width: `${(CARD_WIDTH / containerWidth) * 100}%`
+          width: `${(CARD_WIDTH / containerWidth) * 100}%`,
         }}
       >
         <div
           style={{
             width: `${CARD_WIDTH}px`,
-            height: `${CARD_HEIGHT}px`
+            height: `${CARD_HEIGHT}px`,
           }}
           className={`
             ${styles.cardRender} 
@@ -234,7 +234,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
               className={styles.textWrap}
             >
               <div>
-                {cardText.map(val => (
+                {cardText.map((val) => (
                   <p>{injectForText(val, name, mechanics)}</p>
                 ))}
                 <FlavourText name={name} flavourText={flavourText} flavourAuthor={flavourAuthor} />

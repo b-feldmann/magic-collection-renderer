@@ -7,7 +7,7 @@ import { UNKNOWN_CREATOR } from './utils/constants';
 
 export enum ImageActionType {
   CreateImage = 'create-image',
-  ReadImage = 'read-image'
+  ReadImage = 'read-image',
 }
 
 export enum CardActionType {
@@ -16,27 +16,27 @@ export enum CardActionType {
   BulkReadCard = 'bulk-read-card',
   ReadCard = 'read-card',
   UpdateCard = 'update-card',
-  DeleteCard = 'delete-card'
+  DeleteCard = 'delete-card',
 }
 
 export enum MechanicActionType {
   GetMechanics = 'get-mechanics',
   CreateMechanic = 'create-mechanic',
   UpdateMechanic = 'update-mechanic',
-  DeleteMechanic = 'delete-mechanic'
+  DeleteMechanic = 'delete-mechanic',
 }
 
 export enum AnnotationActionType {
   GetAnnotations = 'get-annotations',
   CreateAnnotation = 'create-annotation',
   UpdateAnnotation = 'update-annotation',
-  DeleteAnnotation = 'delete-annotation'
+  DeleteAnnotation = 'delete-annotation',
 }
 
 export enum UserActionType {
   GetUser = 'get-user',
   UpdateUser = 'update-user',
-  SetCurrentUser = 'set-current-user'
+  SetCurrentUser = 'set-current-user',
 }
 
 type State = {
@@ -82,84 +82,82 @@ const reducer: React.Reducer<State, Action> = (state, action) => {
     case CardActionType.RefreshCollection:
       return {
         ...state,
-        cards: state.cards.map(card => ({ ...card, loading: true }))
+        cards: state.cards.map((card) => ({ ...card, loading: true })),
       };
     case CardActionType.CreateCard:
       return {
         ...state,
         cards: [...state.cards, action.payload.card],
-        newUuid: action.payload.card.uuid
+        newUuid: action.payload.card.uuid,
       };
     case CardActionType.ReadCard:
       return {
         ...state,
         cards: [
-          ...state.cards.filter(card => card.uuid !== action.payload.card.uuid),
-          action.payload.card
-        ]
+          ...state.cards.filter((card) => card.uuid !== action.payload.card.uuid),
+          action.payload.card,
+        ],
       };
     case CardActionType.BulkReadCard:
       return {
         ...state,
         cards: [
           ...state.cards.filter(
-            card => !action.payload.cards.find(newCard => newCard.uuid === card.uuid)
+            (card) => !action.payload.cards.find((newCard) => newCard.uuid === card.uuid),
           ),
-          ...action.payload.cards
-        ]
+          ...action.payload.cards,
+        ],
       };
     case CardActionType.UpdateCard:
       return {
         ...state,
         cards: [
-          ...state.cards.filter(card => card.uuid !== action.payload.card.uuid),
-          action.payload.card
-        ]
+          ...state.cards.filter((card) => card.uuid !== action.payload.card.uuid),
+          action.payload.card,
+        ],
       };
     case CardActionType.DeleteCard:
       return {
         ...state,
-        cards: [...state.cards.filter(card => card.uuid !== action.payload.uuid)]
+        cards: [...state.cards.filter((card) => card.uuid !== action.payload.uuid)],
       };
 
     case MechanicActionType.GetMechanics:
       return {
         ...state,
-        mechanics: action.payload.mechanics
+        mechanics: action.payload.mechanics,
       };
     case MechanicActionType.CreateMechanic:
       return {
         ...state,
-        mechanics: [...state.mechanics, action.payload.mechanic]
+        mechanics: [...state.mechanics, action.payload.mechanic],
       };
     case MechanicActionType.UpdateMechanic:
       return {
         ...state,
         mechanics: [
-          ...state.mechanics.filter(mechanic => mechanic.uuid !== action.payload.mechanic.uuid),
-          action.payload.mechanic
-        ]
+          ...state.mechanics.filter((mechanic) => mechanic.uuid !== action.payload.mechanic.uuid),
+          action.payload.mechanic,
+        ],
       };
     case MechanicActionType.DeleteMechanic:
       return {
         ...state,
-        mechanics: [...state.mechanics.filter(mechanic => mechanic.uuid !== action.payload.uuid)]
+        mechanics: [...state.mechanics.filter((mechanic) => mechanic.uuid !== action.payload.uuid)],
       };
     case AnnotationActionType.GetAnnotations:
-      // eslint-disable-next-line no-case-declarations
       annotationAccessor = {};
 
-      action.payload.annotations.forEach(annotation => {
+      action.payload.annotations.forEach((annotation) => {
         if (!annotationAccessor[annotation.cardReference]) {
           annotationAccessor[annotation.cardReference] = [annotation];
         } else annotationAccessor[annotation.cardReference].push(annotation);
       });
       return {
         ...state,
-        annotationAccessor
+        annotationAccessor,
       };
     case AnnotationActionType.CreateAnnotation:
-      // eslint-disable-next-line no-case-declarations
       annotationAccessor = { ...state.annotationAccessor };
       if (!state.annotationAccessor[action.payload.annotation.cardReference]) {
         annotationAccessor[action.payload.annotation.cardReference] = [action.payload.annotation];
@@ -168,7 +166,7 @@ const reducer: React.Reducer<State, Action> = (state, action) => {
 
       return {
         ...state,
-        annotationAccessor
+        annotationAccessor,
       };
     case AnnotationActionType.UpdateAnnotation:
       annotationAccessor = { ...state.annotationAccessor };
@@ -177,68 +175,65 @@ const reducer: React.Reducer<State, Action> = (state, action) => {
       } else
         annotationAccessor[action.payload.annotation.cardReference] = [
           ...annotationAccessor[action.payload.annotation.cardReference].filter(
-            annotation => annotation.uuid !== action.payload.annotation.uuid
+            (annotation) => annotation.uuid !== action.payload.annotation.uuid,
           ),
-          action.payload.annotation
+          action.payload.annotation,
         ];
 
       return {
         ...state,
-        annotationAccessor
+        annotationAccessor,
       };
     case AnnotationActionType.DeleteAnnotation:
       annotationAccessor = { ...state.annotationAccessor };
-      Object.values(annotationAccessor).map(list =>
-        list.filter(annotation => annotation.uuid !== action.payload.uuid)
+      Object.values(annotationAccessor).map((list) =>
+        list.filter((annotation) => annotation.uuid !== action.payload.uuid),
       );
 
       return {
         ...state,
-        annotationAccessor
+        annotationAccessor,
       };
 
     case UserActionType.GetUser:
-      if (
-        process.env.NODE_ENV === 'development' &&
-        action.payload.user.some(user => user.name === 'ADMIN')
-      ) {
+      if (import.meta.env.DEV && action.payload.user.some((user) => user.name === 'ADMIN')) {
         return {
           ...state,
           user: action.payload.user,
-          currentUser: action.payload.user.find(user => user.name === 'ADMIN') || UNKNOWN_CREATOR
+          currentUser: action.payload.user.find((user) => user.name === 'ADMIN') || UNKNOWN_CREATOR,
         };
       }
 
       return {
         ...state,
-        user: action.payload.user
+        user: action.payload.user,
       };
 
     case UserActionType.UpdateUser:
       // eslint-disable-next-line no-case-declarations
       const updatedUserList = [
-        ...state.user.filter(user => user.uuid !== action.payload.user.uuid),
-        action.payload.user
+        ...state.user.filter((user) => user.uuid !== action.payload.user.uuid),
+        action.payload.user,
       ];
 
       return {
         ...state,
         user: updatedUserList,
         currentUser:
-          updatedUserList.find(user => user.uuid === state.currentUser.uuid) || UNKNOWN_CREATOR
+          updatedUserList.find((user) => user.uuid === state.currentUser.uuid) || UNKNOWN_CREATOR,
       };
 
     case UserActionType.SetCurrentUser:
       return {
         ...state,
-        currentUser: action.payload.user
+        currentUser: action.payload.user,
       };
 
     case ImageActionType.ReadImage:
     case ImageActionType.CreateImage:
       return {
         ...state,
-        cards: state.cards.map(card => {
+        cards: state.cards.map((card) => {
           if (action.payload.cardUuid !== card.uuid) return card;
 
           const result: CardInterface = { ...card };
@@ -249,7 +244,7 @@ const reducer: React.Reducer<State, Action> = (state, action) => {
           }
 
           return result;
-        })
+        }),
       };
 
     default:

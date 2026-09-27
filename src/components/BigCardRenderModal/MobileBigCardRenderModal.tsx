@@ -22,7 +22,7 @@ const MobileBigCardRenderModal = ({
   collectionNumber,
   collectionSize,
   width,
-  height
+  height,
 }: MobileBigCardRenderModalProps) => {
   const faces = [card.front];
   if (card.back) faces.push(card.back);
@@ -53,7 +53,7 @@ const MobileBigCardRenderModal = ({
     <Modal
       className={styles.mobileWrapper}
       wrapClassName="card-view"
-      visible={visible}
+      open={visible}
       onOk={hide}
       onCancel={hide}
     >
@@ -61,10 +61,10 @@ const MobileBigCardRenderModal = ({
         className={styles.mobilePositioner}
         style={{
           width: modalWidth,
-          flexDirection: portrait ? 'column' : 'row'
+          flexDirection: portrait ? 'column' : 'row',
         }}
       >
-        {faces.map(face => (
+        {faces.map((face) => (
           <div style={{ width: cardWidth }}>
             <CardRender
               containerWidth={cardWidth}

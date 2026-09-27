@@ -4,7 +4,7 @@ export const UNKNOWN_CREATOR: UserInterface = {
   name: 'Unkown',
   uuid: '-1',
   lastSeenVersion: -1,
-  seenCards: []
+  seenCards: [],
 };
 
 export const EDIT_TIME_OFFSET = 600;

@@ -8,7 +8,7 @@ import { getAccessToken } from '../utils/accessService';
 import MechanicInterface from '../interfaces/MechanicInterface';
 import { captureError, ActionTag, RequestTag } from './errorLog';
 
-const MIDDLEWARE_ENDPOINT = process.env.NODE_ENV === 'production' ? '' : 'http://localhost:3001';
+const MIDDLEWARE_ENDPOINT = import.meta.env.PROD ? '' : 'http://localhost:8080';
 
 export const getMechanics = (dispatch: (value: Action) => void) => {
   LogRocket.log('Try to get all mechanics');
@@ -17,13 +17,13 @@ export const getMechanics = (dispatch: (value: Action) => void) => {
   const args = { params: { accessKey: getAccessToken() } };
   axios
     .get(request, args)
-    .then(result => {
+    .then((result) => {
       dispatch({
         type: MechanicActionType.GetMechanics,
-        payload: { mechanics: result.data.mechanics }
+        payload: { mechanics: result.data.mechanics },
       });
     })
-    .catch(error => {
+    .catch((error) => {
       captureError(error, ActionTag.Mechanic, RequestTag.Get, {});
     });
 };
@@ -36,16 +36,16 @@ export const createMechanic = (dispatch: (value: Action) => void) => {
 
   axios
     .post(request, args)
-    .then(result => {
+    .then((result) => {
       message.success('Successfully Created Mechanic!');
       return dispatch({
         type: MechanicActionType.CreateMechanic,
         payload: {
-          mechanic: result.data.mechanic
-        }
+          mechanic: result.data.mechanic,
+        },
       });
     })
-    .catch(error => {
+    .catch((error) => {
       message.error('Failed creating a new mechanic :(');
       captureError(error, ActionTag.Mechanic, RequestTag.Create, {});
     });
@@ -57,16 +57,16 @@ export const updateMechanic = (dispatch: (value: Action) => void, updated: Mecha
   const request = `${MIDDLEWARE_ENDPOINT}/mechanics`;
   axios
     .put(request, { mechanic: updated, accessKey: getAccessToken() })
-    .then(result => {
+    .then((result) => {
       message.success('Successfully Updated Mechanic');
       return dispatch({
         type: MechanicActionType.UpdateMechanic,
         payload: {
-          mechanic: result.data.mechanic
-        }
+          mechanic: result.data.mechanic,
+        },
       });
     })
-    .catch(error => {
+    .catch((error) => {
       captureError(error, ActionTag.Mechanic, RequestTag.Update, {});
       message.error("Could'nt update mechanic");
     });

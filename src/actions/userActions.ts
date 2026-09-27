@@ -6,25 +6,24 @@ import UserInterface from '../interfaces/UserInterface';
 import { captureError, ActionTag, RequestTag } from './errorLog';
 import { getAccessToken } from '../utils/accessService';
 
-const MIDDLEWARE_ENDPOINT =
-  process.env.NODE_ENV === 'production' ? '/user' : 'http://localhost:3001/user';
+const MIDDLEWARE_ENDPOINT = import.meta.env.PROD ? '/user' : 'http://localhost:8080/user';
 
 export const setCurrentUser = (dispatch: (value: Action) => void, user: UserInterface) => {
   LogRocket.identify(user.uuid, {
-    name: user.name
+    name: user.name,
   });
   LogRocket.log(`Set current user to ${user.name}`, user);
 
   dispatch({
     type: UserActionType.SetCurrentUser,
-    payload: { user }
+    payload: { user },
   });
 };
 
 const fixUser = (user: UserInterface) => ({
   ...user,
   seenCards: user.seenCards || [],
-  lastSeenVersion: user.lastSeenVersion || -1
+  lastSeenVersion: user.lastSeenVersion || -1,
 });
 
 export const getUser = (dispatch: (value: Action) => void) => {
@@ -32,13 +31,13 @@ export const getUser = (dispatch: (value: Action) => void) => {
   LogRocket.log('Try to get all user');
   axios
     .get(MIDDLEWARE_ENDPOINT, args)
-    .then(result => {
+    .then((result) => {
       dispatch({
         type: UserActionType.GetUser,
-        payload: { user: result.data.user.map((user: UserInterface) => fixUser(user)) }
+        payload: { user: result.data.user.map((user: UserInterface) => fixUser(user)) },
       });
     })
-    .catch(error => {
+    .catch((error) => {
       captureError(error, ActionTag.User, RequestTag.Get, {});
     });
 };
@@ -46,19 +45,19 @@ export const getUser = (dispatch: (value: Action) => void) => {
 export const addLastSeenVersion = (
   dispatch: (value: Action) => void,
   version: number,
-  currentUser: UserInterface
+  currentUser: UserInterface,
 ) => {
   const updated = { ...currentUser, lastSeenVersion: version };
   LogRocket.log('Try to update user', updated);
   axios
     .put(MIDDLEWARE_ENDPOINT, { user: updated, accessKey: getAccessToken() })
-    .then(result => {
+    .then((result) => {
       dispatch({
         type: UserActionType.UpdateUser,
-        payload: { user: result.data.user }
+        payload: { user: result.data.user },
       });
     })
-    .catch(error => {
+    .catch((error) => {
       captureError(error, ActionTag.User, RequestTag.Get, {});
     });
 };
@@ -66,21 +65,21 @@ export const addLastSeenVersion = (
 export const addSeenCard = (
   dispatch: (value: Action) => void,
   cardUuid: string,
-  currentUser: UserInterface
+  currentUser: UserInterface,
 ) => {
-  if (currentUser.seenCards.some(uuid => uuid === cardUuid)) return;
+  if (currentUser.seenCards.some((uuid) => uuid === cardUuid)) return;
 
   const updated = { ...currentUser, seenCards: [...currentUser.seenCards, cardUuid] };
   LogRocket.log('Try to update user', updated);
   axios
     .put(MIDDLEWARE_ENDPOINT, { user: updated, accessKey: getAccessToken() })
-    .then(result => {
+    .then((result) => {
       dispatch({
         type: UserActionType.UpdateUser,
-        payload: { user: result.data.user }
+        payload: { user: result.data.user },
       });
     })
-    .catch(error => {
+    .catch((error) => {
       captureError(error, ActionTag.User, RequestTag.Get, {});
     });
 };

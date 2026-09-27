@@ -1,5 +1,7 @@
 import React, { useContext } from 'react';
-import { Button, Card, Icon, Modal, Tooltip } from 'antd';
+import { Button, Card, Modal, Tooltip } from 'antd';
+
+import AntIcon from '../AntIcon/AntIcon';
 
 import _ from 'lodash';
 
@@ -32,7 +34,7 @@ const BigCardRenderModal = ({
   hide,
   collectionNumber,
   collectionSize,
-  mobile
+  mobile,
 }: BigCardRenderModalProps) => {
   const { annotationAccessor, currentUser, user, dispatch } = useContext<StoreType>(Store);
 
@@ -85,7 +87,7 @@ const BigCardRenderModal = ({
   const draftView = (
     <Button
       ghost
-      type="danger"
+      danger
       size="small"
       style={{ width: '100%' }}
       onClick={() => updateState(CardState.Rate)}
@@ -94,12 +96,12 @@ const BigCardRenderModal = ({
     </Button>
   );
 
-  const liked = !!_.find(card.meta.likes, o => o === currentUser.uuid);
-  const disliked = !liked && !!_.find(card.meta.dislikes, o => o === currentUser.uuid);
+  const liked = !!_.find(card.meta.likes, (o) => o === currentUser.uuid);
+  const disliked = !liked && !!_.find(card.meta.dislikes, (o) => o === currentUser.uuid);
 
   const neededLikesCount = Math.max(
     NEEDED_LIKES_TO_APPROVE - card.meta.likes.length + card.meta.dislikes.length,
-    0
+    0,
   );
 
   const like = () => {
@@ -108,7 +110,7 @@ const BigCardRenderModal = ({
     LogRocket.log('Like Card', card.name, card);
     const updatedCard = { ...card };
     if (disliked) {
-      updatedCard.meta.dislikes = updatedCard.meta.dislikes.filter(o => o !== currentUser.uuid);
+      updatedCard.meta.dislikes = updatedCard.meta.dislikes.filter((o) => o !== currentUser.uuid);
     }
     updatedCard.meta.likes.push(currentUser.uuid);
     updateCard(dispatch, updatedCard);
@@ -120,7 +122,7 @@ const BigCardRenderModal = ({
     LogRocket.log('Dislike Card', card.name, card);
     const updatedCard = { ...card };
     if (liked) {
-      updatedCard.meta.likes = updatedCard.meta.likes.filter(o => o !== currentUser.uuid);
+      updatedCard.meta.likes = updatedCard.meta.likes.filter((o) => o !== currentUser.uuid);
     }
     updatedCard.meta.dislikes.push(currentUser.uuid);
     updateCard(dispatch, updatedCard);
@@ -128,21 +130,21 @@ const BigCardRenderModal = ({
 
   const userUuidToNames = (uuids: string[]) =>
     uuids
-      .map(uuid => _.find(user, u => u.uuid === uuid) || { name: '' })
-      .map(u => u.name)
+      .map((uuid) => _.find(user, (u) => u.uuid === uuid) || { name: '' })
+      .map((u) => u.name)
       .join(', ');
 
   const rateView = (
     <div>
       <span onClick={like} style={{ cursor: 'pointer' }}>
         <Tooltip title={userUuidToNames(card.meta.likes)}>
-          <Icon type="like" theme={liked ? 'filled' : 'outlined'} />
+          <AntIcon type="like" theme={liked ? 'filled' : 'outlined'} />
         </Tooltip>
         <span style={{ paddingLeft: 4 }}>{card.meta.likes.length}</span>
       </span>
       <span onClick={dislike} style={{ paddingLeft: 8, cursor: 'pointer' }}>
         <Tooltip title={userUuidToNames(card.meta.dislikes)}>
-          <Icon type="dislike" theme={disliked ? 'filled' : 'outlined'} />
+          <AntIcon type="dislike" theme={disliked ? 'filled' : 'outlined'} />
         </Tooltip>
         <span style={{ paddingLeft: 4 }}>{card.meta.dislikes.length}</span>
       </span>
@@ -151,7 +153,7 @@ const BigCardRenderModal = ({
           disabled={neededLikesCount > 0}
           className={styles.stateButton}
           ghost={neededLikesCount === 0}
-          type="danger"
+          danger
           size="small"
           onClick={() => updateState(CardState.Approved)}
         >
@@ -171,7 +173,7 @@ const BigCardRenderModal = ({
       className={styles.modalCardViewWrapper}
       wrapClassName="card-view"
       title={`View ${card.name}`}
-      visible={visible}
+      open={visible}
       onOk={hide}
       onCancel={hide}
     >
@@ -179,7 +181,7 @@ const BigCardRenderModal = ({
         className={styles.view}
         style={{
           width: rowLayout ? fullCardWidth : modalMaxWidth,
-          flexDirection: rowLayout ? 'column' : 'row'
+          flexDirection: rowLayout ? 'column' : 'row',
         }}
       >
         <div
@@ -189,19 +191,19 @@ const BigCardRenderModal = ({
               : styles.modalCardGroupWrapperSingle
           }`}
           style={{
-            width: fullCardWidth
+            width: fullCardWidth,
           }}
         >
           <RotateToMouse
             style={{
-              width: fullCardWidth
+              width: fullCardWidth,
             }}
           >
-            {faces.map(face => (
+            {faces.map((face) => (
               <div
                 className={styles.modalCardWrapper}
                 style={{
-                  width: singleCardWidth
+                  width: singleCardWidth,
                 }}
               >
                 <CardRender
@@ -222,7 +224,7 @@ const BigCardRenderModal = ({
           className={styles.annotationView}
           style={{
             width: `${annotationWidth}px`,
-            height: `${annotationHeight}px`
+            height: `${annotationHeight}px`,
           }}
         >
           <AnnotationList

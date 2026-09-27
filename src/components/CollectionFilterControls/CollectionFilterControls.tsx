@@ -31,7 +31,7 @@ const CollectionFilterControls = ({
   setCollectionColSpan,
   setCollectionFilter,
   collection,
-  setNameFilter
+  setNameFilter,
 }: CollectionFilterControlsInterface) => {
   const createEnumInitState = (values: string[]): CheckBoxGroupInterface => {
     const group: CheckBoxGroupInterface = {};
@@ -42,20 +42,20 @@ const CollectionFilterControls = ({
   };
 
   const [shownCardTypes, setShownCardTypes] = useState<CheckBoxGroupInterface>(
-    createEnumInitState(Object.values(CardMainType))
+    createEnumInitState(Object.values(CardMainType)),
   );
   const [shownColors, setShownColors] = useState<CheckBoxGroupInterface>(
-    createEnumInitState(Object.values(ColorTypePlus))
+    createEnumInitState(Object.values(ColorTypePlus)),
   );
   const [shownRarities, setShownRarities] = useState<CheckBoxGroupInterface>(
-    createEnumInitState(Object.values(RarityType))
+    createEnumInitState(Object.values(RarityType)),
   );
 
   const updateEnumState = (
     key: string,
     value: boolean,
     data: CheckBoxGroupInterface,
-    fct: (values: CheckBoxGroupInterface) => void
+    fct: (values: CheckBoxGroupInterface) => void,
   ) => {
     const newState = { ...data };
     newState[key] = value;
@@ -73,16 +73,16 @@ const CollectionFilterControls = ({
   };
 
   const cardCountStats: CardCountStats = {};
-  Object.values(CardMainType).forEach(key => {
+  Object.values(CardMainType).forEach((key) => {
     cardCountStats[key] = 0;
   });
-  Object.values(RarityType).forEach(key => {
+  Object.values(RarityType).forEach((key) => {
     cardCountStats[key] = 0;
   });
-  Object.values(ColorTypePlus).forEach(key => {
+  Object.values(ColorTypePlus).forEach((key) => {
     cardCountStats[key] = 0;
   });
-  collection.forEach(card => {
+  collection.forEach((card) => {
     cardCountStats[cardToColor(card.front.cardMainType, card.manaCost).color] += 1;
     cardCountStats[card.front.cardMainType] += 1;
     cardCountStats[card.rarity] += 1;
@@ -93,7 +93,7 @@ const CollectionFilterControls = ({
       setCollectionFilter({
         colors: shownColors,
         rarity: shownRarities,
-        types: shownCardTypes
+        types: shownCardTypes,
       });
   }, [shownColors, shownRarities, shownCardTypes, setCollectionFilter]);
 
@@ -106,7 +106,7 @@ const CollectionFilterControls = ({
     5: '5',
     6: '6',
     7: '7',
-    8: '8'
+    8: '8',
   };
 
   return (
@@ -114,7 +114,11 @@ const CollectionFilterControls = ({
       <Row>
         <div className={styles.controlItem}>
           <h4>Filter by name</h4>
-          <Input placeholder="Card Name" allowClear onChange={e => setNameFilter(e.target.value)} />
+          <Input
+            placeholder="Card Name"
+            allowClear
+            onChange={(e) => setNameFilter(e.target.value)}
+          />
         </div>
         {setCollectionColSpan && (
           <div className={styles.controlItem}>
@@ -126,7 +130,7 @@ const CollectionFilterControls = ({
               included={false}
               min={0}
               max={8}
-              onAfterChange={value => updateColSpan(value)}
+              onAfterChange={(value) => updateColSpan(value)}
             />
           </div>
         )}
@@ -139,7 +143,7 @@ const CollectionFilterControls = ({
                   key={`collection-filter-controls-checkbox-cardmaintype-${key}`}
                   checked={shownCardTypes[key]}
                   disabled={cardCountStats[key] === 0}
-                  onChange={e =>
+                  onChange={(e) =>
                     updateEnumState(key, e.target.checked, shownCardTypes, setShownCardTypes)
                   }
                 >
@@ -156,7 +160,7 @@ const CollectionFilterControls = ({
                     key={`collection-filter-controls-checkbox-color-${key}`}
                     checked={shownColors[key]}
                     disabled={cardCountStats[key] === 0}
-                    onChange={e =>
+                    onChange={(e) =>
                       updateEnumState(key, e.target.checked, shownColors, setShownColors)
                     }
                   >
@@ -172,7 +176,7 @@ const CollectionFilterControls = ({
                   key={`collection-filter-controls-checkbox-rarity-${key}`}
                   checked={shownRarities[key]}
                   disabled={cardCountStats[key] === 0}
-                  onChange={e =>
+                  onChange={(e) =>
                     updateEnumState(key, e.target.checked, shownRarities, setShownRarities)
                   }
                 >

@@ -1,7 +1,7 @@
 import { Button, Spin } from 'antd';
 import React from 'react';
-import { areEqual } from 'react-window';
 import styles from './styles.module.scss';
+import AntIcon from '../AntIcon/AntIcon';
 import ActionHover from '../ActionHover/ActionHover';
 // import CardRender from '../CardRender/CardRender';
 import CardRender from '../TemplatingCardRender/index';
@@ -9,7 +9,7 @@ import GlowingStar from '../GlowingStar/index';
 import CardInterface from '../../interfaces/CardInterface';
 import CardFaceInterface from '../../interfaces/CardFaceInterface';
 
-interface CellDataProps {
+export interface CellData {
   columnCount: number;
   cards: CardInterface[];
   seenCardUuids: { [key: string]: boolean };
@@ -23,30 +23,33 @@ interface CellDataProps {
   mobile?: boolean;
 }
 
-interface CellProps {
-  style: object;
+// Props injected by react-window v2's `Grid` component, merged with our `cellProps`.
+export type CellProps = CellData & {
+  ariaAttributes: { 'aria-colindex': number; role: 'gridcell' };
   columnIndex: number;
   rowIndex: number;
-  data: CellDataProps;
-}
+  style: React.CSSProperties;
+};
 
-const Cell = ({ style, columnIndex, rowIndex, data }: CellProps) => {
-  const {
-    cards,
-    columnCount,
-    seenCardUuids,
-    currentEditId,
-    addSeenCard,
-    downloadCard,
-    editCard,
-    toggleShowBackConfig,
-    width,
-    showBackFaceConfig,
-    mobile
-  } = data;
-
+const Cell = ({
+  ariaAttributes,
+  style,
+  columnIndex,
+  rowIndex,
+  cards,
+  columnCount,
+  seenCardUuids,
+  currentEditId,
+  addSeenCard,
+  downloadCard,
+  editCard,
+  toggleShowBackConfig,
+  width,
+  showBackFaceConfig,
+  mobile,
+}: CellProps) => {
   const index = columnIndex + rowIndex * columnCount;
-  if (index >= cards.length) return <div />;
+  if (index >= cards.length) return <div style={style} {...ariaAttributes} />;
   const card = cards[index];
 
   const isNew = !seenCardUuids[card.uuid];
@@ -57,7 +60,7 @@ const Cell = ({ style, columnIndex, rowIndex, data }: CellProps) => {
   };
 
   return (
-    <div className={styles.cardBox} key={card.uuid} style={style}>
+    <div className={styles.cardBox} style={style} {...ariaAttributes}>
       {isNew && <GlowingStar />}
       <Spin size="large" spinning={!!card.loading}>
         <ActionHover
@@ -71,7 +74,7 @@ const Cell = ({ style, columnIndex, rowIndex, data }: CellProps) => {
               ? undefined
               : {
                   icon: 'edit',
-                  action: () => editCard(card.uuid)
+                  action: () => editCard(card.uuid),
                 }
           }
           southAction={
@@ -79,7 +82,7 @@ const Cell = ({ style, columnIndex, rowIndex, data }: CellProps) => {
               ? undefined
               : {
                   icon: 'download',
-                  action: () => downloadCard(card.uuid)
+                  action: () => downloadCard(card.uuid),
                 }
           }
         >
@@ -97,7 +100,7 @@ const Cell = ({ style, columnIndex, rowIndex, data }: CellProps) => {
       </Spin>
       {card.back && (
         <Button
-          icon="swap"
+          icon={<AntIcon type="swap" />}
           className={styles.swapButton}
           onClick={() => toggleShowBackConfig(card.uuid)}
         />
@@ -106,4 +109,4 @@ const Cell = ({ style, columnIndex, rowIndex, data }: CellProps) => {
   );
 };
 
-export default React.memo(Cell, areEqual);
+export default Cell;

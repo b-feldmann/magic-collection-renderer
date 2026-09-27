@@ -24,7 +24,7 @@ export const getColorIdentity = (manaCost: string = '', cardText: string[]): Col
 
   const addColor = (type: ColorType) => {
     if (type === ColorType.Colorless || type === ColorType.Gold) return;
-    if (!allColors.some(c => c === type)) allColors.push(type);
+    if (!allColors.some((c) => c === type)) allColors.push(type);
   };
 
   const array = manaCost.split(/\}\{|\{|\}/);
@@ -32,7 +32,7 @@ export const getColorIdentity = (manaCost: string = '', cardText: string[]): Col
     addColor(getSingleColor(cost));
   });
 
-  cardText.forEach(line => {
+  cardText.forEach((line) => {
     if (allColors.length === 5) return;
     if (line.toLowerCase().indexOf('mana of any color') !== -1) {
       addColor(ColorType.White);
@@ -92,7 +92,7 @@ export const getColor = (manaCost: string = '') => {
     green: [],
     colorless: [],
     x: [],
-    rest: []
+    rest: [],
   };
 
   if (manaCost === '')
@@ -100,7 +100,7 @@ export const getColor = (manaCost: string = '') => {
       color: parsedColor,
       allColors,
       orderedCost: '',
-      hexColor: colorToColorHex(parsedColor)
+      hexColor: colorToColorHex(parsedColor),
     };
 
   const addColor = (type: ColorType, cost: string) => {
@@ -145,13 +145,13 @@ export const getColor = (manaCost: string = '') => {
     color: parsedColor,
     allColors,
     orderedCost: getOrdering(colorDict),
-    hexColor: colorToColorHex(parsedColor)
+    hexColor: colorToColorHex(parsedColor),
   };
 };
 
 const cardToColor = (
   cardMainType: CardMainType,
-  manaCost?: string
+  manaCost?: string,
 ): { color: ColorTypePlus; allColors: ColorTypePlus[] } => {
   let color: ColorTypePlus = ColorTypePlus.Colorless;
   const allColors: ColorTypePlus[] = [];
@@ -309,7 +309,7 @@ const getSingleColor = (cost: string) => {
 const addUpColorlessCost = (costs: string[]) => {
   let count = 0;
   try {
-    costs.forEach(cost => {
+    costs.forEach((cost) => {
       count += parseInt(cost, 10);
     });
   } catch (e) {
@@ -321,18 +321,18 @@ const addUpColorlessCost = (costs: string[]) => {
 
 const join = (...items: string[][]) => {
   return items
-    .map(list =>
+    .map((list) =>
       list
-        .map(value => (value ? `{${value}}` : ''))
+        .map((value) => (value ? `{${value}}` : ''))
         .sort((colorA, colorB) => colorB.length - colorA.length)
-        .join('')
+        .join(''),
     )
     .join('');
 };
 
 const getOrdering = (colorDict: ColorDictInterface): string => {
   let orderedCost = addUpColorlessCost(colorDict.colorless);
-  orderedCost += colorDict.x.map(value => `{${value}}`).join('');
+  orderedCost += colorDict.x.map((value) => `{${value}}`).join('');
 
   let binaryColorRepresentation = 0;
   if (colorDict.white.length > 0) binaryColorRepresentation += 1;
@@ -379,7 +379,7 @@ const getOrdering = (colorDict: ColorDictInterface): string => {
   else if (binaryColorRepresentation === 30) orderedCost += join(U, B, R, G);
   else if (binaryColorRepresentation === 31) orderedCost += join(W, U, B, R, G);
 
-  orderedCost += colorDict.rest.map(value => (value ? `{${value}}` : '')).join('');
+  orderedCost += colorDict.rest.map((value) => (value ? `{${value}}` : '')).join('');
 
   return orderedCost;
 };

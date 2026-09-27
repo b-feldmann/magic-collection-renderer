@@ -2,9 +2,9 @@ import React, { useContext } from 'react';
 
 import 'mana-font/css/mana.css';
 // @ts-ignore
-import { Mana } from '@saeris/react-mana';
+import { Mana } from '../Mana/Mana';
 
-import TextResize from 'react-resize-text';
+import TextResize from '../TextResize/TextResize';
 
 import { CardMainType, RarityType } from '../../interfaces/enums';
 import { Store, StoreType } from '../../store';
@@ -18,7 +18,7 @@ import {
   getLoyaltyIcon,
   getPlaneswalkerMainframe,
   getPlaneswalkerPt,
-  getRarityIcon
+  getRarityIcon,
 } from './assetLoader';
 import { injectForText, injectManaIcons } from '../../utils/injectUtils';
 import ImageLoader from '../ImageLoader/ImageLoader';
@@ -79,11 +79,7 @@ const PlaneswalkerCardRender = (cardRender: PlaneswalkerCardRenderProps) => {
     const splitIndex = line.indexOf('|');
     if (splitIndex === -1) return { loyalty: '', text: line, loyaltyImage: '' };
 
-    const loyalty = line
-      .substring(0, splitIndex)
-      .replace('{', '')
-      .replace('}', '')
-      .toUpperCase();
+    const loyalty = line.substring(0, splitIndex).replace('{', '').replace('}', '').toUpperCase();
 
     return { loyalty, text: line.substring(splitIndex + 1), loyaltyImage: getLoyaltyIcon(loyalty) };
   };
@@ -95,13 +91,13 @@ const PlaneswalkerCardRender = (cardRender: PlaneswalkerCardRenderProps) => {
         style={{
           transform: `scale(${resizeFactor(containerWidth)})`,
           transformOrigin: 'top left',
-          width: `${(CARD_WIDTH / containerWidth) * 100}%`
+          width: `${(CARD_WIDTH / containerWidth) * 100}%`,
         }}
       >
         <div
           style={{
             width: `${CARD_WIDTH}px`,
-            height: `${CARD_HEIGHT}px`
+            height: `${CARD_HEIGHT}px`,
           }}
           className={`${styles.cardRender} ${styles.planeswalker} ${lines === 4 && styles.lines4}`}
         >
@@ -167,9 +163,7 @@ const PlaneswalkerCardRender = (cardRender: PlaneswalkerCardRenderProps) => {
             </span>
             <span className={styles.artist}>{creator}</span>
           </div>
-          <div className={styles.copyrightStats}>
-            &#8482; &amp; &#169; 2019 BJennWare
-          </div>
+          <div className={styles.copyrightStats}>&#8482; &amp; &#169; 2019 BJennWare</div>
         </div>
       </div>
     </div>

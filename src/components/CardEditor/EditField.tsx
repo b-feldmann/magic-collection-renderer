@@ -1,4 +1,6 @@
-import { Button, Checkbox, Icon, Input, List, Radio, Select, Upload } from 'antd';
+import { Button, Checkbox, Input, List, Radio, Select, Upload } from 'antd';
+
+import AntIcon from '../AntIcon/AntIcon';
 import React from 'react';
 import styles from './styles.module.scss';
 import resizeImage from '../../utils/resizeImage';
@@ -34,7 +36,7 @@ const EditField = (props: EditFieldInterface) => {
         <Input
           size="small"
           value={getValue(fieldKey)}
-          onChange={e => saveValue(fieldKey, e.target.value)}
+          onChange={(e) => saveValue(fieldKey, e.target.value)}
         />
       </span>
     );
@@ -62,30 +64,29 @@ const EditField = (props: EditFieldInterface) => {
         <p className={styles.label}>{name}</p>
         <div className={styles.uploadWrapper}>
           <Upload
-            transformFile={file => {
-              return new Promise(resolve => {
-                const reader = new FileReader();
-                // @ts-ignore
-                reader.readAsDataURL(file);
-                reader.onload = () => {
-                  if (typeof reader.result === 'string') {
-                    resizeImage(reader.result, image => {
-                      saveValue(fieldKey, `base64:${image}`);
-                    });
-                  } else {
-                    saveValue(fieldKey, `base64:${reader.result}`);
-                  }
-                };
-              });
+            beforeUpload={(file: File) => {
+              const reader = new FileReader();
+              reader.readAsDataURL(file);
+              reader.onload = () => {
+                if (typeof reader.result === 'string') {
+                  resizeImage(reader.result, (image) => {
+                    saveValue(fieldKey, `base64:${image}`);
+                  });
+                } else {
+                  saveValue(fieldKey, `base64:${reader.result}`);
+                }
+              };
+              // Prevent antd from actually uploading; we handle the file locally.
+              return false;
             }}
           >
-            <Button shape="circle" icon="upload" size="small" type="danger" />
+            <Button shape="circle" icon={<AntIcon type="upload" />} size="small" danger />
           </Upload>
           <Input
             size="small"
             placeholder={getPlaceholder(getValue(fieldKey))}
             value={stripValue(getValue(fieldKey))}
-            onChange={e => saveValue(fieldKey, `url:${e.target.value}`)}
+            onChange={(e) => saveValue(fieldKey, `url:${e.target.value}`)}
           />
         </div>
       </span>
@@ -103,7 +104,7 @@ const EditField = (props: EditFieldInterface) => {
           <Input
             size="small"
             value={splitArray[0]}
-            onChange={e => saveValue(fieldKey, `${e.target.value}/${splitArray[1]}`)}
+            onChange={(e) => saveValue(fieldKey, `${e.target.value}/${splitArray[1]}`)}
           />
         </div>
         <div className={styles.splitInput}>
@@ -111,7 +112,7 @@ const EditField = (props: EditFieldInterface) => {
           <Input
             size="small"
             value={splitArray[1]}
-            onChange={e => saveValue(fieldKey, `${splitArray[0]}/${e.target.value}`)}
+            onChange={(e) => saveValue(fieldKey, `${splitArray[0]}/${e.target.value}`)}
           />
         </div>
       </span>
@@ -124,8 +125,8 @@ const EditField = (props: EditFieldInterface) => {
         <p className={styles.label}>{name}</p>
         <TextArea
           value={getValue(fieldKey)}
-          onChange={e => saveValue(fieldKey, e.target.value)}
-          autosize
+          onChange={(e) => saveValue(fieldKey, e.target.value)}
+          autoSize
         />
       </span>
     );
@@ -137,7 +138,7 @@ const EditField = (props: EditFieldInterface) => {
         <div className={styles.label}>
           <Checkbox
             checked={getValue(fieldKey)}
-            onChange={e => saveValue(fieldKey, e.target.checked)}
+            onChange={(e) => saveValue(fieldKey, e.target.checked)}
           >
             {name}
           </Checkbox>
@@ -156,7 +157,7 @@ const EditField = (props: EditFieldInterface) => {
           onChange={(key: string) => saveValue(fieldKey, key)}
           style={{ width: '100%' }}
         >
-          {data.map(d => (
+          {data.map((d) => (
             <Select.Option key={`${fieldKey} + ${d.key}`} value={d.key}>
               {d.value}
             </Select.Option>
@@ -173,10 +174,10 @@ const EditField = (props: EditFieldInterface) => {
         <Radio.Group
           buttonStyle="solid"
           value={getValue(fieldKey) || 'Regular'}
-          onChange={e => saveValue(fieldKey, e.target.value)}
+          onChange={(e) => saveValue(fieldKey, e.target.value)}
           style={{ width: '100%' }}
         >
-          {data.map(d => (
+          {data.map((d) => (
             <Radio.Button key={`${fieldKey} + ${d.key}`} value={d.key}>
               {d.value}
             </Radio.Button>
@@ -207,7 +208,7 @@ const EditField = (props: EditFieldInterface) => {
             <List.Item
               className={styles.listItem}
               actions={[
-                <Icon
+                <AntIcon
                   type="close-circle"
                   theme="twoTone"
                   twoToneColor="#FF0000"
@@ -216,25 +217,25 @@ const EditField = (props: EditFieldInterface) => {
                     list.splice(i, 1);
                     saveValue(fieldKey, list);
                   }}
-                />
+                />,
               ]}
             >
               {type === 'list' ? (
                 <TextArea
                   value={item}
-                  onChange={e => {
+                  onChange={(e) => {
                     const list = getValue(fieldKey);
                     list[i] = e.target.value;
                     saveValue(fieldKey, list);
                   }}
-                  autosize
+                  autoSize
                 />
               ) : (
                 <InputGroup compact>
                   <Input
                     style={{ width: '20%' }}
                     value={split(item).cost}
-                    onChange={e => {
+                    onChange={(e) => {
                       const list = getValue(fieldKey);
                       list[i] = `${e.target.value}|${split(item).text}`;
                       saveValue(fieldKey, list);
@@ -243,12 +244,12 @@ const EditField = (props: EditFieldInterface) => {
                   <TextArea
                     style={{ width: '80%' }}
                     value={split(item).text}
-                    onChange={e => {
+                    onChange={(e) => {
                       const list = getValue(fieldKey);
                       list[i] = `${split(item).cost}|${e.target.value}`;
                       saveValue(fieldKey, list);
                     }}
-                    autosize
+                    autoSize
                   />
                 </InputGroup>
               )}

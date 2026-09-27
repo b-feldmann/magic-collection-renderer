@@ -29,7 +29,7 @@ const LogEntry = (entry: ChangeLogEntryInterface) => {
       <List
         size="small"
         dataSource={entry.content}
-        renderItem={item => (
+        renderItem={(item) => (
           <ListItem className={styles.item}>
             <Row>
               {item.type !== ChangeLogFeatureType.None && (

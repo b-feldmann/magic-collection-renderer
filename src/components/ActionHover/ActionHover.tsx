@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Icon } from 'antd';
+import AntIcon from '../AntIcon/AntIcon';
 import styles from './styles.module.scss';
 
 interface ActionHoverInterface {
@@ -10,9 +10,10 @@ interface ActionHoverInterface {
   westAction?: { icon: string; action: () => void };
   active?: boolean;
   onHover?: () => void;
+  children?: React.ReactNode;
 }
 
-const ActionHover: React.FC<ActionHoverInterface> = actions => {
+const ActionHover: React.FC<ActionHoverInterface> = (actions) => {
   const { northAction, eastAction, westAction, southAction, active, onHover = () => {} } = actions;
 
   return (
@@ -24,28 +25,28 @@ const ActionHover: React.FC<ActionHoverInterface> = actions => {
         <div className={styles.target}>{actions.children}</div>
         <div className={styles.overlay}>
           {eastAction && (
-            <Icon
+            <AntIcon
               className={`${styles.action} ${styles.eastAction}`}
               type={eastAction.icon}
               onClick={eastAction.action}
             />
           )}
           {northAction && (
-            <Icon
+            <AntIcon
               className={`${styles.action} ${styles.northAction}`}
               type={northAction.icon}
               onClick={northAction.action}
             />
           )}
           {westAction && (
-            <Icon
+            <AntIcon
               className={`${styles.action} ${styles.westAction}`}
               type={westAction.icon}
               onClick={westAction.action}
             />
           )}
           {southAction && (
-            <Icon
+            <AntIcon
               className={`${styles.action} ${styles.southAction}`}
               type={southAction.icon}
               onClick={southAction.action}

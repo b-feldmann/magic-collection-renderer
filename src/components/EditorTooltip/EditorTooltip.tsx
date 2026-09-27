@@ -1,7 +1,9 @@
 import React from 'react';
-import { Popover, Icon, Table } from 'antd';
+import { Popover, Table } from 'antd';
+
+import AntIcon from '../AntIcon/AntIcon';
 // @ts-ignore
-import { Mana } from '@saeris/react-mana';
+import { Mana } from '../Mana/Mana';
 
 interface EditorTooltip {
   className: string;
@@ -11,13 +13,13 @@ const columns = [
   {
     title: 'Code',
     dataIndex: 'code',
-    key: 'code'
+    key: 'code',
   },
   {
     title: 'Icon',
     dataIndex: 'icon',
-    key: 'icon'
-  }
+    key: 'icon',
+  },
 ];
 
 const dataSource: { key: number; code: string; icon: JSX.Element }[] = [];
@@ -36,21 +38,21 @@ addToDataSource(
     <Mana symbol="r" shadow />
     <Mana symbol="g" shadow />
     <Mana symbol="c" shadow />
-  </span>
+  </span>,
 );
 addToDataSource(
   '{0} - {20}',
   <span>
     <Mana symbol="0" shadow /> –
     <Mana symbol="20" shadow />
-  </span>
+  </span>,
 );
 addToDataSource(
   '{t}{ut}',
   <span>
     <Mana symbol="tap" shadow />
     <Mana symbol="untap" shadow />
-  </span>
+  </span>,
 );
 addToDataSource(
   '{wp}{up}{bp}{rp}{gp}{p}',
@@ -61,7 +63,7 @@ addToDataSource(
     <Mana symbol="rp" shadow />
     <Mana symbol="gp" shadow />
     <Mana symbol="p" shadow />
-  </span>
+  </span>,
 );
 addToDataSource(
   '{x}{y}{z}',
@@ -69,7 +71,7 @@ addToDataSource(
     <Mana symbol="x" shadow />
     <Mana symbol="y" shadow />
     <Mana symbol="z" shadow />
-  </span>
+  </span>,
 );
 addToDataSource(
   '{2w}{2u}{2b}{2r}{2g}',
@@ -79,7 +81,7 @@ addToDataSource(
     <Mana symbol="2b" shadow />
     <Mana symbol="2r" shadow />
     <Mana symbol="2g" shadow />
-  </span>
+  </span>,
 );
 addToDataSource(
   '{wu}{wb}{ub}{ur}{br}',
@@ -89,7 +91,7 @@ addToDataSource(
     <Mana symbol="ub" shadow />
     <Mana symbol="ur" shadow />
     <Mana symbol="br" shadow />
-  </span>
+  </span>,
 );
 addToDataSource(
   '{bg}{rg}{rw}{gw}{gu}',
@@ -99,7 +101,7 @@ addToDataSource(
     <Mana symbol="rw" shadow />
     <Mana symbol="gw" shadow />
     <Mana symbol="gu" shadow />
-  </span>
+  </span>,
 );
 addToDataSource(
   '{loy+5}{loy-5}{loy0}{loy5}',
@@ -108,7 +110,7 @@ addToDataSource(
     <Mana symbol="loyalty-down" shadow loyalty={5} />
     <Mana symbol="loyalty-zero" shadow loyalty={0} />
     <Mana symbol="loyalty-start" shadow loyalty={5} />
-  </span>
+  </span>,
 );
 addToDataSource(
   '{loy+x}{loy-x}{loyx}',
@@ -116,7 +118,7 @@ addToDataSource(
     <Mana symbol="loyalty-up" shadow loyalty="X" />
     <Mana symbol="loyalty-down" shadow loyalty="X" />
     <Mana symbol="loyalty-start" shadow loyalty="X" />
-  </span>
+  </span>,
 );
 
 const content = (
@@ -130,9 +132,9 @@ const content = (
   />
 );
 
-const EditorTooltip: React.FC<EditorTooltip> = props => (
+const EditorTooltip: React.FC<EditorTooltip> = (props) => (
   <Popover {...props} content={content} placement="bottom" title="Icon Codes">
-    <Icon type="question-circle" />
+    <AntIcon type="question-circle" />
   </Popover>
 );
 

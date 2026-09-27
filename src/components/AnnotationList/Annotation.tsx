@@ -1,7 +1,12 @@
 import React, { useContext } from 'react';
 
-import { Comment, Tooltip } from 'antd';
-import moment from 'moment';
+import { Tooltip } from 'antd';
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+
+import Comment from '../Comment/Comment';
+
+dayjs.extend(relativeTime);
 
 import _ from 'lodash';
 
@@ -19,12 +24,12 @@ const Annotation = ({ annotation }: AnnotationProps) => {
   const { user } = useContext<StoreType>(Store);
 
   const datetimeRender = (datetime: number) => (
-    <Tooltip title={moment(datetime).format('dddd, DD.MM.YYYY HH:mm')}>
-      <span>{moment(datetime).fromNow()}</span>
+    <Tooltip title={dayjs(datetime).format('dddd, DD.MM.YYYY HH:mm')}>
+      <span>{dayjs(datetime).fromNow()}</span>
     </Tooltip>
   );
 
-  const author = _.find(user, o => o.uuid === annotation.author);
+  const author = _.find(user, (o) => o.uuid === annotation.author);
 
   return (
     <Comment

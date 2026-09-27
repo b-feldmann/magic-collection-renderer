@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Button, Row } from 'antd';
 import _ from 'lodash';
-import moment from 'moment';
+import dayjs from 'dayjs';
 import CardInterface from '../../interfaces/CardInterface';
 
 import styles from './styles.module.scss';
@@ -11,7 +11,7 @@ import {
   CardArtStyles,
   CardMainType,
   CardState,
-  RarityType
+  RarityType,
 } from '../../interfaces/enums';
 import EditField from './EditField';
 
@@ -36,17 +36,17 @@ const dummyCard: CardInterface = {
   front: {
     name: '',
     cardMainType: CardMainType.Creature,
-    cardText: []
+    cardText: [],
   },
   creator: UNKNOWN_CREATOR,
   meta: {
     comment: '',
     likes: [],
     dislikes: [],
-    lastUpdated: moment().valueOf(),
-    createdAt: moment().valueOf(),
-    state: CardState.Draft
-  }
+    lastUpdated: dayjs().valueOf(),
+    createdAt: dayjs().valueOf(),
+    state: CardState.Draft,
+  },
 };
 
 interface InputConfigInterface {
@@ -68,7 +68,7 @@ interface InputConfigInterface {
 
 const CardEditor: React.FC<CardEditorInterface> = ({
   card = dummyCard,
-  saveTmpCard
+  saveTmpCard,
 }: CardEditorInterface) => {
   const [contentChanged, setContentChanged] = useState<boolean>(false);
   const [originalCard, setOriginalCard] = useState<CardInterface>(_.cloneDeep(card));
@@ -101,7 +101,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
         newTmpCard.name = `${newTmpCard.front.name}`;
       }
     } else if (key === 'creator') {
-      newTmpCard[key] = _.find(user, o => o.uuid === value) || UNKNOWN_CREATOR;
+      newTmpCard[key] = _.find(user, (o) => o.uuid === value) || UNKNOWN_CREATOR;
     } else if (key === 'rarity' || key === 'manaCost') {
       newTmpCard[key] = value;
     } else if (key === 'comment') {
@@ -207,18 +207,18 @@ const CardEditor: React.FC<CardEditorInterface> = ({
       key: 'artStyle',
       type: 'radio',
       name: 'Art Style',
-      data: Object.keys(CardArtStyles)
-        .filter(style =>
+      data: (Object.keys(CardArtStyles) as (keyof typeof CardArtStyles)[])
+        .filter((style) =>
           style !== CardArtStyles.Regular
             ? getValue('cardMainType') !== CardMainType.Planeswalker &&
               getValue('cardMainType') !== CardMainType.Land
-            : true
+            : true,
         )
-        .map((type: any) => ({
+        .map((type) => ({
           key: CardArtStyles[type],
-          value: CardArtStyles[type]
+          value: CardArtStyles[type],
         })),
-      width: 100
+      width: 100,
     },
     { key: 'name', type: 'input', name: 'Card Name' },
     { key: 'cover', type: 'upload-input', name: 'Cover (URL)' },
@@ -228,21 +228,21 @@ const CardEditor: React.FC<CardEditorInterface> = ({
       key: 'rarity',
       type: 'select',
       name: 'Rarity',
-      data: Object.keys(RarityType).map((type: any) => ({
+      data: (Object.keys(RarityType) as (keyof typeof RarityType)[]).map((type) => ({
         key: RarityType[type],
-        value: RarityType[type]
+        value: RarityType[type],
       })),
-      width: hasMana() ? 50 : 100
+      width: hasMana() ? 50 : 100,
     },
     {
       key: 'cardMainType',
       type: 'select',
       name: 'Card Type',
-      data: Object.keys(CardMainType).map((type: any) => ({
+      data: (Object.keys(CardMainType) as (keyof typeof CardMainType)[]).map((type) => ({
         key: CardMainType[type],
-        value: CardMainType[type]
+        value: CardMainType[type],
       })),
-      width: 50
+      width: 50,
     },
     { key: 'cardSubTypes', type: 'input', name: 'Card Sub Types', width: 50 },
     { key: 'cardText', type: isPlaneswalker() ? 'split-list' : 'list', name: 'Card Text' },
@@ -251,22 +251,22 @@ const CardEditor: React.FC<CardEditorInterface> = ({
       key: 'flavourAuthor',
       type: 'input',
       name: 'Flavour Text Author',
-      width: isPlaneswalker() ? 0 : 100
+      width: isPlaneswalker() ? 0 : 100,
     },
     {
       key: 'cardStats',
       type: isPlaneswalker() ? 'input' : 'split-input',
       name: isPlaneswalker() ? 'Loyalty' : 'Power/Toughness',
-      width: hasStats() ? 50 : 0
+      width: hasStats() ? 50 : 0,
     },
     {
       key: 'creator',
       type: 'select',
       name: 'Card Creator',
-      data: user.filter(u => u.name !== 'ADMIN').map(o => ({ key: o.uuid, value: o.name })),
-      width: hasStats() ? 50 : 100
+      data: user.filter((u) => u.name !== 'ADMIN').map((o) => ({ key: o.uuid, value: o.name })),
+      width: hasStats() ? 50 : 100,
     },
-    { key: 'comment', type: 'area', name: 'Comment' }
+    { key: 'comment', type: 'area', name: 'Comment' },
   ];
 
   if (getValue('cardMainType') === CardMainType.BasicLand) {
@@ -275,41 +275,43 @@ const CardEditor: React.FC<CardEditorInterface> = ({
         key: 'artStyle',
         type: 'radio',
         name: 'Art Style',
-        data: Object.keys(BasicLandArtStyles).map((type: any) => ({
-          key: BasicLandArtStyles[type],
-          value: BasicLandArtStyles[type]
-        })),
-        width: 100
+        data: (Object.keys(BasicLandArtStyles) as (keyof typeof BasicLandArtStyles)[]).map(
+          (type) => ({
+            key: BasicLandArtStyles[type],
+            value: BasicLandArtStyles[type],
+          }),
+        ),
+        width: 100,
       },
       { key: 'cover', type: 'upload-input', name: 'Cover (URL)' },
       {
         key: 'cardMainType',
         type: 'select',
         name: 'Card Type',
-        data: Object.keys(CardMainType).map((type: any) => ({
+        data: (Object.keys(CardMainType) as (keyof typeof CardMainType)[]).map((type) => ({
           key: CardMainType[type],
-          value: CardMainType[type]
+          value: CardMainType[type],
         })),
-        width: 100
+        width: 100,
       },
       {
         key: 'cardSubTypes',
         type: 'select',
         name: 'Land Types',
-        data: Object.keys(BasicLandType).map((type: any) => ({
+        data: (Object.keys(BasicLandType) as (keyof typeof BasicLandType)[]).map((type) => ({
           key: BasicLandType[type],
-          value: BasicLandType[type]
+          value: BasicLandType[type],
         })),
-        width: 100
+        width: 100,
       },
       {
         key: 'creator',
         type: 'select',
         name: 'Card Creator',
-        data: user.filter(u => u.name !== 'ADMIN').map(o => ({ key: o.uuid, value: o.name })),
-        width: hasStats() ? 50 : 100
+        data: user.filter((u) => u.name !== 'ADMIN').map((o) => ({ key: o.uuid, value: o.name })),
+        width: hasStats() ? 50 : 100,
       },
-      { key: 'comment', type: 'area', name: 'Comment' }
+      { key: 'comment', type: 'area', name: 'Comment' },
     ];
   }
 
@@ -326,7 +328,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
       name: '',
       cardText: [],
       cardMainType: CardMainType.Creature,
-      manaCost: ''
+      manaCost: '',
     };
 
     setTmpCard(newTmpCard);
@@ -349,17 +351,17 @@ const CardEditor: React.FC<CardEditorInterface> = ({
         <EditorTooltip className={styles.tooltip} />
         <Button.Group className={styles.smallButtonGroup} size="small">
           {card.back && editBack && (
-            <Button type="ghost" onClick={() => setEditBack(false)}>
+            <Button ghost onClick={() => setEditBack(false)}>
               <span>Edit Front Face</span>
             </Button>
           )}
           {card.back && !editBack && (
-            <Button type="ghost" onClick={() => setEditBack(true)}>
+            <Button ghost onClick={() => setEditBack(true)}>
               <span>Edit Back Face</span>
             </Button>
           )}
           {card.back && (
-            <Button onClick={deleteBackFace} type="danger">
+            <Button onClick={deleteBackFace} danger>
               <span>Delete Back Face</span>
             </Button>
           )}
@@ -367,7 +369,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
         </Button.Group>
       </Row>
       <Row>
-        {inputConfig.map(config => {
+        {inputConfig.map((config) => {
           const style: any = {};
           if (config.width === 0) style.display = 'none';
           if (config.width) style.width = `${config.width}%`;
@@ -394,7 +396,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
           <Button disabled={!contentChanged} onClick={saveChanges} type="primary">
             <span>Save Changes</span>
           </Button>
-          <Button disabled={!contentChanged} onClick={discardChanges} type="danger">
+          <Button disabled={!contentChanged} onClick={discardChanges} danger>
             <span>Discard Changes</span>
           </Button>
         </Button.Group>

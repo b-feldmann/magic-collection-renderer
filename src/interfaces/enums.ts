@@ -1,12 +1,12 @@
 export function mapEnum(enumerable: any, fn: Function): any[] {
   // get all the members of the enum
-  const enumMembers: any[] = Object.keys(enumerable).map(key => enumerable[key]);
+  const enumMembers: any[] = Object.keys(enumerable).map((key) => enumerable[key]);
 
   // // we are only interested in the numeric identifiers as these represent the values
   // let enumValues: number[] = enumMembers.filter(v => typeof v === 'number');
 
   // now map through the enum values
-  return enumMembers.map(m => fn(m));
+  return enumMembers.map((m) => fn(m));
 }
 
 export enum CardMainType {
@@ -19,7 +19,7 @@ export enum CardMainType {
   Land = 'Land',
   BasicLand = 'Basic Land',
   Planeswalker = 'Planeswalker',
-  Emblem = 'Emblem'
+  Emblem = 'Emblem',
 }
 
 export enum BasicLandType {
@@ -27,14 +27,14 @@ export enum BasicLandType {
   Island = 'Island',
   Swamp = 'Swamp',
   Mountain = 'Mountain',
-  Forest = 'Forest'
+  Forest = 'Forest',
 }
 
 export enum RarityType {
   Common = 'Common',
   Uncommon = 'Uncommon',
   Rare = 'Rare',
-  MythicRare = 'Mythic Rare'
+  MythicRare = 'Mythic Rare',
 }
 
 export enum ColorType {
@@ -44,7 +44,7 @@ export enum ColorType {
   Red = 'red',
   Green = 'green',
   Colorless = 'colorless',
-  Gold = 'gold'
+  Gold = 'gold',
 }
 
 export enum ColorTypePlus {
@@ -56,13 +56,13 @@ export enum ColorTypePlus {
   Colorless = 'colorless',
   Gold = 'gold',
   Land = 'land',
-  Planeswalker = 'planeswalker'
+  Planeswalker = 'planeswalker',
 }
 
 export enum SortByType {
   Color = 'Color',
   LastUpdated = 'Last Updated',
-  Creator = 'Creator'
+  Creator = 'Creator',
 }
 
 export enum ChangeLogFeatureType {
@@ -72,28 +72,28 @@ export enum ChangeLogFeatureType {
   Removed = 'Removed',
   Fixed = 'Fixed',
   Security = 'Security',
-  None = ''
+  None = '',
 }
 
 export enum CardState {
   Draft = 'Draft',
   Rate = 'Rate',
-  Approved = 'Approved'
+  Approved = 'Approved',
 }
 
 export enum CardArtStyles {
   Regular = 'Regular',
   Borderless = 'Borderless',
-  Invocation = 'Invocation'
+  Invocation = 'Invocation',
 }
 
 export enum SplitArtStyles {
   Regular = 'Regular',
-  ExplorationDestination = 'Exploration // Destination'
+  ExplorationDestination = 'Exploration // Destination',
 }
 
 export enum BasicLandArtStyles {
   Regular = 'Regular',
   FullArt = 'Full Art',
-  Unstable = 'Unstable'
+  Unstable = 'Unstable',
 }

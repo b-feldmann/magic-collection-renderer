@@ -22,12 +22,12 @@ const initialState = {
   mechanics: [],
   annotationAccessor: {},
   user: [],
-  currentUser: UNKNOWN_CREATOR
+  currentUser: UNKNOWN_CREATOR,
 };
 
 const initialStore = {
   ...initialState,
-  dispatch: () => {}
+  dispatch: () => {},
 };
 
 export const Store = createContext<StoreType>(initialStore);

@@ -15,7 +15,7 @@ const ChangeLogModal = () => {
   const renderLog = () => {
     return updateLog
       .filter((log, i) => i > currentUser.lastSeenVersion)
-      .map(entry => <LogEntry {...entry} />);
+      .map((entry) => <LogEntry {...entry} />);
   };
 
   useEffect(() => {
@@ -32,7 +32,7 @@ const ChangeLogModal = () => {
         onOk() {
           addLastSeenVersion(dispatch, updateLog.length - 1, currentUser);
         },
-        okText: 'Thanks for the info!'
+        okText: 'Thanks for the info!',
       });
     }
   }, [currentUser]);

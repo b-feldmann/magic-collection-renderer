@@ -1,8 +1,8 @@
-import uuidv4 from 'uuid/v4';
+import { v4 as uuidv4 } from 'uuid';
 import axios from 'axios';
 
 import { message } from 'antd';
-import moment from 'moment';
+import dayjs from 'dayjs';
 import LogRocket from 'logrocket';
 import { Action, CardActionType } from '../reducer';
 import { CardMainType, CardState, RarityType } from '../interfaces/enums';
@@ -14,7 +14,7 @@ import UserInterface from '../interfaces/UserInterface';
 import { captureError, ActionTag, RequestTag } from './errorLog';
 import { createImage, getImage } from './imageActions';
 
-const MIDDLEWARE_ENDPOINT = process.env.NODE_ENV === 'production' ? '' : 'http://localhost:3001';
+const MIDDLEWARE_ENDPOINT = import.meta.env.PROD ? '' : 'http://localhost:8080';
 
 export const EMPTY_CARD = (): CardInterface => ({
   name: '',
@@ -22,7 +22,7 @@ export const EMPTY_CARD = (): CardInterface => ({
   front: {
     name: '',
     cardMainType: CardMainType.Creature,
-    cardText: []
+    cardText: [],
   },
   manaCost: '',
   rarity: RarityType.Common,
@@ -31,23 +31,23 @@ export const EMPTY_CARD = (): CardInterface => ({
     comment: '',
     likes: [],
     dislikes: [],
-    lastUpdated: moment().valueOf(),
-    createdAt: moment().valueOf(),
-    state: CardState.Draft
-  }
+    lastUpdated: dayjs().valueOf(),
+    createdAt: dayjs().valueOf(),
+    state: CardState.Draft,
+  },
 });
 
 export const refreshCollection = (dispatch: (value: Action) => void) => {
   LogRocket.log('Try to get all cards');
   dispatch({
-    type: CardActionType.RefreshCollection
+    type: CardActionType.RefreshCollection,
   });
 
   const request = `${MIDDLEWARE_ENDPOINT}/cards`;
   const args = { params: { accessKey: getAccessToken() } };
   axios
     .get(request, args)
-    .then(result => {
+    .then((result) => {
       // result.data.cards.forEach((card: CardInterface) => {
       //   if (!card.createdAt) {
       //     card.createdAt = moment().valueOf();
@@ -57,10 +57,10 @@ export const refreshCollection = (dispatch: (value: Action) => void) => {
 
       dispatch({
         type: CardActionType.BulkReadCard,
-        payload: { cards: result.data.cards }
+        payload: { cards: result.data.cards },
       });
     })
-    .catch(error => {
+    .catch((error) => {
       if (error.response) {
         const { response } = error;
         if (response.status && response.status === 401) {
@@ -83,16 +83,16 @@ export const createCard = (dispatch: (value: Action) => void, creator: UserInter
 
   axios
     .post(request, args)
-    .then(result => {
+    .then((result) => {
       message.success('Successfully Created Card!');
       return dispatch({
         type: CardActionType.CreateCard,
         payload: {
-          card: result.data.card
-        }
+          card: result.data.card,
+        },
       });
     })
-    .catch(error => {
+    .catch((error) => {
       captureError(error, ActionTag.Card, RequestTag.Create, {});
       message.error('Failed creating a new card :(');
     });
@@ -103,7 +103,7 @@ export const updateCard = (dispatch: (value: Action) => void, updated: CardInter
   LogRocket.log('Try to update a card', {
     name,
     uuid,
-    updated
+    updated,
   });
   const request = `${MIDDLEWARE_ENDPOINT}/cards`;
   const parsed = { ...updated };
@@ -123,7 +123,7 @@ export const updateCard = (dispatch: (value: Action) => void, updated: CardInter
 
   axios
     .put(request, { card: parsed, accessKey: getAccessToken() })
-    .then(result => {
+    .then((result) => {
       message.success('Successfully Updated Card');
       if (
         result.data.card.front.cover &&
@@ -144,11 +144,11 @@ export const updateCard = (dispatch: (value: Action) => void, updated: CardInter
       return dispatch({
         type: CardActionType.UpdateCard,
         payload: {
-          card: result.data.card
-        }
+          card: result.data.card,
+        },
       });
     })
-    .catch(error => {
+    .catch((error) => {
       captureError(error, ActionTag.Card, RequestTag.Update, {});
       message.error("Could'nt update the card");
     });

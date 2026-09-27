@@ -13,19 +13,19 @@ updateLog.push({
   content: [
     {
       type: ChangeLogFeatureType.Added,
-      feature: 'You can now sort cards by color, creator, or the time the card was last updated.'
+      feature: 'You can now sort cards by color, creator, or the time the card was last updated.',
     },
     {
       type: ChangeLogFeatureType.Added,
       feature:
-        "Cards now have an indicator that shows that someone else has added them and you haven't seen them yet. Hover over the card to hide indicator."
+        "Cards now have an indicator that shows that someone else has added them and you haven't seen them yet. Hover over the card to hide indicator.",
     },
     {
       type: ChangeLogFeatureType.Removed,
       feature:
-        'There is no longer a indicator (top-left) that shows how many cards are in the collection.'
-    }
-  ]
+        'There is no longer a indicator (top-left) that shows how many cards are in the collection.',
+    },
+  ],
 });
 
 const exampleMechanics = ['[Enrage] do Something', '[Shadow Clone {1}]', '[Surveil 1]'];
@@ -38,7 +38,7 @@ updateLog.push({
       type: ChangeLogFeatureType.Added,
       feature: 'Mechanics',
       description:
-        'You can now add mechanics. At the bottom left is a button that opens the mechanic edit dialog. Mechanics are predefined effects that you only have to write once, but can use them on many cards. A Mechanic has a name and a description. You can render it on a card by putting the name in square brackets.'
+        'You can now add mechanics. At the bottom left is a button that opens the mechanic edit dialog. Mechanics are predefined effects that you only have to write once, but can use them on many cards. A Mechanic has a name and a description. You can render it on a card by putting the name in square brackets.',
     },
     {
       type: ChangeLogFeatureType.None,
@@ -46,13 +46,13 @@ updateLog.push({
       description: (
         <div>
           <Text>Examples:</Text>
-          {exampleMechanics.map(m => (
+          {exampleMechanics.map((m) => (
             <Text code>{m}</Text>
           ))}
         </div>
-      )
-    }
-  ]
+      ),
+    },
+  ],
 });
 
 updateLog.push({
@@ -62,25 +62,25 @@ updateLog.push({
     {
       type: ChangeLogFeatureType.Changed,
       feature:
-        'Card Text now has a smaller font size only in collection view to support cards with long text.'
+        'Card Text now has a smaller font size only in collection view to support cards with long text.',
     },
     {
       type: ChangeLogFeatureType.Changed,
-      feature: 'New Change Log UI.'
+      feature: 'New Change Log UI.',
     },
     {
       type: ChangeLogFeatureType.Changed,
-      feature: 'New Color Theme.'
+      feature: 'New Color Theme.',
     },
     {
       type: ChangeLogFeatureType.Changed,
-      feature: 'More intuitive card hover.'
+      feature: 'More intuitive card hover.',
     },
     {
       type: ChangeLogFeatureType.Changed,
-      feature: 'Compact Card Editor: Only fields that are needed are shown.'
-    }
-  ]
+      feature: 'Compact Card Editor: Only fields that are needed are shown.',
+    },
+  ],
 });
 
 updateLog.push({
@@ -91,24 +91,24 @@ updateLog.push({
       type: ChangeLogFeatureType.Fixed,
       feature: 'FireFox Bug Fix',
       description:
-        'Is now working accordingly on FireFox (Why use this Browser anywhy? :p). Works also on Microsoft Edge (Not in any way better than FireFox).'
+        'Is now working accordingly on FireFox (Why use this Browser anywhy? :p). Works also on Microsoft Edge (Not in any way better than FireFox).',
     },
     {
       type: ChangeLogFeatureType.Added,
       feature: 'Card Annotations',
       description:
-        "Added Annotations! When editing a card you can view and write card annotations. It's recommended to add an annotation when creating a card to explain the reasoning behind that card."
+        "Added Annotations! When editing a card you can view and write card annotations. It's recommended to add an annotation when creating a card to explain the reasoning behind that card.",
     },
     {
       type: ChangeLogFeatureType.Changed,
       feature:
-        'Sort by "Last Updated" includes the last time someone added an annotation to a card.'
+        'Sort by "Last Updated" includes the last time someone added an annotation to a card.',
     },
     {
       type: ChangeLogFeatureType.Changed,
-      feature: 'Card Sorting and Filtering are really fast now!'
-    }
-  ]
+      feature: 'Card Sorting and Filtering are really fast now!',
+    },
+  ],
 });
 
 updateLog.push({
@@ -117,9 +117,9 @@ updateLog.push({
   content: [
     {
       type: ChangeLogFeatureType.Added,
-      feature: 'You can now add emojis to your annotations.'
-    }
-  ]
+      feature: 'You can now add emojis to your annotations.',
+    },
+  ],
 });
 
 updateLog.push({
@@ -130,35 +130,35 @@ updateLog.push({
       type: ChangeLogFeatureType.Added,
       feature: 'Authentication',
       description:
-        'Un-secure Login. (When creating a card the creator is automatically set. Same for the annotations)'
+        'Un-secure Login. (When creating a card the creator is automatically set. Same for the annotations)',
     },
     {
       type: ChangeLogFeatureType.Changed,
       feature: 'Card States',
       description:
-        'Cards have now different states. [Draft, To Rate, Approved]. You can change stages in the card-edit-view. There you can release any card for the rating process.'
+        'Cards have now different states. [Draft, To Rate, Approved]. You can change stages in the card-edit-view. There you can release any card for the rating process.',
     },
     {
       type: ChangeLogFeatureType.Added,
       feature: 'Card Rating',
       description:
-        'You can now like or dislike a card if it is in the rating process. You can approve a card if 4 people liked that card more than people disliked the card.'
+        'You can now like or dislike a card if it is in the rating process. You can approve a card if 4 people liked that card more than people disliked the card.',
     },
     {
       type: ChangeLogFeatureType.Added,
       feature: 'Card Comment',
       description:
-        "You can now add comments to a card. It's like a description of the meaning of that card."
+        "You can now add comments to a card. It's like a description of the meaning of that card.",
     },
     {
       type: ChangeLogFeatureType.Changed,
-      feature: 'Mechanics Editor is now more intuitive.'
+      feature: 'Mechanics Editor is now more intuitive.',
     },
     {
       type: ChangeLogFeatureType.Changed,
-      feature: 'Introduced new Mobile Design.'
-    }
-  ]
+      feature: 'Introduced new Mobile Design.',
+    },
+  ],
 });
 
 updateLog.push({
@@ -167,18 +167,18 @@ updateLog.push({
   content: [
     {
       type: ChangeLogFeatureType.Added,
-      feature: 'Annotations now support mana icons and new-lines.'
+      feature: 'Annotations now support mana icons and new-lines.',
     },
     {
       type: ChangeLogFeatureType.Fixed,
-      feature: 'Added Access Key Security Patch.'
+      feature: 'Added Access Key Security Patch.',
     },
     {
       type: ChangeLogFeatureType.Changed,
       feature: 'Better Login',
-      description: 'You can now re-enter the access key if it was wrong.'
-    }
-  ]
+      description: 'You can now re-enter the access key if it was wrong.',
+    },
+  ],
 });
 
 updateLog.push({
@@ -215,9 +215,9 @@ updateLog.push({
             <li>&quot;[Raid abc] xyz&quot; is rendered as &quot;Raid — abc ... xyz&quot;</li>
           </ul>
         </div>
-      )
-    }
-  ]
+      ),
+    },
+  ],
 });
 
 updateLog.push({
@@ -226,17 +226,17 @@ updateLog.push({
   content: [
     {
       type: ChangeLogFeatureType.Added,
-      feature: 'Image Uploading.'
+      feature: 'Image Uploading.',
     },
     {
       type: ChangeLogFeatureType.Added,
-      feature: 'Added "Artifact Creature" and "Basic Land" card types with specialized rendering.'
+      feature: 'Added "Artifact Creature" and "Basic Land" card types with specialized rendering.',
     },
     {
       type: ChangeLogFeatureType.Added,
       feature: 'Smooth Image Loading',
       description:
-        'Rendered cards background have three stages that are loaded subsequently: Only-Color-Background, Low-Res-Image, High-Res-Image'
+        'Rendered cards background have three stages that are loaded subsequently: Only-Color-Background, Low-Res-Image, High-Res-Image',
     },
     {
       type: ChangeLogFeatureType.Changed,
@@ -246,33 +246,33 @@ updateLog.push({
           <Row>Replaced card renderer with new one that works with image templates</Row>
           <Row>Special Focus on Artifacts, Planeswalker, Lands and Multi-colored spells</Row>
         </Row>
-      )
+      ),
     },
     {
       type: ChangeLogFeatureType.Added,
       feature: 'Art Styles',
       description:
-        'Renderer supports different art styles of cards (Look at you Basic Lands). Some cards can be rendered Borderless or as Invocations. (I am not kidding)'
+        'Renderer supports different art styles of cards (Look at you Basic Lands). Some cards can be rendered Borderless or as Invocations. (I am not kidding)',
     },
     {
       type: ChangeLogFeatureType.Fixed,
       feature: 'Card Text Size',
-      description: 'Text resizes now to fit into the text box'
+      description: 'Text resizes now to fit into the text box',
     },
     {
       type: ChangeLogFeatureType.Changed,
       feature: 'Mobile Version',
-      description: 'Mobile is now VIEW-ONLY'
+      description: 'Mobile is now VIEW-ONLY',
     },
     {
       type: ChangeLogFeatureType.Removed,
-      feature: 'LocalStorage as User info dump'
+      feature: 'LocalStorage as User info dump',
     },
     {
       type: ChangeLogFeatureType.Changed,
-      feature: 'New Log Rendering'
-    }
-  ]
+      feature: 'New Log Rendering',
+    },
+  ],
 });
 
 updateLog.push({
@@ -283,9 +283,9 @@ updateLog.push({
       type: ChangeLogFeatureType.Fixed,
       feature: 'Image Uploading',
       description:
-        'Images are now separated from card and are lazy loaded just before the card is shown.'
-    }
-  ]
+        'Images are now separated from card and are lazy loaded just before the card is shown.',
+    },
+  ],
 });
 
 // updateLog.push({

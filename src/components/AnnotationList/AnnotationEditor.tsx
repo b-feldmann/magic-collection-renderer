@@ -23,7 +23,7 @@ const AnnotationEditor = ({
   onSubmit,
   submitting,
   defaultContent = '',
-  defaultAuthor
+  defaultAuthor,
 }: AnnotationEditorProps) => {
   const { currentUser } = useContext<StoreType>(Store);
 
@@ -36,10 +36,10 @@ const AnnotationEditor = ({
     }
   }, [submitting]);
   useEffect(() => setContent(defaultContent), [defaultContent]);
-  useEffect(() => setAuthor(defaultAuthor || currentUser || UNKNOWN_CREATOR), [
-    defaultAuthor,
-    currentUser
-  ]);
+  useEffect(
+    () => setAuthor(defaultAuthor || currentUser || UNKNOWN_CREATOR),
+    [defaultAuthor, currentUser],
+  );
 
   const onEmoji = (emoji: BaseEmoji) => {
     setContent(content + emoji.native);
@@ -63,9 +63,9 @@ const AnnotationEditor = ({
       {/*  ))} */}
       {/* </Select> */}
       <TextArea
-        autosize={{ minRows: 2, maxRows: 5 }}
+        autoSize={{ minRows: 2, maxRows: 5 }}
         value={content}
-        onChange={e => setContent(e.target.value)}
+        onChange={(e) => setContent(e.target.value)}
         placeholder="Your comment"
       />
       <Popover

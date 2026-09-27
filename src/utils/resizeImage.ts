@@ -5,7 +5,7 @@ const resizeImage = (base64: string, cb: (image: string) => void) => {
   const img = new Image();
   img.src = base64;
 
-  img.onload = function() {
+  img.onload = function () {
     // @ts-ignore
     const canvas: HTMLCanvasElement = document.getElementById('cover-resize-canvas');
     const ctx = canvas.getContext('2d');

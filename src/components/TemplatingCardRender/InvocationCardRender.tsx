@@ -2,9 +2,9 @@ import React, { useContext } from 'react';
 
 import 'mana-font/css/mana.css';
 // @ts-ignore
-import { Mana } from '@saeris/react-mana';
+import { Mana } from '../Mana/Mana';
 
-import TextResize from 'react-resize-text';
+import TextResize from '../TextResize/TextResize';
 
 import { CardMainType, RarityType } from '../../interfaces/enums';
 import { Store, StoreType } from '../../store';
@@ -15,7 +15,7 @@ import {
   getFallbackCover,
   getInvocationMainframe,
   getInvocationPt,
-  getRarityIcon
+  getRarityIcon,
 } from './assetLoader';
 import { injectForText, injectManaIcons } from '../../utils/injectUtils';
 import ImageLoader from '../ImageLoader/ImageLoader';
@@ -80,17 +80,21 @@ const InvocationCardRender = (cardRender: InvocationCardRenderProps) => {
             scaleY(${resizeFactor((containerWidth * CARD_HEIGHT) / 1020.0)})
           `,
           transformOrigin: 'top left',
-          width: `${(CARD_WIDTH / containerWidth) * 100}%`
+          width: `${(CARD_WIDTH / containerWidth) * 100}%`,
         }}
       >
         <div
           style={{
             width: `${CARD_WIDTH}px`,
-            height: `${CARD_HEIGHT}px`
+            height: `${CARD_HEIGHT}px`,
           }}
           className={`${styles.cardRender} ${styles.invocation}`}
         >
-          <ImageLoader src={cover || getFallbackCover()} alt="cover" className={`${styles.cover} card-cover`} />
+          <ImageLoader
+            src={cover || getFallbackCover()}
+            alt="cover"
+            className={`${styles.cover} card-cover`}
+          />
           <ImageLoader src={mainframe} className={styles.mainframe} fallBackColor="#eed66b" />
 
           {isCreature && (
@@ -122,7 +126,7 @@ const InvocationCardRender = (cardRender: InvocationCardRenderProps) => {
               className={styles.textWrap}
             >
               <div>
-                {cardText.map(val => (
+                {cardText.map((val) => (
                   <p>{injectForText(val, name, mechanics)}</p>
                 ))}
                 <FlavourText name={name} flavourText={flavourText} flavourAuthor={flavourAuthor} />

@@ -4,6 +4,7 @@ import _ from 'lodash';
 import LogRocket from 'logrocket';
 
 import CardInterface from './interfaces/CardInterface';
+import AntIcon from './components/AntIcon/AntIcon';
 import { CardState } from './interfaces/enums';
 import CardCollection from './components/CardCollection/CardCollection';
 import CardEditor from './components/CardEditor/CardEditor';
@@ -27,7 +28,6 @@ import { UNKNOWN_CREATOR } from './utils/constants';
 
 const { Search } = Input;
 const { confirm } = Modal;
-const { TabPane } = Tabs;
 
 const NO_CARD = '-1';
 
@@ -38,16 +38,15 @@ const MobileApp: React.FC = () => {
   const [showCardModal, setShowCardModal] = useState<boolean>(false);
   const [cardNameFilter, setCardNameFilter] = useState<string>('');
 
-  const { cards, newUuid, dispatch, annotationAccessor, user, currentUser } = useContext<StoreType>(
-    Store
-  );
+  const { cards, newUuid, dispatch, annotationAccessor, user, currentUser } =
+    useContext<StoreType>(Store);
 
   const seenCardObject: { [key: string]: boolean } = {};
   currentUser.seenCards.forEach((uuid: string) => {
     seenCardObject[uuid] = true;
   });
 
-  const mergedCollection = [...cards.filter(card => card.uuid !== (tmpCard ? tmpCard.uuid : ''))];
+  const mergedCollection = [...cards.filter((card) => card.uuid !== (tmpCard ? tmpCard.uuid : ''))];
   if (tmpCard) mergedCollection.push(tmpCard);
 
   const lastUpdated = (card: CardInterface): number => {
@@ -59,14 +58,14 @@ const MobileApp: React.FC = () => {
   };
 
   const filteredCollection = _.sortBy(mergedCollection, [
-    (o: CardInterface) => -1 * lastUpdated(o)
-  ]).filter(o => o.name.toLowerCase().includes(cardNameFilter.toLowerCase()));
+    (o: CardInterface) => -1 * lastUpdated(o),
+  ]).filter((o) => o.name.toLowerCase().includes(cardNameFilter.toLowerCase()));
 
   const getCard = (collection: CardInterface[], uuid: string) =>
-    filteredCollection.find(card => card.uuid === uuid) || EMPTY_CARD();
+    filteredCollection.find((card) => card.uuid === uuid) || EMPTY_CARD();
 
   const getCardUndefined = (collection: CardInterface[], uuid: string) =>
-    filteredCollection.find(card => card.uuid === uuid);
+    filteredCollection.find((card) => card.uuid === uuid);
 
   const viewCard = (id: string) => {
     LogRocket.log(`View card ${getCard(filteredCollection, id).name}`);
@@ -84,7 +83,6 @@ const MobileApp: React.FC = () => {
       confirm({
         title: `${oldCardName} has unsaved changes`,
         okText: 'Yes discard all changes',
-        type: 'danger',
         okType: 'danger',
         cancelText: 'Edit old card',
         onOk() {
@@ -93,7 +91,7 @@ const MobileApp: React.FC = () => {
         },
         onCancel() {
           viewCard(cardEditId);
-        }
+        },
       });
     } else {
       setCardEditId(id);
@@ -127,52 +125,54 @@ const MobileApp: React.FC = () => {
       { name: 'All', filter: () => true },
       {
         name: 'Card Drafts / Idea Dump',
-        filter: (o: CardInterface) => o.meta.state === CardState.Draft
+        filter: (o: CardInterface) => o.meta.state === CardState.Draft,
       },
       {
         name: 'Cards to Rate',
-        filter: (o: CardInterface) => o.meta.state === CardState.Rate
+        filter: (o: CardInterface) => o.meta.state === CardState.Rate,
       },
       {
         name: 'Approved Cards',
-        filter: (o: CardInterface) => o.meta.state === CardState.Approved
-      }
+        filter: (o: CardInterface) => o.meta.state === CardState.Approved,
+      },
     ];
 
     return (
       <Row className={styles.fullHeight}>
         <ChangeLogModal />
         <Col span={collectionSpan} className={styles.collection}>
-          <Tabs defaultActiveKey="tab-key-Card Drafts / Idea Dump" className={styles.collection}>
-            {cardTabs.map(tabObj => (
-              <TabPane
-                tab={
-                  <Badge
-                    className={styles.tabBadge}
-                    count={_.filter(filteredCollection, tabObj.filter).length}
-                    showZero
-                    overflowCount={999}
-                  >
-                    {tabObj.name}
-                  </Badge>
-                }
-                key={`tab-key-${tabObj.name}`}
-                className={styles.fullHeight}
-              >
-                <CardCollection
-                  cards={_.filter(filteredCollection, tabObj.filter)}
-                  currentEditId={cardEditId}
-                  editCard={id => {
-                    if (cardEditId === NO_CARD) openCardInEditor(id, '');
-                    else openCardInEditor(id, getCard(collection, cardEditId).name);
-                  }}
-                  seenCardUuids={seenCardObject}
-                  addSeenCard={uuid => addSeenCard(dispatch, uuid, currentUser)}
-                  mobile
-                />
-              </TabPane>
-            ))}
-          </Tabs>
+          <Tabs
+            defaultActiveKey="tab-key-Card Drafts / Idea Dump"
+            className={styles.collection}
+            items={cardTabs.map((tabObj) => ({
+              key: `tab-key-${tabObj.name}`,
+              label: (
+                <Badge
+                  className={styles.tabBadge}
+                  count={_.filter(filteredCollection, tabObj.filter).length}
+                  showZero
+                  overflowCount={999}
+                >
+                  {tabObj.name}
+                </Badge>
+              ),
+              children: (
+                <div className={styles.fullHeight}>
+                  <CardCollection
+                    cards={_.filter(filteredCollection, tabObj.filter)}
+                    currentEditId={cardEditId}
+                    editCard={(id) => {
+                      if (cardEditId === NO_CARD) openCardInEditor(id, '');
+                      else openCardInEditor(id, getCard(collection, cardEditId).name);
+                    }}
+                    seenCardUuids={seenCardObject}
+                    addSeenCard={(uuid) => addSeenCard(dispatch, uuid, currentUser)}
+                    mobile
+                  />
+                </div>
+              ),
+            }))}
+          />
         </Col>
         <Col span={editorSpan} className={styles.editor}>
           <CardEditor card={getCardUndefined(collection, cardEditId)} saveTmpCard={setTmpCard} />
@@ -192,7 +192,7 @@ const MobileApp: React.FC = () => {
             <Search
               placeholder="Input Access Key"
               enterButton="Enter"
-              onSearch={value => {
+              onSearch={(value) => {
                 updateAccessToken(value);
                 window.location.reload();
               }}
@@ -214,13 +214,13 @@ const MobileApp: React.FC = () => {
           <Select
             size="large"
             onChange={(key: string) =>
-              setCurrentUser(dispatch, _.find(user, o => o.uuid === key) || UNKNOWN_CREATOR)
+              setCurrentUser(dispatch, _.find(user, (o) => o.uuid === key) || UNKNOWN_CREATOR)
             }
             style={{ width: '100%' }}
           >
             {user
-              .filter(u => u.name !== 'ADMIN')
-              .map(d => (
+              .filter((u) => u.name !== 'ADMIN')
+              .map((d) => (
                 <Select.Option key={`login-user-${d.uuid}`} value={d.uuid}>
                   {d.name}
                 </Select.Option>
@@ -238,7 +238,12 @@ const MobileApp: React.FC = () => {
         </Col>
         <div className={styles.mobileControls}>
           <CollectionFilterControls collection={cards} setNameFilter={setCardNameFilter} />
-          <Button icon="reload" type="primary" onClick={refresh} className={styles.fullWidth}>
+          <Button
+            icon={<AntIcon type="reload" />}
+            type="primary"
+            onClick={refresh}
+            className={styles.fullWidth}
+          >
             Reload Collection
           </Button>
         </div>

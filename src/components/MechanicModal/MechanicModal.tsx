@@ -15,7 +15,7 @@ interface RecordProps extends MechanicInterface {
 
 const MechanicModal = ({
   visible,
-  setVisible
+  setVisible,
 }: {
   visible: boolean;
   setVisible: (key: boolean) => void;
@@ -32,20 +32,20 @@ const MechanicModal = ({
     updateMechanic(dispatch, { ...rest, description });
   };
 
-  const sortedMechanics: RecordProps[] = _.sortBy(mechanics, [o => o.uuid]).map(mechanic => ({
+  const sortedMechanics: RecordProps[] = _.sortBy(mechanics, [(o) => o.uuid]).map((mechanic) => ({
     ...mechanic,
-    key: mechanic.uuid
+    key: mechanic.uuid,
   }));
 
   return (
     <Modal
       width="90%"
       title="Edit Mechanics"
-      visible={visible}
+      open={visible}
       onOk={() => setVisible(false)}
       onCancel={() => setVisible(false)}
     >
-      <Table dataSource={sortedMechanics} pagination={false} useFixedHeader scroll={{ y: '55vh' }}>
+      <Table dataSource={sortedMechanics} pagination={false} scroll={{ y: '55vh' }}>
         <Column
           title="Name"
           dataIndex="name"

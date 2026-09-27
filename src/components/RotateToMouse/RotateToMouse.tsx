@@ -87,8 +87,8 @@ const RotateToMouse = ({
     <div className={styles.rotateToMouse} {...rest}>
       <div
         className={styles.inner}
-        onMouseEnter={e => update(e.clientX, e.clientY)}
-        onMouseMove={e => {
+        onMouseEnter={(e) => update(e.clientX, e.clientY)}
+        onMouseMove={(e) => {
           if (isTimeToUpdate()) {
             update(e.clientX, e.clientY);
           }

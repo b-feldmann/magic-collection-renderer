@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { List, Comment } from 'antd';
+import { List } from 'antd';
+
+import Comment from '../Comment/Comment';
 
 import _ from 'lodash';
 
@@ -21,7 +23,7 @@ const AnnotationList = ({
   annotations,
   createAnnotation,
   split,
-  children
+  children,
 }: AnnotationListProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -41,7 +43,7 @@ const AnnotationList = ({
           header={`${annotations.length} annotations`}
           itemLayout="horizontal"
           dataSource={_.sortBy(annotations, (o: AnnotationInterface) => o.datetime)}
-          renderItem={item => <Annotation annotation={item} />}
+          renderItem={(item) => <Annotation annotation={item} />}
         />
       </div>
       <div className={split ? styles.flexWrapper : ''}>

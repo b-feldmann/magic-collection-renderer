@@ -1,11 +1,11 @@
 import React, { useContext, useState } from 'react';
 
-import { FixedSizeGrid as Grid } from 'react-window';
+import { Grid } from 'react-window';
 
-import AutoSizer from 'react-virtualized-auto-sizer';
+import { AutoSizer } from 'react-virtualized-auto-sizer';
 
 import CardInterface from '../../interfaces/CardInterface';
-import Cell from './Cell';
+import Cell, { CellData } from './Cell';
 
 import styles from './styles.module.scss';
 import { getImage } from '../../actions/imageActions';
@@ -31,7 +31,7 @@ const CardCollection = ({
   colSpanSetting = 4,
   seenCardUuids,
   addSeenCard,
-  mobile
+  mobile,
 }: CardCollectionInterface) => {
   const [showBackFaceConfig, setShowBackFaceConfig] = useState<{ [key: string]: boolean }>({});
 
@@ -44,8 +44,12 @@ const CardCollection = ({
   };
 
   return (
-    <AutoSizer>
-      {({ height, width }) => {
+    <AutoSizer
+      renderProp={({ height: measuredHeight, width: measuredWidth }) => {
+        const height = measuredHeight ?? 0;
+        const width = measuredWidth ?? 0;
+        if (!height || !width) return null;
+
         let columns = 6;
         if (colSpanSetting === -1) {
           if (width < 1700) columns = 5;
@@ -65,7 +69,7 @@ const CardCollection = ({
         const columnHeight: number = (columnWidth / 720.0) * 1020.0;
         const rows: number = Math.ceil(cards.length / columns);
 
-        const data = {
+        const data: CellData = {
           cards,
           columnCount: columns,
           seenCardUuids,
@@ -76,50 +80,44 @@ const CardCollection = ({
           editCard,
           width: columnWidth - 4,
           showBackFaceConfig,
-          mobile
+          mobile,
         };
 
         return (
           <Grid
             className={styles.collection}
-            columnWidth={columnWidth}
-            rowHeight={columnHeight}
+            cellComponent={Cell}
+            cellProps={data}
             columnCount={columns}
+            columnWidth={columnWidth}
             rowCount={rows}
-            height={height}
-            width={width + 22}
-            itemData={data}
-            onItemsRendered={({ overscanRowStartIndex, overscanRowStopIndex }) => {
+            rowHeight={columnHeight}
+            style={{ height, width: width + 22 }}
+            onCellsRendered={(_visibleCells, allCells) => {
               for (
-                let i = overscanRowStartIndex * columns;
-                i <= overscanRowStopIndex * columns;
+                let i = allCells.rowStartIndex * columns;
+                i <= allCells.rowStopIndex * columns;
                 i += 1
               ) {
                 if (data.cards[i]) {
                   const frontCover = data.cards[i].front.cover;
-                  if (frontCover) {
-                    if (frontCover && frontCover === 'loading') {
-                      getImage(dispatch, data.cards[i], 0);
-                    }
+                  if (frontCover && frontCover === 'loading') {
+                    getImage(dispatch, data.cards[i], 0);
                   }
                   const { back } = data.cards[i];
                   if (back) {
                     const backCover = back.cover;
-                    if (backCover) {
-                      if (backCover && backCover === 'loading') {
-                        getImage(dispatch, data.cards[i], 1);
-                      }
+                    if (backCover && backCover === 'loading') {
+                      getImage(dispatch, data.cards[i], 1);
                     }
                   }
                 }
               }
             }}
-          >
-            {Cell}
-          </Grid>
+          />
         );
       }}
-    </AutoSizer>
+    />
   );
 };
 
