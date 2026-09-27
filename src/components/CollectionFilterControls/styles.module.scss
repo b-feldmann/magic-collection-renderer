@@ -3,14 +3,19 @@
     background: whitesmoke;
     position: fixed;
     width: calc(100 / 24 * 18 / 24 * 4vw);
-    height: calc(100vh - 32px);
-    padding: 8px 24px 8px 8px;
+    height: calc(100vh - 56px);
+    overflow-y: auto;
+    // Reserve space for the fixed action buttons (Edit Mechanics / Add Card / JSON /
+    // Reload) so the last filter rows can be scrolled clear of them.
+    padding: 8px 24px 180px 8px;
 
     @media only screen and (max-width: 900px) {
         position: relative;
         width: 100%;
         height: auto;
+        overflow-y: visible;
         top: 0;
+        padding-bottom: 8px;
     }
 }
 
@@ -18,4 +23,14 @@
     display: block;
     margin-left: 8px;
     margin-top: 4px;
+}
+
+// antd 6 renders the checkbox box (.ant-checkbox) as `display: block` and relies on
+// the wrapper's flex context (`align-self: center; flex: none`) for alignment. The
+// `display: block` rule above breaks that context and stacks the box above its label.
+// Use block-level flex so each checkbox still sits on its own line while the box and
+// label stay aligned on a single row.
+.controlItem > :global(.ant-checkbox-wrapper) {
+    display: flex;
+    margin-inline-start: 8px;
 }
