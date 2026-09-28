@@ -9,9 +9,8 @@ function getWindowDimensions() {
 }
 
 export default function useWindowDimensions() {
-  const [windowDimensions, setWindowDimensions] = useState(
-    getWindowDimensions()
-  );
+  // Pass the function reference for lazy init so `window` is read only on mount.
+  const [windowDimensions, setWindowDimensions] = useState(getWindowDimensions);
 
   useEffect(() => {
     function handleResize() {

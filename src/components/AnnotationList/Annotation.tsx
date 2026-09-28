@@ -8,8 +8,6 @@ import Comment from '../Comment/Comment';
 
 dayjs.extend(relativeTime);
 
-import _ from 'lodash';
-
 import AnnotationInterface from '../../interfaces/AnnotationInterface';
 
 import styles from './Annotations.module.scss';
@@ -29,7 +27,7 @@ const Annotation = ({ annotation }: AnnotationProps) => {
     </Tooltip>
   );
 
-  const author = _.find(user, (o) => o.uuid === annotation.author);
+  const author = user.find((o) => o.uuid === annotation.author);
 
   return (
     <Comment

@@ -1,7 +1,6 @@
-import React, { useRef } from 'react';
-import { PDFExport } from '@progress/kendo-react-pdf';
+import React from 'react';
 
-import { message } from 'antd';
+import { App } from 'antd';
 
 interface PdfDownloadWrapperInterface {
   fileName: string;
@@ -12,6 +11,7 @@ const PdfDownloadWrapper: React.FC<PdfDownloadWrapperInterface> = (
   props: PdfDownloadWrapperInterface,
 ) => {
   const { fileName, render } = props;
+  const { message } = App.useApp();
   // const cardRef = useRef<PDFExport>(null);
   //
   // const downloadPdf = () => {

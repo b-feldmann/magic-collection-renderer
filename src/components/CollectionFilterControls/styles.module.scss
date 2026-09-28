@@ -1,9 +1,9 @@
 .controls {
-    top: 56px;
+    top: 72px;
     background: whitesmoke;
     position: fixed;
     width: calc(100 / 24 * 18 / 24 * 4vw);
-    height: calc(100vh - 56px);
+    height: calc(100vh - 72px);
     overflow-y: auto;
     // Reserve space for the fixed action buttons (Edit Mechanics / Add Card / JSON /
     // Reload) so the last filter rows can be scrolled clear of them.
@@ -17,6 +17,10 @@
         top: 0;
         padding-bottom: 8px;
     }
+}
+
+.controlItem {
+    width: 100%;
 }
 
 .controlItem > * {

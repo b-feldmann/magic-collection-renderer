@@ -1,4 +1,4 @@
-import { Button, Checkbox, Input, List, Radio, Select, Upload } from 'antd';
+import { Button, Checkbox, Input, Listy, Radio, Select, Upload } from 'antd';
 
 import AntIcon from '../AntIcon/AntIcon';
 import React from 'react';
@@ -156,13 +156,12 @@ const EditField = (props: EditFieldInterface) => {
           value={getValue(fieldKey)}
           onChange={(key: string) => saveValue(fieldKey, key)}
           style={{ width: '100%' }}
-        >
-          {data.map((d) => (
-            <Select.Option key={`${fieldKey} + ${d.key}`} value={d.key}>
-              {d.value}
-            </Select.Option>
-          ))}
-        </Select>
+          options={data.map((d) => ({
+            key: `${fieldKey} + ${d.key}`,
+            value: d.key,
+            label: d.value,
+          }))}
+        />
       </span>
     );
   }
@@ -200,62 +199,71 @@ const EditField = (props: EditFieldInterface) => {
     return (
       <span>
         <p className={styles.label}>{name}</p>
-        <List
-          size="small"
-          bordered
-          dataSource={getValue(fieldKey)}
-          renderItem={(item: string, i) => (
-            <List.Item
-              className={styles.listItem}
-              actions={[
-                <AntIcon
-                  type="close-circle"
-                  theme="twoTone"
-                  twoToneColor="#FF0000"
-                  onClick={() => {
-                    const list = getValue(fieldKey);
-                    list.splice(i, 1);
-                    saveValue(fieldKey, list);
-                  }}
-                />,
-              ]}
-            >
-              {type === 'list' ? (
-                <TextArea
-                  value={item}
-                  onChange={(e) => {
-                    const list = getValue(fieldKey);
-                    list[i] = e.target.value;
-                    saveValue(fieldKey, list);
-                  }}
-                  autoSize
-                />
-              ) : (
-                <InputGroup compact>
-                  <Input
-                    style={{ width: '20%' }}
-                    value={split(item).cost}
-                    onChange={(e) => {
+        {/* `List` was deprecated in antd 6. `Listy` has no `bordered`, no
+            per-item `actions`, and no `footer`, so those are recreated with
+            markup + CSS. Items are wrapped with their index to provide a stable
+            `rowKey` (values can repeat, e.g. blank instructions). */}
+        <div className={styles.listBordered}>
+          <Listy<{ value: string; index: number }>
+            rowKey="index"
+            classNames={{ item: styles.listItem }}
+            items={((getValue(fieldKey) as string[]) || []).map((value, index) => ({
+              value,
+              index,
+            }))}
+            itemRender={({ value: item, index: i }) => (
+              <div className={styles.listItemInner}>
+                <div className={styles.listItemContent}>
+                  {type === 'list' ? (
+                    <TextArea
+                      value={item}
+                      onChange={(e) => {
+                        const list = getValue(fieldKey);
+                        list[i] = e.target.value;
+                        saveValue(fieldKey, list);
+                      }}
+                      autoSize
+                    />
+                  ) : (
+                    <InputGroup compact>
+                      <Input
+                        style={{ width: '20%' }}
+                        value={split(item).cost}
+                        onChange={(e) => {
+                          const list = getValue(fieldKey);
+                          list[i] = `${e.target.value}|${split(item).text}`;
+                          saveValue(fieldKey, list);
+                        }}
+                      />
+                      <TextArea
+                        style={{ width: '80%' }}
+                        value={split(item).text}
+                        onChange={(e) => {
+                          const list = getValue(fieldKey);
+                          list[i] = `${split(item).cost}|${e.target.value}`;
+                          saveValue(fieldKey, list);
+                        }}
+                        autoSize
+                      />
+                    </InputGroup>
+                  )}
+                </div>
+                <div className={styles.listItemActions}>
+                  <AntIcon
+                    type="close-circle"
+                    theme="twoTone"
+                    twoToneColor="#FF0000"
+                    onClick={() => {
                       const list = getValue(fieldKey);
-                      list[i] = `${e.target.value}|${split(item).text}`;
+                      list.splice(i, 1);
                       saveValue(fieldKey, list);
                     }}
                   />
-                  <TextArea
-                    style={{ width: '80%' }}
-                    value={split(item).text}
-                    onChange={(e) => {
-                      const list = getValue(fieldKey);
-                      list[i] = `${split(item).cost}|${e.target.value}`;
-                      saveValue(fieldKey, list);
-                    }}
-                    autoSize
-                  />
-                </InputGroup>
-              )}
-            </List.Item>
-          )}
-          footer={
+                </div>
+              </div>
+            )}
+          />
+          <div className={styles.listFooter}>
             <div className={styles.centerParent}>
               <Button
                 disabled={type === 'split-list' && getValue(fieldKey).length === 4}
@@ -269,8 +277,8 @@ const EditField = (props: EditFieldInterface) => {
                 Add Instruction
               </Button>
             </div>
-          }
-        />
+          </div>
+        </div>
       </span>
     );
   }

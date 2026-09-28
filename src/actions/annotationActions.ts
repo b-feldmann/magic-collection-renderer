@@ -1,13 +1,13 @@
 import axios from 'axios';
 
 import LogRocket from 'logrocket';
-import { message } from 'antd';
 import { Action, AnnotationActionType } from '../reducer';
 
 import { getAccessToken } from '../utils/accessService';
 import AnnotationInterface from '../interfaces/AnnotationInterface';
 import UserInterface from '../interfaces/UserInterface';
 import { captureError, ActionTag, RequestTag } from './errorLog';
+import { staticAntd } from '../utils/staticAntd';
 
 const MIDDLEWARE_ENDPOINT = import.meta.env.PROD
   ? '/annotations'
@@ -41,7 +41,7 @@ export const createAnnotation = (
   axios
     .post(MIDDLEWARE_ENDPOINT, args)
     .then((result) => {
-      message.success('Successfully Created Annotation!');
+      staticAntd.message.success('Successfully Created Annotation!');
       return dispatch({
         type: AnnotationActionType.CreateAnnotation,
         payload: {
@@ -51,7 +51,7 @@ export const createAnnotation = (
     })
     .catch((error) => {
       captureError(error, ActionTag.Annotation, RequestTag.Create, {});
-      message.error('Failed creating a new annotation :(');
+      staticAntd.message.error('Failed creating a new annotation :(');
     });
 };
 
@@ -64,7 +64,7 @@ export const updateAnnotation = (
   axios
     .put(MIDDLEWARE_ENDPOINT, { mechanic: updated, accessKey: getAccessToken() })
     .then((result) => {
-      message.success('Successfully Updated Annotation');
+      staticAntd.message.success('Successfully Updated Annotation');
       return dispatch({
         type: AnnotationActionType.UpdateAnnotation,
         payload: {
@@ -74,6 +74,6 @@ export const updateAnnotation = (
     })
     .catch((error) => {
       captureError(error, ActionTag.Annotation, RequestTag.Update, {});
-      message.error("Could'nt update annotation");
+      staticAntd.message.error("Could'nt update annotation");
     });
 };

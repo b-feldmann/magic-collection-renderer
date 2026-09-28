@@ -10,30 +10,31 @@ const RotateToMouse = ({
 }: { children: JSX.Element | JSX.Element[] } & React.HTMLAttributes<HTMLDivElement>) => {
   const ref = useRef<HTMLDivElement>(null);
   const [covers, setCovers] = useState<HTMLCollectionOf<Element>>();
-  const [counter, setCounter] = useState(0);
-  const [lastRelativeMouse, setLastRelativeMouse] = useState({ x: 0.5, y: 0.5 });
+  // Transient values that must not trigger a re-render on every mousemove.
+  const counterRef = useRef(0);
+  const lastRelativeMouseRef = useRef({ x: 0.5, y: 0.5 });
 
   useEffect(() => {
     if (ref.current) {
       setCovers(ref.current.getElementsByClassName('card-cover'));
     }
-  }, [ref.current]);
+  }, []);
 
   const isTimeToUpdate = (): boolean => {
-    setCounter(counter + 1);
-    return counter % UPDATE_RATE === 0;
+    counterRef.current += 1;
+    return counterRef.current % UPDATE_RATE === 0;
   };
 
   const update = (x: number, y: number) => {
     if (!ref.current) return;
 
-    const relativeX =
-      (x - ref.current.getBoundingClientRect().left) / ref.current.getBoundingClientRect().width;
-    const relativeY =
-      (y - ref.current.getBoundingClientRect().top) / ref.current.getBoundingClientRect().height;
+    // Read layout once instead of forcing four synchronous reflows.
+    const rect = ref.current.getBoundingClientRect();
+    const relativeX = (x - rect.left) / rect.width;
+    const relativeY = (y - rect.top) / rect.height;
 
-    // const currentRelativeX = (lastRelativeMouse.x + relativeX) * 0.5;
-    // const currentRelativeY = (lastRelativeMouse.y + relativeY) * 0.5;
+    // const currentRelativeX = (lastRelativeMouseRef.current.x + relativeX) * 0.5;
+    // const currentRelativeY = (lastRelativeMouseRef.current.y + relativeY) * 0.5;
 
     const currentRelativeX = relativeX;
     const currentRelativeY = relativeY;
@@ -63,7 +64,7 @@ const RotateToMouse = ({
       }
     }
 
-    setLastRelativeMouse({ x: currentRelativeX, y: currentRelativeY });
+    lastRelativeMouseRef.current = { x: currentRelativeX, y: currentRelativeY };
   };
 
   const reset = () => {

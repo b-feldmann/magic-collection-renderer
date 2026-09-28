@@ -1,12 +1,12 @@
 import axios from 'axios';
 
 import LogRocket from 'logrocket';
-import { message } from 'antd';
 import { Action, MechanicActionType } from '../reducer';
 
 import { getAccessToken } from '../utils/accessService';
 import MechanicInterface from '../interfaces/MechanicInterface';
 import { captureError, ActionTag, RequestTag } from './errorLog';
+import { staticAntd } from '../utils/staticAntd';
 
 const MIDDLEWARE_ENDPOINT = import.meta.env.PROD ? '' : 'http://localhost:8080';
 
@@ -37,7 +37,7 @@ export const createMechanic = (dispatch: (value: Action) => void) => {
   axios
     .post(request, args)
     .then((result) => {
-      message.success('Successfully Created Mechanic!');
+      staticAntd.message.success('Successfully Created Mechanic!');
       return dispatch({
         type: MechanicActionType.CreateMechanic,
         payload: {
@@ -46,7 +46,7 @@ export const createMechanic = (dispatch: (value: Action) => void) => {
       });
     })
     .catch((error) => {
-      message.error('Failed creating a new mechanic :(');
+      staticAntd.message.error('Failed creating a new mechanic :(');
       captureError(error, ActionTag.Mechanic, RequestTag.Create, {});
     });
 };
@@ -58,7 +58,7 @@ export const updateMechanic = (dispatch: (value: Action) => void, updated: Mecha
   axios
     .put(request, { mechanic: updated, accessKey: getAccessToken() })
     .then((result) => {
-      message.success('Successfully Updated Mechanic');
+      staticAntd.message.success('Successfully Updated Mechanic');
       return dispatch({
         type: MechanicActionType.UpdateMechanic,
         payload: {
@@ -68,6 +68,6 @@ export const updateMechanic = (dispatch: (value: Action) => void, updated: Mecha
     })
     .catch((error) => {
       captureError(error, ActionTag.Mechanic, RequestTag.Update, {});
-      message.error("Could'nt update mechanic");
+      staticAntd.message.error("Could'nt update mechanic");
     });
 };

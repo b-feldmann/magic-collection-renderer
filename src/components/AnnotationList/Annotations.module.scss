@@ -16,6 +16,13 @@
   padding: 12px;
 }
 
+// Replaces the antd List `header`, which `Listy` does not provide.
+.listHeader {
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(5, 5, 5, 0.06);
+  font-weight: 500;
+}
+
 .entry {
   margin-left: -12px;
 

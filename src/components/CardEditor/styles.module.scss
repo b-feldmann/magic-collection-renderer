@@ -28,12 +28,38 @@
     padding-left: 8px;
 }
 
-.listItem {
-    padding: 0 !important;
+// Recreates the antd `List` bordered container that `Listy` does not provide.
+.listBordered {
+    border: 1px solid rgba(5, 5, 5, 0.06);
+    border-radius: 8px;
+    overflow: hidden;
 }
 
-.listItem > ul {
+.listItem {
+    padding: 4px 8px !important;
+}
+
+// Item body: content grows, the remove action sits on the trailing edge
+// (previously the antd `List.Item` `actions` slot).
+.listItemInner {
+    display: flex;
+    align-items: center;
+}
+
+.listItemContent {
+    flex: 1;
+    min-width: 0;
+}
+
+.listItemActions {
     margin-left: 8px;
+    flex-shrink: 0;
+}
+
+// Replaces the antd `List` `footer`.
+.listFooter {
+    padding: 8px;
+    border-top: 1px solid rgba(5, 5, 5, 0.06);
 }
 
 .centerParent {

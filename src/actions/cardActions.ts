@@ -1,7 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import axios from 'axios';
 
-import { message } from 'antd';
 import dayjs from 'dayjs';
 import LogRocket from 'logrocket';
 import { Action, CardActionType } from '../reducer';
@@ -13,6 +12,7 @@ import { UNKNOWN_CREATOR } from '../utils/constants';
 import UserInterface from '../interfaces/UserInterface';
 import { captureError, ActionTag, RequestTag } from './errorLog';
 import { createImage, getImage } from './imageActions';
+import { staticAntd } from '../utils/staticAntd';
 
 const MIDDLEWARE_ENDPOINT = import.meta.env.PROD ? '' : 'http://localhost:8080';
 
@@ -66,13 +66,16 @@ export const refreshCollection = (dispatch: (value: Action) => void) => {
         if (response.status && response.status === 401) {
           deleteAccessToken();
           LogRocket.error('Wrong access token! You are not authorized to use this service :(');
-          message.error('Wrong access token! You are not authorized to use this service :(', 3);
+          staticAntd.message.error(
+            'Wrong access token! You are not authorized to use this service :(',
+            3,
+          );
           return;
         }
       }
 
       captureError(error, ActionTag.Card, RequestTag.Get, {});
-      message.error("Could'nt load collection. Maybe you access token is wrong.");
+      staticAntd.message.error("Could'nt load collection. Maybe you access token is wrong.");
     });
 };
 
@@ -84,7 +87,7 @@ export const createCard = (dispatch: (value: Action) => void, creator: UserInter
   axios
     .post(request, args)
     .then((result) => {
-      message.success('Successfully Created Card!');
+      staticAntd.message.success('Successfully Created Card!');
       return dispatch({
         type: CardActionType.CreateCard,
         payload: {
@@ -94,7 +97,7 @@ export const createCard = (dispatch: (value: Action) => void, creator: UserInter
     })
     .catch((error) => {
       captureError(error, ActionTag.Card, RequestTag.Create, {});
-      message.error('Failed creating a new card :(');
+      staticAntd.message.error('Failed creating a new card :(');
     });
 };
 
@@ -124,7 +127,7 @@ export const updateCard = (dispatch: (value: Action) => void, updated: CardInter
   axios
     .put(request, { card: parsed, accessKey: getAccessToken() })
     .then((result) => {
-      message.success('Successfully Updated Card');
+      staticAntd.message.success('Successfully Updated Card');
       if (
         result.data.card.front.cover &&
         (result.data.card.front.cover === 'loading' ||
@@ -150,6 +153,6 @@ export const updateCard = (dispatch: (value: Action) => void, updated: CardInter
     })
     .catch((error) => {
       captureError(error, ActionTag.Card, RequestTag.Update, {});
-      message.error("Could'nt update the card");
+      staticAntd.message.error("Could'nt update the card");
     });
 };

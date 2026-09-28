@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { Button, Modal, Typography, Table } from 'antd';
 
-import _ from 'lodash';
+import sortBy from 'lodash/sortBy';
 import { Store, StoreType } from '../../store';
 import { createMechanic, updateMechanic } from '../../actions/mechanicActions';
 import MechanicInterface from '../../interfaces/MechanicInterface';
@@ -32,7 +32,7 @@ const MechanicModal = ({
     updateMechanic(dispatch, { ...rest, description });
   };
 
-  const sortedMechanics: RecordProps[] = _.sortBy(mechanics, [(o) => o.uuid]).map((mechanic) => ({
+  const sortedMechanics: RecordProps[] = sortBy(mechanics, [(o) => o.uuid]).map((mechanic) => ({
     ...mechanic,
     key: mechanic.uuid,
   }));

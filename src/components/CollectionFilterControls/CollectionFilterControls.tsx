@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Checkbox, Input, Row, Slider } from 'antd';
 import { CardMainType, ColorTypePlus, mapEnum, RarityType } from '../../interfaces/enums';
 
@@ -41,13 +41,13 @@ const CollectionFilterControls = ({
     return group;
   };
 
-  const [shownCardTypes, setShownCardTypes] = useState<CheckBoxGroupInterface>(
+  const [shownCardTypes, setShownCardTypes] = useState<CheckBoxGroupInterface>(() =>
     createEnumInitState(Object.values(CardMainType)),
   );
-  const [shownColors, setShownColors] = useState<CheckBoxGroupInterface>(
+  const [shownColors, setShownColors] = useState<CheckBoxGroupInterface>(() =>
     createEnumInitState(Object.values(ColorTypePlus)),
   );
-  const [shownRarities, setShownRarities] = useState<CheckBoxGroupInterface>(
+  const [shownRarities, setShownRarities] = useState<CheckBoxGroupInterface>(() =>
     createEnumInitState(Object.values(RarityType)),
   );
 
@@ -72,21 +72,26 @@ const CollectionFilterControls = ({
     setCollectionColSpan && setCollectionColSpan(number);
   };
 
-  const cardCountStats: CardCountStats = {};
-  Object.values(CardMainType).forEach((key) => {
-    cardCountStats[key] = 0;
-  });
-  Object.values(RarityType).forEach((key) => {
-    cardCountStats[key] = 0;
-  });
-  Object.values(ColorTypePlus).forEach((key) => {
-    cardCountStats[key] = 0;
-  });
-  collection.forEach((card) => {
-    cardCountStats[cardToColor(card.front.cardMainType, card.manaCost).color] += 1;
-    cardCountStats[card.front.cardMainType] += 1;
-    cardCountStats[card.rarity] += 1;
-  });
+  // Recompute the per-category counts only when the collection changes, rather
+  // than iterating the entire collection on every render.
+  const cardCountStats: CardCountStats = useMemo(() => {
+    const stats: CardCountStats = {};
+    Object.values(CardMainType).forEach((key) => {
+      stats[key] = 0;
+    });
+    Object.values(RarityType).forEach((key) => {
+      stats[key] = 0;
+    });
+    Object.values(ColorTypePlus).forEach((key) => {
+      stats[key] = 0;
+    });
+    collection.forEach((card) => {
+      stats[cardToColor(card.front.cardMainType, card.manaCost).color] += 1;
+      stats[card.front.cardMainType] += 1;
+      stats[card.rarity] += 1;
+    });
+    return stats;
+  }, [collection]);
 
   useEffect(() => {
     setCollectionFilter &&

@@ -1,12 +1,12 @@
 import axios from 'axios';
 
-import { message } from 'antd';
 import LogRocket from 'logrocket';
 import { Action, CardActionType, ImageActionType } from '../reducer';
 
 import CardInterface from '../interfaces/CardInterface';
 import { getAccessToken } from '../utils/accessService';
 import { captureError, ActionTag, RequestTag } from './errorLog';
+import { staticAntd } from '../utils/staticAntd';
 
 const MIDDLEWARE_ENDPOINT = import.meta.env.PROD ? '/images' : 'http://localhost:8080/images';
 
@@ -24,7 +24,7 @@ export const getImage = (dispatch: (value: Action) => void, card: CardInterface,
     })
     .catch((error) => {
       captureError(error, ActionTag.Image, RequestTag.Get, {});
-      message.error("Could'nt load card image.");
+      staticAntd.message.error("Could'nt load card image.");
     });
 };
 
@@ -40,7 +40,7 @@ export const createImage = (
   axios
     .post(MIDDLEWARE_ENDPOINT, args)
     .then((result) => {
-      message.success('Successfully Created Image!');
+      staticAntd.message.success('Successfully Created Image!');
 
       dispatch({
         type: ImageActionType.ReadImage,
@@ -49,6 +49,6 @@ export const createImage = (
     })
     .catch((error) => {
       captureError(error, ActionTag.Image, RequestTag.Create, {});
-      message.error('Failed creating a new image :(');
+      staticAntd.message.error('Failed creating a new image :(');
     });
 };

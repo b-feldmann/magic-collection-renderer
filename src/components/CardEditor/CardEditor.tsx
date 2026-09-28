@@ -1,6 +1,7 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { Button, Row } from 'antd';
-import _ from 'lodash';
+import React, { useContext, useEffect, useRef, useState } from 'react';
+import { Button, Row, Space } from 'antd';
+import cloneDeep from 'lodash/cloneDeep';
+import isEqual from 'lodash/isEqual';
 import dayjs from 'dayjs';
 import CardInterface from '../../interfaces/CardInterface';
 
@@ -71,9 +72,11 @@ const CardEditor: React.FC<CardEditorInterface> = ({
   saveTmpCard,
 }: CardEditorInterface) => {
   const [contentChanged, setContentChanged] = useState<boolean>(false);
-  const [originalCard, setOriginalCard] = useState<CardInterface>(_.cloneDeep(card));
-  const [tmpCard, setTmpCard] = useState<CardInterface>(_.cloneDeep(card));
-  const [timerId, setTimerId] = useState<any>(NO_CARD);
+  const [originalCard, setOriginalCard] = useState<CardInterface>(() => cloneDeep(card));
+  const [tmpCard, setTmpCard] = useState<CardInterface>(() => cloneDeep(card));
+  // A transient debounce handle: keep it in a ref so updating it never triggers
+  // a re-render (unlike the previous `useState`).
+  const timerId = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [editBack, setEditBack] = useState<boolean>(false);
 
@@ -101,7 +104,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
         newTmpCard.name = `${newTmpCard.front.name}`;
       }
     } else if (key === 'creator') {
-      newTmpCard[key] = _.find(user, (o) => o.uuid === value) || UNKNOWN_CREATOR;
+      newTmpCard[key] = user.find((o) => o.uuid === value) || UNKNOWN_CREATOR;
     } else if (key === 'rarity' || key === 'manaCost') {
       newTmpCard[key] = value;
     } else if (key === 'comment') {
@@ -146,17 +149,16 @@ const CardEditor: React.FC<CardEditorInterface> = ({
 
     setContentChanged(true);
 
-    clearTimeout(timerId);
-    const tmpId = setTimeout(() => {
+    if (timerId.current) clearTimeout(timerId.current);
+    timerId.current = setTimeout(() => {
       saveTmpCard(newTmpCard);
     }, EDIT_TIME_OFFSET);
-    setTimerId(tmpId);
   };
 
   const discardChanges = () => {
     if (!contentChanged) return;
 
-    setTmpCard(_.cloneDeep(originalCard));
+    setTmpCard(cloneDeep(originalCard));
     saveTmpCard(null);
     setContentChanged(false);
   };
@@ -164,18 +166,18 @@ const CardEditor: React.FC<CardEditorInterface> = ({
   const saveChanges = () => {
     if (!contentChanged) return;
 
-    setTmpCard(_.cloneDeep(tmpCard));
-    setOriginalCard(_.cloneDeep(tmpCard));
+    setTmpCard(cloneDeep(tmpCard));
+    setOriginalCard(cloneDeep(tmpCard));
     saveTmpCard(null);
-    updateCard(dispatch, _.cloneDeep(tmpCard));
+    updateCard(dispatch, cloneDeep(tmpCard));
     setContentChanged(false);
   };
 
   useEffect(() => {
     if (
-      _.isEqual(originalCard, tmpCard) &&
-      _.isEqual(originalCard.front, tmpCard.front) &&
-      _.isEqual(originalCard.back, tmpCard.back)
+      isEqual(originalCard, tmpCard) &&
+      isEqual(originalCard.front, tmpCard.front) &&
+      isEqual(originalCard.back, tmpCard.back)
     ) {
       saveTmpCard(null);
       setContentChanged(false);
@@ -185,12 +187,20 @@ const CardEditor: React.FC<CardEditorInterface> = ({
 
   useEffect(() => {
     setEditBack(false);
-    setTmpCard(_.cloneDeep(card));
-    setOriginalCard(_.cloneDeep(card));
+    setTmpCard(cloneDeep(card));
+    setOriginalCard(cloneDeep(card));
     saveTmpCard(null);
     setContentChanged(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [card.uuid]);
+
+  // Cancel any pending debounced save if the editor unmounts.
+  useEffect(
+    () => () => {
+      if (timerId.current) clearTimeout(timerId.current);
+    },
+    [],
+  );
 
   const isCreature = () =>
     getValue('cardMainType') === CardMainType.Creature ||
@@ -349,7 +359,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
       <canvas id="cover-resize-canvas" className={styles.canvas} />
       <Row>
         <EditorTooltip className={styles.tooltip} />
-        <Button.Group className={styles.smallButtonGroup} size="small">
+        <Space.Compact className={styles.smallButtonGroup} size="small">
           {card.back && editBack && (
             <Button ghost onClick={() => setEditBack(false)}>
               <span>Edit Front Face</span>
@@ -366,7 +376,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
             </Button>
           )}
           {!card.back && <Button onClick={addBackFace}>Add Back Face</Button>}
-        </Button.Group>
+        </Space.Compact>
       </Row>
       <Row>
         {inputConfig.map((config) => {
@@ -392,14 +402,14 @@ const CardEditor: React.FC<CardEditorInterface> = ({
         })}
       </Row>
       <Row>
-        <Button.Group className={styles.buttonGroup} size="small">
+        <Space.Compact className={styles.buttonGroup} size="small">
           <Button disabled={!contentChanged} onClick={saveChanges} type="primary">
             <span>Save Changes</span>
           </Button>
           <Button disabled={!contentChanged} onClick={discardChanges} danger>
             <span>Discard Changes</span>
           </Button>
-        </Button.Group>
+        </Space.Compact>
       </Row>
     </div>
   );

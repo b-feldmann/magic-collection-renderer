@@ -28,18 +28,16 @@ const AnnotationEditor = ({
   const { currentUser } = useContext<StoreType>(Store);
 
   const [content, setContent] = useState(defaultContent);
-  const [author, setAuthor] = useState(defaultAuthor || currentUser || UNKNOWN_CREATOR);
+  // `author` is fully derived from props/context (never edited in the UI), so
+  // compute it during render instead of mirroring it into state via an effect.
+  const author = defaultAuthor || currentUser || UNKNOWN_CREATOR;
 
+  // Clear the textarea once a submit round-trip completes.
   useEffect(() => {
     if (!submitting) {
       setContent('');
     }
   }, [submitting]);
-  useEffect(() => setContent(defaultContent), [defaultContent]);
-  useEffect(
-    () => setAuthor(defaultAuthor || currentUser || UNKNOWN_CREATOR),
-    [defaultAuthor, currentUser],
-  );
 
   const onEmoji = (emoji: BaseEmoji) => {
     setContent(content + emoji.native);

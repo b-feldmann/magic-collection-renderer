@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { List } from 'antd';
+import { Listy } from 'antd';
 
 import Comment from '../Comment/Comment';
 
-import _ from 'lodash';
+import sortBy from 'lodash/sortBy';
 
 import AnnotationInterface from '../../interfaces/AnnotationInterface';
 import Annotation from './Annotation';
@@ -38,13 +38,16 @@ const AnnotationList = ({
     <div className={styles.container} style={{ flexDirection: split ? 'row-reverse' : 'column' }}>
       <div className={split ? styles.flexWrapper : ''}>{children}</div>
       <div className={styles.flexWrapper}>
-        <List
-          className={styles.list}
-          header={`${annotations.length} annotations`}
-          itemLayout="horizontal"
-          dataSource={_.sortBy(annotations, (o: AnnotationInterface) => o.datetime)}
-          renderItem={(item) => <Annotation annotation={item} />}
-        />
+        {/* `List` is deprecated in antd 6; `Listy` has no `header`, so it is
+            rendered separately above the list. */}
+        <div className={styles.list}>
+          <div className={styles.listHeader}>{`${annotations.length} annotations`}</div>
+          <Listy<AnnotationInterface>
+            rowKey="uuid"
+            items={sortBy(annotations, (o: AnnotationInterface) => o.datetime)}
+            itemRender={(item) => <Annotation annotation={item} />}
+          />
+        </div>
       </div>
       <div className={split ? styles.flexWrapper : ''}>
         <Comment

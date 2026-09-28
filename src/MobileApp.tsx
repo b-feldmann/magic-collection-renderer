@@ -1,6 +1,6 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useDeferredValue, useEffect, useMemo, useState } from 'react';
 import { Badge, Button, Card, Col, Input, Modal, Result, Row, Select, Tabs } from 'antd';
-import _ from 'lodash';
+import sortBy from 'lodash/sortBy';
 import LogRocket from 'logrocket';
 
 import CardInterface from './interfaces/CardInterface';
@@ -31,6 +31,10 @@ const { confirm } = Modal;
 
 const NO_CARD = '-1';
 
+// Guard so the initial data fetch runs once per app load, not again under
+// StrictMode's dev double-mount or on remount.
+let didInit = false;
+
 const MobileApp: React.FC = () => {
   const [tmpCard, setTmpCard] = useState<CardInterface | null>(null);
   const [cardEditId, setCardEditId] = useState<string>(NO_CARD);
@@ -41,31 +45,48 @@ const MobileApp: React.FC = () => {
   const { cards, newUuid, dispatch, annotationAccessor, user, currentUser } =
     useContext<StoreType>(Store);
 
-  const seenCardObject: { [key: string]: boolean } = {};
-  currentUser.seenCards.forEach((uuid: string) => {
-    seenCardObject[uuid] = true;
-  });
+  const seenCardObject = useMemo(() => {
+    const seen: { [key: string]: boolean } = {};
+    currentUser.seenCards.forEach((uuid: string) => {
+      seen[uuid] = true;
+    });
+    return seen;
+  }, [currentUser.seenCards]);
 
-  const mergedCollection = [...cards.filter((card) => card.uuid !== (tmpCard ? tmpCard.uuid : ''))];
-  if (tmpCard) mergedCollection.push(tmpCard);
+  const mergedCollection = useMemo(() => {
+    const merged = cards.filter((card) => card.uuid !== (tmpCard ? tmpCard.uuid : ''));
+    if (tmpCard) merged.push(tmpCard);
+    return merged;
+  }, [cards, tmpCard]);
 
-  const lastUpdated = (card: CardInterface): number => {
-    const annotations = annotationAccessor[card.uuid];
-    if (!annotations) return card.meta.lastUpdated;
+  // Defer the rapidly changing name filter so typing stays responsive while the
+  // (potentially large) collection is re-sorted and re-filtered.
+  const deferredNameFilter = useDeferredValue(cardNameFilter);
 
-    const lastAnnotation = annotations.reduce((a, b) => (a.datetime > b.datetime ? a : b));
-    return Math.max(lastAnnotation.datetime, card.meta.lastUpdated);
-  };
+  const filteredCollection = useMemo(() => {
+    const lastUpdated = (card: CardInterface): number => {
+      const annotations = annotationAccessor[card.uuid];
+      if (!annotations) return card.meta.lastUpdated;
 
-  const filteredCollection = _.sortBy(mergedCollection, [
-    (o: CardInterface) => -1 * lastUpdated(o),
-  ]).filter((o) => o.name.toLowerCase().includes(cardNameFilter.toLowerCase()));
+      const lastAnnotation = annotations.reduce((a, b) => (a.datetime > b.datetime ? a : b));
+      return Math.max(lastAnnotation.datetime, card.meta.lastUpdated);
+    };
+
+    return sortBy(mergedCollection, [(o: CardInterface) => -1 * lastUpdated(o)]).filter((o) =>
+      o.name.toLowerCase().includes(deferredNameFilter.toLowerCase()),
+    );
+  }, [mergedCollection, annotationAccessor, deferredNameFilter]);
+
+  // O(1) uuid -> card lookups instead of a linear scan on every call.
+  const cardByUuid = useMemo(
+    () => new Map(filteredCollection.map((card) => [card.uuid, card])),
+    [filteredCollection],
+  );
 
   const getCard = (collection: CardInterface[], uuid: string) =>
-    filteredCollection.find((card) => card.uuid === uuid) || EMPTY_CARD();
+    cardByUuid.get(uuid) || EMPTY_CARD();
 
-  const getCardUndefined = (collection: CardInterface[], uuid: string) =>
-    filteredCollection.find((card) => card.uuid === uuid);
+  const getCardUndefined = (collection: CardInterface[], uuid: string) => cardByUuid.get(uuid);
 
   const viewCard = (id: string) => {
     LogRocket.log(`View card ${getCard(filteredCollection, id).name}`);
@@ -115,7 +136,12 @@ const MobileApp: React.FC = () => {
     getUser(dispatch);
   };
 
-  useEffect(refresh, []);
+  useEffect(() => {
+    if (didInit) return;
+    didInit = true;
+    refresh();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const createGrid = (collection: CardInterface[]) => {
     const collectionSpan = 24;
@@ -149,7 +175,7 @@ const MobileApp: React.FC = () => {
               label: (
                 <Badge
                   className={styles.tabBadge}
-                  count={_.filter(filteredCollection, tabObj.filter).length}
+                  count={filteredCollection.filter(tabObj.filter).length}
                   showZero
                   overflowCount={999}
                 >
@@ -159,7 +185,7 @@ const MobileApp: React.FC = () => {
               children: (
                 <div className={styles.fullHeight}>
                   <CardCollection
-                    cards={_.filter(filteredCollection, tabObj.filter)}
+                    cards={filteredCollection.filter(tabObj.filter)}
                     currentEditId={cardEditId}
                     editCard={(id) => {
                       if (cardEditId === NO_CARD) openCardInEditor(id, '');
@@ -214,18 +240,13 @@ const MobileApp: React.FC = () => {
           <Select
             size="large"
             onChange={(key: string) =>
-              setCurrentUser(dispatch, _.find(user, (o) => o.uuid === key) || UNKNOWN_CREATOR)
+              setCurrentUser(dispatch, user.find((o) => o.uuid === key) || UNKNOWN_CREATOR)
             }
             style={{ width: '100%' }}
-          >
-            {user
+            options={user
               .filter((u) => u.name !== 'ADMIN')
-              .map((d) => (
-                <Select.Option key={`login-user-${d.uuid}`} value={d.uuid}>
-                  {d.name}
-                </Select.Option>
-              ))}
-          </Select>
+              .map((d) => ({ key: `login-user-${d.uuid}`, value: d.uuid, label: d.name }))}
+          />
         </Card>
       </div>
       <Row
@@ -254,7 +275,7 @@ const MobileApp: React.FC = () => {
         visible={showCardModal}
         hide={() => setShowCardModal(false)}
         collectionNumber={
-          _.findIndex(filteredCollection, (o: CardInterface) => o.uuid === cardViewId) + 1
+          filteredCollection.findIndex((o: CardInterface) => o.uuid === cardViewId) + 1
         }
         collectionSize={filteredCollection.length}
       />

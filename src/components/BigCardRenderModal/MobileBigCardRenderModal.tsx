@@ -64,8 +64,8 @@ const MobileBigCardRenderModal = ({
           flexDirection: portrait ? 'column' : 'row',
         }}
       >
-        {faces.map((face) => (
-          <div style={{ width: cardWidth }}>
+        {faces.map((face, index) => (
+          <div key={`${face.name}-${index}`} style={{ width: cardWidth }}>
             <CardRender
               containerWidth={cardWidth}
               {...face}

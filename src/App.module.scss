@@ -70,10 +70,10 @@
   }
 
   .sortControls {
+    background: whitesmoke;
     position: fixed;
-    margin-top: 16px;
-    margin-left: 16px;
-    width: calc(100 / 24 * 18 / 24 * 4vw - 32px);
+    padding: 16px;
+    width: calc(100 / 24 * 18 / 24 * 4vw - 32px + 32px);
   }
 
   .sortSelect {

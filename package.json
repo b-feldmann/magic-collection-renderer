@@ -40,6 +40,7 @@
     "recharts": "^1.7.1",
     "scryfall-client": "^0.10.1",
     "simple-spellchecker": "^0.9.9",
+    "tailwindcss": "^4.3.3",
     "three": "^0.106.2",
     "uuid": "^14.0.2"
   },

@@ -1,5 +1,5 @@
 import React, { useContext, useEffect } from 'react';
-import { Modal } from 'antd';
+import { App } from 'antd';
 
 import styles from './logEntry.module.scss';
 
@@ -11,6 +11,7 @@ import { UNKNOWN_CREATOR } from '../../utils/constants';
 
 const ChangeLogModal = () => {
   const { currentUser, dispatch } = useContext<StoreType>(Store);
+  const { modal } = App.useApp();
 
   const renderLog = () => {
     return updateLog
@@ -24,7 +25,7 @@ const ChangeLogModal = () => {
       updateLog.length > 0 &&
       updateLog.length - 1 > currentUser.lastSeenVersion
     ) {
-      Modal.info({
+      modal.info({
         title: 'Change Log',
         content: renderLog(),
         width: '90%',
@@ -35,7 +36,10 @@ const ChangeLogModal = () => {
         okText: 'Thanks for the info!',
       });
     }
-  }, [currentUser]);
+    // Only re-evaluate when the identity-relevant fields change, not on every
+    // unrelated mutation of the `currentUser` object.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentUser.uuid, currentUser.lastSeenVersion]);
 
   return <div />;
 };

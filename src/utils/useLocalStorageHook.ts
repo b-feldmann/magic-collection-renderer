@@ -5,7 +5,10 @@ const useLocalStorage = (
   defaultValue: string = '',
   json: boolean = false,
 ) => {
-  const [value, setValue] = useState<string>(localStorage.getItem(localStorageKey) || defaultValue);
+  // Lazy initializer so `localStorage.getItem` runs only on mount, not on every render.
+  const [value, setValue] = useState<string>(
+    () => localStorage.getItem(localStorageKey) || defaultValue,
+  );
 
   useEffect(() => {
     localStorage.setItem(localStorageKey, value);

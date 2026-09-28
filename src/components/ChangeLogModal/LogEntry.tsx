@@ -1,12 +1,16 @@
 import React from 'react';
-import { List, Row, Typography } from 'antd';
+import { Listy, Row, Typography } from 'antd';
 import ChangeLogEntryInterface from '../../interfaces/ChangeLogEntryInterface';
 
 import styles from './logEntry.module.scss';
 import { ChangeLogFeatureType } from '../../interfaces/enums';
 
-const { Item: ListItem } = List;
 const { Text } = Typography;
+
+// `List` was deprecated in antd 6 in favour of `Listy`, which iterates a flat
+// `items` array via `itemRender` and requires a `rowKey`. Wrapping each entry
+// with its index gives a stable, unique key (content can repeat).
+type LogContentItem = ChangeLogEntryInterface['content'][number] & { key: number };
 
 const LogEntry = (entry: ChangeLogEntryInterface) => {
   const typeColor = (type: ChangeLogFeatureType) => {
@@ -26,11 +30,12 @@ const LogEntry = (entry: ChangeLogEntryInterface) => {
   return (
     <Row className={styles.entry}>
       <div className={styles.title}>{`${entry.version} — ${entry.title}`}</div>
-      <List
-        size="small"
-        dataSource={entry.content}
-        renderItem={(item) => (
-          <ListItem className={styles.item}>
+      <Listy<LogContentItem>
+        rowKey="key"
+        items={entry.content.map((item, index) => ({ ...item, key: index }))}
+        classNames={{ item: styles.item }}
+        itemRender={(item) => (
+          <>
             <Row>
               {item.type !== ChangeLogFeatureType.None && (
                 <Text code className={typeColor(item.type)}>
@@ -42,7 +47,7 @@ const LogEntry = (entry: ChangeLogEntryInterface) => {
               </Text>
             </Row>
             <Text className={styles.description}>{item.description}</Text>
-          </ListItem>
+          </>
         )}
       />
     </Row>

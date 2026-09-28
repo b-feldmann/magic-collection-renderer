@@ -110,146 +110,99 @@ export const injectWithConfig = (
   return workingArray;
 };
 
+/**
+ * Static regex/symbol table for mana icons. The `toReplace` patterns never
+ * change, so they are allocated once at module load instead of on every call
+ * (this function runs for every card-text line on every render). Only the
+ * injected `<Mana>` element depends on the per-call `shadow` flag, so the JSX
+ * is built lazily in `injectManaIcons`.
+ */
+interface ManaSymbolConfig {
+  toReplace: RegExp;
+  symbol: string;
+  cost: boolean;
+}
+
+const MANA_SYMBOL_CONFIG: ManaSymbolConfig[] = [
+  { toReplace: /{[wW]}/, symbol: 'w', cost: true },
+  { toReplace: /{[uU]}/, symbol: 'u', cost: true },
+  { toReplace: /{[bB]}/, symbol: 'b', cost: true },
+  { toReplace: /{[rR]}/, symbol: 'r', cost: true },
+  { toReplace: /{[gG]}/, symbol: 'g', cost: true },
+  { toReplace: /{[cC]}/, symbol: 'c', cost: true },
+  { toReplace: /{[pP]}/, symbol: 'p', cost: true },
+  { toReplace: /{[wW][pP]}|{[pP][wW]}/, symbol: 'wp', cost: true },
+  { toReplace: /{[uU][pP]}|{[pP][uU]}/, symbol: 'up', cost: true },
+  { toReplace: /{[bB][pP]}|{[pP][bB]}/, symbol: 'bp', cost: true },
+  { toReplace: /{[rR][pP]}|{[pP][rR]}/, symbol: 'rp', cost: false },
+  { toReplace: /{[gG][pP]}|{[pP][gG]}/, symbol: 'gp', cost: true },
+  { toReplace: /{2[wW]}|{[wW]2}/, symbol: '2w', cost: true },
+  { toReplace: /{2[uU]}|{[uU]2}/, symbol: '2u', cost: true },
+  { toReplace: /{2[bB]}|{[bB]2}/, symbol: '2b', cost: true },
+  { toReplace: /{2[rR]}|{[rR]2}/, symbol: '2r', cost: true },
+  { toReplace: /{2[gG]}|{[gG]2}/, symbol: '2g', cost: true },
+  { toReplace: /{[sS]}/, symbol: 's', cost: true },
+  { toReplace: /{[xX]}/, symbol: 'x', cost: true },
+  { toReplace: /{[yY]}/, symbol: 'y', cost: true },
+  { toReplace: /{[zZ]}/, symbol: 'z', cost: true },
+  { toReplace: /{[wW][uU]}|{[uU][wW]}/, symbol: 'wu', cost: true },
+  { toReplace: /{[wW][bB]}|{[bB][wW]}/, symbol: 'wb', cost: true },
+  { toReplace: /{[bB][uU]}|{[uU][bB]}/, symbol: 'ub', cost: true },
+  { toReplace: /{[rR][uU]}|{[uU][rR]}/, symbol: 'ur', cost: true },
+  { toReplace: /{[bB][rR]}|{[rR][bB]}/, symbol: 'br', cost: true },
+  { toReplace: /{[bB][gG]}|{[gG][bB]}/, symbol: 'bg', cost: true },
+  { toReplace: /{[rR][gG]}|{[gG][rR]}/, symbol: 'rg', cost: true },
+  { toReplace: /{[wW][rR]}|{[rR][wW]}/, symbol: 'rw', cost: true },
+  { toReplace: /{[wW][gG]}|{[gG][wW]}/, symbol: 'gw', cost: true },
+  { toReplace: /{[uU][gG]}|{[gG][uU]}/, symbol: 'gu', cost: true },
+  { toReplace: /{[tT]}/, symbol: 'tap', cost: true },
+  { toReplace: /{[uU][tT]}|{[tT][uU]}/, symbol: 'untap', cost: true },
+  ...Array.from({ length: 21 }, (_unused, i) => ({
+    toReplace: new RegExp(`\\{${i}\\}`),
+    symbol: `${i}`,
+    cost: true,
+  })),
+];
+
 export const injectManaIcons = (
   text: string | JSX.Element | (string | JSX.Element)[],
   shadow?: boolean,
 ) => {
-  const config: InjectionConfig[] = [
-    { toReplace: /{[wW]}/, toInject: <Mana symbol="w" cost shadow={shadow} /> },
-    { toReplace: /{[uU]}/, toInject: <Mana symbol="u" cost shadow={shadow} /> },
-    { toReplace: /{[bB]}/, toInject: <Mana symbol="b" cost shadow={shadow} /> },
-    { toReplace: /{[rR]}/, toInject: <Mana symbol="r" cost shadow={shadow} /> },
-    { toReplace: /{[gG]}/, toInject: <Mana symbol="g" cost shadow={shadow} /> },
-    { toReplace: /{[cC]}/, toInject: <Mana symbol="c" cost shadow={shadow} /> },
-    { toReplace: /{[pP]}/, toInject: <Mana symbol="p" cost shadow={shadow} /> },
-    {
-      toReplace: /{[wW][pP]}|{[pP][wW]}/,
-      toInject: <Mana symbol="wp" cost shadow={shadow} />,
-    },
-    {
-      toReplace: /{[uU][pP]}|{[pP][uU]}/,
-      toInject: <Mana symbol="up" cost shadow={shadow} />,
-    },
-    {
-      toReplace: /{[bB][pP]}|{[pP][bB]}/,
-      toInject: <Mana symbol="bp" cost shadow={shadow} />,
-    },
-    {
-      toReplace: /{[rR][pP]}|{[pP][rR]}/,
-      toInject: <Mana symbol="rp" shadow={shadow} />,
-    },
-    {
-      toReplace: /{[gG][pP]}|{[pP][gG]}/,
-      toInject: <Mana symbol="gp" cost shadow={shadow} />,
-    },
-    {
-      toReplace: /{2[wW]}|{[wW]2}/,
-      toInject: <Mana symbol="2w" cost shadow={shadow} />,
-    },
-    {
-      toReplace: /{2[uU]}|{[uU]2}/,
-      toInject: <Mana symbol="2u" cost shadow={shadow} />,
-    },
-    {
-      toReplace: /{2[bB]}|{[bB]2}/,
-      toInject: <Mana symbol="2b" cost shadow={shadow} />,
-    },
-    {
-      toReplace: /{2[rR]}|{[rR]2}/,
-      toInject: <Mana symbol="2r" cost shadow={shadow} />,
-    },
-    {
-      toReplace: /{2[gG]}|{[gG]2}/,
-      toInject: <Mana symbol="2g" cost shadow={shadow} />,
-    },
-    { toReplace: /{[sS]}/, toInject: <Mana symbol="s" cost shadow={shadow} /> },
-    { toReplace: /{[xX]}/, toInject: <Mana symbol="x" cost shadow={shadow} /> },
-    { toReplace: /{[yY]}/, toInject: <Mana symbol="y" cost shadow={shadow} /> },
-    { toReplace: /{[zZ]}/, toInject: <Mana symbol="z" cost shadow={shadow} /> },
-    {
-      toReplace: /{[wW][uU]}|{[uU][wW]}/,
-      toInject: <Mana symbol="wu" cost shadow={shadow} />,
-    },
-    {
-      toReplace: /{[wW][bB]}|{[bB][wW]}/,
-      toInject: <Mana symbol="wb" cost shadow={shadow} />,
-    },
-    {
-      toReplace: /{[bB][uU]}|{[uU][bB]}/,
-      toInject: <Mana symbol="ub" cost shadow={shadow} />,
-    },
-    {
-      toReplace: /{[rR][uU]}|{[uU][rR]}/,
-      toInject: <Mana symbol="ur" cost shadow={shadow} />,
-    },
-    {
-      toReplace: /{[bB][rR]}|{[rR][bB]}/,
-      toInject: <Mana symbol="br" cost shadow={shadow} />,
-    },
-    {
-      toReplace: /{[bB][gG]}|{[gG][bB]}/,
-      toInject: <Mana symbol="bg" cost shadow={shadow} />,
-    },
-    {
-      toReplace: /{[rR][gG]}|{[gG][rR]}/,
-      toInject: <Mana symbol="rg" cost shadow={shadow} />,
-    },
-    {
-      toReplace: /{[wW][rR]}|{[rR][wW]}/,
-      toInject: <Mana symbol="rw" cost shadow={shadow} />,
-    },
-    {
-      toReplace: /{[wW][gG]}|{[gG][wW]}/,
-      toInject: <Mana symbol="gw" cost shadow={shadow} />,
-    },
-    {
-      toReplace: /{[uU][gG]}|{[gG][uU]}/,
-      toInject: <Mana symbol="gu" cost shadow={shadow} />,
-    },
-    {
-      toReplace: /{[tT]}/,
-      toInject: <Mana symbol="tap" cost shadow={shadow} />,
-    },
-    {
-      toReplace: /{[uU][tT]}|{[tT][uU]}/,
-      toInject: <Mana symbol="untap" cost shadow={shadow} />,
-    },
-  ];
-
-  for (let i = 0; i <= 20; i += 1) {
-    config.push({
-      toReplace: new RegExp(`\\{${i}\\}`),
-      toInject: <Mana symbol={`${i}`} cost shadow={shadow} />,
-    });
-  }
+  const config: InjectionConfig[] = MANA_SYMBOL_CONFIG.map(({ toReplace, symbol, cost }) => ({
+    toReplace,
+    toInject: <Mana symbol={symbol} cost={cost} shadow={shadow} />,
+  }));
 
   return injectWithConfig(text, config);
 };
 
-export const injectPlaneswalkerIcons = (text: string | JSX.Element | (string | JSX.Element)[]) => {
-  const config: InjectionConfig[] = [
+/**
+ * Planeswalker loyalty icons never depend on any argument, so the entire
+ * config (regexes and JSX) is allocated once at module load.
+ */
+const PLANESWALKER_ICON_CONFIG: InjectionConfig[] = [
+  {
+    toReplace: /{\+x}/,
+    toInject: <i className="ms ms-loyalty-up ms-loyalty-x" />,
+  },
+  {
+    toReplace: /{-x}/,
+    toInject: <i className="ms ms-loyalty-down ms-loyalty-x" />,
+  },
+  ...Array.from({ length: 21 }).flatMap((_unused, i) => [
     {
-      toReplace: /{\+x}/,
-      toInject: <i className="ms ms-loyalty-up ms-loyalty-x" />,
-    },
-    {
-      toReplace: /{-x}/,
-      toInject: <i className="ms ms-loyalty-down ms-loyalty-x" />,
-    },
-  ];
-
-  for (let i = 0; i <= 20; i += 1) {
-    config.push({
       toReplace: new RegExp(`{\\+${i}}`),
       toInject: <i className={`ms ms-loyalty-${i} ms-loyalty-up`} />,
-    });
-    config.push({
+    },
+    {
       toReplace: new RegExp(`{\\-${i}}`),
       toInject: <i className={`ms ms-loyalty-${i} ms-loyalty-down`} />,
-    });
-  }
+    },
+  ]),
+];
 
-  return injectWithConfig(text, config);
+export const injectPlaneswalkerIcons = (text: string | JSX.Element | (string | JSX.Element)[]) => {
+  return injectWithConfig(text, PLANESWALKER_ICON_CONFIG);
 };
 
 export const injectName = (text: string | JSX.Element | (string | JSX.Element)[], name: string) => {

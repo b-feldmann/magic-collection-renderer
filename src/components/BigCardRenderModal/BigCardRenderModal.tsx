@@ -1,9 +1,7 @@
-import React, { useContext } from 'react';
+import React, { useContext, useMemo } from 'react';
 import { Button, Card, Modal, Tooltip } from 'antd';
 
 import AntIcon from '../AntIcon/AntIcon';
-
-import _ from 'lodash';
 
 import LogRocket from 'logrocket';
 import CardInterface from '../../interfaces/CardInterface';
@@ -37,6 +35,9 @@ const BigCardRenderModal = ({
   mobile,
 }: BigCardRenderModalProps) => {
   const { annotationAccessor, currentUser, user, dispatch } = useContext<StoreType>(Store);
+
+  // O(1) uuid -> name lookups instead of an O(n) `_.find` per uuid.
+  const userNameByUuid = useMemo(() => new Map(user.map((u) => [u.uuid, u.name])), [user]);
 
   const annotations = annotationAccessor[card.uuid] || [];
 
@@ -96,8 +97,8 @@ const BigCardRenderModal = ({
     </Button>
   );
 
-  const liked = !!_.find(card.meta.likes, (o) => o === currentUser.uuid);
-  const disliked = !liked && !!_.find(card.meta.dislikes, (o) => o === currentUser.uuid);
+  const liked = card.meta.likes.includes(currentUser.uuid);
+  const disliked = !liked && card.meta.dislikes.includes(currentUser.uuid);
 
   const neededLikesCount = Math.max(
     NEEDED_LIKES_TO_APPROVE - card.meta.likes.length + card.meta.dislikes.length,
@@ -129,10 +130,7 @@ const BigCardRenderModal = ({
   };
 
   const userUuidToNames = (uuids: string[]) =>
-    uuids
-      .map((uuid) => _.find(user, (u) => u.uuid === uuid) || { name: '' })
-      .map((u) => u.name)
-      .join(', ');
+    uuids.map((uuid) => userNameByUuid.get(uuid) || '').join(', ');
 
   const rateView = (
     <div>
@@ -199,8 +197,9 @@ const BigCardRenderModal = ({
               width: fullCardWidth,
             }}
           >
-            {faces.map((face) => (
+            {faces.map((face, index) => (
               <div
+                key={`${face.name}-${index}`}
                 className={styles.modalCardWrapper}
                 style={{
                   width: singleCardWidth,
@@ -234,7 +233,7 @@ const BigCardRenderModal = ({
               createAnnotation(dispatch, content, author, card.uuid)
             }
           >
-            <Card size="small" bordered={false} className={styles.cardComment}>
+            <Card size="small" variant="borderless" className={styles.cardComment}>
               {card.meta.comment && <p>{card.meta.comment}</p>}
               {view}
             </Card>
