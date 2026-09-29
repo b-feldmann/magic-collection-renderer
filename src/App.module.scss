@@ -27,8 +27,18 @@
     height: 100%;
   }
 
+  .tabs {
+    height: 100%;
+    margin-left: 10px;
+  }
+
+  .tabBadge {
+    padding-left: 4px;
+    padding-right: 4px;
+  }
+
   .tabBadge > sup {
-    margin-right: -18px;
+    margin-right: -14px;
   }
 
   .mobileControls {

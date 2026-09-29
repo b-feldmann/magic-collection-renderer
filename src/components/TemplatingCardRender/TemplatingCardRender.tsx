@@ -234,8 +234,8 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
               className={styles.textWrap}
             >
               <div>
-                {cardText.map((val) => (
-                  <p>{injectForText(val, name, mechanics)}</p>
+                {cardText.map((val, i) => (
+                  <p key={`card-text-${cardID}-${i}`}>{injectForText(val, name, mechanics)}</p>
                 ))}
                 <FlavourText name={name} flavourText={flavourText} flavourAuthor={flavourAuthor} />
               </div>

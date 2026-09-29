@@ -236,7 +236,7 @@ const App: React.FC = () => {
         <Col span={collectionSpan} className={styles.collection}>
           <Tabs
             defaultActiveKey="tab-key-Card Drafts / Idea Dump"
-            className={styles.collection}
+            className={styles.tabs}
             items={cardTabs.map((tabObj) => ({
               key: `tab-key-${tabObj.name}`,
               label: (

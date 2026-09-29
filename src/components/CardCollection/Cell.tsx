@@ -66,25 +66,26 @@ const Cell = ({
         <ActionHover
           onHover={() => {
             if (isNew) addSeenCard(card.uuid);
-            if (mobile) editCard(card.uuid);
+            // if (mobile) editCard(card.uuid);
+            editCard(card.uuid);
           }}
           active={card.uuid === currentEditId}
-          northAction={
-            mobile
-              ? undefined
-              : {
-                  icon: 'edit',
-                  action: () => editCard(card.uuid),
-                }
-          }
-          southAction={
-            mobile
-              ? undefined
-              : {
-                  icon: 'download',
-                  action: () => downloadCard(card.uuid),
-                }
-          }
+          // northAction={
+          //   mobile
+          //     ? undefined
+          //     : {
+          //         icon: 'edit',
+          //         action: () => editCard(card.uuid),
+          //       }
+          // }
+          // southAction={
+          //   mobile
+          //     ? undefined
+          //     : {
+          //         icon: 'download',
+          //         action: () => downloadCard(card.uuid),
+          //       }
+          // }
         >
           <CardRender
             containerWidth={width}

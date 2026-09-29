@@ -116,10 +116,7 @@ import LoyaltyUp from './images/symbols/loyalty/LoyaltyUp.png';
 import LoyaltyDown from './images/symbols/loyalty/LoyaltyDown.png';
 import LoyaltyZero from './images/symbols/loyalty/LoyaltyZero.png';
 
-export const getFallbackCover = () => {
-  // return NoCover;
-  return 'https://thumbs.gfycat.com/ExhaustedAdmiredKingfisher-size_restricted.gif';
-};
+export const getFallbackCover = () => NoCover;
 
 export const getPt = (color: ColorType) => {
   switch (color) {
