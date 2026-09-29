@@ -21,6 +21,14 @@ import InvocationRedMainframe from './images/mainframes/invocation/R.png';
 import InvocationGreenMainframe from './images/mainframes/invocation/G.png';
 import InvocationGoldMainframe from './images/mainframes/invocation/Gld.png';
 
+import InventionColorlessMainframe from './images/mainframes/invention/Art.png';
+import InventionWhiteMainframe from './images/mainframes/invention/W.png';
+import InventionBlueMainframe from './images/mainframes/invention/U.png';
+import InventionBlackMainframe from './images/mainframes/invention/B.png';
+import InventionRedMainframe from './images/mainframes/invention/R.png';
+import InventionGreenMainframe from './images/mainframes/invention/G.png';
+import InventionGoldMainframe from './images/mainframes/invention/Gld.png';
+
 import LowResWhiteMainframe from './images/mainframes/lowRes/W.png';
 import LowResBlueMainframe from './images/mainframes/lowRes/U.png';
 import LowResBlackMainframe from './images/mainframes/lowRes/B.png';
@@ -71,6 +79,7 @@ import GoldInnerBorder from './images/borders/Gld.png';
 
 import LandOverlay from './images/overlay/C-overlay.png';
 import InvocationPt from './images/pt/invocation/A.png';
+import InventionPt from './images/pt/invention/pt.png';
 import PtArt from './images/pt/regular/Art.png';
 import PtW from './images/pt/regular/W.png';
 import PtU from './images/pt/regular/U.png';
@@ -231,6 +240,27 @@ export const getPlaneswalkerMainframe = (color: ColorType, lines: 2 | 3 | 4 | un
 };
 
 export const getInvocationPt = () => InvocationPt;
+
+export const getInventionPt = () => InventionPt;
+
+export const getInventionMainframe = (color: ColorType) => {
+  switch (color) {
+    case ColorType.White:
+      return InventionWhiteMainframe;
+    case ColorType.Blue:
+      return InventionBlueMainframe;
+    case ColorType.Black:
+      return InventionBlackMainframe;
+    case ColorType.Red:
+      return InventionRedMainframe;
+    case ColorType.Green:
+      return InventionGreenMainframe;
+    case ColorType.Gold:
+      return InventionGoldMainframe;
+    default:
+      return InventionColorlessMainframe;
+  }
+};
 
 export const getInvocationMainframe = (color: ColorType) => {
   switch (color) {

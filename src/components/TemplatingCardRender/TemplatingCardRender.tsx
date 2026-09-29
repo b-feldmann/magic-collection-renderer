@@ -26,6 +26,8 @@ import {
   getColorMainframe,
   getFallbackCover,
   getInnerBorderFrame,
+  getInventionMainframe,
+  getInventionPt,
   getLandMainframe,
   getLandOverlay,
   getLowResColorMainframe,
@@ -153,6 +155,12 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
   if (isArtifact) {
     mainframe = getArtifactMainframe();
     pt = getArtifactPt(color);
+  }
+
+  if (artStyle === CardArtStyles.Invention) {
+    mainframe = getInventionMainframe(color);
+    lowResMainframe = '';
+    pt = getInventionPt();
   }
 
   let innerBorderFrame = getInnerBorderFrame(allColors);

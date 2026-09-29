@@ -87,6 +87,7 @@ export enum CardArtStyles {
   Regular = 'Regular',
   Borderless = 'Borderless',
   Invocation = 'Invocation',
+  Invention = 'Invention',
 }
 
 export enum SplitArtStyles {
