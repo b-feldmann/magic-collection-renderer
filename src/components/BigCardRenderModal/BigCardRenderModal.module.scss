@@ -2,8 +2,8 @@
   position: fixed;
   top: 0;
   left: 0;
-  width: 0px !important;
-  height: 0px !important;
+  width: 0 !important;
+  height: 0 !important;
 }
 
 .mobilePositioner {
@@ -26,6 +26,9 @@
 .view {
   display: flex;
   transform: translateX(-50%);
+  // Let the rotated card (RotateToMouse) extend past the modal body without
+  // being clipped or generating scrollbars.
+  overflow: visible !important;
 }
 
 .annotationView {
@@ -33,13 +36,23 @@
 }
 
 .modalCardViewWrapper {
-  width: 0px !important;
-  height: 0px !important;
+  width: 0 !important;
+  height: 0 !important;
+  //overflow: hidden !important;
+}
+
+.modalCardViewWrapper > * {
+  background: transparent !important;
+  box-shadow: none !important;
 }
 
 .modalCardGroupWrapper {
   display: flex;
   flex-direction: row;
+  // Keep the card (incl. its rotated overflow) painted above the annotation
+  // view, which follows as a later flex sibling.
+  position: relative;
+  z-index: 1;
 }
 
 .modalCardGroupWrapperSingle {

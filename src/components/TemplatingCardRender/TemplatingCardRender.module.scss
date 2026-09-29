@@ -38,6 +38,11 @@
     background-size: cover;
   }
 
+  .tokenMainframe {
+    width: 720px;
+    height: 1020px;
+  }
+
   .innerBorderFrame,
   .overlay {
     position: absolute;
@@ -49,24 +54,42 @@
     font-family: "Beleren Bold", sans-serif;
     position: absolute;
     font-size: 2.45em;
-    top: 44px;
+    top: 42px;
     left: 51px;
+  }
+
+  .tokenTitle {
+    top: 47px;
+    left: 0;
+    text-align: center;
+    width: 697px;
+    color: white;
   }
 
   .type {
     font-family: "Beleren Bold", sans-serif;
     position: absolute;
     font-size: 2em;
-    top: 570px;
+    top: 579px;
     left: 51px;
+  }
+
+  .tokenType {
+    top: 695px;
+    left: 54px;
   }
 
   .cost {
     position: absolute;
     font-size: 1.8em;
-    top: 46px;
+    top: 43px;
     width: 677px;
     text-align: right;
+  }
+
+  .tokenCost {
+    top: 51px;
+    width: 669px;
   }
 
   .cost > * {
@@ -75,9 +98,14 @@
 
   .rarity {
     position: absolute;
-    left: 627px;
-    top: 570px;
+    left: 635px;
+    top: 578px;
     height: 48px;
+  }
+
+  .tokenRarity {
+    top: 696px;
+    left: 630px;
   }
 
   .cover {
@@ -88,6 +116,10 @@
     width: 631px;
     height: 462px;
     background-size: cover;
+  }
+
+  .tokenCover {
+    top: 78px;
   }
 
   .basicLandTitle {
@@ -113,8 +145,26 @@
     font-size: 1.625em;
     top: 642px;
     height: 290px;
-    left: 48px;
-    width: 622px;
+    left: 50px;
+    width: 618px;
+    //border: black solid;
+
+    p {
+      margin-top: 12px;
+      margin-bottom: 12px;
+    }
+
+    i {
+      margin-top: -6px;
+      font-size: 0.8em;
+    }
+  }
+
+  .tokenText {
+    top: 760px;
+    height: 174px;
+    left: 60px;
+    width: 506px;
     //border: black solid;
 
     p {
@@ -343,6 +393,19 @@
 
   .collectionBlock2 {
     top: 990px;
+  }
+}
+
+.token {
+  .cover {
+    left: 28px;
+    top: 28px;
+    height: 960px;
+    width: calc(100% - 28px * 2);
+  }
+
+  .innerBorderFrame {
+    opacity: 1;
   }
 }
 

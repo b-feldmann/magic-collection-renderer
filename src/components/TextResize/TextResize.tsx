@@ -48,7 +48,11 @@ const TextResize: React.FC<TextResizeProps> = ({
   }, [children, maxFontSize, minFontSize]);
 
   return (
-    <div ref={containerRef} className={className} style={{ fontSize }}>
+    <div
+      ref={containerRef}
+      className={className}
+      style={{ fontSize, height: '100%', width: '100%', overflow: 'hidden' }}
+    >
       {children}
     </div>
   );

@@ -82,7 +82,7 @@ const BigCardRenderModal = ({
     LogRocket.log(`Update Card State to ${newState}`, card.name);
     const updatedCard = { ...card };
     updatedCard.meta.state = newState;
-    updateCard(dispatch, updatedCard);
+    updateCard(dispatch, updatedCard).catch(() => {});
   };
 
   const draftView = (
@@ -114,7 +114,7 @@ const BigCardRenderModal = ({
       updatedCard.meta.dislikes = updatedCard.meta.dislikes.filter((o) => o !== currentUser.uuid);
     }
     updatedCard.meta.likes.push(currentUser.uuid);
-    updateCard(dispatch, updatedCard);
+    updateCard(dispatch, updatedCard).catch(() => {});
   };
 
   const dislike = () => {
@@ -126,7 +126,7 @@ const BigCardRenderModal = ({
       updatedCard.meta.likes = updatedCard.meta.likes.filter((o) => o !== currentUser.uuid);
     }
     updatedCard.meta.dislikes.push(currentUser.uuid);
-    updateCard(dispatch, updatedCard);
+    updateCard(dispatch, updatedCard).catch(() => {});
   };
 
   const userUuidToNames = (uuids: string[]) =>

@@ -44,7 +44,7 @@ const ImageLoader = ({
           {...restProps}
         />
       )}
-      {(!lowResSrc || loadedPlaceHolder) && (
+      {src && (!lowResSrc || loadedPlaceHolder) && (
         <img
           src={src}
           className={`${className} ${loadedImage ? styles.imgLoaded : styles.imgLoading}`}

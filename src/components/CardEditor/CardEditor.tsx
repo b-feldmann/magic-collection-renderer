@@ -20,7 +20,7 @@ import CardFaceInterface from '../../interfaces/CardFaceInterface';
 import EditorTooltip from '../EditorTooltip/EditorTooltip';
 import { updateCard } from '../../actions/cardActions';
 import { Store, StoreType } from '../../store';
-import { EDIT_TIME_OFFSET, UNKNOWN_CREATOR } from '../../utils/constants';
+import { EDIT_SAVE_OFFSET, EDIT_TIME_OFFSET, UNKNOWN_CREATOR } from '../../utils/constants';
 
 interface CardEditorInterface {
   card?: CardInterface;
@@ -74,9 +74,12 @@ const CardEditor: React.FC<CardEditorInterface> = ({
   const [contentChanged, setContentChanged] = useState<boolean>(false);
   const [originalCard, setOriginalCard] = useState<CardInterface>(() => cloneDeep(card));
   const [tmpCard, setTmpCard] = useState<CardInterface>(() => cloneDeep(card));
-  // A transient debounce handle: keep it in a ref so updating it never triggers
-  // a re-render (unlike the previous `useState`).
+  // Transient debounce handles for the live preview (short) and the DB
+  // auto-save (longer, only fires once edits have settled). Kept in refs so
+  // updating them never triggers a re-render.
   const timerId = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const saveTimerId = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const saveGenRef = useRef<number>(0);
 
   const [editBack, setEditBack] = useState<boolean>(false);
 
@@ -153,24 +156,29 @@ const CardEditor: React.FC<CardEditorInterface> = ({
     timerId.current = setTimeout(() => {
       saveTmpCard(newTmpCard);
     }, EDIT_TIME_OFFSET);
+
+    if (saveTimerId.current) clearTimeout(saveTimerId.current);
+    const saveGen = ++saveGenRef.current;
+    saveTimerId.current = setTimeout(() => {
+      updateCard(dispatch, cloneDeep(newTmpCard))
+        .then(() => {
+          // Only clear the "unsaved changes" marker if no newer edits are
+          // pending; otherwise the parent would drop them from its preview.
+          if (saveGen === saveGenRef.current) saveTmpCard(null);
+        })
+        .catch(() => {});
+    }, EDIT_SAVE_OFFSET);
   };
 
-  const discardChanges = () => {
+  const undoChanges = () => {
     if (!contentChanged) return;
 
+    if (timerId.current) clearTimeout(timerId.current);
+    if (saveTimerId.current) clearTimeout(saveTimerId.current);
     setTmpCard(cloneDeep(originalCard));
     saveTmpCard(null);
     setContentChanged(false);
-  };
-
-  const saveChanges = () => {
-    if (!contentChanged) return;
-
-    setTmpCard(cloneDeep(tmpCard));
-    setOriginalCard(cloneDeep(tmpCard));
-    saveTmpCard(null);
-    updateCard(dispatch, cloneDeep(tmpCard));
-    setContentChanged(false);
+    updateCard(dispatch, cloneDeep(originalCard));
   };
 
   useEffect(() => {
@@ -194,17 +202,19 @@ const CardEditor: React.FC<CardEditorInterface> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [card.uuid]);
 
-  // Cancel any pending debounced save if the editor unmounts.
+  // Cancel any pending debounced preview/save if the editor unmounts.
   useEffect(
     () => () => {
       if (timerId.current) clearTimeout(timerId.current);
+      if (saveTimerId.current) clearTimeout(saveTimerId.current);
     },
     [],
   );
 
   const isCreature = () =>
     getValue('cardMainType') === CardMainType.Creature ||
-    getValue('cardMainType') === CardMainType.ArtifactCreature;
+    getValue('cardMainType') === CardMainType.ArtifactCreature ||
+    getValue('cardMainType') === CardMainType.CreatureToken;
   const isPlaneswalker = () => getValue('cardMainType') === CardMainType.Planeswalker;
   const hasMana = () =>
     getValue('cardMainType') !== CardMainType.Land &&
@@ -344,6 +354,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
     setTmpCard(newTmpCard);
     saveTmpCard(newTmpCard);
     setContentChanged(true);
+    updateCard(dispatch, cloneDeep(newTmpCard));
   };
 
   const deleteBackFace = () => {
@@ -352,6 +363,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
     setTmpCard(newTmpCard);
     saveTmpCard(newTmpCard);
     setContentChanged(true);
+    updateCard(dispatch, cloneDeep(newTmpCard));
   };
 
   return (
@@ -403,11 +415,8 @@ const CardEditor: React.FC<CardEditorInterface> = ({
       </Row>
       <Row>
         <Space.Compact className={styles.buttonGroup} size="small">
-          <Button disabled={!contentChanged} onClick={saveChanges} type="primary">
-            <span>Save Changes</span>
-          </Button>
-          <Button disabled={!contentChanged} onClick={discardChanges} danger>
-            <span>Discard Changes</span>
+          <Button disabled={!contentChanged} onClick={undoChanges} danger>
+            <span>Undo Changes</span>
           </Button>
         </Space.Compact>
       </Row>

@@ -101,7 +101,10 @@ export const createCard = (dispatch: (value: Action) => void, creator: UserInter
     });
 };
 
-export const updateCard = (dispatch: (value: Action) => void, updated: CardInterface) => {
+export const updateCard = (
+  dispatch: (value: Action) => void,
+  updated: CardInterface,
+): Promise<unknown> => {
   const { name, uuid } = updated;
   LogRocket.log('Try to update a card', {
     name,
@@ -124,7 +127,7 @@ export const updateCard = (dispatch: (value: Action) => void, updated: CardInter
     parsed.back.cover = 'loading';
   }
 
-  axios
+  return axios
     .put(request, { card: parsed, accessKey: getAccessToken() })
     .then((result) => {
       staticAntd.message.success('Successfully Updated Card');
@@ -154,5 +157,6 @@ export const updateCard = (dispatch: (value: Action) => void, updated: CardInter
     .catch((error) => {
       captureError(error, ActionTag.Card, RequestTag.Update, {});
       staticAntd.message.error("Could'nt update the card");
+      throw error;
     });
 };

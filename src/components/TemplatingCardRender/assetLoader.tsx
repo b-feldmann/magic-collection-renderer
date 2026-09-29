@@ -6,6 +6,14 @@ import RedMainframe from './images/mainframes/R.png';
 import GreenMainframe from './images/mainframes/G.png';
 import GoldMainframe from './images/mainframes/Gld.png';
 
+import TokenColorlessMainframe from './images/mainframes/token/Art.png';
+import TokenWhiteMainframe from './images/mainframes/token/W.png';
+import TokenBlueMainframe from './images/mainframes/token/U.png';
+import TokenBlackMainframe from './images/mainframes/token/B.png';
+import TokenRedMainframe from './images/mainframes/token/R.png';
+import TokenGreenMainframe from './images/mainframes/token/G.png';
+import TokenGoldMainframe from './images/mainframes/token/Gld.png';
+
 import InvocationWhiteMainframe from './images/mainframes/invocation/W.png';
 import InvocationBlueMainframe from './images/mainframes/invocation/U.png';
 import InvocationBlackMainframe from './images/mainframes/invocation/B.png';
@@ -116,7 +124,8 @@ import LoyaltyUp from './images/symbols/loyalty/LoyaltyUp.png';
 import LoyaltyDown from './images/symbols/loyalty/LoyaltyDown.png';
 import LoyaltyZero from './images/symbols/loyalty/LoyaltyZero.png';
 
-export const getFallbackCover = () => NoCover;
+// export const getFallbackCover = () => NoCover;
+export const getFallbackCover = () => "https://picsum.photos/700/600";
 
 export const getPt = (color: ColorType) => {
   switch (color) {
@@ -156,6 +165,25 @@ export const getColorMainframe = (color: ColorType) => {
       return GoldMainframe;
     default:
       return ColorlessMainframe;
+  }
+};
+
+export const getTokenMainframe = (color: ColorType) => {
+  switch (color) {
+    case ColorType.White:
+      return TokenWhiteMainframe;
+    case ColorType.Blue:
+      return TokenBlueMainframe;
+    case ColorType.Black:
+      return TokenBlackMainframe;
+    case ColorType.Red:
+      return TokenRedMainframe;
+    case ColorType.Green:
+      return TokenGreenMainframe;
+    case ColorType.Gold:
+      return TokenGoldMainframe;
+    default:
+      return TokenColorlessMainframe;
   }
 };
 

@@ -16,6 +16,8 @@ export enum CardMainType {
   Enchantment = 'Enchantment',
   Artifact = 'Artifact',
   ArtifactCreature = 'Artifact Creature',
+  CreatureToken = 'Creature Token',
+  ArtifactToken = 'Artifact Token',
   Land = 'Land',
   BasicLand = 'Basic Land',
   Planeswalker = 'Planeswalker',

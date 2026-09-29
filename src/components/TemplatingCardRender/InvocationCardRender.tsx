@@ -64,7 +64,9 @@ const InvocationCardRender = (cardRender: InvocationCardRenderProps) => {
   };
 
   const isCreature =
-    cardMainType === CardMainType.Creature || cardMainType === CardMainType.ArtifactCreature;
+    cardMainType === CardMainType.Creature ||
+    cardMainType === CardMainType.ArtifactCreature ||
+    cardMainType === CardMainType.CreatureToken;
 
   const { color, orderedCost } = getColor(manaCost);
   const mainframe = getInvocationMainframe(color);

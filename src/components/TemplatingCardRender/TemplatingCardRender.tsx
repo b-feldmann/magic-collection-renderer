@@ -1,8 +1,10 @@
-import React, { useContext } from 'react';
+// may find images here https://github.com/Investigamer/cardconjurer/tree/master/img/frames
+
+import React, {useContext} from 'react';
 
 import 'mana-font/css/mana.css';
 // @ts-ignore
-import { Mana } from '../Mana/Mana';
+import {Mana} from '../Mana/Mana';
 
 import TextResize from '../TextResize/TextResize';
 
@@ -14,8 +16,8 @@ import {
   ColorType,
   RarityType,
 } from '../../interfaces/enums';
-import { Store, StoreType } from '../../store';
-import { getColor, getColorIdentity } from '../../utils/cardToColor';
+import {Store, StoreType} from '../../store';
+import {getColor, getColorIdentity} from '../../utils/cardToColor';
 
 import styles from './TemplatingCardRender.module.scss';
 import {
@@ -29,8 +31,9 @@ import {
   getLowResColorMainframe,
   getPt,
   getRarityIcon,
+  getTokenMainframe,
 } from './assetLoader';
-import { injectForText, injectManaIcons } from '../../utils/injectUtils';
+import {injectForText, injectManaIcons} from '../../utils/injectUtils';
 import ImageLoader from '../ImageLoader/ImageLoader';
 import BasicLandCardRender from './BasicLandCardRender';
 import InvocationCardRender from './InvocationCardRender';
@@ -39,7 +42,6 @@ import parseStats from '../../utils/parseStats';
 import parseCollectionNumber from '../../utils/parseCollectionNumber';
 import PlaneswalkerCardRender from './PlaneswalkerCardRender';
 import FlavourText from './FlavourText';
-import { getImage } from '../../actions/imageActions';
 
 interface TemplatingCardRenderProps {
   artStyle?: BasicLandArtStyles | CardArtStyles;
@@ -136,7 +138,11 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
   const isArtifact =
     cardMainType === CardMainType.Artifact || cardMainType === CardMainType.ArtifactCreature;
   const isCreature =
-    cardMainType === CardMainType.Creature || cardMainType === CardMainType.ArtifactCreature;
+    cardMainType === CardMainType.Creature ||
+    cardMainType === CardMainType.ArtifactCreature ||
+    cardMainType === CardMainType.CreatureToken;
+  const isToken =
+    cardMainType === CardMainType.CreatureToken || cardMainType === CardMainType.ArtifactToken;
 
   const { color, allColors, orderedCost, hexColor } = getColor(manaCost);
   let mainframe = getColorMainframe(color);
@@ -164,6 +170,11 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
     overlay = getLandOverlay();
   }
 
+  if (isToken) {
+    mainframe = getTokenMainframe(color);
+    lowResMainframe = '';
+  }
+
   if (artStyle === CardArtStyles.Borderless) {
     lowResMainframe = '';
     mainframe = '';
@@ -186,7 +197,8 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
           }}
           className={`
             ${styles.cardRender} 
-            ${artStyle === CardArtStyles.Borderless && styles.borderless}
+            ${(artStyle === CardArtStyles.Borderless) && styles.borderless}
+            ${(isToken) && styles.token}
           `}
         >
           <ImageLoader
@@ -198,35 +210,35 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
           <ImageLoader
             src={mainframe}
             lowResSrc={lowResMainframe}
-            className={styles.mainframe}
+            className={`${styles.mainframe} ${isToken ? styles.tokenMainframe : ''}`}
             fallBackColor={artStyle !== CardArtStyles.Borderless ? hexColor : undefined}
           />
-          <img className={styles.innerBorderFrame} src={innerBorderFrame} alt="" />
-          <img className={styles.overlay} src={overlay} alt="" />
+          {!isToken ? <img className={styles.innerBorderFrame} src={innerBorderFrame} alt="" /> : null}
+          {overlay ? <img className={styles.overlay} src={overlay} alt="" /> : null}
 
-          <ImageLoader src={getRarityIcon(rarity)} alt="" className={styles.rarity} />
+          <ImageLoader src={getRarityIcon(rarity)} alt="" className={`${styles.rarity} ${isToken ? styles.tokenRarity : ''}`} />
 
           {isCreature && (
             <div>
-              <img className={styles.overlay} src={pt} alt="" />
+              {pt ? <img className={styles.overlay} src={pt} alt="" /> : null}
               <div className={styles.stats}>
                 {`${parseStats(cardStats).power}/${parseStats(cardStats).toughness}`}
               </div>
             </div>
           )}
 
-          {cardRenderProps.cardMainType !== CardMainType.Land && !backFace && (
-            <div className={styles.cost}>{injectManaIcons(orderedCost, true)}</div>
+          {cardRenderProps.cardMainType !== CardMainType.Land && !isToken && !backFace && (
+            <div className={`${styles.cost} ${isToken ? styles.tokenCost : ''}`}>{injectManaIcons(orderedCost, true)}</div>
           )}
 
-          <div className={styles.title}>{name}</div>
-          <div className={styles.type}>
+          <div className={`${styles.title} ${isToken ? styles.tokenTitle : ''}`}>{name}</div>
+          <div className={`${styles.type} ${isToken ? styles.tokenType : ''}`}>
             {legendary ? 'Legendary ' : ''}
             {cardMainType}
             {cardSubTypes ? ` – ${cardSubTypes}` : ''}
           </div>
 
-          <div className={styles.text}>
+          <div className={`${styles.text} ${isToken ? styles.tokenText : ''}`}>
             <TextResize
               defaultFontSize={20}
               maxFontSize={32}

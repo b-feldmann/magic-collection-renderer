@@ -5,7 +5,9 @@ import MechanicInterface from '../interfaces/MechanicInterface';
 
 export const injectForText = (line: string, cardName: string, mechanics: MechanicInterface[]) => {
   return injectQuotationMarks(
-    injectManaIcons(injectName(injectMechanics(line, mechanics, cardName), cardName)),
+    injectManaIcons(
+      injectName(injectMechanics(injectLongDash(line), mechanics, cardName), cardName),
+    ),
   );
 };
 
@@ -27,6 +29,34 @@ enum InjectStyle {
   NONE,
   ITALIC,
 }
+
+// React requires a unique key on every element that is rendered as part of an
+// array (including arrays nested inside other elements' children). The inject
+// helpers build arrays of mixed strings/JSX elements, so key them recursively
+// before rendering.
+type InjectValue = string | JSX.Element | InjectValue[];
+
+const injectKeys = (value: InjectValue | InjectValue[]): InjectValue | InjectValue[] => {
+  if (!Array.isArray(value)) return value;
+
+  return value.map((elem, index) => {
+    if (Array.isArray(elem)) {
+      return injectKeys(elem);
+    }
+    if (React.isValidElement(elem)) {
+      const { children } = elem.props as { children?: InjectValue | InjectValue[] };
+      if (Array.isArray(children)) {
+        return React.cloneElement(
+          elem,
+          { key: String(index) },
+          injectKeys(children) as JSX.Element,
+        );
+      }
+      return React.cloneElement(elem, { key: String(index) });
+    }
+    return elem;
+  });
+};
 
 interface InjectionConfig {
   toReplace: RegExp;
@@ -79,7 +109,7 @@ const injectDomElement: InjectFunc = (
     }
   });
 
-  return resultArray;
+  return injectKeys(resultArray) as (string | JSX.Element)[];
 };
 
 export const injectWithConfig = (
@@ -221,6 +251,13 @@ export const injectQuotationMarks = (text: string | JSX.Element | (string | JSX.
   });
 };
 
+export const injectLongDash = (text: string | JSX.Element | (string | JSX.Element)[]) => {
+  return injectWithConfig(text, {
+    toReplace: /--/,
+    toInject: '—',
+  });
+};
+
 export const injectMechanics = (
   text: string | JSX.Element | (string | JSX.Element)[],
   mechanics: MechanicInterface[],
@@ -269,5 +306,5 @@ export const injectMechanics = (
     });
   });
 
-  return result;
+  return injectKeys(result) as (string | JSX.Element)[];
 };
