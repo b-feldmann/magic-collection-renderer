@@ -434,10 +434,11 @@
 
 .invention {
   .cover {
-    left: 28px;
-    top: 28px;
+    left: 30px;
+    top: 30px;
     height: 960px;
-    width: calc(100% - 28px * 2);
+    width: calc(100% - 30px * 2);
+    border-radius: 20px;
   }
 
   .innerBorderFrame {
