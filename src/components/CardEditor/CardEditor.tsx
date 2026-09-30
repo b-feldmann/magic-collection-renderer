@@ -392,7 +392,13 @@ const CardEditor: React.FC<CardEditorInterface> = ({
         setTmpCard(newTmpCard);
         saveTmpCard(newTmpCard);
         setContentChanged(true);
-        updateCard(dispatch, cloneDeep(newTmpCard));
+        // Clear the parent's "unsaved changes" marker once the save lands,
+        // matching the debounced saveValue path. Without this the freshly
+        // saved card stays pinned as tmpCard and the app keeps warning about
+        // (already-saved) unsaved changes.
+        updateCard(dispatch, cloneDeep(newTmpCard))
+            .then(() => saveTmpCard(null))
+            .catch(() => {});
     };
 
     const deleteBackFace = () => {
@@ -401,7 +407,9 @@ const CardEditor: React.FC<CardEditorInterface> = ({
         setTmpCard(newTmpCard);
         saveTmpCard(newTmpCard);
         setContentChanged(true);
-        updateCard(dispatch, cloneDeep(newTmpCard));
+        updateCard(dispatch, cloneDeep(newTmpCard))
+            .then(() => saveTmpCard(null))
+            .catch(() => {});
     };
 
     return (
