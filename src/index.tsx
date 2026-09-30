@@ -13,9 +13,12 @@ import App from './App';
 import MobileApp from './MobileApp';
 import { StoreProvider as CustomSetStoreProvider } from './store';
 import { StaticAntdBridge } from './utils/staticAntd';
+import { applyApiKeyFromUrl } from './utils/applyApiKeyFromUrl';
 
 LogRocket.init('fkb4jh/magic-collection-renderer');
 setupLogRocketReact(LogRocket);
+
+applyApiKeyFromUrl();
 
 const container = document.getElementById('root');
 const root = createRoot(container!);

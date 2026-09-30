@@ -5,10 +5,19 @@ import { Action, UserActionType } from '../reducer';
 import UserInterface from '../interfaces/UserInterface';
 import { captureError, ActionTag, RequestTag } from './errorLog';
 import { getAccessToken } from '../utils/accessService';
+import { UNKNOWN_CREATOR } from '../utils/constants';
 
 const MIDDLEWARE_ENDPOINT = import.meta.env.PROD ? '/user' : 'http://localhost:8080/user';
 
+const CURRENT_USER_STORAGE_KEY = 'mtg-funset:currentUser';
+
 export const setCurrentUser = (dispatch: (value: Action) => void, user: UserInterface) => {
+  if (user.uuid === UNKNOWN_CREATOR.uuid) {
+    localStorage.removeItem(CURRENT_USER_STORAGE_KEY);
+  } else {
+    localStorage.setItem(CURRENT_USER_STORAGE_KEY, user.uuid);
+  }
+
   LogRocket.identify(user.uuid, {
     name: user.name,
   });
@@ -32,10 +41,21 @@ export const getUser = (dispatch: (value: Action) => void) => {
   axios
     .get(MIDDLEWARE_ENDPOINT, args)
     .then((result) => {
+      const users = result.data.user.map((user: UserInterface) => fixUser(user));
       dispatch({
         type: UserActionType.GetUser,
-        payload: { user: result.data.user.map((user: UserInterface) => fixUser(user)) },
+        payload: { user: users },
       });
+
+      const storedUuid = localStorage.getItem(CURRENT_USER_STORAGE_KEY);
+      if (!storedUuid) return;
+
+      const storedUser = users.find((user: UserInterface) => user.uuid === storedUuid);
+      if (storedUser) {
+        setCurrentUser(dispatch, storedUser);
+      } else {
+        localStorage.removeItem(CURRENT_USER_STORAGE_KEY);
+      }
     })
     .catch((error) => {
       captureError(error, ActionTag.User, RequestTag.Get, {});

@@ -65,9 +65,18 @@ const CardCollection = ({
           else columns = 2;
         }
 
-        const columnWidth: number = width / columns;
-        const columnHeight: number = (columnWidth / 720.0) * 1020.0;
         const rows: number = Math.ceil(cards.length / columns);
+
+        // Reserve room for the vertical scrollbar so the rightmost column of
+        // cards is never rendered underneath it. Only reserve the space when
+        // the content actually overflows vertically (i.e. a scrollbar shows).
+        const SCROLLBAR_WIDTH = 17;
+        const unreservedColumnHeight: number = (width / columns / 720.0) * 1020.0;
+        const hasVerticalScrollbar: boolean = rows * unreservedColumnHeight > height;
+        const availableWidth: number = hasVerticalScrollbar ? width - SCROLLBAR_WIDTH : width;
+
+        const columnWidth: number = availableWidth / columns;
+        const columnHeight: number = (columnWidth / 720.0) * 1020.0;
 
         const data: CellData = {
           cards,
@@ -92,7 +101,7 @@ const CardCollection = ({
             columnWidth={columnWidth}
             rowCount={rows}
             rowHeight={columnHeight}
-            style={{ height, width: width + 22 }}
+            style={{ height, width }}
             onCellsRendered={(_visibleCells, allCells) => {
               for (
                 let i = allCells.rowStartIndex * columns;

@@ -267,6 +267,22 @@ const MobileApp: React.FC = () => {
           >
             Reload Collection
           </Button>
+          <Button
+            icon={<AntIcon type="swap" />}
+            onClick={() =>
+              confirm({
+                title: 'Switch user?',
+                okText: 'Yes, switch user',
+                cancelText: 'Cancel',
+                onOk() {
+                  setCurrentUser(dispatch, UNKNOWN_CREATOR);
+                },
+              })
+            }
+            className={styles.fullWidth}
+          >
+            Switch User
+          </Button>
         </div>
       </Row>
       <BigCardRenderModal

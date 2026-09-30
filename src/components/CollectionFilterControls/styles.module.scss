@@ -3,7 +3,8 @@
     background: whitesmoke;
     position: fixed;
     width: calc(100 / 24 * 18 / 24 * 4vw);
-    height: calc(100vh - 72px);
+    bottom: 168px;
+    //height: calc(100vh - 72px - 5*32px);
     overflow-y: auto;
     // Reserve space for the fixed action buttons (Edit Mechanics / Add Card / JSON /
     // Reload) so the last filter rows can be scrolled clear of them.

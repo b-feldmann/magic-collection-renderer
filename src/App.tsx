@@ -370,7 +370,7 @@ const App: React.FC = () => {
             icon={<AntIcon type="download" />}
             type="primary"
             onClick={() => downloadCollectionAsJson(filteredCollection)}
-            className={styles.fullWidth}
+            className={styles.halfWidth}
           >
             JSON
           </Button>
@@ -378,9 +378,25 @@ const App: React.FC = () => {
             icon={<AntIcon type="reload" />}
             type="primary"
             onClick={refresh}
+            className={styles.halfWidth}
+          >
+            Reload
+          </Button>
+          <Button
+            icon={<AntIcon type="swap" />}
+            onClick={() =>
+              confirm({
+                title: 'Switch user?',
+                okText: 'Yes, switch user',
+                cancelText: 'Cancel',
+                onOk() {
+                  setCurrentUser(dispatch, UNKNOWN_CREATOR);
+                },
+              })
+            }
             className={styles.fullWidth}
           >
-            Reload Collection
+            Switch User
           </Button>
         </div>
       </Row>

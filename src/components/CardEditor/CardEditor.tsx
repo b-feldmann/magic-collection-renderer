@@ -356,7 +356,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
     if (card.uuid === NO_CARD)
         return (
             <div className={styles.noCard}>
-                <span>Hover over a card and click the edit icon to start the editor!</span>
+                <span>Click on a card to start the editor!</span>
             </div>
         );
 
