@@ -1,14 +1,13 @@
 import React, { useContext, useDeferredValue, useEffect, useMemo, useState } from 'react';
 import { Button, Col, Input, Modal, Row, Select, Tabs, Badge, Card, Result } from 'antd';
 import sortCardsBy from 'lodash/sortBy';
-
 import AntIcon from './components/AntIcon/AntIcon';
 
 import fileDownload from 'js-file-download';
 
 import LogRocket from 'logrocket';
 import CardInterface from './interfaces/CardInterface';
-import { CardState, ColorTypePlus, SortByType } from './interfaces/enums';
+import { CardState, SortByType } from './interfaces/enums';
 import CardCollection from './components/CardCollection/CardCollection';
 import CardEditor from './components/CardEditor/CardEditor';
 
@@ -22,6 +21,7 @@ import CollectionFilterControls, {
   CollectionFilterInterface,
 } from './components/CollectionFilterControls/CollectionFilterControls';
 import cardToColor from './utils/cardToColor';
+import { buildSortAccessors } from './utils/sortAccessors';
 import { createCard, EMPTY_CARD, refreshCollection } from './actions/cardActions';
 
 import { hasAccessToken, updateAccessToken } from './utils/accessService';
@@ -50,7 +50,14 @@ const App: React.FC = () => {
   const [showCardModal, setShowCardModal] = useState<boolean>(false);
   const [cardNameFilter, setCardNameFilter] = useState<string>('');
   const [mechanicsVisible, setMechanicsVisible] = useState(false);
-  const [sortBy, setSortBy] = useLocalStorage('mtg-funset:SortBy', SortByType.LastUpdated);
+  const [sortBy, setSortBy] = useLocalStorage('mtg-funset:SortBy', SortByType.LastUpdated) as [
+    SortByType,
+    (value: SortByType) => void,
+  ];
+  const [secondarySortBy, setSecondarySortBy] = useLocalStorage(
+    'mtg-funset:SecondarySortBy',
+    SortByType.Name,
+  ) as [SortByType, (value: SortByType) => void];
 
   const [collectionFilter, setCollectionFilter] = useState<CollectionFilterInterface>({
     colors: {},
@@ -77,34 +84,10 @@ const App: React.FC = () => {
     return merged;
   }, [cards, tmpCard]);
 
-  const sortList = useMemo(() => {
-    const lastUpdated = (card: CardInterface): number => {
-      const annotations = annotationAccessor[card.uuid];
-      if (!annotations) return card.meta.lastUpdated;
-
-      const lastAnnotation = annotations.reduce((a, b) => (a.datetime > b.datetime ? a : b));
-      return Math.max(lastAnnotation.datetime, card.meta.lastUpdated);
-    };
-
-    const list: ((o: CardInterface) => number | string)[] = [];
-    if (sortBy === SortByType.Color) {
-      list.push((o) =>
-        Object.values(ColorTypePlus).indexOf(cardToColor(o.front.cardMainType, o.manaCost).color),
-      );
-      list.push((o) => o.front.name.toLowerCase());
-    }
-    if (sortBy === SortByType.Creator) {
-      list.push((o) => (o.creator.uuid === UNKNOWN_CREATOR.uuid ? 'zzzzz' : o.creator.name));
-      list.push((o) =>
-        Object.values(ColorTypePlus).indexOf(cardToColor(o.front.cardMainType, o.manaCost).color),
-      );
-      list.push((o) => o.front.name.toLowerCase());
-    }
-    if (sortBy === SortByType.LastUpdated) {
-      list.push((o) => -1 * lastUpdated(o));
-    }
-    return list;
-  }, [sortBy, annotationAccessor]);
+  const sortList = useMemo(
+    () => buildSortAccessors(sortBy, secondarySortBy, annotationAccessor),
+    [sortBy, secondarySortBy, annotationAccessor],
+  );
 
   // Defer the rapidly changing name filter so typing stays responsive while the
   // (potentially large) collection is re-sorted and re-filtered.
@@ -327,19 +310,36 @@ const App: React.FC = () => {
         <Col span={3}>
           <div className={styles.sortControls}>
             <h3>Sort Collection By</h3>
-            <Select
-              className={styles.sortSelect}
-              size="small"
-              // @ts-ignore
-              value={sortBy || SortByType.Color}
-              // @ts-ignore
-              onChange={(newSortByValue: SortByType) => setSortBy(newSortByValue)}
-              options={(Object.keys(SortByType) as (keyof typeof SortByType)[]).map((d) => ({
-                key: `collection-filter-key-${d}`,
-                value: SortByType[d],
-                label: SortByType[d],
-              }))}
-            />
+            <div className={styles.sortRow}>
+              <Select
+                className={styles.sortSelect}
+                size="small"
+                // @ts-ignore
+                value={sortBy || SortByType.Color}
+                // @ts-ignore
+                onChange={(newSortByValue: SortByType) => setSortBy(newSortByValue)}
+                aria-label="Primary sort"
+                options={(Object.keys(SortByType) as (keyof typeof SortByType)[]).map((d) => ({
+                  key: `collection-sort-primary-${d}`,
+                  value: SortByType[d],
+                  label: SortByType[d],
+                }))}
+              />
+              <Select
+                className={styles.sortSelect}
+                size="small"
+                // @ts-ignore
+                value={secondarySortBy || SortByType.Name}
+                // @ts-ignore
+                onChange={(newSortByValue: SortByType) => setSecondarySortBy(newSortByValue)}
+                aria-label="Secondary sort"
+                options={(Object.keys(SortByType) as (keyof typeof SortByType)[]).map((d) => ({
+                  key: `collection-sort-secondary-${d}`,
+                  value: SortByType[d],
+                  label: SortByType[d],
+                }))}
+              />
+            </div>
           </div>
           <CollectionFilterControls
             collection={cards}

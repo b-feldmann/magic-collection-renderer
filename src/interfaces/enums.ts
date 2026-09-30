@@ -65,6 +65,9 @@ export enum SortByType {
   Color = 'Color',
   LastUpdated = 'Last Updated',
   Creator = 'Creator',
+  Rarity = 'Rarity',
+  ManaCost = 'Mana Cost',
+  Name = 'Name',
 }
 
 export enum ChangeLogFeatureType {

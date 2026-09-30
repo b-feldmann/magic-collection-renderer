@@ -92,7 +92,13 @@
   }
 
   .sortSelect {
-    width: 100%;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .sortRow {
+    display: flex;
+    gap: 8px;
   }
 }
 
