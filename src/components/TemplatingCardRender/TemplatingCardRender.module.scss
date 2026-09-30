@@ -443,6 +443,33 @@
   .innerBorderFrame {
     opacity: 1;
   }
+
+  .title {
+    top: 56px;
+    left: 68px;
+  }
+
+  .cost {
+    top: 58px;
+    width: 654px;
+  }
+
+  .type {
+    top: 575px;
+    left: 66px;
+  }
+
+  .rarity {
+    left: 618px;
+    top: 573px;
+  }
+
+  .text {
+    top: 644px;
+    height: 286px;
+    left: 72px;
+    width: 576px;
+  }
 }
 
 .landFullArtStyle {
