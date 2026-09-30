@@ -165,7 +165,6 @@ const MobileApp: React.FC = () => {
 
     return (
       <Row className={styles.fullHeight}>
-        <ChangeLogModal />
         <Col span={collectionSpan} className={styles.collection}>
           <Tabs
             defaultActiveKey="tab-key-Card Drafts / Idea Dump"
@@ -231,6 +230,7 @@ const MobileApp: React.FC = () => {
 
   return (
     <div>
+      <ChangeLogModal />
       <div
         className={`${styles.loginWrapper} ${
           currentUser.uuid !== UNKNOWN_CREATOR.uuid ? styles.authenticated : ''

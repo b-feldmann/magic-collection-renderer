@@ -231,7 +231,6 @@ const App: React.FC = () => {
 
     return (
       <Row className={styles.fullHeight}>
-        <ChangeLogModal />
         <MechanicModal visible={mechanicsVisible} setVisible={setMechanicsVisible} />
         <Col span={collectionSpan} className={styles.collection}>
           <Tabs
@@ -301,6 +300,7 @@ const App: React.FC = () => {
 
   return (
     <div>
+      <ChangeLogModal />
       <div
         className={`${styles.loginWrapper} ${
           currentUser.uuid !== UNKNOWN_CREATOR.uuid ? styles.authenticated : ''

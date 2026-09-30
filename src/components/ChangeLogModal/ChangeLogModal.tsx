@@ -30,6 +30,9 @@ const ChangeLogModal = () => {
         content: renderLog(),
         width: '90%',
         className: styles.modal,
+        // App.module.scss uses z-index 99999 for the login wrapper and
+        // landscape reminders; the modal must paint above all of them.
+        zIndex: 100000,
         onOk() {
           addLastSeenVersion(dispatch, updateLog.length - 1, currentUser);
         },
