@@ -1,10 +1,11 @@
-import { Button, Checkbox, Input, Listy, Radio, Select, Upload } from 'antd';
+import { Button, Checkbox, Input, Listy, Radio, Select, Space, Upload } from 'antd';
 
 import AntIcon from '../AntIcon/AntIcon';
 import React from 'react';
 import styles from './styles.module.scss';
 import resizeImage from '../../utils/resizeImage';
 import EditorTooltip from "../EditorTooltip";
+import MechanicInterface from '../../interfaces/MechanicInterface';
 
 const { TextArea } = Input;
 const InputGroup = Input.Group;
@@ -25,10 +26,11 @@ interface EditFieldInterface {
   data?: { key: string; value: string }[];
   getValue: (key: string) => any;
   saveValue: (key: string, value: any) => void;
+  mechanics?: MechanicInterface[];
 }
 
 const EditField = (props: EditFieldInterface) => {
-  const { type, fieldKey, name, data, getValue, saveValue } = props;
+  const { type, fieldKey, name, data, getValue, saveValue, mechanics } = props;
 
   if (type === 'input') {
     return (
@@ -267,17 +269,42 @@ const EditField = (props: EditFieldInterface) => {
           />
           <div className={styles.listFooter}>
             <div className={styles.centerParent}>
-              <Button
-                disabled={type === 'split-list' && getValue(fieldKey).length === 4}
-                size="small"
-                onClick={() => {
-                  const list = getValue(fieldKey);
-                  list.push('');
-                  saveValue(fieldKey, list);
-                }}
-              >
-                Add Instruction
-              </Button>
+              <Space.Compact>
+                <Button
+                  disabled={type === 'split-list' && getValue(fieldKey).length === 4}
+                  size="small"
+                  onClick={() => {
+                    const list = getValue(fieldKey);
+                    list.push('');
+                    saveValue(fieldKey, list);
+                  }}
+                >
+                  Add Instruction
+                </Button>
+                {mechanics && mechanics.length > 0 && (
+                  <Select
+                    size="small"
+                    style={{ width: 150 }}
+                    placeholder="Add Mechanic"
+                    value={null}
+                    onClick={(e) => e.stopPropagation()}
+                    options={[...mechanics]
+                      .sort((a, b) => a.name.localeCompare(b.name))
+                      .map((mechanic) => ({
+                      key: `${fieldKey}-mechanic-${mechanic.uuid}`,
+                      value: mechanic.uuid,
+                      label: mechanic.name,
+                    }))}
+                    onSelect={(uuid: string | null) => {
+                      const mechanic = mechanics.find((m) => m.uuid === uuid);
+                      if (!mechanic) return;
+                      const list = getValue(fieldKey);
+                      list.push(`[${mechanic.name} X]`);
+                      saveValue(fieldKey, list);
+                    }}
+                  />
+                )}
+              </Space.Compact>
             </div>
           </div>
         </div>

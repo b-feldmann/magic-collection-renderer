@@ -283,7 +283,34 @@ updateLog.push({
       type: ChangeLogFeatureType.Fixed,
       feature: 'Image Uploading',
       description:
-        'Images are now separated from card and are lazy loaded just before the card is shown.',
+          'Images are now separated from card and are lazy loaded just before the card is shown.',
+    },
+  ],
+});
+
+updateLog.push({
+  version: '2.0.0',
+  title: '7 years later',
+  content: [
+    {
+      type: ChangeLogFeatureType.Fixed,
+      feature: 'Mana Icon Tooltip',
+      description: 'Mana Icons in the tooltip are now fixed. Please look them up in the editor',
+    },
+    {
+      type: ChangeLogFeatureType.Added,
+      feature: 'Add Mechanic Button',
+      description: 'Streamline the addition of a mechanic on a card',
+    },
+    {
+      type: ChangeLogFeatureType.Added,
+      feature: 'Invention Card Style',
+      description: 'Artifact (Creatures) can now be rendered as Invention',
+    },
+    {
+      type: ChangeLogFeatureType.Changed,
+      feature: 'User Handling',
+      description: 'User is now stored in localstorage. Added a new switch user button',
     },
   ],
 });

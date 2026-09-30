@@ -57,12 +57,12 @@ addToDataSource(
 addToDataSource(
   '{wp}{up}{bp}{rp}{gp}{p}',
   <span>
-    <Mana symbol="wp" shadow />
-    <Mana symbol="up" shadow />
-    <Mana symbol="bp" shadow />
-    <Mana symbol="rp" shadow />
-    <Mana symbol="gp" shadow />
-    <Mana symbol="p" shadow />
+    <Mana symbol="wp" cost shadow />
+    <Mana symbol="up" cost shadow />
+    <Mana symbol="bp" cost shadow />
+    <Mana symbol="rp" cost shadow />
+    <Mana symbol="gp" cost shadow />
+    <Mana symbol="p" cost shadow />
   </span>,
 );
 addToDataSource(
@@ -76,31 +76,31 @@ addToDataSource(
 addToDataSource(
   '{2w}{2u}{2b}{2r}{2g}',
   <span>
-    <Mana symbol="2w" shadow />
-    <Mana symbol="2u" shadow />
-    <Mana symbol="2b" shadow />
-    <Mana symbol="2r" shadow />
-    <Mana symbol="2g" shadow />
+    <Mana symbol="2w" cost shadow />
+    <Mana symbol="2u" cost shadow />
+    <Mana symbol="2b" cost shadow />
+    <Mana symbol="2r" cost shadow />
+    <Mana symbol="2g" cost shadow />
   </span>,
 );
 addToDataSource(
   '{wu}{wb}{ub}{ur}{br}',
   <span>
-    <Mana symbol="wu" shadow />
-    <Mana symbol="wb" shadow />
-    <Mana symbol="ub" shadow />
-    <Mana symbol="ur" shadow />
-    <Mana symbol="br" shadow />
+    <Mana symbol="wu" cost shadow />
+    <Mana symbol="wb" cost shadow />
+    <Mana symbol="ub" cost shadow />
+    <Mana symbol="ur" cost shadow />
+    <Mana symbol="br" cost shadow />
   </span>,
 );
 addToDataSource(
   '{bg}{rg}{rw}{gw}{gu}',
   <span>
-    <Mana symbol="bg" shadow />
-    <Mana symbol="rg" shadow />
-    <Mana symbol="rw" shadow />
-    <Mana symbol="gw" shadow />
-    <Mana symbol="gu" shadow />
+    <Mana symbol="bg" cost shadow />
+    <Mana symbol="rg" cost shadow />
+    <Mana symbol="rw" cost shadow />
+    <Mana symbol="gw" cost shadow />
+    <Mana symbol="gu" cost shadow />
   </span>,
 );
 addToDataSource(

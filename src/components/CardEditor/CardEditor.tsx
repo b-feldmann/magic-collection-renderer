@@ -83,7 +83,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
 
     const [editBack, setEditBack] = useState<boolean>(false);
 
-    const {dispatch, user} = useContext<StoreType>(Store);
+    const {dispatch, user, mechanics} = useContext<StoreType>(Store);
 
     const getCurrentFace = (currentCard: CardInterface): CardFaceInterface => {
         if (currentCard.back && editBack) return currentCard.back;
@@ -427,6 +427,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
                                 name={config.name}
                                 saveValue={saveValue}
                                 getValue={getValue}
+                                mechanics={mechanics}
                             />
                         </div>
                     );
