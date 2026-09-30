@@ -160,3 +160,23 @@ export const updateCard = (
       throw error;
     });
 };
+
+export const deleteCard = (dispatch: (value: Action) => void, uuid: string): Promise<unknown> => {
+  LogRocket.log('Try to delete a card', { uuid });
+  const request = `${MIDDLEWARE_ENDPOINT}/cards/${uuid}`;
+
+  return axios
+    .delete(request, { params: { accessKey: getAccessToken() } })
+    .then(() => {
+      staticAntd.message.success('Successfully Deleted Card');
+      return dispatch({
+        type: CardActionType.DeleteCard,
+        payload: { uuid },
+      });
+    })
+    .catch((error) => {
+      captureError(error, ActionTag.Card, RequestTag.Delete, {});
+      staticAntd.message.error("Could'nt delete the card");
+      throw error;
+    });
+};

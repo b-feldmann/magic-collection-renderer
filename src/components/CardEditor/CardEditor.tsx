@@ -1,5 +1,5 @@
 import React, {useContext, useEffect, useRef, useState} from 'react';
-import {Button, Row, Space} from 'antd';
+import {Button, Modal, Row, Space} from 'antd';
 import cloneDeep from 'lodash/cloneDeep';
 import isEqual from 'lodash/isEqual';
 import dayjs from 'dayjs';
@@ -18,9 +18,9 @@ import EditField from './EditField';
 
 import CardFaceInterface from '../../interfaces/CardFaceInterface';
 import EditorTooltip from '../EditorTooltip/EditorTooltip';
-import {updateCard} from '../../actions/cardActions';
+import {deleteCard, updateCard} from '../../actions/cardActions';
 import {Store, StoreType} from '../../store';
-import {EDIT_SAVE_OFFSET, EDIT_TIME_OFFSET, UNKNOWN_CREATOR} from '../../utils/constants';
+import {BJENNWARE, EDIT_SAVE_OFFSET, EDIT_TIME_OFFSET, UNKNOWN_CREATOR} from '../../utils/constants';
 
 interface CardEditorInterface {
     card?: CardInterface;
@@ -83,7 +83,9 @@ const CardEditor: React.FC<CardEditorInterface> = ({
 
     const [editBack, setEditBack] = useState<boolean>(false);
 
-    const {dispatch, user, mechanics} = useContext<StoreType>(Store);
+    const {dispatch, user, mechanics, currentUser} = useContext<StoreType>(Store);
+
+    const canDeleteCard = currentUser.name === BJENNWARE;
 
     const getCurrentFace = (currentCard: CardInterface): CardFaceInterface => {
         if (currentCard.back && editBack) return currentCard.back;
@@ -182,6 +184,24 @@ const CardEditor: React.FC<CardEditorInterface> = ({
         saveTmpCard(null);
         setContentChanged(false);
         updateCard(dispatch, cloneDeep(originalCard));
+    };
+
+    const confirmDeleteCard = () => {
+        if (card.uuid === NO_CARD) return;
+
+        Modal.confirm({
+            title: `Delete "${card.name || 'this card'}"?`,
+            content: 'This permanently deletes the card and cannot be undone.',
+            okText: 'Yes, delete card',
+            okType: 'danger',
+            cancelText: 'Cancel',
+            onOk() {
+                if (timerId.current) clearTimeout(timerId.current);
+                if (saveTimerId.current) clearTimeout(saveTimerId.current);
+                saveTmpCard(null);
+                return deleteCard(dispatch, card.uuid);
+            },
+        });
     };
 
     useEffect(() => {
@@ -439,6 +459,11 @@ const CardEditor: React.FC<CardEditorInterface> = ({
                         <Button disabled={!contentChanged} onClick={undoChanges} danger>
                             <span>Undo Changes</span>
                         </Button>
+                        {canDeleteCard && (
+                            <Button onClick={confirmDeleteCard} danger>
+                                <span>Delete Card</span>
+                            </Button>
+                        )}
                     </Space.Compact>
                 </div>
             </Row>
