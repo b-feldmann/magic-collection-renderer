@@ -388,25 +388,26 @@ const CardEditor: React.FC<CardEditorInterface> = ({
         <div className={styles.editor}>
             <canvas id="cover-resize-canvas" className={styles.canvas}/>
             <Row>
-                <EditorTooltip className={styles.tooltip}/>
-                <Space.Compact className={styles.smallButtonGroup} size="small">
-                    {card.back && editBack && (
-                        <Button ghost onClick={() => setEditBack(false)}>
-                            <span>Edit Front Face</span>
-                        </Button>
-                    )}
-                    {card.back && !editBack && (
-                        <Button ghost onClick={() => setEditBack(true)}>
-                            <span>Edit Back Face</span>
-                        </Button>
-                    )}
-                    {card.back && (
-                        <Button onClick={deleteBackFace} danger>
-                            <span>Delete Back Face</span>
-                        </Button>
-                    )}
-                    {!card.back && <Button onClick={addBackFace}>Add Back Face</Button>}
-                </Space.Compact>
+                <div className={styles.fullField}>
+                    <Space.Compact className={styles.smallButtonGroup} size="small">
+                        {card.back && editBack && (
+                            <Button ghost onClick={() => setEditBack(false)}>
+                                <span>Edit Front Face</span>
+                            </Button>
+                        )}
+                        {card.back && !editBack && (
+                            <Button ghost onClick={() => setEditBack(true)}>
+                                <span>Edit Back Face</span>
+                            </Button>
+                        )}
+                        {card.back && (
+                            <Button onClick={deleteBackFace} danger>
+                                <span>Delete Back Face</span>
+                            </Button>
+                        )}
+                        {!card.back && <Button onClick={addBackFace}>Add Back Face</Button>}
+                    </Space.Compact>
+                </div>
             </Row>
             <Row>
                 {inputConfig.map((config) => {
@@ -432,11 +433,13 @@ const CardEditor: React.FC<CardEditorInterface> = ({
                 })}
             </Row>
             <Row>
-                <Space.Compact className={styles.buttonGroup} size="small">
-                    <Button disabled={!contentChanged} onClick={undoChanges} danger>
-                        <span>Undo Changes</span>
-                    </Button>
-                </Space.Compact>
+                <div className={styles.fullField}>
+                    <Space.Compact className={styles.buttonGroup} size="small">
+                        <Button disabled={!contentChanged} onClick={undoChanges} danger>
+                            <span>Undo Changes</span>
+                        </Button>
+                    </Space.Compact>
+                </div>
             </Row>
         </div>
     );

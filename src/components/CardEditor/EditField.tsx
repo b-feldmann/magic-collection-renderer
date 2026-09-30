@@ -4,6 +4,7 @@ import AntIcon from '../AntIcon/AntIcon';
 import React from 'react';
 import styles from './styles.module.scss';
 import resizeImage from '../../utils/resizeImage';
+import EditorTooltip from "../EditorTooltip";
 
 const { TextArea } = Input;
 const InputGroup = Input.Group;
@@ -198,7 +199,8 @@ const EditField = (props: EditFieldInterface) => {
 
     return (
       <span>
-        <p className={styles.label}>{name}</p>
+        <p className={styles.label}>{name} <EditorTooltip className={styles.tooltip}/></p>
+
         {/* `List` was deprecated in antd 6. `Listy` has no `bordered`, no
             per-item `actions`, and no `footer`, so those are recreated with
             markup + CSS. Items are wrapped with their index to provide a stable

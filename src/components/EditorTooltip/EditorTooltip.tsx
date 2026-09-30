@@ -133,7 +133,7 @@ const content = (
 );
 
 const EditorTooltip: React.FC<EditorTooltip> = (props) => (
-  <Popover {...props} content={content} placement="bottom" title="Icon Codes">
+  <Popover {...props} content={content} placement="left" title="Icon Codes">
     <AntIcon type="question-circle" />
   </Popover>
 );
