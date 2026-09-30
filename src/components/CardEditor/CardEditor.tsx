@@ -142,13 +142,9 @@ const CardEditor: React.FC<CardEditorInterface> = ({
                 saveValue('artStyle', CardArtStyles.Regular);
             } else if (
                 getValue('artStyle') !== CardArtStyles.Borderless &&
-                getValue('artStyle') !== CardArtStyles.Invocation
-            ) {
-                saveValue('artStyle', CardArtStyles.Regular);
-            } else if (
-                getValue('artStyle') === CardArtStyles.Invention &&
-                value !== CardMainType.Artifact &&
-                value !== CardMainType.ArtifactCreature
+                getValue('artStyle') !== CardArtStyles.Invocation &&
+                !(getValue('artStyle') === CardArtStyles.Invention &&
+                    (value === CardMainType.Artifact || value === CardMainType.ArtifactCreature))
             ) {
                 saveValue('artStyle', CardArtStyles.Regular);
             }

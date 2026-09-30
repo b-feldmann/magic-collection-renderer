@@ -144,7 +144,9 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
     cardMainType === CardMainType.ArtifactCreature ||
     cardMainType === CardMainType.CreatureToken;
   const isToken =
-    cardMainType === CardMainType.CreatureToken || cardMainType === CardMainType.ArtifactToken;
+      cardMainType === CardMainType.CreatureToken || cardMainType === CardMainType.ArtifactToken;
+  const isInvention =
+      artStyle === CardArtStyles.Invention;
 
   const { color, allColors, orderedCost, hexColor } = getColor(manaCost);
   let mainframe = getColorMainframe(color);
@@ -155,12 +157,6 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
   if (isArtifact) {
     mainframe = getArtifactMainframe();
     pt = getArtifactPt(color);
-  }
-
-  if (artStyle === CardArtStyles.Invention) {
-    mainframe = getInventionMainframe(color);
-    lowResMainframe = '';
-    pt = getInventionPt();
   }
 
   let innerBorderFrame = getInnerBorderFrame(allColors);
@@ -178,9 +174,17 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
     overlay = getLandOverlay();
   }
 
+  if (artStyle === CardArtStyles.Invention) {
+    mainframe = getInventionMainframe(color);
+    lowResMainframe = '';
+    pt = getInventionPt();
+    overlay = ''
+  }
+
   if (isToken) {
     mainframe = getTokenMainframe(color);
     lowResMainframe = '';
+    overlay = ''
   }
 
   if (artStyle === CardArtStyles.Borderless) {
@@ -207,6 +211,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
             ${styles.cardRender} 
             ${(artStyle === CardArtStyles.Borderless) && styles.borderless}
             ${(isToken) && styles.token}
+            ${(artStyle === CardArtStyles.Invention) && styles.invention}
           `}
         >
           <ImageLoader
@@ -218,10 +223,16 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
           <ImageLoader
             src={mainframe}
             lowResSrc={lowResMainframe}
-            className={`${styles.mainframe} ${isToken ? styles.tokenMainframe : ''}`}
+            className={`${styles.mainframe} ${
+              isToken
+                ? styles.tokenMainframe
+                : artStyle === CardArtStyles.Invention
+                  ? styles.inventionMainframe
+                  : ''
+            }`}
             fallBackColor={artStyle !== CardArtStyles.Borderless ? hexColor : undefined}
           />
-          {!isToken ? <img className={styles.innerBorderFrame} src={innerBorderFrame} alt="" /> : null}
+          {!isToken && !isInvention ? <img className={styles.innerBorderFrame} src={innerBorderFrame} alt="" /> : null}
           {overlay ? <img className={styles.overlay} src={overlay} alt="" /> : null}
 
           <ImageLoader src={getRarityIcon(rarity)} alt="" className={`${styles.rarity} ${isToken ? styles.tokenRarity : ''}`} />

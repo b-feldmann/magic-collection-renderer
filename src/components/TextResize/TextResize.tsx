@@ -27,15 +27,46 @@ const TextResize: React.FC<TextResizeProps> = ({
     const el = containerRef.current;
     if (!el) return undefined;
 
+    const paragraphs = Array.from(el.querySelectorAll<HTMLElement>('p'));
+    paragraphs.forEach((p) => {
+      p.style.marginTop = '';
+      p.style.marginBottom = '';
+    });
+    el.style.lineHeight = '';
+
+    const baseMargins = paragraphs.map((p) => {
+      const cs = getComputedStyle(p);
+      return { top: parseFloat(cs.marginTop), bottom: parseFloat(cs.marginBottom) };
+    });
+
+    const applyScale = (size: number) => {
+      const scale = size / maxFontSize;
+      el.style.fontSize = `${size}px`;
+      if (scale < 1) {
+        el.style.lineHeight = ((1.2 * (1 + scale)) / 2).toFixed(2);
+        const marginScale = Math.sqrt(scale);
+        paragraphs.forEach((p, i) => {
+          p.style.marginTop = `${baseMargins[i].top * marginScale}px`;
+          p.style.marginBottom = `${baseMargins[i].bottom * marginScale}px`;
+        });
+      } else {
+        el.style.lineHeight = '';
+        paragraphs.forEach((p) => {
+          p.style.marginTop = '';
+          p.style.marginBottom = '';
+        });
+      }
+    };
+
     const fit = () => {
       let size = maxFontSize;
-      el.style.fontSize = `${size}px`;
+      applyScale(size);
       while (
         size > minFontSize &&
         (el.scrollHeight > el.clientHeight || el.scrollWidth > el.clientWidth)
       ) {
         size -= 1;
-        el.style.fontSize = `${size}px`;
+        applyScale(size);
       }
       setFontSize(size);
     };

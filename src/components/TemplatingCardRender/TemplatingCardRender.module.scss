@@ -43,6 +43,11 @@
     height: 1020px;
   }
 
+  .inventionMainframe {
+    width: 720px;
+    height: 1020px;
+  }
+
   .innerBorderFrame,
   .overlay {
     position: absolute;
@@ -396,19 +401,6 @@
   }
 }
 
-.token {
-  .cover {
-    left: 28px;
-    top: 28px;
-    height: 960px;
-    width: calc(100% - 28px * 2);
-  }
-
-  .innerBorderFrame {
-    opacity: 1;
-  }
-}
-
 .borderless {
   .cover {
     left: 0;
@@ -424,6 +416,32 @@
     //$clipBottom: 570px;
     //-webkit-clip-path: polygon(0% 0%, 0% 100%, 0 100%, 0 $clipTop, 100% $clipTop, 100% $clipBottom, 0 $clipBottom, 0 100%, 100% 100%, 100% 0%);
     //clip-path: polygon(0% 0%, 0% 100%, 0 100%, 0 $clipTop, 100% $clipTop, 100% $clipBottom, 0 $clipBottom, 0 100%, 100% 100%, 100% 0%);
+  }
+}
+
+.token {
+  .cover {
+    left: 28px;
+    top: 28px;
+    height: 960px;
+    width: calc(100% - 28px * 2);
+  }
+
+  .innerBorderFrame {
+    opacity: 1;
+  }
+}
+
+.invention {
+  .cover {
+    left: 28px;
+    top: 28px;
+    height: 960px;
+    width: calc(100% - 28px * 2);
+  }
+
+  .innerBorderFrame {
+    opacity: 1;
   }
 }
 
