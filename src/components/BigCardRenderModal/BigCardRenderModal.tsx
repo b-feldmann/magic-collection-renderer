@@ -170,6 +170,7 @@ const BigCardRenderModal = ({
     <Modal
       className={styles.modalCardViewWrapper}
       wrapClassName="card-view"
+      classNames={{ mask: 'card-view' }}
       title={`View ${card.name}`}
       open={visible}
       onOk={hide}

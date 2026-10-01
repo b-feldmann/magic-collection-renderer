@@ -113,6 +113,13 @@ export const updateCard = (
   });
   const request = `${MIDDLEWARE_ENDPOINT}/cards`;
   const parsed = { ...updated };
+  // `_id`/`__v` are Mongo-internal fields that ride along on cards held in
+  // memory from the server (notably freshly POST-created ones). Sending them
+  // back in the PUT makes MongoDB's replaceOne reject the update ("immutable
+  // field '_id' was found to have been altered"), which is why saving a card
+  // right after creating it fails. The app keys cards by `uuid`, so drop them.
+  delete (parsed as Record<string, unknown>)._id;
+  delete (parsed as Record<string, unknown>).__v;
   if (updated.front.cover && updated.front.cover.startsWith('base64:')) {
     createImage(dispatch, updated.front.cover.substring(7), updated, 0);
     parsed.front.cover = 'loading';

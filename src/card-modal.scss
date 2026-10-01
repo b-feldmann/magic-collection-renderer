@@ -1,11 +1,15 @@
-.ant-modal-wrap, .ant-modal-mask {
+// Scope the narrowed width/offset to the card-view modal only. Written as a
+// bare `.ant-modal-wrap, .ant-modal-mask` rule it leaked onto every antd modal
+// (e.g. the Change Log modal), shrinking their mask/wrap to this centre band so
+// the left sidebar and right editor were never covered.
+.ant-modal-wrap.card-view, .ant-modal-mask.card-view {
   width: calc(100vw / 24 * 21 / 24 * 18 + 4px);
   margin-left: calc(100vw / 24 * 3 - 4px);
   overflow: visible;
 }
 
 @media only screen and (max-width: 900px) {
-  .ant-modal-wrap, .ant-modal-mask {
+  .ant-modal-wrap.card-view, .ant-modal-mask.card-view {
     width: 100vw;
     margin-left: 0;
   }

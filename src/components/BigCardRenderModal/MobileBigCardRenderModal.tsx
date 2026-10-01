@@ -53,6 +53,7 @@ const MobileBigCardRenderModal = ({
     <Modal
       className={styles.mobileWrapper}
       wrapClassName="card-view"
+      classNames={{ mask: 'card-view' }}
       open={visible}
       onOk={hide}
       onCancel={hide}
