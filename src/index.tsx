@@ -48,6 +48,14 @@ root.render(
           Button: {
             borderRadius: 8,
           },
+          Tabs: {
+            // Muse pill tabs: no ink bar, the active pill carries the state.
+            inkBarColor: 'transparent',
+            horizontalItemPadding: '8px 16px',
+            itemColor: '#595959',
+            itemHoverColor: '#141414',
+            itemSelectedColor: '#ffffff',
+          },
         },
       }}
     >

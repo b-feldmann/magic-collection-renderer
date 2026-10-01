@@ -6,3 +6,37 @@
 .ant-tabs-content {
   height: 100% !important;
 }
+
+// Muse-style pill tabs: rounded chips on the gray layout, the active one
+// carries the dark gradient. antd's runtime styles load after this file, so
+//! important is required to win ties against same-specificity antd rules.
+.ant-tabs > .ant-tabs-nav::before {
+  border-bottom: none !important;
+}
+
+.ant-tabs > .ant-tabs-nav .ant-tabs-tab {
+  padding: 8px 16px !important;
+  margin: 8px 16px 0 0 !important;
+  background: #fff !important;
+  border-radius: 999px !important;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06) !important;
+  transition: background 0.3s, box-shadow 0.3s;
+}
+
+.ant-tabs > .ant-tabs-nav .ant-tabs-tab:not(.ant-tabs-tab-active):hover {
+  background: #ececec !important;
+}
+
+.ant-tabs > .ant-tabs-nav .ant-tabs-tab.ant-tabs-tab-active {
+  background: #14532d !important;
+  box-shadow: 0 8px 16px rgba(20, 83, 45, 0.25) !important;
+
+  .ant-badge {
+    color: #fff !important;
+  }
+}
+
+// Room between the pill row and the collection grid below.
+.ant-tabs > .ant-tabs-nav {
+  margin-bottom: 32px !important;
+}
