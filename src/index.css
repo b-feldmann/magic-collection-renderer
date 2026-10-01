@@ -1,3 +1,32 @@
 @layer theme, base, antd, components, utilities;
 
 @import 'tailwindcss';
+
+@layer base {
+  body {
+    background: #f0f2f5;
+    font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+      Roboto, sans-serif;
+    color: #141414;
+  }
+}
+
+@layer components {
+  /* Signature Muse card: white surface, rounded corners, soft drop-shadow. */
+  .muse-card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 20px 27px rgba(0, 0, 0, 0.05);
+  }
+
+  /* Muse-style dark gradient primary button. */
+  .ant-btn-primary:not(:disabled) {
+    background: linear-gradient(310deg, #141414, #3a3a3a);
+    border-color: transparent;
+  }
+
+  .ant-btn-primary:not(:disabled):hover {
+    background: linear-gradient(310deg, #000000, #2a2a2a);
+    border-color: transparent;
+  }
+}

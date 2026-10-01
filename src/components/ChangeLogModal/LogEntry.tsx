@@ -27,30 +27,54 @@ const LogEntry = (entry: ChangeLogEntryInterface) => {
         return '';
     };
 
+    const featureTypes = [
+        ChangeLogFeatureType.Added,
+        ChangeLogFeatureType.Fixed,
+        ChangeLogFeatureType.Changed,
+        ChangeLogFeatureType.Removed,
+        ChangeLogFeatureType.Deprecated,
+        ChangeLogFeatureType.Security,
+        ChangeLogFeatureType.None,
+    ];
+
     return (
         <Row className={styles.entry}>
             <div className={styles.title}>{`${entry.version} — ${entry.title}`}</div>
 
-            <Listy<LogContentItem>
-                rowKey="key"
-                items={entry.content.map((item, index) => ({...item, key: index}))}
-                classNames={{item: styles.item}}
-                itemRender={(item) => (
-                    <>
-                        <Row>
-                            {item.type !== ChangeLogFeatureType.None && (
-                                <Text code className={typeColor(item.type)}>
-                                    {item.type}
-                                </Text>
-                            )}
-                            <Text strong className={styles.featureName}>
-                                {item.feature}
+            {featureTypes.map(featureType => {
+                    if (entry.content.filter(item => item.type === featureType).length === 0) {
+                        return null;
+                    }
+
+                    return (
+                        <div>
+                            <span>
+                            <Text code className={typeColor(featureType)}>
+                                {featureType}
                             </Text>
-                        </Row>
-                        <Text className={styles.description}>{item.description}</Text>
-                    </>
-                )}
-            />
+                        </span>
+                            <Listy<LogContentItem>
+                                rowKey="key"
+                                items={entry.content.filter(item => item.type === featureType).map((item, index) => ({
+                                    ...item,
+                                    key: index
+                                }))}
+                                classNames={{item: styles.item}}
+                                itemRender={(item) => (
+                                    <>
+                                        <Row>
+                                            <Text strong className={styles.featureName}>
+                                                {item.feature}
+                                            </Text>
+                                        </Row>
+                                        <Text className={styles.description}>{item.description}</Text>
+                                    </>
+                                )}
+                            />
+                        </div>
+                    )
+                }
+            )}
         </Row>
     );
 };

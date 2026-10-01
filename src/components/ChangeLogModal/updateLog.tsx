@@ -38,19 +38,16 @@ updateLog.push({
       type: ChangeLogFeatureType.Added,
       feature: 'Mechanics',
       description:
-        'You can now add mechanics. At the bottom left is a button that opens the mechanic edit dialog. Mechanics are predefined effects that you only have to write once, but can use them on many cards. A Mechanic has a name and a description. You can render it on a card by putting the name in square brackets.',
-    },
-    {
-      type: ChangeLogFeatureType.None,
-      feature: '',
-      description: (
-        <div>
-          <Text>Examples:</Text>
-          {exampleMechanics.map((m) => (
-            <Text code>{m}</Text>
-          ))}
-        </div>
-      ),
+          (
+              <div>
+                <p>'You can now add mechanics. At the bottom left is a button that opens the mechanic edit dialog. Mechanics are predefined effects that you only have to write once, but can use them on many cards. A Mechanic has a name and a description. You can render it on a card by putting the name in square brackets.'</p>
+                <Text>Examples:</Text>
+                {exampleMechanics.map((m) => (
+                    <Text code>{m}</Text>
+                ))}
+              </div>
+          )
+        ,
     },
   ],
 });
@@ -313,6 +310,28 @@ updateLog.push({
       description: 'User is now stored in localstorage. Added a new switch user button',
     },
   ],
+});
+
+updateLog.push({
+  version: '2.0.1',
+  title: 'Usability Update',
+  content: [
+    {
+      type: ChangeLogFeatureType.Fixed,
+      feature: 'Better Changelog',
+      description: 'Changelog is looks better and is easier to dismiss'
+    },
+    {
+      type: ChangeLogFeatureType.Changed,
+      feature: 'Card Saving',
+      description: 'Cards are automatically saved while editing'
+    },
+    {
+      type: ChangeLogFeatureType.Changed,
+      feature: 'New Theme',
+      description: 'Updated the theme to be more modern'
+    }
+  ]
 });
 
 // updateLog.push({

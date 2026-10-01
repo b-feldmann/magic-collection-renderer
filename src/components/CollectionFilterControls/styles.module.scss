@@ -1,6 +1,8 @@
 .controls {
     top: 72px;
-    background: whitesmoke;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 20px 27px rgba(0, 0, 0, 0.05);
     position: fixed;
     width: calc(100 / 24 * 18 / 24 * 4vw);
     bottom: 168px;

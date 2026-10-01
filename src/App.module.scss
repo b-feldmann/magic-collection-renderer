@@ -1,3 +1,6 @@
+$muse-card-shadow: 0 20px 27px rgba(0, 0, 0, 0.05);
+$muse-card-radius: 12px;
+
 .app {
   display: flex;
   flex-direction: column;
@@ -8,13 +11,15 @@
   }
 
   .editor {
-    right: 0;
-    top: 0;
-    bottom: 0;
+    right: 8px;
+    top: 8px;
+    bottom: 8px;
     overflow: auto;
     position: fixed;
-    width: calc(100vw / 24 * 21 / 24 * 6);
-    background: whitesmoke;
+    width: calc(100vw / 24 * 21 / 24 * 6 - 16px);
+    background: #fff;
+    border-radius: $muse-card-radius;
+    box-shadow: $muse-card-shadow;
   }
 
   .collectionWrapper {
@@ -42,9 +47,11 @@
   }
 
   .mobileControls {
-     background: whitesmoke;
+     background: #fff;
      width: 100vw;
      padding: 0 8px 8px;
+     border-radius: $muse-card-radius;
+     box-shadow: $muse-card-shadow;
 
      @media only screen and (min-width: 600px) {
        justify-content: center;
@@ -85,10 +92,12 @@
   }
 
   .sortControls {
-    background: whitesmoke;
+    background: #fff;
     position: fixed;
     padding: 16px;
     width: calc(100 / 24 * 18 / 24 * 4vw - 32px + 32px);
+    border-radius: $muse-card-radius;
+    box-shadow: $muse-card-shadow;
   }
 
   .sortSelect {

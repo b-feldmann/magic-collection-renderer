@@ -25,7 +25,32 @@ const root = createRoot(container!);
 
 root.render(
   <React.StrictMode>
-    <ConfigProvider theme={{ token: { colorPrimary: '#391085' } }}>
+    <ConfigProvider
+      theme={{
+        token: {
+          colorPrimary: '#141414',
+          fontFamily:
+            "'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+          borderRadius: 12,
+          borderRadiusLG: 12,
+          colorBgLayout: '#f0f2f5',
+          colorText: '#141414',
+          colorTextSecondary: '#8c8c8c',
+          colorBorderSecondary: '#f0f0f0',
+          boxShadow: '0 8px 16px rgba(0, 0, 0, 0.06)',
+          boxShadowSecondary: '0 12px 24px rgba(0, 0, 0, 0.08)',
+        },
+        components: {
+          Card: {
+            borderRadiusLG: 12,
+            boxShadowTertiary: '0 20px 27px rgba(0, 0, 0, 0.05)',
+          },
+          Button: {
+            borderRadius: 8,
+          },
+        },
+      }}
+    >
       <AntdApp component={false}>
         <StaticAntdBridge />
         <CustomSetStoreProvider>
