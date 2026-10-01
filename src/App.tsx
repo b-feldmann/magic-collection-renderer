@@ -308,97 +308,101 @@ const App: React.FC = () => {
         }`}
       >
         <Col span={3}>
-          <div className={styles.sortControls}>
-            <h3>Sort Collection By</h3>
-            <div className={styles.sortRow}>
-              <Select
-                className={styles.sortSelect}
-                size="small"
-                // @ts-ignore
-                value={sortBy || SortByType.Color}
-                // @ts-ignore
-                onChange={(newSortByValue: SortByType) => setSortBy(newSortByValue)}
-                aria-label="Primary sort"
-                options={(Object.keys(SortByType) as (keyof typeof SortByType)[]).map((d) => ({
-                  key: `collection-sort-primary-${d}`,
-                  value: SortByType[d],
-                  label: SortByType[d],
-                }))}
-              />
-              <Select
-                className={styles.sortSelect}
-                size="small"
-                // @ts-ignore
-                value={secondarySortBy || SortByType.Name}
-                // @ts-ignore
-                onChange={(newSortByValue: SortByType) => setSecondarySortBy(newSortByValue)}
-                aria-label="Secondary sort"
-                options={(Object.keys(SortByType) as (keyof typeof SortByType)[]).map((d) => ({
-                  key: `collection-sort-secondary-${d}`,
-                  value: SortByType[d],
-                  label: SortByType[d],
-                }))}
+          <div className={styles.sidebar}>
+            <div className={styles.sortControls}>
+              <h3>Sort Collection By</h3>
+              <div className={styles.sortRow}>
+                <Select
+                  className={styles.sortSelect}
+                  size="small"
+                  // @ts-ignore
+                  value={sortBy || SortByType.Color}
+                  // @ts-ignore
+                  onChange={(newSortByValue: SortByType) => setSortBy(newSortByValue)}
+                  aria-label="Primary sort"
+                  options={(Object.keys(SortByType) as (keyof typeof SortByType)[]).map((d) => ({
+                    key: `collection-sort-primary-${d}`,
+                    value: SortByType[d],
+                    label: SortByType[d],
+                  }))}
+                />
+                <Select
+                  className={styles.sortSelect}
+                  size="small"
+                  // @ts-ignore
+                  value={secondarySortBy || SortByType.Name}
+                  // @ts-ignore
+                  onChange={(newSortByValue: SortByType) => setSecondarySortBy(newSortByValue)}
+                  aria-label="Secondary sort"
+                  options={(Object.keys(SortByType) as (keyof typeof SortByType)[]).map((d) => ({
+                    key: `collection-sort-secondary-${d}`,
+                    value: SortByType[d],
+                    label: SortByType[d],
+                  }))}
+                />
+              </div>
+            </div>
+            <div className={styles.sidebarScroll}>
+              <CollectionFilterControls
+                collection={cards}
+                setCollectionColSpan={setColSpanSetting}
+                setCollectionFilter={setCollectionFilter}
+                setNameFilter={setCardNameFilter}
               />
             </div>
+            <div className={styles.desktopControls}>
+              <Button
+                icon={<AntIcon type="edit" />}
+                onClick={() => setMechanicsVisible(true)}
+                style={{ width: '100%' }}
+                type="primary"
+              >
+                Edit Mechanics
+              </Button>
+              <Button
+                icon={<AntIcon type="plus" />}
+                type="primary"
+                onClick={() => createCard(dispatch, currentUser)}
+                className={styles.fullWidth}
+              >
+                Add Card
+              </Button>
+              <Button
+                icon={<AntIcon type="download" />}
+                type="primary"
+                onClick={() => downloadCollectionAsJson(filteredCollection)}
+                className={styles.halfWidth}
+              >
+                JSON
+              </Button>
+              <Button
+                icon={<AntIcon type="reload" />}
+                type="primary"
+                onClick={refresh}
+                className={styles.halfWidth}
+              >
+                Reload
+              </Button>
+              <Button
+                icon={<AntIcon type="swap" />}
+                onClick={() =>
+                  confirm({
+                    title: 'Switch user?',
+                    okText: 'Yes, switch user',
+                    cancelText: 'Cancel',
+                    onOk() {
+                      setCurrentUser(dispatch, UNKNOWN_CREATOR);
+                    },
+                  })
+                }
+                className={styles.fullWidth}
+              >
+                Switch User
+              </Button>
+            </div>
           </div>
-          <CollectionFilterControls
-            collection={cards}
-            setCollectionColSpan={setColSpanSetting}
-            setCollectionFilter={setCollectionFilter}
-            setNameFilter={setCardNameFilter}
-          />
         </Col>
         <Col span={21}>{createGrid(filteredCollection)}</Col>
-        <div className={styles.desktopControls}>
-          <Button
-            icon={<AntIcon type="edit" />}
-            onClick={() => setMechanicsVisible(true)}
-            style={{ width: '100%', marginTop: '8px' }}
-            type="primary"
-          >
-            Edit Mechanics
-          </Button>
-          <Button
-            icon={<AntIcon type="plus" />}
-            type="primary"
-            onClick={() => createCard(dispatch, currentUser)}
-            className={styles.fullWidth}
-          >
-            Add Card
-          </Button>
-          <Button
-            icon={<AntIcon type="download" />}
-            type="primary"
-            onClick={() => downloadCollectionAsJson(filteredCollection)}
-            className={styles.halfWidth}
-          >
-            JSON
-          </Button>
-          <Button
-            icon={<AntIcon type="reload" />}
-            type="primary"
-            onClick={refresh}
-            className={styles.halfWidth}
-          >
-            Reload
-          </Button>
-          <Button
-            icon={<AntIcon type="swap" />}
-            onClick={() =>
-              confirm({
-                title: 'Switch user?',
-                okText: 'Yes, switch user',
-                cancelText: 'Cancel',
-                onOk() {
-                  setCurrentUser(dispatch, UNKNOWN_CREATOR);
-                },
-              })
-            }
-            className={styles.fullWidth}
-          >
-            Switch User
-          </Button>
-        </div>
       </Row>
       <BigCardRenderModal
         card={getCard(filteredCollection, cardViewId)}

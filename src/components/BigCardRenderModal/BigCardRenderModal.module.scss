@@ -15,8 +15,10 @@
 
 .cardComment {
   margin-bottom: 4px;
-  background: rgba(0,0,0,0.8);
-  color: white
+  background: #fff;
+  color: #141414;
+  border-radius: 12px;
+  box-shadow: 0 20px 27px rgba(0, 0, 0, 0.05);
 }
 
 .stateButton {
@@ -29,10 +31,12 @@
   // Let the rotated card (RotateToMouse) extend past the modal body without
   // being clipped or generating scrollbars.
   overflow: visible !important;
+  gap: 16px;
 }
 
 .annotationView {
-  background: rgba(0,0,0,0.2);
+  background: #f0f2f5;
+  border-radius: 12px;
 }
 
 .modalCardViewWrapper {

@@ -22,6 +22,40 @@ $muse-card-radius: 12px;
     box-shadow: $muse-card-shadow;
   }
 
+  // Unified left sidebar: one Muse card holding the sort, filter and action
+  // sections as a flex column (each section is transparent on its own).
+  .sidebar {
+    position: fixed;
+    top: 8px;
+    left: 8px;
+    bottom: 8px;
+    width: calc(100vw / 24 * 3 - 16px);
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+    background: #fff;
+    border-radius: $muse-card-radius;
+    box-shadow: $muse-card-shadow;
+  }
+
+  // Scrollable middle region for the (potentially long) filter list.
+  .sidebarScroll {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    margin: 12px -8px;
+  }
+
+  // While the card-view modal is open its full-viewport mask darkens the page
+  // background, but the floating Muse cards (sidebar + editor) stay bright and
+  // usable above it. Scoped to the card-view modal (antd mask z-index is
+  // `zIndexPopupBase` = 1000) so every other antd modal still covers them.
+  body:has(:global(.ant-modal-mask.card-view)) & .sidebar,
+  body:has(:global(.ant-modal-mask.card-view)) & .editor {
+    z-index: 1001;
+  }
+
   .collectionWrapper {
     height: 100%;
     flex-grow: 1;
@@ -70,11 +104,11 @@ $muse-card-radius: 12px;
     }
   }
 
+  // Action buttons now live at the bottom of the unified sidebar card.
   .desktopControls {
-    position: fixed;
-    bottom: 8px;
-    left: 8px;
-    width: calc(100 / 24 * 18 / 24 * 4vw - 16px);
+    flex: none;
+    padding-top: 12px;
+    border-top: 1px solid #f0f0f0;
   }
 
   .fullWidth {
@@ -92,12 +126,7 @@ $muse-card-radius: 12px;
   }
 
   .sortControls {
-    background: #fff;
-    position: fixed;
-    padding: 16px;
-    width: calc(100 / 24 * 18 / 24 * 4vw - 32px + 32px);
-    border-radius: $muse-card-radius;
-    box-shadow: $muse-card-shadow;
+    flex: none;
   }
 
   .sortSelect {
@@ -108,6 +137,12 @@ $muse-card-radius: 12px;
   .sortRow {
     display: flex;
     gap: 8px;
+
+    // On smaller screens the narrow sidebar can't fit both selects side by
+    // side, so stack them vertically instead.
+    @media only screen and (max-width: 1750px) {
+      flex-direction: column;
+    }
   }
 }
 

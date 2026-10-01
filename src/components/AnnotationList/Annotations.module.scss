@@ -6,6 +6,8 @@
 
 .flexWrapper {
   background: white;
+  border-radius: 12px;
+  box-shadow: 0 20px 27px rgba(0, 0, 0, 0.05);
   overflow: auto;
   flex-basis: 0;
   flex-grow: 1;
@@ -16,26 +18,38 @@
   padding: 12px;
 }
 
-// Replaces the antd List `header`, which `Listy` does not provide.
+// Replaces the antd List `header`, which `Listy` does not provide. The comment
+// count sits on the left, optional actions on the right edge.
 .listHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
   padding-bottom: 12px;
   border-bottom: 1px solid rgba(5, 5, 5, 0.06);
   font-weight: 500;
+  color: #141414;
 }
 
 .entry {
   //margin-left: -12px;
 
   span {
-    color: rgb(255 * 0.4, 255 * 0.4, 255 * 0.4);
+    color: rgb(102, 102, 102);
   }
 }
 
 .editor {
   background: white;
+  border-radius: 12px;
   padding: 12px;
-  margin-bottom: -16px;
   margin-top: -16px;
+
+  // Match the editor/sidebar field fill so the comment textarea stands out
+  // against the white card instead of blending in.
+  :global(.ant-input) {
+    background-color: #f5f6fa;
+  }
 }
 
 .fullWidth {

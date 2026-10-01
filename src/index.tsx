@@ -28,7 +28,7 @@ root.render(
     <ConfigProvider
       theme={{
         token: {
-          colorPrimary: '#141414',
+          colorPrimary: '#14532d',
           fontFamily:
             "'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
           borderRadius: 12,
