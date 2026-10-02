@@ -419,12 +419,12 @@ const CardEditor: React.FC<CardEditorInterface> = ({
                 <div className={styles.fullField}>
                     <Space.Compact className={styles.smallButtonGroup} size="small">
                         {card.back && editBack && (
-                            <Button ghost onClick={() => setEditBack(false)}>
+                            <Button onClick={() => setEditBack(false)}>
                                 <span>Edit Front Face</span>
                             </Button>
                         )}
                         {card.back && !editBack && (
-                            <Button ghost onClick={() => setEditBack(true)}>
+                            <Button onClick={() => setEditBack(true)}>
                                 <span>Edit Back Face</span>
                             </Button>
                         )}

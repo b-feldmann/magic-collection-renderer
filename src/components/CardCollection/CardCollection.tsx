@@ -50,8 +50,10 @@ const CardCollection = ({
         const width = measuredWidth ?? 0;
         if (!height || !width) return null;
 
-        let columns = 6;
+        let columns = 8;
         if (colSpanSetting === -1) {
+          if (width < 2300) columns = 7;
+          if (width < 2000) columns = 6;
           if (width < 1700) columns = 5;
           if (width < 1500) columns = 4;
           if (width < 1100) columns = 3;
@@ -71,9 +73,14 @@ const CardCollection = ({
         // cards is never rendered underneath it. Only reserve the space when
         // the content actually overflows vertically (i.e. a scrollbar shows).
         const SCROLLBAR_WIDTH = 17;
+        // Leave a gutter on the right edge of the (desktop) collection so the
+        // grid doesn't butt up against the fixed editor panel. Narrowing the
+        // columns leaves the gap empty on the right without clipping cards.
+        const RIGHT_GUTTER = mobile ? 0 : 24;
         const unreservedColumnHeight: number = (width / columns / 720.0) * 1020.0;
         const hasVerticalScrollbar: boolean = rows * unreservedColumnHeight > height;
-        const availableWidth: number = hasVerticalScrollbar ? width - SCROLLBAR_WIDTH : width;
+        const availableWidth: number =
+          (hasVerticalScrollbar ? width - SCROLLBAR_WIDTH : width) - RIGHT_GUTTER;
 
         const columnWidth: number = availableWidth / columns;
         const columnHeight: number = (columnWidth / 720.0) * 1020.0;

@@ -11,6 +11,28 @@ const MIDDLEWARE_ENDPOINT = import.meta.env.PROD ? '/user' : 'http://localhost:8
 
 const CURRENT_USER_STORAGE_KEY = 'mtg-funset:currentUser';
 
+/** Whether a current user was persisted in a previous session. */
+export const hasStoredUser = (): boolean => localStorage.getItem(CURRENT_USER_STORAGE_KEY) !== null;
+
+/**
+ * Decide whether the "Choose Current User" chooser should be visible.
+ *
+ * On reload `currentUser` starts as `UNKNOWN_CREATOR` and the persisted user is
+ * only restored after the async `/user` fetch resolves. Showing the chooser in
+ * that window causes a brief flash even though a user is already stored, so we
+ * keep it hidden until the user list has loaded (`users.length > 0`) when a user
+ * was stored on mount.
+ */
+export const shouldShowUserSelect = (
+  currentUser: UserInterface,
+  users: UserInterface[],
+  hadStoredUserOnMount: boolean,
+): boolean => {
+  if (currentUser.uuid !== UNKNOWN_CREATOR.uuid) return false;
+  if (users.length === 0 && hadStoredUserOnMount) return false;
+  return true;
+};
+
 export const setCurrentUser = (dispatch: (value: Action) => void, user: UserInterface) => {
   if (user.uuid === UNKNOWN_CREATOR.uuid) {
     localStorage.removeItem(CURRENT_USER_STORAGE_KEY);

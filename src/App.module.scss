@@ -1,6 +1,14 @@
 $muse-card-shadow: 0 20px 27px rgba(0, 0, 0, 0.05);
 $muse-card-radius: 12px;
 
+// Clamped widths for the floating "Muse card" panels. The middle `calc()` is
+// the fluid viewport-proportional width; the min/max keep the panels usable on
+// small screens and stop them growing unbounded on ultrawide displays. The
+// collection area is offset to match these exact widths (see .sidebarCol /
+// .collection below) so there's never a gap or overlap at any viewport width.
+$sidebar-width: clamp(180px, calc(100vw / 24 * 3 - 16px), 220px);
+$editor-width: clamp(280px, calc(100vw / 24 * 21 / 24 * 6 - 16px), 380px);
+
 .app {
   display: flex;
   flex-direction: column;
@@ -16,7 +24,7 @@ $muse-card-radius: 12px;
     bottom: 8px;
     overflow: auto;
     position: fixed;
-    width: calc(100vw / 24 * 21 / 24 * 6 - 16px);
+    width: $editor-width;
     background: #fff;
     border-radius: $muse-card-radius;
     box-shadow: $muse-card-shadow;
@@ -29,7 +37,7 @@ $muse-card-radius: 12px;
     top: 8px;
     left: 8px;
     bottom: 8px;
-    width: calc(100vw / 24 * 3 - 16px);
+    width: $sidebar-width;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
@@ -62,8 +70,31 @@ $muse-card-radius: 12px;
     flex-basis: 0;
   }
 
+  // The outer sidebar column no longer relies on antd's `span` percentage.
+  // Reserve exactly the clamped sidebar width plus its 8px gaps on each side so
+  // the collection starts right after the floating sidebar at any viewport.
+  .sidebarCol {
+    flex: 0 0 auto;
+    max-width: none;
+    width: calc(#{$sidebar-width} + 16px);
+  }
+
+  // The content column fills the remaining horizontal space next to the sidebar.
+  .contentCol {
+    flex: 1 1 0;
+    min-width: 0;
+    max-width: none;
+    width: auto;
+  }
+
   .collection {
     height: 100%;
+    // Fill the content column, then reserve the clamped editor width (plus 8px
+    // gaps) on the right so the grid stops just before the floating editor.
+    flex: 1 1 0;
+    min-width: 0;
+    max-width: none;
+    margin-right: calc(#{$editor-width} + 16px);
   }
 
   .tabs {

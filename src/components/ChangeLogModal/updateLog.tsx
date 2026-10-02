@@ -329,7 +329,7 @@ updateLog.push({
     {
       type: ChangeLogFeatureType.Changed,
       feature: 'New Theme',
-      description: 'Updated the theme to be more modern'
+      description: 'Implemented modern theme'
     }
   ]
 });

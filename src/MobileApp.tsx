@@ -23,7 +23,13 @@ import { getMechanics } from './actions/mechanicActions';
 import ChangeLogModal from './components/ChangeLogModal/ChangeLogModal';
 import BigCardRenderModal from './components/BigCardRenderModal/BigCardRenderModal';
 import { getAnnotations } from './actions/annotationActions';
-import { addSeenCard, getUser, setCurrentUser } from './actions/userActions';
+import {
+  addSeenCard,
+  getUser,
+  hasStoredUser,
+  setCurrentUser,
+  shouldShowUserSelect,
+} from './actions/userActions';
 import { UNKNOWN_CREATOR } from './utils/constants';
 
 const { Search } = Input;
@@ -44,6 +50,11 @@ const MobileApp: React.FC = () => {
 
   const { cards, newUuid, dispatch, annotationAccessor, user, currentUser } =
     useContext<StoreType>(Store);
+
+  // Captured once at mount: avoids flashing the user chooser while the stored
+  // user is restored by the async `/user` fetch.
+  const [hadStoredUserOnMount] = useState(hasStoredUser);
+  const showUserSelect = shouldShowUserSelect(currentUser, user, hadStoredUserOnMount);
 
   const seenCardObject = useMemo(() => {
     const seen: { [key: string]: boolean } = {};
@@ -231,11 +242,7 @@ const MobileApp: React.FC = () => {
   return (
     <div>
       <ChangeLogModal />
-      <div
-        className={`${styles.loginWrapper} ${
-          currentUser.uuid !== UNKNOWN_CREATOR.uuid ? styles.authenticated : ''
-        }`}
-      >
+      <div className={`${styles.loginWrapper} ${showUserSelect ? '' : styles.authenticated}`}>
         <Card title="Choose Current User" style={{ width: '300px' }}>
           <Select
             size="large"

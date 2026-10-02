@@ -31,7 +31,13 @@ import useLocalStorage from './utils/useLocalStorageHook';
 import ChangeLogModal from './components/ChangeLogModal/ChangeLogModal';
 import BigCardRenderModal from './components/BigCardRenderModal/BigCardRenderModal';
 import { getAnnotations } from './actions/annotationActions';
-import { addSeenCard, getUser, setCurrentUser } from './actions/userActions';
+import {
+  addSeenCard,
+  getUser,
+  hasStoredUser,
+  setCurrentUser,
+  shouldShowUserSelect,
+} from './actions/userActions';
 import { UNKNOWN_CREATOR } from './utils/constants';
 
 const { Search } = Input;
@@ -69,6 +75,11 @@ const App: React.FC = () => {
 
   const { cards, newUuid, dispatch, annotationAccessor, user, currentUser } =
     useContext<StoreType>(Store);
+
+  // Captured once at mount: avoids flashing the user chooser while the stored
+  // user is restored by the async `/user` fetch.
+  const [hadStoredUserOnMount] = useState(hasStoredUser);
+  const showUserSelect = shouldShowUserSelect(currentUser, user, hadStoredUserOnMount);
 
   const seenCardObject = useMemo(() => {
     const seen: { [key: string]: boolean } = {};
@@ -284,11 +295,7 @@ const App: React.FC = () => {
   return (
     <div>
       <ChangeLogModal />
-      <div
-        className={`${styles.loginWrapper} ${
-          currentUser.uuid !== UNKNOWN_CREATOR.uuid ? styles.authenticated : ''
-        }`}
-      >
+      <div className={`${styles.loginWrapper} ${showUserSelect ? '' : styles.authenticated}`}>
         <Card title="Choose Current User" style={{ width: '300px' }}>
           <Select
             size="large"
@@ -307,7 +314,7 @@ const App: React.FC = () => {
           currentUser.uuid === UNKNOWN_CREATOR.uuid ? styles.unauthenticated : styles.authenticated
         }`}
       >
-        <Col span={3}>
+        <Col span={3} className={styles.sidebarCol}>
           <div className={styles.sidebar}>
             <div className={styles.sortControls}>
               <h3>Sort Collection By</h3>
@@ -402,7 +409,9 @@ const App: React.FC = () => {
             </div>
           </div>
         </Col>
-        <Col span={21}>{createGrid(filteredCollection)}</Col>
+        <Col span={21} className={styles.contentCol}>
+          {createGrid(filteredCollection)}
+        </Col>
       </Row>
       <BigCardRenderModal
         card={getCard(filteredCollection, cardViewId)}

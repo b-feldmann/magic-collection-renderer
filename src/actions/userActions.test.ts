@@ -12,7 +12,7 @@ import axios from 'axios';
 import { Action, UserActionType } from '../reducer';
 import UserInterface from '../interfaces/UserInterface';
 import { UNKNOWN_CREATOR } from '../utils/constants';
-import { getUser, setCurrentUser } from './userActions';
+import { getUser, hasStoredUser, setCurrentUser, shouldShowUserSelect } from './userActions';
 
 const STORAGE_KEY = 'mtg-funset:currentUser';
 
@@ -56,6 +56,43 @@ describe('setCurrentUser', () => {
       type: UserActionType.SetCurrentUser,
       payload: { user },
     });
+  });
+});
+
+describe('hasStoredUser', () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
+  it('is false when nothing is stored', () => {
+    expect(hasStoredUser()).toBe(false);
+  });
+
+  it('is true when a uuid is stored', () => {
+    localStorage.setItem(STORAGE_KEY, 'uuid-1');
+    expect(hasStoredUser()).toBe(true);
+  });
+});
+
+describe('shouldShowUserSelect', () => {
+  const alice = mockUser('uuid-1', 'Alice');
+
+  it('hides the chooser while the stored user is still being restored', () => {
+    // Users not fetched yet, but a user was persisted last session.
+    expect(shouldShowUserSelect(UNKNOWN_CREATOR, [], true)).toBe(false);
+  });
+
+  it('shows the chooser on a fresh visit with no stored user', () => {
+    expect(shouldShowUserSelect(UNKNOWN_CREATOR, [], false)).toBe(true);
+  });
+
+  it('shows the chooser once users loaded but the stored user could not be restored', () => {
+    expect(shouldShowUserSelect(UNKNOWN_CREATOR, [alice], true)).toBe(true);
+  });
+
+  it('never shows the chooser when a real user is selected', () => {
+    expect(shouldShowUserSelect(alice, [], true)).toBe(false);
+    expect(shouldShowUserSelect(alice, [alice], false)).toBe(false);
   });
 });
 
