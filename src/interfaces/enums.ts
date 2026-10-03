@@ -49,18 +49,6 @@ export enum ColorType {
   Gold = 'gold',
 }
 
-export enum ColorTypePlus {
-  White = 'white',
-  Blue = 'blue',
-  Black = 'black',
-  Red = 'red',
-  Green = 'green',
-  Colorless = 'colorless',
-  Gold = 'gold',
-  Land = 'land',
-  Planeswalker = 'planeswalker',
-}
-
 export enum SortByType {
   Color = 'Color',
   LastUpdated = 'Last Updated',

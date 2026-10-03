@@ -41,7 +41,6 @@ export const createAnnotation = (
   axios
     .post(MIDDLEWARE_ENDPOINT, args)
     .then((result) => {
-      staticAntd.message.success('Successfully created comment!');
       return dispatch({
         type: AnnotationActionType.CreateAnnotation,
         payload: {
@@ -64,7 +63,6 @@ export const updateAnnotation = (
   axios
     .put(MIDDLEWARE_ENDPOINT, { mechanic: updated, accessKey: getAccessToken() })
     .then((result) => {
-      staticAntd.message.success('Successfully updated comment');
       return dispatch({
         type: AnnotationActionType.UpdateAnnotation,
         payload: {

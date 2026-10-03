@@ -37,7 +37,6 @@ export const createMechanic = (dispatch: (value: Action) => void) => {
   axios
     .post(request, args)
     .then((result) => {
-      staticAntd.message.success('Successfully Created Mechanic!');
       return dispatch({
         type: MechanicActionType.CreateMechanic,
         payload: {
@@ -58,7 +57,6 @@ export const updateMechanic = (dispatch: (value: Action) => void, updated: Mecha
   axios
     .put(request, { mechanic: updated, accessKey: getAccessToken() })
     .then((result) => {
-      staticAntd.message.success('Successfully Updated Mechanic');
       return dispatch({
         type: MechanicActionType.UpdateMechanic,
         payload: {

@@ -1,5 +1,5 @@
 import CardInterface from '../interfaces/CardInterface';
-import { ColorTypePlus, RarityType, SortByType } from '../interfaces/enums';
+import { ColorType, RarityType, SortByType } from '../interfaces/enums';
 import cardToColor from './cardToColor';
 import { UNKNOWN_CREATOR } from './constants';
 
@@ -33,13 +33,13 @@ export const buildSortAccessors = (
   const accessors: Record<SortByType, SortAccessor[]> = {
     [SortByType.Color]: [
       (o) =>
-        Object.values(ColorTypePlus).indexOf(cardToColor(o.front.cardMainType, o.manaCost).color),
+        Object.values(ColorType).indexOf(cardToColor(o.front.cardMainType, o.manaCost).color),
       (o) => o.front.name.toLowerCase(),
     ],
     [SortByType.Creator]: [
       (o) => (o.creator.uuid === UNKNOWN_CREATOR.uuid ? 'zzzzz' : o.creator.name),
       (o) =>
-        Object.values(ColorTypePlus).indexOf(cardToColor(o.front.cardMainType, o.manaCost).color),
+        Object.values(ColorType).indexOf(cardToColor(o.front.cardMainType, o.manaCost).color),
       (o) => o.front.name.toLowerCase(),
     ],
     [SortByType.LastUpdated]: [(o) => -1 * getLastUpdated(o, annotationAccessor)],

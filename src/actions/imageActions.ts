@@ -40,8 +40,6 @@ export const createImage = (
   axios
     .post(MIDDLEWARE_ENDPOINT, args)
     .then((result) => {
-      staticAntd.message.success('Successfully Created Image!');
-
       dispatch({
         type: ImageActionType.ReadImage,
         payload: { base64, face, cardUuid: card.uuid },

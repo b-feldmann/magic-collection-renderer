@@ -87,7 +87,6 @@ export const createCard = (dispatch: (value: Action) => void, creator: UserInter
   axios
     .post(request, args)
     .then((result) => {
-      staticAntd.message.success('Successfully Created Card!');
       return dispatch({
         type: CardActionType.CreateCard,
         payload: {
@@ -137,7 +136,6 @@ export const updateCard = (
   return axios
     .put(request, { card: parsed, accessKey: getAccessToken() })
     .then((result) => {
-      staticAntd.message.success('Successfully Updated Card');
       if (
         result.data.card.front.cover &&
         (result.data.card.front.cover === 'loading' ||
@@ -175,7 +173,6 @@ export const deleteCard = (dispatch: (value: Action) => void, uuid: string): Pro
   return axios
     .delete(request, { params: { accessKey: getAccessToken() } })
     .then(() => {
-      staticAntd.message.success('Successfully Deleted Card');
       return dispatch({
         type: CardActionType.DeleteCard,
         payload: { uuid },

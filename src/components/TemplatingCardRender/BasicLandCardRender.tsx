@@ -2,23 +2,13 @@ import React from 'react';
 
 import 'mana-font/css/mana.css';
 // @ts-ignore
-import { Mana } from '../Mana/Mana';
+import {Mana} from '../Mana/Mana';
 
-import {
-  BasicLandArtStyles,
-  BasicLandType,
-  CardArtStyles,
-  RarityType,
-} from '../../interfaces/enums';
-import { getBasicLandColor } from '../../utils/cardToColor';
+import {BasicLandArtStyles, BasicLandType, RarityType,} from '../../interfaces/enums';
+import {getBasicLandColor} from '../../utils/cardToColor';
 
 import styles from './TemplatingCardRender.module.scss';
-import {
-  getBasicLandMainframe,
-  getBasicLandSymbols,
-  getFallbackCover,
-  getRarityIcon,
-} from './assetLoader';
+import {getBasicLandMainframe, getBasicLandSymbols, getFallbackCover, getRarityIcon,} from './assetLoader';
 import ImageLoader from '../ImageLoader/ImageLoader';
 import parseCollectionNumber from '../../utils/parseCollectionNumber';
 
