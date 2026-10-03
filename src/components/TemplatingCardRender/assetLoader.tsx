@@ -1,3 +1,4 @@
+import ArtefactMainframe from './images/mainframes/Art.png';
 import ColorlessMainframe from './images/mainframes/Art.png';
 import WhiteMainframe from './images/mainframes/W.png';
 import BlueMainframe from './images/mainframes/U.png';
@@ -6,7 +7,8 @@ import RedMainframe from './images/mainframes/R.png';
 import GreenMainframe from './images/mainframes/G.png';
 import GoldMainframe from './images/mainframes/Gld.png';
 
-import TokenColorlessMainframe from './images/mainframes/token/Art.png';
+import TokenArtefactMainframe from './images/mainframes/token/Art.png';
+import TokenColorlessMainframe from './images/mainframes/token/C.png';
 import TokenWhiteMainframe from './images/mainframes/token/W.png';
 import TokenBlueMainframe from './images/mainframes/token/U.png';
 import TokenBlackMainframe from './images/mainframes/token/B.png';
@@ -21,7 +23,8 @@ import InvocationRedMainframe from './images/mainframes/invocation/R.png';
 import InvocationGreenMainframe from './images/mainframes/invocation/G.png';
 import InvocationGoldMainframe from './images/mainframes/invocation/Gld.png';
 
-import InventionColorlessMainframe from './images/mainframes/invention/Art.png';
+import InventionArtefactMainframe from './images/mainframes/invention/Art.png';
+import InventionColorlessMainframe from './images/mainframes/invention/C.png';
 import InventionWhiteMainframe from './images/mainframes/invention/W.png';
 import InventionBlueMainframe from './images/mainframes/invention/U.png';
 import InventionBlackMainframe from './images/mainframes/invention/B.png';
@@ -36,6 +39,7 @@ import LowResRedMainframe from './images/mainframes/lowRes/R.png';
 import LowResGreenMainframe from './images/mainframes/lowRes/G.png';
 import LowResGoldMainframe from './images/mainframes/lowRes/Gld.png';
 import LowResColorlessMainframe from './images/mainframes/lowRes/Art.png';
+import LowResArtefactMainframe from './images/mainframes/lowRes/Art.png';
 
 import UnstableBasicLandWhiteMainframe from './images/mainframes/lands/unstable/W.png';
 import UnstableBasicLandBlueMainframe from './images/mainframes/lands/unstable/U.png';
@@ -102,8 +106,6 @@ import UncommonIcon from './images/rarity/uncommon.png';
 import CommonIcon from './images/rarity/common.png';
 
 import { BasicLandArtStyles, BasicLandType, ColorType, RarityType } from '../../interfaces/enums';
-
-import NoCover from './images/no-cover.jpg';
 
 import PlaneswalkerWhiteMainframe from './images/mainframes/planeswalker/W.png';
 import PlaneswalkerWhiteMainframe2 from './images/mainframes/planeswalker/W2.png';
@@ -301,6 +303,11 @@ export const getLowResColorMainframe = (color: ColorType) => {
 };
 
 export const getInnerBorderFrame = (colors: ColorType[]) => {
+  // Colorless cards have no colored pips, so there is no colored inner border
+  // to render. Returning an empty string avoids falling through to the gold
+  // multicolor fallback below.
+  if (colors.length === 0) return '';
+
   if (colors.length > 2) return GoldInnerBorder;
 
   if (colors.length === 1) {

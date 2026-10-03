@@ -334,6 +334,18 @@ updateLog.push({
   ]
 });
 
+updateLog.push({
+  version: '2.1.1',
+  title: 'Filter Update',
+  content: [
+    {
+      type: ChangeLogFeatureType.Added,
+      feature: 'Better Filters',
+      description: 'Redesign the filter sidebar.',
+    }
+  ]
+});
+
 // updateLog.push({
 //   version: '1.1.3',
 //   title: 'New Card Type Update',

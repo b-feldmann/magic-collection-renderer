@@ -233,7 +233,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
             }`}
             fallBackColor={artStyle !== CardArtStyles.Borderless ? hexColor : undefined}
           />
-          {!isToken && !isInvention ? <img className={styles.innerBorderFrame} src={innerBorderFrame} alt="" /> : null}
+          {!isToken && !isInvention && innerBorderFrame ? <img className={styles.innerBorderFrame} src={innerBorderFrame} alt="" /> : null}
           {overlay ? <img className={styles.overlay} src={overlay} alt="" /> : null}
 
           <ImageLoader src={getRarityIcon(rarity)} alt="" className={`${styles.rarity} ${isToken ? styles.tokenRarity : ''}`} />

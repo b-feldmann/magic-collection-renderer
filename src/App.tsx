@@ -90,6 +90,7 @@ const App: React.FC = () => {
     colors: {},
     rarity: {},
     types: {},
+    creators: {},
   });
 
   const [colSpanSetting, setColSpanSetting] = useState<number>(-1);
@@ -144,7 +145,8 @@ const App: React.FC = () => {
             cardToColor(o.front.cardMainType, o.manaCost, o.front.cardText).color
           ] &&
           collectionFilter.rarity[o.rarity] &&
-          collectionFilter.types[o.front.cardMainType],
+          collectionFilter.types[o.front.cardMainType] &&
+          collectionFilter.creators[o.creator.uuid] !== false,
       ),
     [mergedCollection, sortList, deferredNameFilter, collectionFilter],
   );

@@ -5,12 +5,14 @@ import {CardMainType, ColorType, mapEnum, RarityType} from '../../interfaces/enu
 import styles from './styles.module.scss';
 import CardInterface from '../../interfaces/CardInterface';
 import cardToColor from '../../utils/cardToColor';
+import { UNKNOWN_CREATOR } from '../../utils/constants';
 import Mana from "../Mana/Mana.tsx";
 
 export interface CollectionFilterInterface {
     colors: CheckBoxGroupInterface;
     rarity: CheckBoxGroupInterface;
     types: CheckBoxGroupInterface;
+    creators: CheckBoxGroupInterface;
 }
 
 interface CollectionFilterControlsInterface {
@@ -51,6 +53,7 @@ const CollectionFilterControls = ({
     const [shownRarities, setShownRarities] = useState<CheckBoxGroupInterface>(() =>
         createEnumInitState(Object.values(RarityType)),
     );
+    const [shownCreators, setShownCreators] = useState<CheckBoxGroupInterface>({});
 
     const colorTypeToSymbol = (colorTypeString: string) => {
         switch (colorTypeString) {
@@ -113,14 +116,44 @@ const CollectionFilterControls = ({
         return stats;
     }, [collection]);
 
+    // Creators are dynamic (unlike the fixed enums), so derive the available
+    // creators and their counts from the current-tab collection. Unknown
+    // creators sort last, mirroring the Creator sort accessor.
+    const creatorList = useMemo(() => {
+        const byUuid: { [uuid: string]: { uuid: string; name: string; count: number } } = {};
+        collection.forEach((card) => {
+            const { uuid, name } = card.creator;
+            if (!byUuid[uuid]) byUuid[uuid] = { uuid, name, count: 0 };
+            byUuid[uuid].count += 1;
+        });
+        return Object.values(byUuid).sort((a, b) => {
+            const aKey = a.uuid === UNKNOWN_CREATOR.uuid ? 'zzzzz' : a.name.toLowerCase();
+            const bKey = b.uuid === UNKNOWN_CREATOR.uuid ? 'zzzzz' : b.name.toLowerCase();
+            return aKey.localeCompare(bKey);
+        });
+    }, [collection]);
+
+    // Reconcile the creator checkbox state when the derived creator set changes
+    // (e.g. switching tabs). Newly-seen creators default to checked.
+    useEffect(() => {
+        setShownCreators((prev) => {
+            const next: CheckBoxGroupInterface = {};
+            creatorList.forEach(({ uuid }) => {
+                next[uuid] = uuid in prev ? prev[uuid] : true;
+            });
+            return next;
+        });
+    }, [creatorList]);
+
     useEffect(() => {
         setCollectionFilter &&
         setCollectionFilter({
             colors: shownColors,
             rarity: shownRarities,
             types: shownCardTypes,
+            creators: shownCreators,
         });
-    }, [shownColors, shownRarities, shownCardTypes, setCollectionFilter]);
+    }, [shownColors, shownRarities, shownCardTypes, shownCreators, setCollectionFilter]);
 
     const spanMarks = {
         0: 'Auto',
@@ -191,7 +224,7 @@ const CollectionFilterControls = ({
                                             }
                                         >
                                             {colorTypeToSymbol(key) ? (
-                                                <Mana cost={true} symbol={colorTypeToSymbol(key)} shadow={false}/>
+                                                <Mana cost={true} symbol={colorTypeToSymbol(key)!} shadow={false}/>
                                             ) : (
                                                 key
                                             )}
@@ -216,6 +249,20 @@ const CollectionFilterControls = ({
                                     </Checkbox>
                                 ),
                             )}
+                        </div>
+                        <div className={styles.controlItem}>
+                            <h4>Shown Creators</h4>
+                            {creatorList.map(({ uuid, name, count }) => (
+                                <Checkbox
+                                    key={`collection-filter-controls-checkbox-creator-${uuid}`}
+                                    checked={shownCreators[uuid] !== false}
+                                    onChange={(e) =>
+                                        updateEnumState(uuid, e.target.checked, shownCreators, setShownCreators)
+                                    }
+                                >
+                                    {`${uuid === UNKNOWN_CREATOR.uuid ? 'Unknown' : name} (${count})`}
+                                </Checkbox>
+                            ))}
                         </div>
                         <span> </span>
                     </div>
