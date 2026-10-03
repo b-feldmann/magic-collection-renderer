@@ -25,7 +25,7 @@ const CollectionStats = ({ collection }: { collection: CardInterface[] }) => {
   };
 
   collection.forEach((card) => {
-    const { color } = cardToColor(card.front.cardMainType, card.manaCost);
+    const { color } = cardToColor(card.front.cardMainType, card.manaCost, card.front.cardText);
     // @ts-ignore
     stats[color][card.rarity] += 1;
     // @ts-ignore

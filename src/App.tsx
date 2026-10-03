@@ -45,6 +45,27 @@ const { confirm } = Modal;
 
 const NO_CARD = '-1';
 
+// Shared tab definitions so the collection grid and the sidebar filter counts
+// agree on which cards belong to each tab.
+const CARD_TABS: { name: string; filter: (o: CardInterface) => boolean }[] = [
+  { name: 'All', filter: () => true },
+  {
+    name: 'Card Drafts / Idea Dump',
+    filter: (o: CardInterface) => o.meta.state === CardState.Draft,
+  },
+  {
+    name: 'Cards to Rate',
+    filter: (o: CardInterface) => o.meta.state === CardState.Rate,
+  },
+  {
+    name: 'Approved Cards',
+    filter: (o: CardInterface) => o.meta.state === CardState.Approved,
+  },
+];
+
+const tabKey = (name: string) => `tab-key-${name}`;
+const DEFAULT_TAB_KEY = tabKey('Card Drafts / Idea Dump');
+
 // Guard so the initial data fetch runs once per app load, not again under
 // StrictMode's dev double-mount or on remount.
 let didInit = false;
@@ -73,6 +94,8 @@ const App: React.FC = () => {
 
   const [colSpanSetting, setColSpanSetting] = useState<number>(-1);
 
+  const [activeTabKey, setActiveTabKey] = useState<string>(DEFAULT_TAB_KEY);
+
   const { cards, newUuid, dispatch, annotationAccessor, user, currentUser } =
     useContext<StoreType>(Store);
 
@@ -95,6 +118,14 @@ const App: React.FC = () => {
     return merged;
   }, [cards, tmpCard]);
 
+  // Cards belonging to the currently selected tab. Drives the sidebar filter
+  // counts so they reflect the active tab rather than the whole collection.
+  const activeTab = useMemo(
+    () => CARD_TABS.find((tab) => tabKey(tab.name) === activeTabKey) || CARD_TABS[0],
+    [activeTabKey],
+  );
+  const tabCollection = useMemo(() => cards.filter(activeTab.filter), [cards, activeTab]);
+
   const sortList = useMemo(
     () => buildSortAccessors(sortBy, secondarySortBy, annotationAccessor),
     [sortBy, secondarySortBy, annotationAccessor],
@@ -109,7 +140,9 @@ const App: React.FC = () => {
       sortCardsBy(mergedCollection, sortList).filter(
         (o) =>
           o.name.toLowerCase().includes(deferredNameFilter.toLowerCase()) &&
-          collectionFilter.colors[cardToColor(o.front.cardMainType, o.manaCost).color] &&
+          collectionFilter.colors[
+            cardToColor(o.front.cardMainType, o.manaCost, o.front.cardText).color
+          ] &&
           collectionFilter.rarity[o.rarity] &&
           collectionFilter.types[o.front.cardMainType],
       ),
@@ -207,31 +240,16 @@ const App: React.FC = () => {
     const collectionSpan = 18;
     const editorSpan = 6;
 
-    const cardTabs = [
-      { name: 'All', filter: (o: CardInterface) => true },
-      {
-        name: 'Card Drafts / Idea Dump',
-        filter: (o: CardInterface) => o.meta.state === CardState.Draft,
-      },
-      {
-        name: 'Cards to Rate',
-        filter: (o: CardInterface) => o.meta.state === CardState.Rate,
-      },
-      {
-        name: 'Approved Cards',
-        filter: (o: CardInterface) => o.meta.state === CardState.Approved,
-      },
-    ];
-
     return (
       <Row className={styles.fullHeight}>
         <MechanicModal visible={mechanicsVisible} setVisible={setMechanicsVisible} />
         <Col span={collectionSpan} className={styles.collection}>
           <Tabs
-            defaultActiveKey="tab-key-Card Drafts / Idea Dump"
+            activeKey={activeTabKey}
+            onChange={setActiveTabKey}
             className={styles.tabs}
-            items={cardTabs.map((tabObj) => ({
-              key: `tab-key-${tabObj.name}`,
+            items={CARD_TABS.map((tabObj) => ({
+              key: tabKey(tabObj.name),
               label: (
                 <Badge
                   className={styles.tabBadge}
@@ -351,7 +369,7 @@ const App: React.FC = () => {
             </div>
             <div className={styles.sidebarScroll}>
               <CollectionFilterControls
-                collection={cards}
+                collection={tabCollection}
                 setCollectionColSpan={setColSpanSetting}
                 setCollectionFilter={setCollectionFilter}
                 setNameFilter={setCardNameFilter}

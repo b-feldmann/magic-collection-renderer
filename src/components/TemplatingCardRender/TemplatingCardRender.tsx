@@ -17,7 +17,8 @@ import {
   RarityType,
 } from '../../interfaces/enums';
 import {Store, StoreType} from '../../store';
-import {getColor, getColorIdentity} from '../../utils/cardToColor';
+import {getColor} from '../../utils/cardToColor';
+import getLandColor from '../../utils/getLandColor';
 
 import styles from './TemplatingCardRender.module.scss';
 import {
@@ -164,7 +165,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
   let overlay = '';
 
   if (cardMainType === CardMainType.Land) {
-    const identity = getColorIdentity(manaCost, cardText);
+    const identity = getLandColor(manaCost, cardText);
     innerBorderFrame = getInnerBorderFrame(identity);
     mainframe = getLandMainframe();
     if (identity.length === 2) overlay = getLandOverlay();

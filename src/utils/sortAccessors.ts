@@ -33,13 +33,17 @@ export const buildSortAccessors = (
   const accessors: Record<SortByType, SortAccessor[]> = {
     [SortByType.Color]: [
       (o) =>
-        Object.values(ColorType).indexOf(cardToColor(o.front.cardMainType, o.manaCost).color),
+        Object.values(ColorType).indexOf(
+          cardToColor(o.front.cardMainType, o.manaCost, o.front.cardText).color,
+        ),
       (o) => o.front.name.toLowerCase(),
     ],
     [SortByType.Creator]: [
       (o) => (o.creator.uuid === UNKNOWN_CREATOR.uuid ? 'zzzzz' : o.creator.name),
       (o) =>
-        Object.values(ColorType).indexOf(cardToColor(o.front.cardMainType, o.manaCost).color),
+        Object.values(ColorType).indexOf(
+          cardToColor(o.front.cardMainType, o.manaCost, o.front.cardText).color,
+        ),
       (o) => o.front.name.toLowerCase(),
     ],
     [SortByType.LastUpdated]: [(o) => -1 * getLastUpdated(o, annotationAccessor)],
