@@ -22,7 +22,6 @@ import getLandColor from '../../utils/getLandColor';
 
 import styles from './TemplatingCardRender.module.scss';
 import {
-  getArtifactMainframe,
   getArtifactPt,
   getColorMainframe,
   getFallbackCover,
@@ -150,13 +149,12 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
       artStyle === CardArtStyles.Invention;
 
   const { color, allColors, orderedCost, hexColor } = getColor(manaCost);
-  let mainframe = getColorMainframe(color);
-  let lowResMainframe = getLowResColorMainframe(color);
+  let mainframe = getColorMainframe(color, isArtifact);
+  let lowResMainframe = getLowResColorMainframe(color, isArtifact);
 
   let pt = getPt(color);
 
   if (isArtifact) {
-    mainframe = getArtifactMainframe();
     pt = getArtifactPt(color);
   }
 
@@ -176,14 +174,14 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
   }
 
   if (artStyle === CardArtStyles.Invention) {
-    mainframe = getInventionMainframe(color);
+    mainframe = getInventionMainframe(color, isArtifact);
     lowResMainframe = '';
     pt = getInventionPt();
     overlay = ''
   }
 
   if (isToken) {
-    mainframe = getTokenMainframe(color);
+    mainframe = getTokenMainframe(color, isArtifact);
     lowResMainframe = '';
     overlay = ''
   }

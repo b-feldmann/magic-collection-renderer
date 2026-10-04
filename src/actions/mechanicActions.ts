@@ -54,8 +54,17 @@ export const updateMechanic = (dispatch: (value: Action) => void, updated: Mecha
   LogRocket.log('Try to update mechanic', updated);
 
   const request = `${MIDDLEWARE_ENDPOINT}/mechanics`;
+  const parsed = { ...updated };
+  // `_id`/`__v` are Mongo-internal fields that ride along on mechanics held in
+  // memory from the server (notably freshly POST-created ones). Sending them
+  // back in the PUT makes MongoDB's replaceOne reject the update ("immutable
+  // field '_id' was found to have been altered"), which is why updating a
+  // mechanic right after creating it fails. The app keys mechanics by `uuid`,
+  // so drop them.
+  delete (parsed as Record<string, unknown>)._id;
+  delete (parsed as Record<string, unknown>).__v;
   axios
-    .put(request, { mechanic: updated, accessKey: getAccessToken() })
+    .put(request, { mechanic: parsed, accessKey: getAccessToken() })
     .then((result) => {
       return dispatch({
         type: MechanicActionType.UpdateMechanic,
