@@ -1,19 +1,19 @@
 import CrownArtefact from './images/crown/m15CrownA.png';
-import CrownArtefactFloating from './images/crown/m15CrownFloatingA.png';
+import CrownArtefactFloating from './images/crown/m15CrownAFloating.png';
 import CrownWhite from './images/crown/m15CrownW.png';
-import CrownWhiteFloating from './images/crown/m15CrownFloatingW.png';
+import CrownWhiteFloating from './images/crown/m15CrownWFloating.png';
 import CrownBlue from './images/crown/m15CrownU.png';
-import CrownBlueFloating from './images/crown/m15CrownFloatingU.png';
+import CrownBlueFloating from './images/crown/m15CrownUFloating.png';
 import CrownBlack from './images/crown/m15CrownB.png';
-import CrownBlackFloating from './images/crown/m15CrownFloatingB.png';
+import CrownBlackFloating from './images/crown/m15CrownBFloating.png';
 import CrownRed from './images/crown/m15CrownR.png';
-import CrownRedFloating from './images/crown/m15CrownFloatingR.png';
+import CrownRedFloating from './images/crown/m15CrownRFloating.png';
 import CrownGreen from './images/crown/m15CrownG.png';
-import CrownGreenFloating from './images/crown/m15CrownFloatingG.png';
+import CrownGreenFloating from './images/crown/m15CrownGFloating.png';
 import CrownGold from './images/crown/m15CrownM.png';
-import CrownGoldFloating from './images/crown/m15CrownFloatingM.png';
+import CrownGoldFloating from './images/crown/m15CrownMFloating.png';
 import CrownLand from './images/crown/m15CrownL.png';
-import CrownLandFloating from './images/crown/m15CrownFloatingL.png';
+import CrownLandFloating from './images/crown/m15CrownLFloating.png';
 import InnerCrownArtefact from './images/crown/m15InnerCrownANyx.png';
 import InnerCrownWhite from './images/crown/m15InnerCrownWNyx.png';
 import InnerCrownBlue from './images/crown/m15InnerCrownUNyx.png';
@@ -39,8 +39,26 @@ import GreenMainframe from './images/mainframes/m15/m15FrameG.png';
 import GreenNyxMainframe from './images/mainframes/m15/m15FrameGNyx.png';
 import GoldMainframe from './images/mainframes/m15/m15FrameM.png';
 import GoldNyxMainframe from './images/mainframes/m15/m15FrameMNyx.png';
-import ColorlessMainframe from './images/mainframes/Art.png';
+import ColorlessMainframe from './images/mainframes/m15/m15FrameA.png';
 import LandMainframe from './images/mainframes/m15/m15FrameL.png';
+
+import BoxTopperA from './images/mainframes/boxtopper/m15BoxTopperFrameA.png'
+import BoxTopperV from './images/mainframes/boxtopper/m15BoxTopperFrameV.png'
+import BoxTopperC from './images/mainframes/boxtopper/m15BoxTopperFrameC.png'
+import BoxTopperL from './images/mainframes/boxtopper/m15BoxTopperFrameL.png'
+import BoxTopperW from './images/mainframes/boxtopper/m15BoxTopperFrameW.png'
+import BoxTopperWL from './images/mainframes/boxtopper/m15BoxTopperFrameWL.png'
+import BoxTopperU from './images/mainframes/boxtopper/m15BoxTopperFrameU.png'
+import BoxTopperUL from './images/mainframes/boxtopper/m15BoxTopperFrameUL.png'
+import BoxTopperB from './images/mainframes/boxtopper/m15BoxTopperFrameB.png'
+import BoxTopperBL from './images/mainframes/boxtopper/m15BoxTopperFrameBL.png'
+import BoxTopperR from './images/mainframes/boxtopper/m15BoxTopperFrameR.png'
+import BoxTopperRL from './images/mainframes/boxtopper/m15BoxTopperFrameRL.png'
+import BoxTopperG from './images/mainframes/boxtopper/m15BoxTopperFrameG.png'
+import BoxTopperGL from './images/mainframes/boxtopper/m15BoxTopperFrameGL.png'
+import BoxTopperM from './images/mainframes/boxtopper/m15BoxTopperFrameM.png'
+import BoxTopperML from './images/mainframes/boxtopper/m15BoxTopperFrameML.png'
+
 
 import TokenArtefactMainframe from './images/mainframes/token/Art.png';
 import TokenColorlessMainframe from './images/mainframes/token/C.png';
@@ -58,7 +76,7 @@ import InvocationRedMainframe from './images/mainframes/invocation/R.png';
 import InvocationGreenMainframe from './images/mainframes/invocation/G.png';
 import InvocationGoldMainframe from './images/mainframes/invocation/Gld.png';
 
-import InventionArtefactMainframe from './images/mainframes/invention/Art.png';
+import InventionArtefactMainframe from './images/mainframes/invention/m15InventionFrameA.png';
 import InventionColorlessMainframe from './images/mainframes/invention/C.png';
 import InventionWhiteMainframe from './images/mainframes/invention/W.png';
 import InventionBlueMainframe from './images/mainframes/invention/U.png';
@@ -127,14 +145,14 @@ import PtR from './images/pt/regular/m15PTR.png';
 import PtG from './images/pt/regular/m15PTM.png';
 import PtC from './images/pt/regular/m15PTC.png';
 import PtM from './images/pt/regular/m15PTM.png';
-import PtANickname from './images/pt/nickname/m15PTA.png';
-import PtWNickname from './images/pt/nickname/m15PTW.png';
-import PtUNickname from './images/pt/nickname/m15PTU.png';
-import PtBNickname from './images/pt/nickname/m15PTB.png';
-import PtRNickname from './images/pt/nickname/m15PTR.png';
-import PtGNickname from './images/pt/nickname/m15PTM.png';
-import PtCNickname from './images/pt/nickname/m15PTC.png';
-import PtMNickname from './images/pt/nickname/m15PTM.png';
+import PtANickname from './images/pt/nickname/m15NicknamePTA.png';
+import PtWNickname from './images/pt/nickname/m15NicknamePTW.png';
+import PtUNickname from './images/pt/nickname/m15NicknamePTU.png';
+import PtBNickname from './images/pt/nickname/m15NicknamePTB.png';
+import PtRNickname from './images/pt/nickname/m15NicknamePTR.png';
+import PtGNickname from './images/pt/nickname/m15NicknamePTM.png';
+import PtCNickname from './images/pt/nickname/m15NicknamePTC.png';
+import PtMNickname from './images/pt/nickname/m15NicknamePTM.png';
 
 import SymbolLandWhite from './images/symbols/land/W.png';
 import SymbolLandBlue from './images/symbols/land/U.png';
@@ -178,6 +196,15 @@ import LoyaltyUp from './images/symbols/loyalty/LoyaltyUp.png';
 import LoyaltyDown from './images/symbols/loyalty/LoyaltyDown.png';
 import LoyaltyZero from './images/symbols/loyalty/LoyaltyZero.png';
 
+import NicknameTitleA from './images/nickname/m15NicknameTitleA.png';
+import NicknameTitleW from './images/nickname/m15NicknameTitleW.png';
+import NicknameTitleU from './images/nickname/m15NicknameTitleU.png';
+import NicknameTitleB from './images/nickname/m15NicknameTitleB.png';
+import NicknameTitleR from './images/nickname/m15NicknameTitleR.png';
+import NicknameTitleG from './images/nickname/m15NicknameTitleG.png';
+import NicknameTitleM from './images/nickname/m15NicknameTitleM.png';
+import NicknameTitleL from './images/nickname/m15NicknameTitleL.png';
+
 // export const getFallbackCover = () => NoCover;
 export const getFallbackCover = () => "https://picsum.photos/700/600";
 
@@ -204,6 +231,32 @@ export const getPt = (color: ColorType, isArtefact = false, isNickname= false) =
     }
 };
 
+export const getNicknameTitle = (color: ColorType, isArtefact = false, isLand = false) => {
+    if (isArtefact) {
+        return NicknameTitleA;
+    }
+    if (isLand) {
+        return NicknameTitleL;
+    }
+
+    switch (color) {
+        case ColorType.White:
+            return  NicknameTitleW;
+        case ColorType.Blue:
+            return  NicknameTitleU;
+        case ColorType.Black:
+            return  NicknameTitleB;
+        case ColorType.Red:
+            return  NicknameTitleR;
+        case ColorType.Green:
+            return  NicknameTitleG;
+        case ColorType.Gold:
+            return  NicknameTitleM;
+        default:
+            return  NicknameTitleA;
+    }
+};
+
 export const getColorMainframe = (color: ColorType, isEnchantment = false, isArtifact = false, isVehicle = false) => {
     // A colorless artifact uses the artefact frame instead of the plain colorless frame.
     if (isArtifact) {
@@ -227,6 +280,28 @@ export const getColorMainframe = (color: ColorType, isEnchantment = false, isArt
             return isEnchantment ? GoldNyxMainframe : GoldMainframe;
         default:
             return ColorlessMainframe;
+    }
+};
+
+export const getBoxTopperMainframe = (color: ColorType, isLand = false, isArtifact = false, isVehicle = false) => {
+    if (isArtifact) {
+        return isVehicle ? BoxTopperV : BoxTopperA;
+    }
+    switch (color) {
+        case ColorType.White:
+            return isLand ? BoxTopperWL : BoxTopperW;
+        case ColorType.Blue:
+            return isLand ? BoxTopperUL : BoxTopperU;
+        case ColorType.Black:
+            return isLand ? BoxTopperBL : BoxTopperB;
+        case ColorType.Red:
+            return isLand ? BoxTopperRL : BoxTopperR;
+        case ColorType.Green:
+            return isLand ? BoxTopperGL : BoxTopperG;
+        case ColorType.Gold:
+            return isLand ? BoxTopperML : BoxTopperM;
+        default:
+            return isLand ? BoxTopperL : BoxTopperC;
     }
 };
 

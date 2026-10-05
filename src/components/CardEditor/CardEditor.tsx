@@ -248,6 +248,10 @@ const CardEditor: React.FC<CardEditorInterface> = ({
 
     const hasStats = () => isCreature() || isPlaneswalker();
 
+    const hasNickname = () =>
+        getValue('artStyle') !== CardArtStyles.Invention &&
+        getValue('artStyle') !== CardArtStyles.Invocation;
+
     let inputConfig: InputConfigInterface[] = [
         {
             key: 'artStyle',
@@ -255,6 +259,9 @@ const CardEditor: React.FC<CardEditorInterface> = ({
             name: 'Art Style',
             data: (Object.keys(CardArtStyles) as (keyof typeof CardArtStyles)[])
                 .filter((style) => {
+                        if (style === CardArtStyles.Invocation) {
+                            return false;
+                        }
                         if (style === CardArtStyles.Invention) {
                             return (
                                 getValue('cardMainType') === CardMainType.Artifact ||
@@ -279,8 +286,8 @@ const CardEditor: React.FC<CardEditorInterface> = ({
                 })),
             width: 100,
         },
-        {key: 'name', type: 'input', name: 'Card Name', width: 50},
-        {key: 'nickname', type: 'input', name: 'Nickname', width: 50},
+        {key: 'name', type: 'input', name: 'Card Name', width: hasNickname() ? 50 : 100},
+        {key: 'nickname', type: 'input', name: 'Nickname', width: hasNickname() ? 50 : 0},
         {key: 'cover', type: 'upload-input', name: 'Cover (URL)', width: 100},
         {key: 'legendary', type: 'bool', name: 'Legendary?', width: 100},
         {key: 'vehicle', type: 'bool', name: 'Vehicle?', width: isArtifact() ? 100 : 0},

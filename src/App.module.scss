@@ -7,7 +7,7 @@ $muse-card-radius: 12px;
 // collection area is offset to match these exact widths (see .sidebarCol /
 // .collection below) so there's never a gap or overlap at any viewport width.
 $sidebar-width: clamp(220px, calc(100vw / 24 * 3 - 16px), 220px);
-$editor-width: clamp(280px, calc(100vw / 24 * 21 / 24 * 6 - 16px), 380px);
+$editor-width: clamp(310px, calc(100vw / 24 * 21 / 24 * 6 - 16px), 380px);
 
 .app {
   display: flex;

@@ -23,19 +23,19 @@ import {CARD_WIDTH, CARD_HEIGHT} from '../../utils/constants';
 
 import styles from './TemplatingCardRender.module.scss';
 import {
-  getColorMainframe,
-  getCrown,
-  getBlack,
-  getFallbackCover,
-  getInnerBorderFrame,
-  getInventionMainframe,
-  getInventionPt,
-  getLandMainframe,
-  getLandOverlay,
-  getLowResColorMainframe,
-  getPt,
-  getRarityIcon,
-  getTokenMainframe, getInnerCrown,
+    getColorMainframe,
+    getCrown,
+    getBlack,
+    getFallbackCover,
+    getInnerBorderFrame,
+    getInventionMainframe,
+    getInventionPt,
+    getLandMainframe,
+    getLandOverlay,
+    getLowResColorMainframe,
+    getPt,
+    getRarityIcon,
+    getTokenMainframe, getInnerCrown, getNicknameTitle, getBoxTopperMainframe,
 } from './assetLoader';
 import {injectForText, injectManaIcons} from '../../utils/injectUtils';
 import ImageLoader from '../ImageLoader/ImageLoader';
@@ -139,7 +139,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
         return resizeFactor(width) * CARD_HEIGHT;
     };
 
-    const isNickname = nickname != null;
+    const isNickname = nickname != null && nickname.length > 0;
     const isEnchantment = cardMainType === CardMainType.Enchantment;
     const isArtifact =
         cardMainType === CardMainType.Artifact || cardMainType === CardMainType.ArtifactCreature;
@@ -153,7 +153,12 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
         artStyle === CardArtStyles.Invention;
 
     const {color, allColors, orderedCost, hexColor} = getColor(manaCost);
-    let mainframe = getColorMainframe(color, isEnchantment, isArtifact, vehicle);
+    let mainframe
+    if (artStyle === CardArtStyles.Extended) {
+        mainframe = getBoxTopperMainframe(color, isLand, isArtifact, vehicle);
+    } else {
+        mainframe = getColorMainframe(color, isEnchantment, isArtifact, vehicle);
+    }
     let lowResMainframe = getLowResColorMainframe(color, isArtifact);
 
     let pt = getPt(color, isArtifact, isNickname);
@@ -204,19 +209,19 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
         );
         crown = <ImageLoader
             src={crownImagePath}
-            className={styles.crown}
+            className={artStyle == CardArtStyles.Borderless || artStyle == CardArtStyles.Extended ? styles.crownFloating : styles.crown}
         />
-        if (artStyle != CardArtStyles.Extended && artStyle != CardArtStyles.Borderless) {
+        if (artStyle != CardArtStyles.Borderless) {
             crownBlack = <ImageLoader
                 src={black}
                 className={styles.crownBlack}
             />
         }
-        if(isEnchantment) {
-          crownInner = <ImageLoader
-              src={getInnerCrown(color, isArtifact)}
-              className={styles.crownInner}
-          />
+        if (isEnchantment) {
+            crownInner = <ImageLoader
+                src={getInnerCrown(color, isArtifact)}
+                className={styles.crownInner}
+            />
         }
     }
 
@@ -240,6 +245,8 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
             ${(artStyle === CardArtStyles.Borderless) && styles.borderless}
             ${(isToken) && styles.token}
             ${(isInvention) && styles.invention}
+            ${(artStyle === CardArtStyles.Extended) && styles.extended}
+            ${(color === ColorType.Colorless) && styles.colorless}
           `}
                 >
                     <ImageLoader
@@ -260,6 +267,13 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
                         }`}
                         fallBackColor={artStyle !== CardArtStyles.Borderless ? hexColor : undefined}
                     />
+
+                    {isNickname && (
+                        <ImageLoader
+                            src={getNicknameTitle(color, isArtifact, isLand)}
+                            className={styles.nickname}
+                        />
+                    )}
                     {crownBlack}
                     {crown}
                     {crownInner}
@@ -272,7 +286,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
 
                     {isCreature && (
                         <div>
-                            {pt ? <img className={styles.overlay} src={pt} alt=""/> : null}
+                            {pt ? <img className={styles.pt} src={pt} alt=""/> : null}
                             <div className={styles.stats}>
                                 {`${parseStats(cardStats).power}/${parseStats(cardStats).toughness}`}
                             </div>
@@ -285,6 +299,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
                     )}
 
                     <div className={`${styles.title} ${isToken ? styles.tokenTitle : ''}`}>{name}</div>
+                    {nickname && <div className={styles.nicknameText}>{nickname}</div>}
                     <div className={`${styles.type} ${isToken ? styles.tokenType : ''}`}>
                         {legendary ? 'Legendary ' : ''}
                         {cardMainType}

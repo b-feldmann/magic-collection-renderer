@@ -55,6 +55,14 @@
     position: absolute;
     top: 43px;
     left: 41px;
+    width: 1416px;
+  }
+
+  .crownFloating {
+    position: absolute;
+    top: 40px;
+    left: 42px;
+    width: 1414px;
   }
 
   .crownInner {
@@ -71,6 +79,12 @@
     height: 50px;
   }
 
+  .nickname {
+    top: 85px;
+    left: 72px;
+    position: absolute;
+  }
+
   .innerBorderFrame,
   .overlay {
     position: absolute;
@@ -82,8 +96,19 @@
     font-family: "Beleren Bold", sans-serif;
     position: absolute;
     font-size: 2.45em;
-    top: 87.5px;
-    left: 106.25px;
+    top: 98px;
+    left: calc(1500px / 746 * 65);
+  }
+
+  .nicknameText {
+    font-family: "Beleren Bold", sans-serif;
+    font-size: 1.05em;
+    color: white;
+    position: absolute;
+    top: 236px;
+    width: 100%;
+    text-align: center;
+    font-style: italic;
   }
 
   .tokenTitle {
@@ -98,8 +123,8 @@
     font-family: "Beleren Bold", sans-serif;
     position: absolute;
     font-size: 2em;
-    top: 1206.25px;
-    left: 106.25px;
+    top: 1190px;
+    left: calc(1500px / 746 * 65);
   }
 
   .tokenType {
@@ -110,8 +135,8 @@
   .cost {
     position: absolute;
     font-size: 1.8em;
-    top: 89.58px;
-    width: 1410.42px;
+    top: 106px;
+    right: calc(1500px / 746 * 56);
     text-align: right;
   }
 
@@ -126,8 +151,8 @@
 
   .rarity {
     position: absolute;
-    left: 1322.92px;
-    top: 1204.17px;
+    right: 100px;
+    top: 1190px;
     height: 100px;
   }
 
@@ -221,14 +246,23 @@
     font-size: 0.95em;
   }
 
+  .pt {
+    position: absolute;
+    bottom: calc(2100px / 1400 * 54);
+    right: calc(1500px / 746 * 41);
+  }
+
   .stats {
     font-family: "Beleren Bold Small Caps", sans-serif;
     font-size: 2.3em;
     position: absolute;
-    top: 1914.58px;
-    left: 1310.42px - 98.96px;
-    width: 197.92px;
-    text-align: center;
+    top: 1890px;
+    height: 90px;
+    left: 1194px;
+    width: 197px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 
   .collectionBlock,
@@ -242,25 +276,25 @@
 
   .collectionBlock {
     letter-spacing: 2.92px;
-    left: 77.08px;
-    top: 1995.83px;
+    left: 98px;
+    top: 1950px;
   }
 
   .collectionBlock2 {
-    left: 77.08px;
-    top: 2035.42px;
+    left: 98px;
+    top: 1990px;
   }
 
   .copyright {
     text-align: right;
-    right: 83.33px;
-    top: 1995.83px;
+    right: 98px;
+    top: 1950px;
   }
 
   .copyrightStats {
     text-align: right;
-    right: 83.33px;
-    top: 2035.42px;
+    right: 98px;
+    top: 1990px;
   }
 
   .brush {
@@ -429,6 +463,26 @@
   }
 }
 
+.extended {
+  .cover {
+    top: 184px;
+    left: 0;
+    width: 1500px;
+    height: 1100px;
+  }
+
+  .type {
+    color: white;
+  }
+}
+
+.extended.colorless {
+  .cover {
+    top: 104px;
+    height: 1820px;
+  }
+}
+
 .borderless {
   .cover {
     left: 0;
@@ -462,42 +516,23 @@
 
 .invention {
   .cover {
-    left: 62.5px;
-    top: 62.5px;
+    left: 60px;
+    top: 60px;
     height: 2000px;
-    width: calc(100% - 62.5px * 2);
-    border-radius: 41.67px;
+    width: calc(100% - 60px * 2);
+    border-radius: 20px;
   }
 
   .innerBorderFrame {
     opacity: 1;
   }
 
-  .title {
-    top: 116.67px;
-    left: 141.67px;
-  }
-
-  .cost {
-    top: 120.83px;
-    width: 1362.5px;
-  }
-
-  .type {
-    top: 1197.92px;
-    left: 137.5px;
-  }
-
-  .rarity {
-    left: 1287.5px;
-    top: 1193.75px;
-  }
-
   .text {
-    top: 1341.67px;
-    height: 595.83px;
-    left: 150px;
-    width: 1200px;
+    top: 1330px;
+    height: 584px;
+    left: 124px;
+    width: 1250px;
+    border: greenyellow solid !important;
   }
 }
 

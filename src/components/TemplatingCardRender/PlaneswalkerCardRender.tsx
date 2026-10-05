@@ -33,6 +33,7 @@ interface PlaneswalkerCardRenderProps {
   cardID: string;
   manaCost: string;
   legendary?: boolean;
+  nickname?: string;
   cardMainType: CardMainType;
   cardSubTypes?: string;
   cardText: string[];
