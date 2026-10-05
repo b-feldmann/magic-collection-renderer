@@ -14,6 +14,13 @@ import CrownGold from './images/crown/m15CrownM.png';
 import CrownGoldFloating from './images/crown/m15CrownFloatingM.png';
 import CrownLand from './images/crown/m15CrownL.png';
 import CrownLandFloating from './images/crown/m15CrownFloatingL.png';
+import InnerCrownArtefact from './images/crown/m15InnerCrownANyx.png';
+import InnerCrownWhite from './images/crown/m15InnerCrownWNyx.png';
+import InnerCrownBlue from './images/crown/m15InnerCrownUNyx.png';
+import InnerCrownBlack from './images/crown/m15InnerCrownBNyx.png';
+import InnerCrownRed from './images/crown/m15InnerCrownRNyx.png';
+import InnerCrownGreen from './images/crown/m15InnerCrownGNyx.png';
+import InnerCrownGold from './images/crown/m15InnerCrownMNyx.png';
 
 import Black from './images/black.png';
 
@@ -111,15 +118,23 @@ import GoldInnerBorder from './images/borders/Gld.png';
 
 import LandOverlay from './images/overlay/C-overlay.png';
 import InvocationPt from './images/pt/invocation/A.png';
-import InventionPt from './images/pt/invention/pt.png';
-import PtArt from './images/pt/regular/Art.png';
-import PtW from './images/pt/regular/W.png';
-import PtU from './images/pt/regular/U.png';
-import PtB from './images/pt/regular/B.png';
-import PtR from './images/pt/regular/R.png';
-import PtG from './images/pt/regular/G.png';
-import PtCl from './images/pt/regular/C.png';
-import PtGld from './images/pt/regular/Gld.png';
+import InventionPt from './images/pt/invention/inventionPT.png';
+import PtA from './images/pt/regular/m15PTA.png';
+import PtW from './images/pt/regular/m15PTW.png';
+import PtU from './images/pt/regular/m15PTU.png';
+import PtB from './images/pt/regular/m15PTB.png';
+import PtR from './images/pt/regular/m15PTR.png';
+import PtG from './images/pt/regular/m15PTM.png';
+import PtC from './images/pt/regular/m15PTC.png';
+import PtM from './images/pt/regular/m15PTM.png';
+import PtANickname from './images/pt/nickname/m15PTA.png';
+import PtWNickname from './images/pt/nickname/m15PTW.png';
+import PtUNickname from './images/pt/nickname/m15PTU.png';
+import PtBNickname from './images/pt/nickname/m15PTB.png';
+import PtRNickname from './images/pt/nickname/m15PTR.png';
+import PtGNickname from './images/pt/nickname/m15PTM.png';
+import PtCNickname from './images/pt/nickname/m15PTC.png';
+import PtMNickname from './images/pt/nickname/m15PTM.png';
 
 import SymbolLandWhite from './images/symbols/land/W.png';
 import SymbolLandBlue from './images/symbols/land/U.png';
@@ -166,27 +181,28 @@ import LoyaltyZero from './images/symbols/loyalty/LoyaltyZero.png';
 // export const getFallbackCover = () => NoCover;
 export const getFallbackCover = () => "https://picsum.photos/700/600";
 
-export const getPt = (color: ColorType) => {
+export const getPt = (color: ColorType, isArtefact = false, isNickname= false) => {
+    if (isArtefact) {
+        return isNickname ? PtANickname : PtA;
+    }
+
     switch (color) {
         case ColorType.White:
-            return PtW;
+            return isNickname ? PtWNickname : PtW;
         case ColorType.Blue:
-            return PtU;
+            return isNickname ? PtUNickname : PtU;
         case ColorType.Black:
-            return PtB;
+            return isNickname ? PtBNickname : PtB;
         case ColorType.Red:
-            return PtR;
+            return isNickname ? PtRNickname : PtR;
         case ColorType.Green:
-            return PtG;
+            return isNickname ? PtGNickname : PtG;
         case ColorType.Gold:
-            return PtGld;
+            return isNickname ? PtMNickname : PtM;
         default:
-            return PtCl;
+            return isNickname ? PtCNickname : PtC;
     }
 };
-
-export const getArtifactPt = (color: ColorType) =>
-    color === ColorType.Colorless ? PtArt : getPt(color);
 
 export const getColorMainframe = (color: ColorType, isEnchantment = false, isArtifact = false, isVehicle = false) => {
     // A colorless artifact uses the artefact frame instead of the plain colorless frame.
@@ -216,6 +232,29 @@ export const getColorMainframe = (color: ColorType, isEnchantment = false, isArt
 
 export const getBlack = () => {
     return Black
+}
+
+export const getInnerCrown = (color: ColorType, isArtefact = false) => {
+    if (isArtefact) {
+        return InnerCrownArtefact;
+    }
+
+    switch (color) {
+        case ColorType.White:
+            return InnerCrownWhite;
+        case ColorType.Blue:
+            return InnerCrownBlue;
+        case ColorType.Black:
+            return InnerCrownBlack;
+        case ColorType.Red:
+            return InnerCrownRed;
+        case ColorType.Green:
+            return InnerCrownGreen;
+        case ColorType.Gold:
+            return InnerCrownGold;
+        default:
+            return InnerCrownArtefact;
+    }
 }
 
 export const getCrown = (color: ColorType, isFullart = false, isLand = false, isArtefact = false) => {

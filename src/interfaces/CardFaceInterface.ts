@@ -3,6 +3,7 @@ import { CardMainType } from './enums';
 export default interface CardFaceInterface {
   [key: string]: number | string | boolean | undefined | string[];
   name: string;
+  nickname?: string;
   legendary?: boolean;
   vehicle?: boolean;
   cardMainType: CardMainType;
