@@ -25,7 +25,7 @@ import styles from './TemplatingCardRender.module.scss';
 import {
     getBlack,
     getBorderlessMainframe,
-    getBoxTopperMainframe,
+    getExtendedMainframe,
     getColorMainframe,
     getCrown,
     getFallbackCover,
@@ -158,7 +158,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
     const {color, allColors, orderedCost, hexColor} = getColor(manaCost);
     let mainframe
     if (artStyle === CardArtStyles.Extended) {
-        mainframe = getBoxTopperMainframe(color, isLand, isArtifact, vehicle);
+        mainframe = getExtendedMainframe(color, isLand, isArtifact, vehicle, isEnchantment);
     } else if (artStyle === CardArtStyles.Borderless) {
         mainframe = getBorderlessMainframe(color, isLand, isArtifact, isNickname);
     } else {

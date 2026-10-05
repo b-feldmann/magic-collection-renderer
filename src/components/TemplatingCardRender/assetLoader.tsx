@@ -69,22 +69,29 @@ import BorderlessNicknameFrameR from './images/mainframes/borderless/nickname/m1
 import BorderlessNicknameFrameG from './images/mainframes/borderless/nickname/m15NicknameFrameG.png';
 import BorderlessNicknameFrameM from './images/mainframes/borderless/nickname/m15NicknameFrameM.png';
 
-import BoxTopperA from './images/mainframes/boxtopper/m15BoxTopperFrameA.png'
-import BoxTopperV from './images/mainframes/boxtopper/m15BoxTopperFrameV.png'
-import BoxTopperC from './images/mainframes/boxtopper/m15BoxTopperFrameC.png'
-import BoxTopperL from './images/mainframes/boxtopper/m15BoxTopperFrameL.png'
-import BoxTopperW from './images/mainframes/boxtopper/m15BoxTopperFrameW.png'
-import BoxTopperWL from './images/mainframes/boxtopper/m15BoxTopperFrameWL.png'
-import BoxTopperU from './images/mainframes/boxtopper/m15BoxTopperFrameU.png'
-import BoxTopperUL from './images/mainframes/boxtopper/m15BoxTopperFrameUL.png'
-import BoxTopperB from './images/mainframes/boxtopper/m15BoxTopperFrameB.png'
-import BoxTopperBL from './images/mainframes/boxtopper/m15BoxTopperFrameBL.png'
-import BoxTopperR from './images/mainframes/boxtopper/m15BoxTopperFrameR.png'
-import BoxTopperRL from './images/mainframes/boxtopper/m15BoxTopperFrameRL.png'
-import BoxTopperG from './images/mainframes/boxtopper/m15BoxTopperFrameG.png'
-import BoxTopperGL from './images/mainframes/boxtopper/m15BoxTopperFrameGL.png'
-import BoxTopperM from './images/mainframes/boxtopper/m15BoxTopperFrameM.png'
-import BoxTopperML from './images/mainframes/boxtopper/m15BoxTopperFrameML.png'
+import ExtendedFrameA from './images/mainframes/extended/a.png'
+import ExtendedFrameANyx from './images/mainframes/extended/nyx/a.png'
+import ExtendedFrameV from './images/mainframes/extended/v.png'
+import ExtendedFrameC from './images/mainframes/extended/c.png'
+import ExtendedFrameL from './images/mainframes/extended/l.png'
+import ExtendedFrameWNyx from './images/mainframes/extended/nyx/w.png'
+import ExtendedFrameW from './images/mainframes/extended/w.png'
+import ExtendedFrameWL from './images/mainframes/extended/lw.png'
+import ExtendedFrameU from './images/mainframes/extended/u.png'
+import ExtendedFrameUNyx from './images/mainframes/extended/nyx/u.png'
+import ExtendedFrameUL from './images/mainframes/extended/lu.png'
+import ExtendedFrameB from './images/mainframes/extended/b.png'
+import ExtendedFrameBNyx from './images/mainframes/extended/nyx/b.png'
+import ExtendedFrameBL from './images/mainframes/extended/lb.png'
+import ExtendedFrameR from './images/mainframes/extended/r.png'
+import ExtendedFrameRNyx from './images/mainframes/extended/nyx/r.png'
+import ExtendedFrameRL from './images/mainframes/extended/lr.png'
+import ExtendedFrameG from './images/mainframes/extended/g.png'
+import ExtendedFrameGNyx from './images/mainframes/extended/nyx/g.png'
+import ExtendedFrameGL from './images/mainframes/extended/lg.png'
+import ExtendedFrameM from './images/mainframes/extended/m.png'
+import ExtendedFrameMNyx from './images/mainframes/extended/nyx/m.png'
+import ExtendedFrameML from './images/mainframes/extended/lm.png'
 
 
 import TokenArtefactMainframe from './images/mainframes/token/Art.png';
@@ -373,25 +380,33 @@ export const getBorderlessMainframe = (color: ColorType, isLand = false, isArtif
     }
 };
 
-export const getBoxTopperMainframe = (color: ColorType, isLand = false, isArtifact = false, isVehicle = false) => {
+export const getExtendedMainframe = (color: ColorType, isLand = false, isArtifact = false, isVehicle = false, isEnchantment = false) => {
     if (isArtifact) {
-        return isVehicle ? BoxTopperV : BoxTopperA;
+        if (isVehicle) return ExtendedFrameV;
+        return isEnchantment ? ExtendedFrameANyx : ExtendedFrameA;
     }
     switch (color) {
         case ColorType.White:
-            return isLand ? BoxTopperWL : BoxTopperW;
+            if (isEnchantment) return ExtendedFrameWNyx;
+            return isLand ? ExtendedFrameWL : ExtendedFrameW;
         case ColorType.Blue:
-            return isLand ? BoxTopperUL : BoxTopperU;
+            if (isEnchantment) return ExtendedFrameUNyx;
+            return isLand ? ExtendedFrameUL : ExtendedFrameU;
         case ColorType.Black:
-            return isLand ? BoxTopperBL : BoxTopperB;
+            if (isEnchantment) return ExtendedFrameBNyx;
+            return isLand ? ExtendedFrameBL : ExtendedFrameB;
         case ColorType.Red:
-            return isLand ? BoxTopperRL : BoxTopperR;
+            if (isEnchantment) return ExtendedFrameRNyx;
+            return isLand ? ExtendedFrameRL : ExtendedFrameR;
         case ColorType.Green:
-            return isLand ? BoxTopperGL : BoxTopperG;
+            if (isEnchantment) return ExtendedFrameGNyx;
+            return isLand ? ExtendedFrameGL : ExtendedFrameG;
         case ColorType.Gold:
-            return isLand ? BoxTopperML : BoxTopperM;
+            if (isEnchantment) return ExtendedFrameMNyx;
+            return isLand ? ExtendedFrameML : ExtendedFrameM;
         default:
-            return isLand ? BoxTopperL : BoxTopperC;
+            if (isEnchantment) return ExtendedFrameANyx;
+            return isLand ? ExtendedFrameL : ExtendedFrameC;
     }
 };
 
