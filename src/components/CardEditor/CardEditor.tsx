@@ -29,6 +29,36 @@ interface CardEditorInterface {
 
 const NO_CARD = '-1';
 
+// Single source of truth for which art styles may be selected for a given
+// card main type. Used both to build the Art Style radio options and to decide
+// whether the current art style can be kept when the main type changes.
+const isArtStyleAvailableForType = (
+    artStyle: string,
+    cardMainType: CardMainType,
+): boolean => {
+    if (cardMainType === CardMainType.BasicLand) {
+        return (Object.values(BasicLandArtStyles) as string[]).includes(artStyle);
+    }
+    if (artStyle === CardArtStyles.Invocation) {
+        return false;
+    }
+    if (artStyle === CardArtStyles.Invention) {
+        return (
+            cardMainType === CardMainType.Artifact ||
+            cardMainType === CardMainType.ArtifactCreature
+        );
+    }
+    if (artStyle !== CardArtStyles.Regular) {
+        return (
+            cardMainType !== CardMainType.Planeswalker &&
+            cardMainType !== CardMainType.Land &&
+            cardMainType !== CardMainType.CreatureToken &&
+            cardMainType !== CardMainType.ArtifactToken
+        );
+    }
+    return true;
+};
+
 const dummyCard: CardInterface = {
     name: '',
     uuid: NO_CARD,
@@ -129,26 +159,17 @@ const CardEditor: React.FC<CardEditorInterface> = ({
                 ) {
                     saveValue('cardSubTypes', BasicLandType.Plains);
                 }
+            }
 
-                if (
-                    getValue('artStyle') !== BasicLandArtStyles.Unstable &&
-                    getValue('artStyle') !== BasicLandArtStyles.Regular
-                ) {
-                    saveValue('artStyle', BasicLandArtStyles.Regular);
-                }
-            } else if (value === CardMainType.Land) {
-                if (getValue('artStyle') !== CardArtStyles.Borderless) {
-                    saveValue('artStyle', CardArtStyles.Regular);
-                }
-            } else if (value === CardMainType.Planeswalker) {
-                saveValue('artStyle', CardArtStyles.Regular);
-            } else if (
-                getValue('artStyle') !== CardArtStyles.Borderless &&
-                getValue('artStyle') !== CardArtStyles.Invocation &&
-                !(getValue('artStyle') === CardArtStyles.Invention &&
-                    (value === CardMainType.Artifact || value === CardMainType.ArtifactCreature))
-            ) {
-                saveValue('artStyle', CardArtStyles.Regular);
+            // Keep the current art style if it is still available for the new
+            // main type; otherwise fall back to that type's Regular style.
+            if (!isArtStyleAvailableForType(getValue('artStyle'), value)) {
+                saveValue(
+                    'artStyle',
+                    value === CardMainType.BasicLand
+                        ? BasicLandArtStyles.Regular
+                        : CardArtStyles.Regular,
+                );
             }
         }
 
@@ -258,27 +279,8 @@ const CardEditor: React.FC<CardEditorInterface> = ({
             type: 'radio',
             name: 'Art Style',
             data: (Object.keys(CardArtStyles) as (keyof typeof CardArtStyles)[])
-                .filter((style) => {
-                        if (style === CardArtStyles.Invocation) {
-                            return false;
-                        }
-                        if (style === CardArtStyles.Invention) {
-                            return (
-                                getValue('cardMainType') === CardMainType.Artifact ||
-                                getValue('cardMainType') === CardMainType.ArtifactCreature
-                            );
-                        }
-                        if (style !== CardArtStyles.Regular) {
-                            return (
-                                getValue('cardMainType') !== CardMainType.Planeswalker &&
-                                getValue('cardMainType') !== CardMainType.Land &&
-                                getValue('cardMainType') !== CardMainType.CreatureToken &&
-                                getValue('cardMainType') !== CardMainType.ArtifactToken
-                            );
-                        } else {
-                            return true;
-                        }
-                    }
+                .filter((style) =>
+                    isArtStyleAvailableForType(CardArtStyles[style], getValue('cardMainType')),
                 )
                 .map((type) => ({
                     key: CardArtStyles[type],

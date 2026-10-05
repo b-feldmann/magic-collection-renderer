@@ -321,6 +321,44 @@
   }
 }
 
+.borderless {
+  .cover {
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 100%;
+    border-radius: 52.08px;
+  }
+
+  .innerBorderFrame {
+    opacity: 0.75;
+    //$clipTop: 222.92px;
+    //$clipBottom: 1187.5px;
+    //-webkit-clip-path: polygon(0% 0%, 0% 100%, 0 100%, 0 $clipTop, 100% $clipTop, 100% $clipBottom, 0 $clipBottom, 0 100%, 100% 100%, 100% 0%);
+    //clip-path: polygon(0% 0%, 0% 100%, 0 100%, 0 $clipTop, 100% $clipTop, 100% $clipBottom, 0 $clipBottom, 0 100%, 100% 100%, 100% 0%);
+  }
+
+  .pt {
+    position: absolute;
+    bottom: calc(2100px / 1400 * 54 + 8px);
+    right: calc(1500px / 746 * 41 - 4px);
+  }
+
+  .title {
+    color: white;
+  }
+
+  .type {
+    color: white;
+  }
+}
+
+.nicknameFrame {
+  .title {
+    color: white;
+  }
+}
+
 .planeswalker.lines4 {
   .type,
   .rarity {
@@ -480,24 +518,6 @@
   .cover {
     top: 104px;
     height: 1820px;
-  }
-}
-
-.borderless {
-  .cover {
-    left: 0;
-    top: 0;
-    height: 100%;
-    width: 100%;
-    border-radius: 52.08px;
-  }
-
-  .innerBorderFrame {
-    opacity: 0.75;
-    //$clipTop: 222.92px;
-    //$clipBottom: 1187.5px;
-    //-webkit-clip-path: polygon(0% 0%, 0% 100%, 0 100%, 0 $clipTop, 100% $clipTop, 100% $clipBottom, 0 $clipBottom, 0 100%, 100% 100%, 100% 0%);
-    //clip-path: polygon(0% 0%, 0% 100%, 0 100%, 0 $clipTop, 100% $clipTop, 100% $clipBottom, 0 $clipBottom, 0 100%, 100% 100%, 100% 0%);
   }
 }
 

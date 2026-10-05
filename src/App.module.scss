@@ -77,6 +77,13 @@ $editor-width: clamp(310px, calc(100vw / 24 * 21 / 24 * 6 - 16px), 380px);
     flex: 0 0 auto;
     max-width: none;
     width: calc(#{$sidebar-width} + 16px);
+
+    // Hide the left sidebar entirely below 900px. `display: none` removes the
+    // whole subtree from rendering, including the `position: fixed` .sidebar
+    // child; .contentCol (flex: 1 1 0) then expands to fill the freed space.
+    @media only screen and (max-width: 899.98px) {
+      display: none;
+    }
   }
 
   // The content column fills the remaining horizontal space next to the sidebar.

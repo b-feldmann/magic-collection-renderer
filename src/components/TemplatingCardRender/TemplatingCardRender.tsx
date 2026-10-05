@@ -19,23 +19,26 @@ import {
 import {Store, StoreType} from '../../store';
 import {getColor} from '../../utils/cardToColor';
 import getLandColor from '../../utils/getLandColor';
-import {CARD_WIDTH, CARD_HEIGHT} from '../../utils/constants';
+import {CARD_HEIGHT, CARD_WIDTH} from '../../utils/constants';
 
 import styles from './TemplatingCardRender.module.scss';
 import {
+    getBlack,
+    getBorderlessMainframe,
+    getBoxTopperMainframe,
     getColorMainframe,
     getCrown,
-    getBlack,
     getFallbackCover,
     getInnerBorderFrame,
+    getInnerCrown,
     getInventionMainframe,
     getInventionPt,
-    getLandMainframe,
     getLandOverlay,
     getLowResColorMainframe,
+    getNicknameTitle,
     getPt,
     getRarityIcon,
-    getTokenMainframe, getInnerCrown, getNicknameTitle, getBoxTopperMainframe,
+    getTokenMainframe,
 } from './assetLoader';
 import {injectForText, injectManaIcons} from '../../utils/injectUtils';
 import ImageLoader from '../ImageLoader/ImageLoader';
@@ -139,7 +142,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
         return resizeFactor(width) * CARD_HEIGHT;
     };
 
-    const isNickname = nickname != null && nickname.length > 0;
+    const isNickname = nickname != null && nickname.length > 0 && artStyle != CardArtStyles.Invention;
     const isEnchantment = cardMainType === CardMainType.Enchantment;
     const isArtifact =
         cardMainType === CardMainType.Artifact || cardMainType === CardMainType.ArtifactCreature;
@@ -156,12 +159,14 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
     let mainframe
     if (artStyle === CardArtStyles.Extended) {
         mainframe = getBoxTopperMainframe(color, isLand, isArtifact, vehicle);
+    } else if (artStyle === CardArtStyles.Borderless) {
+        mainframe = getBorderlessMainframe(color, isLand, isArtifact, isNickname);
     } else {
         mainframe = getColorMainframe(color, isEnchantment, isArtifact, vehicle);
     }
     let lowResMainframe = getLowResColorMainframe(color, isArtifact);
 
-    let pt = getPt(color, isArtifact, isNickname);
+    let pt = getPt(color, isArtifact, vehicle, isNickname, artStyle === CardArtStyles.Borderless, isLand);
 
     let innerBorderFrame = getInnerBorderFrame(allColors);
 
@@ -191,26 +196,39 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
         overlay = ''
     }
 
-    if (artStyle === CardArtStyles.Borderless) {
-        lowResMainframe = '';
-        mainframe = '';
-    }
-
     let black = getBlack();
     let crownBlack: ReactElement | null = null;
     let crown: ReactElement | null = null;
+    let crown2: ReactElement | null = null;
     let crownInner: ReactElement | null = null;
     if (legendary) {
+        const isFullArt = artStyle == CardArtStyles.Borderless || artStyle == CardArtStyles.Extended
         const crownImagePath = getCrown(
             color,
-            artStyle == CardArtStyles.Borderless || artStyle == CardArtStyles.Extended,
+            isFullArt,
             isLand,
             isArtifact,
+            isNickname,
         );
         crown = <ImageLoader
             src={crownImagePath}
-            className={artStyle == CardArtStyles.Borderless || artStyle == CardArtStyles.Extended ? styles.crownFloating : styles.crown}
+            className={isFullArt? styles.crownFloating : styles.crown}
         />
+
+        if (isNickname && !isFullArt) {
+            const crownImagePath2 = getCrown(
+                color,
+                false,
+                isLand,
+                isArtifact,
+                false,
+            );
+            crown2 = <ImageLoader
+                src={crownImagePath2}
+                className={styles.crown}
+            />
+        }
+
         if (artStyle != CardArtStyles.Borderless) {
             crownBlack = <ImageLoader
                 src={black}
@@ -245,6 +263,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
             ${(artStyle === CardArtStyles.Borderless) && styles.borderless}
             ${(isToken) && styles.token}
             ${(isInvention) && styles.invention}
+            ${(isNickname) && styles.nicknameFrame}
             ${(artStyle === CardArtStyles.Extended) && styles.extended}
             ${(color === ColorType.Colorless) && styles.colorless}
           `}
@@ -268,13 +287,14 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
                         fallBackColor={artStyle !== CardArtStyles.Borderless ? hexColor : undefined}
                     />
 
-                    {isNickname && (
+                    {isNickname && !crown && (
                         <ImageLoader
                             src={getNicknameTitle(color, isArtifact, isLand)}
                             className={styles.nickname}
                         />
                     )}
                     {crownBlack}
+                    {crown2}
                     {crown}
                     {crownInner}
 
@@ -299,12 +319,12 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
                     )}
 
                     <div className={`${styles.title} ${isToken ? styles.tokenTitle : ''}`}>{name}</div>
-                    {nickname && <div className={styles.nicknameText}>{nickname}</div>}
+                    {isNickname && <div className={styles.nicknameText}>{nickname}</div>}
                     <div className={`${styles.type} ${isToken ? styles.tokenType : ''}`}>
                         {legendary ? 'Legendary ' : ''}
                         {cardMainType}
-                        {[vehicle ? 'Vehicle' : '', cardSubTypes].filter(Boolean).join(' ')
-                            ? ` – ${[vehicle ? 'Vehicle' : '', cardSubTypes].filter(Boolean).join(' ')}`
+                        {[vehicle && isArtifact ? 'Vehicle' : '', cardSubTypes].filter(Boolean).join(' ')
+                            ? ` – ${[vehicle && isArtifact ? 'Vehicle' : '', cardSubTypes].filter(Boolean).join(' ')}`
                             : ''}
                     </div>
 

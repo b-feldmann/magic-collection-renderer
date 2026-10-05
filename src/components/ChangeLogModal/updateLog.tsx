@@ -347,6 +347,47 @@ updateLog.push({
 });
 
 // updateLog.push({
+//   version: '2.2.0',
+//   title: 'Card Frame Update',
+//   content: [
+//     {
+//       type: ChangeLogFeatureType.Added,
+//       feature: 'Added extended Artstyle',
+//     },
+//     {
+//       type: ChangeLogFeatureType.Added,
+//       feature: 'Legendary cards now have a crown (Planeswalker not included).',
+//     },
+//     {
+//       type: ChangeLogFeatureType.Added,
+//       feature: 'Enchantments now use the Nyx background (Nyx crown included).',
+//     },
+//     {
+//       type: ChangeLogFeatureType.Added,
+//       feature: 'Vehicles',
+//       description: 'It is now possible to mark an artifact as a vehicle. This includes the vehicle frame.',
+//     },
+//     {
+//       type: ChangeLogFeatureType.Added,
+//       feature: 'Nicknames',
+//       description: 'You can give cards a nickname.',
+//     },
+//     {
+//       type: ChangeLogFeatureType.Changed,
+//       feature: 'Higher Resolution Frames',
+//     },
+//     {
+//       type: ChangeLogFeatureType.Changed,
+//       feature: 'New Borderless Frame',
+//     },
+//     {
+//       type: ChangeLogFeatureType.Removed,
+//       feature: 'Invocations are temporarily disabled',
+//     }
+//   ]
+// });
+
+// updateLog.push({
 //   version: '1.1.3',
 //   title: 'New Card Type Update',
 //   content: [

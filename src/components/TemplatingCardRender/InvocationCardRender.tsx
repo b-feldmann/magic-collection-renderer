@@ -66,6 +66,9 @@ const InvocationCardRender = (cardRender: InvocationCardRenderProps) => {
     cardMainType === CardMainType.Creature ||
     cardMainType === CardMainType.ArtifactCreature ||
     cardMainType === CardMainType.CreatureToken;
+  const isArtifact =
+    cardMainType === CardMainType.Artifact ||
+    cardMainType === CardMainType.ArtifactCreature;
 
   const { color, orderedCost } = getColor(manaCost);
   const mainframe = getInvocationMainframe(color);
@@ -113,8 +116,8 @@ const InvocationCardRender = (cardRender: InvocationCardRenderProps) => {
           <div className={styles.type}>
             {legendary ? 'Legendary ' : ''}
             {cardMainType}
-            {[vehicle ? 'Vehicle' : '', cardSubTypes].filter(Boolean).join(' ')
-              ? ` – ${[vehicle ? 'Vehicle' : '', cardSubTypes].filter(Boolean).join(' ')}`
+            {[vehicle && isArtifact ? 'Vehicle' : '', cardSubTypes].filter(Boolean).join(' ')
+              ? ` – ${[vehicle && isArtifact ? 'Vehicle' : '', cardSubTypes].filter(Boolean).join(' ')}`
               : ''}
           </div>
 

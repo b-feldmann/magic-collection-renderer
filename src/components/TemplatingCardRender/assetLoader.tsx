@@ -1,19 +1,27 @@
 import CrownArtefact from './images/crown/m15CrownA.png';
 import CrownArtefactFloating from './images/crown/m15CrownAFloating.png';
+import CrownArtefactNickname from './images/crown/nickname/m15NicknameCrownA.png';
 import CrownWhite from './images/crown/m15CrownW.png';
 import CrownWhiteFloating from './images/crown/m15CrownWFloating.png';
+import CrownWhiteNickname from './images/crown/nickname/m15NicknameCrownW.png';
 import CrownBlue from './images/crown/m15CrownU.png';
 import CrownBlueFloating from './images/crown/m15CrownUFloating.png';
+import CrownBlueNickname from './images/crown/nickname/m15NicknameCrownU.png';
 import CrownBlack from './images/crown/m15CrownB.png';
 import CrownBlackFloating from './images/crown/m15CrownBFloating.png';
+import CrownBlackNickname from './images/crown/nickname/m15NicknameCrownB.png';
 import CrownRed from './images/crown/m15CrownR.png';
 import CrownRedFloating from './images/crown/m15CrownRFloating.png';
+import CrownRedNickname from './images/crown/nickname/m15NicknameCrownR.png';
 import CrownGreen from './images/crown/m15CrownG.png';
 import CrownGreenFloating from './images/crown/m15CrownGFloating.png';
+import CrownGreenNickname from './images/crown/nickname/m15NicknameCrownG.png';
 import CrownGold from './images/crown/m15CrownM.png';
 import CrownGoldFloating from './images/crown/m15CrownMFloating.png';
+import CrownGoldNickname from './images/crown/nickname/m15NicknameCrownM.png';
 import CrownLand from './images/crown/m15CrownL.png';
 import CrownLandFloating from './images/crown/m15CrownLFloating.png';
+import CrownLandNickname from './images/crown/nickname/m15NicknameCrownL.png';
 import InnerCrownArtefact from './images/crown/m15InnerCrownANyx.png';
 import InnerCrownWhite from './images/crown/m15InnerCrownWNyx.png';
 import InnerCrownBlue from './images/crown/m15InnerCrownUNyx.png';
@@ -41,6 +49,25 @@ import GoldMainframe from './images/mainframes/m15/m15FrameM.png';
 import GoldNyxMainframe from './images/mainframes/m15/m15FrameMNyx.png';
 import ColorlessMainframe from './images/mainframes/m15/m15FrameA.png';
 import LandMainframe from './images/mainframes/m15/m15FrameL.png';
+
+import BorderlessFrameA from './images/mainframes/borderless/m15GenericShowcaseFrameA.png';
+import BorderlessFrameC from './images/mainframes/borderless/m15GenericShowcaseFrameC.png';
+import BorderlessFrameL from './images/mainframes/borderless/m15GenericShowcaseFrameL.png';
+import BorderlessFrameW from './images/mainframes/borderless/m15GenericShowcaseFrameW.png';
+import BorderlessFrameU from './images/mainframes/borderless/m15GenericShowcaseFrameU.png';
+import BorderlessFrameB from './images/mainframes/borderless/m15GenericShowcaseFrameB.png';
+import BorderlessFrameR from './images/mainframes/borderless/m15GenericShowcaseFrameR.png';
+import BorderlessFrameG from './images/mainframes/borderless/m15GenericShowcaseFrameG.png';
+import BorderlessFrameM from './images/mainframes/borderless/m15GenericShowcaseFrameM.png';
+import BorderlessNicknameFrameA from './images/mainframes/borderless/nickname/m15NicknameFrameA.png';
+import BorderlessNicknameFrameC from './images/mainframes/borderless/nickname/m15NicknameFrameA.png';
+import BorderlessNicknameFrameL from './images/mainframes/borderless/nickname/m15NicknameFrameL.png';
+import BorderlessNicknameFrameW from './images/mainframes/borderless/nickname/m15NicknameFrameW.png';
+import BorderlessNicknameFrameU from './images/mainframes/borderless/nickname/m15NicknameFrameU.png';
+import BorderlessNicknameFrameB from './images/mainframes/borderless/nickname/m15NicknameFrameB.png';
+import BorderlessNicknameFrameR from './images/mainframes/borderless/nickname/m15NicknameFrameR.png';
+import BorderlessNicknameFrameG from './images/mainframes/borderless/nickname/m15NicknameFrameG.png';
+import BorderlessNicknameFrameM from './images/mainframes/borderless/nickname/m15NicknameFrameM.png';
 
 import BoxTopperA from './images/mainframes/boxtopper/m15BoxTopperFrameA.png'
 import BoxTopperV from './images/mainframes/boxtopper/m15BoxTopperFrameV.png'
@@ -153,6 +180,16 @@ import PtRNickname from './images/pt/nickname/m15NicknamePTR.png';
 import PtGNickname from './images/pt/nickname/m15NicknamePTM.png';
 import PtCNickname from './images/pt/nickname/m15NicknamePTC.png';
 import PtMNickname from './images/pt/nickname/m15NicknamePTM.png';
+import PtABorderless from './images/pt/borderless/a.png';
+import PtWBorderless from './images/pt/borderless/w.png';
+import PtUBorderless from './images/pt/borderless/u.png';
+import PtBBorderless from './images/pt/borderless/b.png';
+import PtRBorderless from './images/pt/borderless/r.png';
+import PtGBorderless from './images/pt/borderless/g.png';
+import PtCBorderless from './images/pt/borderless/c.png';
+import PtMBorderless from './images/pt/borderless/m.png';
+import PtVBorderless from './images/pt/borderless/v.png';
+import PtLBorderless from './images/pt/borderless/l.png';
 
 import SymbolLandWhite from './images/symbols/land/W.png';
 import SymbolLandBlue from './images/symbols/land/U.png';
@@ -208,25 +245,52 @@ import NicknameTitleL from './images/nickname/m15NicknameTitleL.png';
 // export const getFallbackCover = () => NoCover;
 export const getFallbackCover = () => "https://picsum.photos/700/600";
 
-export const getPt = (color: ColorType, isArtefact = false, isNickname= false) => {
+export const getPt = (color: ColorType, isArtefact = false, isVehicle = false, isNickname= false, isBorderless = false, isLand = false) => {
+    if (isLand) {
+        return PtLBorderless;
+    }
     if (isArtefact) {
+        if (isBorderless) {
+            return isVehicle ? PtVBorderless : PtABorderless;
+        }
         return isNickname ? PtANickname : PtA;
     }
 
     switch (color) {
         case ColorType.White:
+            if (isBorderless) {
+                return PtWBorderless;
+            }
             return isNickname ? PtWNickname : PtW;
         case ColorType.Blue:
+            if (isBorderless) {
+                return PtUBorderless;
+            }
             return isNickname ? PtUNickname : PtU;
         case ColorType.Black:
+            if (isBorderless) {
+                return PtBBorderless;
+            }
             return isNickname ? PtBNickname : PtB;
         case ColorType.Red:
+            if (isBorderless) {
+                return PtRBorderless;
+            }
             return isNickname ? PtRNickname : PtR;
         case ColorType.Green:
+            if (isBorderless) {
+                return PtGBorderless;
+            }
             return isNickname ? PtGNickname : PtG;
         case ColorType.Gold:
+            if (isBorderless) {
+                return PtMBorderless;
+            }
             return isNickname ? PtMNickname : PtM;
         default:
+            if (isBorderless) {
+                return PtCBorderless;
+            }
             return isNickname ? PtCNickname : PtC;
     }
 };
@@ -283,6 +347,32 @@ export const getColorMainframe = (color: ColorType, isEnchantment = false, isArt
     }
 };
 
+export const getBorderlessMainframe = (color: ColorType, isLand = false, isArtifact = false, isNickname = false) => {
+    if (isArtifact) {
+        return isNickname ? BorderlessNicknameFrameA : BorderlessFrameA;
+    }
+    if (isLand) {
+        return isNickname ? BorderlessNicknameFrameL : BorderlessFrameL;
+    }
+
+    switch (color) {
+        case ColorType.White:
+            return isNickname ? BorderlessNicknameFrameW : BorderlessFrameW;
+        case ColorType.Blue:
+            return isNickname ? BorderlessNicknameFrameU : BorderlessFrameU;
+        case ColorType.Black:
+            return isNickname ? BorderlessNicknameFrameB : BorderlessFrameB;
+        case ColorType.Red:
+            return isNickname ? BorderlessNicknameFrameR : BorderlessFrameR;
+        case ColorType.Green:
+            return isNickname ? BorderlessNicknameFrameG : BorderlessFrameG;
+        case ColorType.Gold:
+            return isNickname ? BorderlessNicknameFrameM : BorderlessFrameM;
+        default:
+            return isNickname ? BorderlessNicknameFrameC : BorderlessFrameC;
+    }
+};
+
 export const getBoxTopperMainframe = (color: ColorType, isLand = false, isArtifact = false, isVehicle = false) => {
     if (isArtifact) {
         return isVehicle ? BoxTopperV : BoxTopperA;
@@ -332,28 +422,37 @@ export const getInnerCrown = (color: ColorType, isArtefact = false) => {
     }
 }
 
-export const getCrown = (color: ColorType, isFullart = false, isLand = false, isArtefact = false) => {
+export const getCrown = (color: ColorType, isFullart = false, isLand = false, isArtefact = false, isNickname = false) => {
     if (isLand) {
+        if (isNickname) return CrownLandNickname;
         return isFullart ? CrownLandFloating : CrownLand;
     }
     if (isArtefact) {
+        if (isNickname) return CrownArtefactNickname;
         return isFullart ? CrownArtefactFloating : CrownArtefact;
     }
 
     switch (color) {
         case ColorType.White:
+            if (isNickname) return CrownWhiteNickname;
             return isFullart ? CrownWhiteFloating : CrownWhite;
         case ColorType.Blue:
+            if (isNickname) return CrownBlueNickname;
             return isFullart ? CrownBlueFloating : CrownBlue;
         case ColorType.Black:
+            if (isNickname) return CrownBlackNickname;
             return isFullart ? CrownBlackFloating : CrownBlack;
         case ColorType.Red:
+            if (isNickname) return CrownRedNickname;
             return isFullart ? CrownRedFloating : CrownRed;
         case ColorType.Green:
+            if (isNickname) return CrownGreenNickname;
             return isFullart ? CrownGreenFloating : CrownGreen;
         case ColorType.Gold:
+            if (isNickname) return CrownGoldNickname;
             return isFullart ? CrownGoldFloating : CrownGold;
         default:
+            if (isNickname) return CrownArtefactNickname;
             return isFullart ? CrownArtefactFloating : CrownArtefact;
     }
 }
