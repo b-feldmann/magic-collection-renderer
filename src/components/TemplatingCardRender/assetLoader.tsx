@@ -103,14 +103,14 @@ import InvocationRedMainframe from './images/mainframes/invocation/R.png';
 import InvocationGreenMainframe from './images/mainframes/invocation/G.png';
 import InvocationGoldMainframe from './images/mainframes/invocation/Gld.png';
 
-import InventionArtefactMainframe from './images/mainframes/invention/m15InventionFrameA.png';
-import InventionColorlessMainframe from './images/mainframes/invention/C.png';
-import InventionWhiteMainframe from './images/mainframes/invention/W.png';
-import InventionBlueMainframe from './images/mainframes/invention/U.png';
-import InventionBlackMainframe from './images/mainframes/invention/B.png';
-import InventionRedMainframe from './images/mainframes/invention/R.png';
-import InventionGreenMainframe from './images/mainframes/invention/G.png';
-import InventionGoldMainframe from './images/mainframes/invention/Gld.png';
+import InventionArtefactMainframe from './images/mainframes/invention/a.png';
+import InventionColorlessMainframe from './images/mainframes/invention/l.png';
+import InventionWhiteMainframe from './images/mainframes/invention/w.png';
+import InventionBlueMainframe from './images/mainframes/invention/u.png';
+import InventionBlackMainframe from './images/mainframes/invention/b.png';
+import InventionRedMainframe from './images/mainframes/invention/r.png';
+import InventionGreenMainframe from './images/mainframes/invention/g.png';
+import InventionGoldMainframe from './images/mainframes/invention/m.png';
 
 import LowResWhiteMainframe from './images/mainframes/lowRes/W.png';
 import LowResBlueMainframe from './images/mainframes/lowRes/U.png';

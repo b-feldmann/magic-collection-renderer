@@ -73,15 +73,13 @@ const CardCollection = ({
         // Reserve room for the vertical scrollbar so the rightmost column of
         // cards is never rendered underneath it. Only reserve the space when
         // the content actually overflows vertically (i.e. a scrollbar shows).
+        // Separation from the fixed editor panel is already provided by the
+        // `.collection` `margin-right` in App.module.scss (reserves the editor
+        // width + an 8px gap), so no extra right gutter is needed here.
         const SCROLLBAR_WIDTH = 17;
-        // Leave a gutter on the right edge of the (desktop) collection so the
-        // grid doesn't butt up against the fixed editor panel. Narrowing the
-        // columns leaves the gap empty on the right without clipping cards.
-        const RIGHT_GUTTER = mobile ? 0 : 24;
         const unreservedColumnHeight: number = (width / columns / CARD_WIDTH) * CARD_HEIGHT;
         const hasVerticalScrollbar: boolean = rows * unreservedColumnHeight > height;
-        const availableWidth: number =
-          (hasVerticalScrollbar ? width - SCROLLBAR_WIDTH : width) - RIGHT_GUTTER;
+        const availableWidth: number = hasVerticalScrollbar ? width - SCROLLBAR_WIDTH : width;
 
         const columnWidth: number = availableWidth / columns;
         const columnHeight: number = (columnWidth / CARD_WIDTH) * CARD_HEIGHT;
