@@ -11,6 +11,7 @@ import styles from './TemplatingCardRender.module.scss';
 import {getBasicLandMainframe, getBasicLandSymbols, getFallbackCover, getRarityIcon,} from './assetLoader';
 import ImageLoader from '../ImageLoader/ImageLoader';
 import parseCollectionNumber from '../../utils/parseCollectionNumber';
+import { CARD_WIDTH, CARD_HEIGHT } from '../../utils/constants';
 
 interface BasicLandCardRenderProps {
   cardID: string;
@@ -26,15 +27,7 @@ interface BasicLandCardRenderProps {
 const BasicLandCardRender = (cardRender: BasicLandCardRenderProps) => {
   const { creator, collectionNumber, collectionSize } = cardRender;
   const { landType, cover, artStyle, cardID } = cardRender;
-  const { containerWidth = 720 } = cardRender;
-
-  let CARD_WIDTH = 720.0;
-  let CARD_HEIGHT = 1020.0;
-
-  if (artStyle === BasicLandArtStyles.Unstable) {
-    CARD_WIDTH = 745.0;
-    CARD_HEIGHT = 1040.0;
-  }
+  const { containerWidth = CARD_WIDTH } = cardRender;
 
   const resizeFactor = (width: number) => {
     return width / CARD_WIDTH;
@@ -50,9 +43,7 @@ const BasicLandCardRender = (cardRender: BasicLandCardRenderProps) => {
       <div
         id={`card-id-${cardID}`}
         style={{
-          transform: `scaleX(${resizeFactor(containerWidth)}) scaleY(${resizeFactor(
-            (containerWidth * CARD_HEIGHT) / 1020.0,
-          )})`,
+          transform: `scale(${resizeFactor(containerWidth)})`,
           transformOrigin: 'top left',
           width: `${(CARD_WIDTH / containerWidth) * 100}%`,
         }}

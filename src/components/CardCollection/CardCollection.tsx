@@ -10,6 +10,7 @@ import Cell, { CellData } from './Cell';
 import styles from './styles.module.scss';
 import { getImage } from '../../actions/imageActions';
 import { Store, StoreType } from '../../store';
+import { CARD_WIDTH, CARD_HEIGHT } from '../../utils/constants';
 
 export interface CardCollectionInterface {
   cards?: CardInterface[];
@@ -77,13 +78,13 @@ const CardCollection = ({
         // grid doesn't butt up against the fixed editor panel. Narrowing the
         // columns leaves the gap empty on the right without clipping cards.
         const RIGHT_GUTTER = mobile ? 0 : 24;
-        const unreservedColumnHeight: number = (width / columns / 720.0) * 1020.0;
+        const unreservedColumnHeight: number = (width / columns / CARD_WIDTH) * CARD_HEIGHT;
         const hasVerticalScrollbar: boolean = rows * unreservedColumnHeight > height;
         const availableWidth: number =
           (hasVerticalScrollbar ? width - SCROLLBAR_WIDTH : width) - RIGHT_GUTTER;
 
         const columnWidth: number = availableWidth / columns;
-        const columnHeight: number = (columnWidth / 720.0) * 1020.0;
+        const columnHeight: number = (columnWidth / CARD_WIDTH) * CARD_HEIGHT;
 
         const data: CellData = {
           cards,

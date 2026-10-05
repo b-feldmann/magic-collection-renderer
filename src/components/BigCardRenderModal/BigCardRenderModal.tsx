@@ -13,7 +13,7 @@ import AnnotationList from '../AnnotationList/AnnotationList';
 import {createAnnotation} from '../../actions/annotationActions';
 import {CardState} from '../../interfaces/enums';
 import {updateCard} from '../../actions/cardActions';
-import {NEEDED_LIKES_TO_APPROVE} from '../../utils/constants';
+import {NEEDED_LIKES_TO_APPROVE, CARD_WIDTH, CARD_HEIGHT} from '../../utils/constants';
 import MobileBigCardRenderModal from './MobileBigCardRenderModal';
 import RotateToMouse from '../RotateToMouse/RotateToMouse';
 
@@ -64,7 +64,7 @@ const BigCardRenderModal = ({
     const hEditorSpace = rowLayout ? 200 : 0;
     const hOffset = 200;
 
-    const dimFactor = 720.0 / 1020.0;
+    const dimFactor = CARD_WIDTH / CARD_HEIGHT;
 
     const modalMaxWidth = (width / 100) * 62.5 - wOffset;
     const modalMaxHeight = height - hOffset - hEditorSpace;

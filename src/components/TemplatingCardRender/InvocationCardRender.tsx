@@ -22,6 +22,7 @@ import ImageLoader from '../ImageLoader/ImageLoader';
 import parseStats from '../../utils/parseStats';
 import parseCollectionNumber from '../../utils/parseCollectionNumber';
 import FlavourText from './FlavourText';
+import { CARD_WIDTH, CARD_HEIGHT } from '../../utils/constants';
 
 interface InvocationCardRenderProps {
   name: string;
@@ -43,9 +44,6 @@ interface InvocationCardRenderProps {
   collectionSize: number;
   containerWidth?: number;
 }
-
-const CARD_WIDTH = 745.0;
-const CARD_HEIGHT = 1040.0;
 
 const InvocationCardRender = (cardRender: InvocationCardRenderProps) => {
   const { legendary, vehicle, cardMainType, cardSubTypes } = cardRender;
@@ -78,10 +76,7 @@ const InvocationCardRender = (cardRender: InvocationCardRenderProps) => {
       <div
         id={`card-id-${cardID}`}
         style={{
-          transform: `
-            scaleX(${resizeFactor(containerWidth)})
-            scaleY(${resizeFactor((containerWidth * CARD_HEIGHT) / 1020.0)})
-          `,
+          transform: `scale(${resizeFactor(containerWidth)})`,
           transformOrigin: 'top left',
           width: `${(CARD_WIDTH / containerWidth) * 100}%`,
         }}

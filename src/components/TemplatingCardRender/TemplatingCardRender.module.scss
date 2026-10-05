@@ -30,30 +30,39 @@
 
 .cardRender {
   position: relative;
-  font-size: 16px;
+  font-size: 33.33px;
   color: black;
 
   .mainframe {
-    border-radius: 29.5px;
+    border-radius: 61.46px;
     z-index: -1;
     background-size: cover;
+    width: 1500px;
+    height: 2100px;
   }
 
   .tokenMainframe {
-    width: 720px;
-    height: 1020px;
+    width: 1500px;
+    height: 2100px;
   }
 
   .inventionMainframe {
-    width: 720px;
-    height: 1020px;
+    width: 1500px;
+    height: 2100px;
   }
 
   .crown {
     position: absolute;
-    top: 0;
-    left: 82px;
-    //width: 720px;
+    top: 43px;
+    left: 41px;
+  }
+
+  .crownBlack {
+    position: absolute;
+    top: 50px;
+    left: 50px;
+    width: 1400px;
+    height: 50px;
   }
 
   .innerBorderFrame,
@@ -67,15 +76,15 @@
     font-family: "Beleren Bold", sans-serif;
     position: absolute;
     font-size: 2.45em;
-    top: 42px;
-    left: 51px;
+    top: 87.5px;
+    left: 106.25px;
   }
 
   .tokenTitle {
-    top: 47px;
+    top: 97.92px;
     left: 0;
     text-align: center;
-    width: 697px;
+    width: 1452.08px;
     color: white;
   }
 
@@ -83,56 +92,56 @@
     font-family: "Beleren Bold", sans-serif;
     position: absolute;
     font-size: 2em;
-    top: 579px;
-    left: 51px;
+    top: 1206.25px;
+    left: 106.25px;
   }
 
   .tokenType {
-    top: 695px;
-    left: 54px;
+    top: 1447.92px;
+    left: 112.5px;
   }
 
   .cost {
     position: absolute;
     font-size: 1.8em;
-    top: 43px;
-    width: 677px;
+    top: 89.58px;
+    width: 1410.42px;
     text-align: right;
   }
 
   .tokenCost {
-    top: 51px;
-    width: 669px;
+    top: 106.25px;
+    width: 1393.75px;
   }
 
   .cost > * {
-    margin-left: 6px;
+    margin-left: 12.5px;
   }
 
   .rarity {
     position: absolute;
-    left: 635px;
-    top: 578px;
-    height: 48px;
+    left: 1322.92px;
+    top: 1204.17px;
+    height: 100px;
   }
 
   .tokenRarity {
-    top: 696px;
-    left: 630px;
+    top: 1450px;
+    left: 1312.5px;
   }
 
   .cover {
     position: absolute;
     z-index: -2;
-    top: 107px;
-    left: 43px;
-    width: 631px;
-    height: 462px;
+    top: 222.92px;
+    left: 89.58px;
+    width: 1314.58px;
+    height: 962.5px;
     background-size: cover;
   }
 
   .tokenCover {
-    top: 78px;
+    top: 162.5px;
   }
 
   .basicLandTitle {
@@ -140,10 +149,10 @@
     font-family: "Beleren Bold", sans-serif;
     position: absolute;
     font-size: 2.5em;
-    top: 6px;
+    top: 12.5px;
     left: 0;
     text-align: center;
-    width: 745px;
+    width: 1500px;
   }
 
   .textWrap {
@@ -156,52 +165,52 @@
     font-family: "MPlantin", sans-serif;
     position: absolute;
     font-size: 1.625em;
-    top: 642px;
-    height: 290px;
-    left: 50px;
-    width: 618px;
+    top: 1337.5px;
+    height: 604.17px;
+    left: 104.17px;
+    width: 1287.5px;
     //border: black solid;
 
     p {
-      margin-top: 12px;
-      margin-bottom: 12px;
+      margin-top: 25px;
+      margin-bottom: 25px;
     }
 
     i {
-      margin-top: -6px;
+      margin-top: -12.5px;
       font-size: 0.8em;
     }
   }
 
   .tokenText {
-    top: 760px;
-    height: 174px;
-    left: 60px;
-    width: 506px;
+    top: 1583.33px;
+    height: 362.5px;
+    left: 125px;
+    width: 1054.17px;
     //border: black solid;
 
     p {
-      margin-top: 12px;
-      margin-bottom: 12px;
+      margin-top: 25px;
+      margin-bottom: 25px;
     }
 
     i {
-      margin-top: -6px;
+      margin-top: -12.5px;
       font-size: 0.8em;
     }
   }
 
   .flavourSeparator {
-    height: 1px;
+    height: 2.08px;
     width: 90%;
     margin-left: 5%;
     background-color: #9f8a8f; // was lighten(#171314, 50%)
-    box-shadow: 0 0 3px 0px #171314;
-    margin-bottom: 10px;
+    box-shadow: 0 0 6.25px 0px #171314;
+    margin-bottom: 20.83px;
   }
 
   .flavour {
-    margin-top: 2px;
+    margin-top: 4.17px;
     font-style: italic;
     font-size: 0.95em;
   }
@@ -210,9 +219,9 @@
     font-family: "Beleren Bold Small Caps", sans-serif;
     font-size: 2.3em;
     position: absolute;
-    top: 919px;
-    left: 629px - 47.5px;
-    width: 95px;
+    top: 1914.58px;
+    left: 1310.42px - 98.96px;
+    width: 197.92px;
     text-align: center;
   }
 
@@ -226,45 +235,48 @@
   }
 
   .collectionBlock {
-    letter-spacing: 1.4px;
-    left: 37px;
-    top: 958px;
+    letter-spacing: 2.92px;
+    left: 77.08px;
+    top: 1995.83px;
   }
 
   .collectionBlock2 {
-    left: 37px;
-    top: 977px;
+    left: 77.08px;
+    top: 2035.42px;
   }
 
   .copyright {
     text-align: right;
-    right: 40px;
-    top: 958px;
+    right: 83.33px;
+    top: 1995.83px;
   }
 
   .copyrightStats {
     text-align: right;
-    right: 40px;
-    top: 977px;
+    right: 83.33px;
+    top: 2035.42px;
   }
 
   .brush {
     position: absolute;
-    top: -1px;
-    margin-left: 8px;
-    margin-right: 4px;
+    top: -2.08px;
+    margin-left: 16.67px;
+    margin-right: 8.33px;
   }
 
   .artist {
     font-family: "Beleren Bold Small Caps", sans-serif;
-    letter-spacing: 1px;
-    margin-left: 28px;
+    letter-spacing: 2.08px;
+    margin-left: 58.33px;
   }
 
-  .landSymbol {
+  .landSymbol > div {
     position: absolute;
-    top: 640px;
+    top: 1358px;
+    height: 550px;
     width: 100%;
+    display: flex;
+    justify-content: center;
     text-align: center;
   }
 }
@@ -272,31 +284,31 @@
 .planeswalker.lines4 {
   .type,
   .rarity {
-    top: 510px;
+    top: 1062.5px;
   }
 }
 
 .planeswalker {
   .title {
     font-size: 2.3em;
-    top: 29px;
+    top: 60.42px;
   }
 
   .cost {
-    top: 29px;
+    top: 60.42px;
   }
 
   .cover {
-    top: 90px;
-    left: 36px;
-    width: 648px;
-    height: 852px;
+    top: 187.5px;
+    left: 75px;
+    width: 1350px;
+    height: 1775px;
   }
 
   .stats {
     font-size: 2em;
-    top: 943px;
-    left: 641px;
+    top: 1964.58px;
+    left: 1335.42px;
     transform: translateX(-50%) translateY(-50%);
     color: white;
   }
@@ -304,55 +316,55 @@
 
 .invocation {
   .rarity {
-    left: 649px;
-    top: 588px;
-    height: 48px;
+    left: 1306.71px;
+    top: 1183.89px;
+    height: 96.64px;
   }
 
   i:not([title="Artist (Nib)"]) {
     font-size: 0.9em;
     background: transparent !important;
-    box-shadow: 0 0 1px 1px #111 !important;
-    margin-left: 4px;
+    box-shadow: 0 0 2.01px 2.01px #111 !important;
+    margin-left: 8.05px;
   }
 
   .cost {
-    top: 56px;
-    width: 697px;
+    top: 112.75px;
+    width: 1403.36px;
   }
 
   .title,
   .type {
     font-family: "Invocation V1", sans-serif;
     //font-weight: bold;
-    letter-spacing: -1px;
+    letter-spacing: -2.01px;
   }
 
   .title {
-    top: 44px;
+    top: 88.59px;
     font-size: 3.1em;
   }
 
   .type {
-    top: 576px;
+    top: 1159.73px;
     font-size: 3.3em;
   }
 
   .text {
     font-family: "Gotham Medium", sans-serif;;
     text-align: center;
-    top: 684px;
-    left: 84px;
-    width: 587px;
-    //height: 190px;
-    height: 200px;
+    top: 1377.18px;
+    left: 169.13px;
+    width: 1181.88px;
+    //height: 382.55px;
+    height: 402.68px;
   }
 
   .cover {
-    top: 156px;
-    left: 82px;
-    height: 407px;
-    width: 577px;
+    top: 314.09px;
+    left: 165.1px;
+    height: 819.46px;
+    width: 1161.74px;
   }
 
   .flavourSeparator {
@@ -366,46 +378,48 @@
   }
 
   .collectionBlock {
-    left: 65px;
-    top: 948px;
+    left: 130.87px;
+    top: 1908.72px;
   }
+
   .collectionBlock2 {
-    left: 59px;
-    top: 964px;
+    left: 118.79px;
+    top: 1940.94px;
   }
+
   .copyright {
-    top: 976px;
-    right: 50px;
+    top: 1965.1px;
+    right: 100.67px;
   }
 
   .stats {
-    top: 862px;
-    left: 665px;
+    top: 1735.57px;
+    left: 1338.93px;
     transform: translateX(-50%);
   }
 
   .stats > * {
-    margin-top: -4px;
-    margin-bottom: -4px;
+    margin-top: -8.05px;
+    margin-bottom: -8.05px;
   }
 }
 
 .unstableStyle {
   .cover {
-    border-radius: 25px;
+    border-radius: 50.34px;
     top: 0;
     left: 0;
-    width: 745px;
-    height: 1040px;
+    width: 1500px;
+    height: 2100px;
   }
 
   .collectionBlock,
   .copyright {
-    top: 971px;
+    top: 1955.03px;
   }
 
   .collectionBlock2 {
-    top: 990px;
+    top: 1993.29px;
   }
 }
 
@@ -415,13 +429,13 @@
     top: 0;
     height: 100%;
     width: 100%;
-    border-radius: 25px;
+    border-radius: 52.08px;
   }
 
   .innerBorderFrame {
     opacity: 0.75;
-    //$clipTop: 107px;
-    //$clipBottom: 570px;
+    //$clipTop: 222.92px;
+    //$clipBottom: 1187.5px;
     //-webkit-clip-path: polygon(0% 0%, 0% 100%, 0 100%, 0 $clipTop, 100% $clipTop, 100% $clipBottom, 0 $clipBottom, 0 100%, 100% 100%, 100% 0%);
     //clip-path: polygon(0% 0%, 0% 100%, 0 100%, 0 $clipTop, 100% $clipTop, 100% $clipBottom, 0 $clipBottom, 0 100%, 100% 100%, 100% 0%);
   }
@@ -429,10 +443,10 @@
 
 .token {
   .cover {
-    left: 28px;
-    top: 28px;
-    height: 960px;
-    width: calc(100% - 28px * 2);
+    left: 58.33px;
+    top: 58.33px;
+    height: 2000px;
+    width: calc(100% - 58.33px * 2);
   }
 
   .innerBorderFrame {
@@ -442,11 +456,11 @@
 
 .invention {
   .cover {
-    left: 30px;
-    top: 30px;
-    height: 960px;
-    width: calc(100% - 30px * 2);
-    border-radius: 20px;
+    left: 62.5px;
+    top: 62.5px;
+    height: 2000px;
+    width: calc(100% - 62.5px * 2);
+    border-radius: 41.67px;
   }
 
   .innerBorderFrame {
@@ -454,58 +468,59 @@
   }
 
   .title {
-    top: 56px;
-    left: 68px;
+    top: 116.67px;
+    left: 141.67px;
   }
 
   .cost {
-    top: 58px;
-    width: 654px;
+    top: 120.83px;
+    width: 1362.5px;
   }
 
   .type {
-    top: 575px;
-    left: 66px;
+    top: 1197.92px;
+    left: 137.5px;
   }
 
   .rarity {
-    left: 618px;
-    top: 573px;
+    left: 1287.5px;
+    top: 1193.75px;
   }
 
   .text {
-    top: 644px;
-    height: 286px;
-    left: 72px;
-    width: 576px;
+    top: 1341.67px;
+    height: 595.83px;
+    left: 150px;
+    width: 1200px;
   }
 }
 
 .landFullArtStyle {
   .cover {
-    height: 722px;
+    height: 1504.17px;
   }
 
   .type,
   .type2,
   .rarity {
-    top: 843px;
+    top: 1756.25px;
   }
 
   .type2 {
     font-family: "Beleren Bold", sans-serif;
     position: absolute;
     font-size: 2em;
-    left: 536px;
+    left: 1116.67px;
     transform: translateX(-50%);
   }
 
-  .landSymbol {
-    left: 4px;
-    top: 804px;
+  .landSymbol > div {
+    left: 6px;
+    top: 1642px;
+    height: initial;
   }
 
   .landSymbol > * > * {
-    width: 120px;
+    width: 270px;
   }
 }

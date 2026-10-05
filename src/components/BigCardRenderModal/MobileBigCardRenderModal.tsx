@@ -4,6 +4,7 @@ import { Modal } from 'antd';
 import CardInterface from '../../interfaces/CardInterface';
 import styles from './BigCardRenderModal.module.scss';
 import { NonMemoCardRender as CardRender } from '../TemplatingCardRender/index';
+import { CARD_WIDTH, CARD_HEIGHT } from '../../utils/constants';
 
 interface MobileBigCardRenderModalProps {
   card: CardInterface;
@@ -32,7 +33,7 @@ const MobileBigCardRenderModal = ({
   const wOffset = 40;
   const hOffset = 30;
 
-  const dimFactor = 720.0 / 1020.0;
+  const dimFactor = CARD_WIDTH / CARD_HEIGHT;
 
   const modalMaxWidth = width - wOffset;
   const modalMaxHeight = height - hOffset;

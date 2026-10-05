@@ -24,6 +24,7 @@ import { injectForText, injectManaIcons } from '../../utils/injectUtils';
 import ImageLoader from '../ImageLoader/ImageLoader';
 import getRarityCode from '../../utils/getRarityCode';
 import parseCollectionNumber from '../../utils/parseCollectionNumber';
+import { CARD_WIDTH, CARD_HEIGHT } from '../../utils/constants';
 
 interface PlaneswalkerCardRenderProps {
   name: string;
@@ -44,9 +45,6 @@ interface PlaneswalkerCardRenderProps {
   collectionSize: number;
   containerWidth?: number;
 }
-
-const CARD_WIDTH = 720.0;
-const CARD_HEIGHT = 1020.0;
 
 const PlaneswalkerCardRender = (cardRender: PlaneswalkerCardRenderProps) => {
   const { legendary, cardMainType, cardSubTypes } = cardRender;
