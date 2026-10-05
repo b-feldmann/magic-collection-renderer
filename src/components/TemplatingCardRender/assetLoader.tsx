@@ -12,15 +12,28 @@ import CrownGreen from './images/crown/m15CrownG.png';
 import CrownGreenFloating from './images/crown/m15CrownFloatingG.png';
 import CrownGold from './images/crown/m15CrownM.png';
 import CrownGoldFloating from './images/crown/m15CrownFloatingM.png';
+import CrownLand from './images/crown/m15CrownL.png';
+import CrownLandFloating from './images/crown/m15CrownFloatingL.png';
 
-import ArtefactMainframe from './images/mainframes/Art.png';
+import Black from './images/black.png';
+
+import VehicleMainframe from './images/mainframes/m15/m15FrameV.png';
+import ArtefactMainframe from './images/mainframes/m15/m15FrameA.png';
+import ArtefactNyxMainframe from './images/mainframes/m15/m15FrameANyx.png';
+import WhiteMainframe from './images/mainframes/m15/m15FrameW.png';
+import WhiteNyxMainframe from './images/mainframes/m15/m15FrameWNyx.png';
+import BlueMainframe from './images/mainframes/m15/m15FrameU.png';
+import BlueNyxMainframe from './images/mainframes/m15/m15FrameUNyx.png';
+import BlackMainframe from './images/mainframes/m15/m15FrameB.png';
+import BlackNyxMainframe from './images/mainframes/m15/m15FrameBNyx.png';
+import RedMainframe from './images/mainframes/m15/m15FrameR.png';
+import RedNyxMainframe from './images/mainframes/m15/m15FrameRNyx.png';
+import GreenMainframe from './images/mainframes/m15/m15FrameG.png';
+import GreenNyxMainframe from './images/mainframes/m15/m15FrameGNyx.png';
+import GoldMainframe from './images/mainframes/m15/m15FrameM.png';
+import GoldNyxMainframe from './images/mainframes/m15/m15FrameMNyx.png';
 import ColorlessMainframe from './images/mainframes/Art.png';
-import WhiteMainframe from './images/mainframes/W.png';
-import BlueMainframe from './images/mainframes/U.png';
-import BlackMainframe from './images/mainframes/B.png';
-import RedMainframe from './images/mainframes/R.png';
-import GreenMainframe from './images/mainframes/G.png';
-import GoldMainframe from './images/mainframes/Gld.png';
+import LandMainframe from './images/mainframes/m15/m15FrameL.png';
 
 import TokenArtefactMainframe from './images/mainframes/token/Art.png';
 import TokenColorlessMainframe from './images/mainframes/token/C.png';
@@ -175,28 +188,44 @@ export const getPt = (color: ColorType) => {
 export const getArtifactPt = (color: ColorType) =>
     color === ColorType.Colorless ? PtArt : getPt(color);
 
-export const getColorMainframe = (color: ColorType, isArtifact = false) => {
+export const getColorMainframe = (color: ColorType, isEnchantment = false, isArtifact = false, isVehicle = false) => {
     // A colorless artifact uses the artefact frame instead of the plain colorless frame.
-    if (isArtifact && color === ColorType.Colorless) return ArtefactMainframe;
+    if (isArtifact) {
+        if (isEnchantment) {
+            return ArtefactNyxMainframe;
+        }
+        return isVehicle ? VehicleMainframe : ArtefactMainframe
+    }
     switch (color) {
         case ColorType.White:
-            return WhiteMainframe;
+            return isEnchantment ? WhiteNyxMainframe : WhiteMainframe;
         case ColorType.Blue:
-            return BlueMainframe;
+            return isEnchantment ? BlueNyxMainframe : BlueMainframe;
         case ColorType.Black:
-            return BlackMainframe;
+            return isEnchantment ? BlackNyxMainframe : BlackMainframe;
         case ColorType.Red:
-            return RedMainframe;
+            return isEnchantment ? RedNyxMainframe : RedMainframe;
         case ColorType.Green:
-            return GreenMainframe;
+            return isEnchantment ? GreenNyxMainframe : GreenMainframe;
         case ColorType.Gold:
-            return GoldMainframe;
+            return isEnchantment ? GoldNyxMainframe : GoldMainframe;
         default:
             return ColorlessMainframe;
     }
 };
 
-export const getCrown = (color: ColorType, isFullart = false) => {
+export const getBlack = () => {
+    return Black
+}
+
+export const getCrown = (color: ColorType, isFullart = false, isLand = false, isArtefact = false) => {
+    if (isLand) {
+        return isFullart ? CrownLandFloating : CrownLand;
+    }
+    if (isArtefact) {
+        return isFullart ? CrownArtefactFloating : CrownArtefact;
+    }
+
     switch (color) {
         case ColorType.White:
             return isFullart ? CrownWhiteFloating : CrownWhite;

@@ -4,6 +4,7 @@ export default interface CardFaceInterface {
   [key: string]: number | string | boolean | undefined | string[];
   name: string;
   legendary?: boolean;
+  vehicle?: boolean;
   cardMainType: CardMainType;
   cardSubTypes?: string;
   cardText: string[];

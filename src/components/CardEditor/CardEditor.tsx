@@ -239,6 +239,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
         getValue('cardMainType') === CardMainType.ArtifactCreature ||
         getValue('cardMainType') === CardMainType.CreatureToken;
     const isPlaneswalker = () => getValue('cardMainType') === CardMainType.Planeswalker;
+    const isArtifact = () => getValue('cardMainType') === CardMainType.Artifact;
     const hasMana = () =>
         getValue('cardMainType') !== CardMainType.ArtifactToken &&
         getValue('cardMainType') !== CardMainType.CreatureToken &&
@@ -281,6 +282,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
         {key: 'name', type: 'input', name: 'Card Name', width: 50},
         {key: 'cover', type: 'upload-input', name: 'Cover (URL)', width: 50},
         {key: 'legendary', type: 'bool', name: 'Legendary?', width: 100},
+        {key: 'vehicle', type: 'bool', name: 'Vehicle?', width: isArtifact() ? 100 : 0},
         {key: 'manaCost', type: 'input', name: 'Mana Cost', width: hasMana() ? 50 : 0},
         {
             key: 'rarity',

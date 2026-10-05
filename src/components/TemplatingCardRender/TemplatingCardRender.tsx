@@ -1,6 +1,6 @@
 // may find images here https://github.com/Investigamer/cardconjurer/tree/master/img/frames
 
-import React, {useContext} from 'react';
+import React, {ReactElement, useContext} from 'react';
 
 import 'mana-font/css/mana.css';
 // @ts-ignore
@@ -24,6 +24,8 @@ import styles from './TemplatingCardRender.module.scss';
 import {
   getArtifactPt,
   getColorMainframe,
+  getCrown,
+  getBlack,
   getFallbackCover,
   getInnerBorderFrame,
   getInventionMainframe,
@@ -53,6 +55,7 @@ interface TemplatingCardRenderProps {
   cardID: string;
   manaCost: string;
   legendary?: boolean;
+  vehicle?: boolean;
   cardMainType: CardMainType;
   cardSubTypes?: string;
   cardText: string[];
@@ -70,7 +73,7 @@ const CARD_WIDTH = 720.0;
 const CARD_HEIGHT = 1020.0;
 
 const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
-  const { legendary, cardMainType, cardSubTypes, rarity } = cardRenderProps;
+  const { legendary, vehicle, cardMainType, cardSubTypes, rarity } = cardRenderProps;
   const { name, manaCost, cardStats, cover, creator } = cardRenderProps;
   const { cardText, flavourText = '', flavourAuthor, cardID } = cardRenderProps;
   const { backFace, collectionNumber, collectionSize } = cardRenderProps;
@@ -88,6 +91,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
   };
 
   const parsedCover = stripCoverValue(cover);
+  const isLand = cardMainType === CardMainType.Land || cardMainType === CardMainType.BasicLand;
 
   if (cardMainType === CardMainType.BasicLand) {
     let landType: BasicLandType = BasicLandType.Plains;
@@ -137,6 +141,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
     return resizeFactor(width) * CARD_HEIGHT;
   };
 
+  const isEnchantment = cardMainType === CardMainType.Enchantment;
   const isArtifact =
     cardMainType === CardMainType.Artifact || cardMainType === CardMainType.ArtifactCreature;
   const isCreature =
@@ -149,7 +154,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
       artStyle === CardArtStyles.Invention;
 
   const { color, allColors, orderedCost, hexColor } = getColor(manaCost);
-  let mainframe = getColorMainframe(color, isArtifact);
+  let mainframe = getColorMainframe(color, isEnchantment, isArtifact, vehicle);
   let lowResMainframe = getLowResColorMainframe(color, isArtifact);
 
   let pt = getPt(color);
@@ -189,6 +194,21 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
   if (artStyle === CardArtStyles.Borderless) {
     lowResMainframe = '';
     mainframe = '';
+  }
+
+  let black = getBlack();
+  let crown: ReactElement | null  = null;
+  if (legendary) {
+    const crownImagePath = getCrown(
+        color,
+        artStyle == CardArtStyles.Borderless || artStyle == CardArtStyles.Extended,
+        isLand,
+        isArtifact,
+    );
+    crown = <ImageLoader
+        src={crownImagePath}
+        className={styles.crown}
+    />
   }
 
   return (
@@ -231,6 +251,8 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
             }`}
             fallBackColor={artStyle !== CardArtStyles.Borderless ? hexColor : undefined}
           />
+          {crown}
+
           {!isToken && !isInvention && innerBorderFrame ? <img className={styles.innerBorderFrame} src={innerBorderFrame} alt="" /> : null}
           {overlay ? <img className={styles.overlay} src={overlay} alt="" /> : null}
 
@@ -253,7 +275,9 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
           <div className={`${styles.type} ${isToken ? styles.tokenType : ''}`}>
             {legendary ? 'Legendary ' : ''}
             {cardMainType}
-            {cardSubTypes ? ` – ${cardSubTypes}` : ''}
+            {[vehicle ? 'Vehicle' : '', cardSubTypes].filter(Boolean).join(' ')
+              ? ` – ${[vehicle ? 'Vehicle' : '', cardSubTypes].filter(Boolean).join(' ')}`
+              : ''}
           </div>
 
           <div className={`${styles.text} ${isToken ? styles.tokenText : ''}`}>

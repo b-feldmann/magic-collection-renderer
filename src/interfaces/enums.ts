@@ -77,6 +77,7 @@ export enum CardState {
 export enum CardArtStyles {
   Regular = 'Regular',
   Borderless = 'Borderless',
+  Extended = 'Extended',
   Invocation = 'Invocation',
   Invention = 'Invention',
 }

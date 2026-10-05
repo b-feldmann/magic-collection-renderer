@@ -30,6 +30,7 @@ interface InvocationCardRenderProps {
   cardID: string;
   manaCost: string;
   legendary?: boolean;
+  vehicle?: boolean;
   cardMainType: CardMainType;
   cardSubTypes?: string;
   cardText: string[];
@@ -47,7 +48,7 @@ const CARD_WIDTH = 745.0;
 const CARD_HEIGHT = 1040.0;
 
 const InvocationCardRender = (cardRender: InvocationCardRenderProps) => {
-  const { legendary, cardMainType, cardSubTypes } = cardRender;
+  const { legendary, vehicle, cardMainType, cardSubTypes } = cardRender;
   const { name, manaCost, cardStats, cover, creator } = cardRender;
   const { cardText, flavourText = '', flavourAuthor, cardID } = cardRender;
   const { backFace, collectionNumber, collectionSize } = cardRender;
@@ -117,7 +118,9 @@ const InvocationCardRender = (cardRender: InvocationCardRenderProps) => {
           <div className={styles.type}>
             {legendary ? 'Legendary ' : ''}
             {cardMainType}
-            {cardSubTypes ? ` – ${cardSubTypes}` : ''}
+            {[vehicle ? 'Vehicle' : '', cardSubTypes].filter(Boolean).join(' ')
+              ? ` – ${[vehicle ? 'Vehicle' : '', cardSubTypes].filter(Boolean).join(' ')}`
+              : ''}
           </div>
 
           <div className={styles.text}>
