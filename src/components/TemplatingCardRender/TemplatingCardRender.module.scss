@@ -53,16 +53,23 @@
 
   .crown {
     position: absolute;
-    top: 43px;
-    left: 41px;
-    width: 1416px;
+    top: 40px;
+    left: 32px;
+    width: 1435px;
   }
 
   .crownFloating {
     position: absolute;
-    top: 40px;
-    left: 42px;
-    width: 1414px;
+    top: 41px;
+    left: 43px;
+    width: 1420px;
+  }
+
+  .crownExtendedArtFix {
+    top: 62px;
+    left: 58px;
+    width: 1386px;
+    position: absolute;
   }
 
   .crownInner {
@@ -95,8 +102,8 @@
   .title {
     font-family: 'Beleren Bold', sans-serif;
     position: absolute;
-    font-size: 2.45em;
-    top: 97px;
+    font-size: 2.25em;
+    top: 101px;
     left: calc(1500px / 746 * 65);
   }
 
@@ -196,11 +203,10 @@
     font-family: 'MPlantin', sans-serif;
     position: absolute;
     font-size: 1.625em;
-    top: 1337.5px;
-    height: 604.17px;
-    left: 104.17px;
-    width: 1287.5px;
-    //border: black solid;
+    top: 1318px;
+    height: 596px;
+    left: 132px;
+    width: 1236px;
 
     p {
       margin-top: 25px;
@@ -348,6 +354,10 @@
     color: white;
   }
 
+  .text {
+    color: white;
+  }
+
   .type {
     color: white;
   }
@@ -356,6 +366,12 @@
 .nicknameFrame {
   .title {
     color: white;
+  }
+
+  .crownFloating {
+    top: 38px;
+    left: 35px;
+    width: 1432px;
   }
 }
 
@@ -545,13 +561,6 @@
 
   .innerBorderFrame {
     opacity: 1;
-  }
-
-  .text {
-    top: 1330px;
-    height: 584px;
-    left: 124px;
-    width: 1250px;
   }
 }
 

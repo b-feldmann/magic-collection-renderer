@@ -69,25 +69,19 @@ export const getSingleColor = (cost: string): ColorType => {
 };
 
 /**
- * Determines the colour identity of a land from its mana cost and rules text.
+ * Determines the colour identity of a land from its rules text.
  *
- * Lands usually have an empty mana cost, so their colour(s) are derived from the
- * mana symbols that appear in the card text (e.g. "{T}: Add {G} or {W}"), plus
- * the special case "mana of any color". Colorless and Gold are never part of an
- * identity.
+ * Their colour(s) are derived from the mana symbols that appear in the card text
+ * (e.g. "{T}: Add {G} or {W}"), plus the special case "mana of any color".
+ * Colorless and Gold are never part of an identity.
  */
-const getLandColor = (manaCost: string = '', cardText: string[] = []): ColorType[] => {
+const getLandColor = (cardText: string[] = []): ColorType[] => {
   const allColors: ColorType[] = [];
 
   const addColor = (type: ColorType) => {
     if (type === ColorType.Colorless || type === ColorType.Gold) return;
     if (!allColors.some(c => c === type)) allColors.push(type);
   };
-
-  const array = manaCost.split(/\}\{|\{|\}/);
-  array.forEach((cost: string) => {
-    addColor(getSingleColor(cost));
-  });
 
   cardText.forEach(line => {
     if (allColors.length === 5) return;

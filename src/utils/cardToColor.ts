@@ -134,7 +134,7 @@ const cardToColor = (
   // Lands usually have no mana cost, so their colour identity is derived from
   // the mana symbols in their rules text instead.
   if (cardMainType === CardMainType.Land) {
-    const identity = getLandColor(manaCost, cardText);
+    const identity = getLandColor(cardText);
     if (identity.length === 1) return { color: identity[0], allColors: identity };
     if (identity.length >= 2) return { color: ColorType.Gold, allColors: identity };
     return { color: ColorType.Colorless, allColors: [ColorType.Colorless] };

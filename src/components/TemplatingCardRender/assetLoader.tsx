@@ -1,27 +1,59 @@
-import CrownArtefact from './images/crown/m15CrownA.png';
-import CrownArtefactFloating from './images/crown/m15CrownAFloating.png';
-import CrownArtefactNickname from './images/crown/nickname/m15NicknameCrownA.png';
-import CrownWhite from './images/crown/m15CrownW.png';
-import CrownWhiteFloating from './images/crown/m15CrownWFloating.png';
-import CrownWhiteNickname from './images/crown/nickname/m15NicknameCrownW.png';
-import CrownBlue from './images/crown/m15CrownU.png';
-import CrownBlueFloating from './images/crown/m15CrownUFloating.png';
-import CrownBlueNickname from './images/crown/nickname/m15NicknameCrownU.png';
-import CrownBlack from './images/crown/m15CrownB.png';
-import CrownBlackFloating from './images/crown/m15CrownBFloating.png';
-import CrownBlackNickname from './images/crown/nickname/m15NicknameCrownB.png';
-import CrownRed from './images/crown/m15CrownR.png';
-import CrownRedFloating from './images/crown/m15CrownRFloating.png';
-import CrownRedNickname from './images/crown/nickname/m15NicknameCrownR.png';
-import CrownGreen from './images/crown/m15CrownG.png';
-import CrownGreenFloating from './images/crown/m15CrownGFloating.png';
-import CrownGreenNickname from './images/crown/nickname/m15NicknameCrownG.png';
-import CrownGold from './images/crown/m15CrownM.png';
-import CrownGoldFloating from './images/crown/m15CrownMFloating.png';
-import CrownGoldNickname from './images/crown/nickname/m15NicknameCrownM.png';
-import CrownLand from './images/crown/m15CrownL.png';
-import CrownLandFloating from './images/crown/m15CrownLFloating.png';
-import CrownLandNickname from './images/crown/nickname/m15NicknameCrownL.png';
+import CrownFloatingExtendedArtFix from './images/crown/floating/extendedArtFix.png';
+import CrownMask from './images/crown/maskCrown.png';
+import CrownArtefact from './images/crown/a.png';
+import CrownArtefactLowRes from './images/crown/aThumb.png';
+import CrownArtefactFloating from './images/crown/floating/a.png';
+import CrownArtefactFloatingLowRes from './images/crown/floating/aThumb.png';
+import CrownArtefactNickname from './images/crown/nickname/a.png';
+import CrownArtefactNicknameLowRes from './images/crown/nickname/aThumb.png';
+import CrownWhite from './images/crown/w.png';
+import CrownWhiteLowRes from './images/crown/wThumb.png';
+import CrownWhiteFloating from './images/crown/floating/w.png';
+import CrownWhiteFloatingLowRes from './images/crown/floating/wThumb.png';
+import CrownWhiteNickname from './images/crown/nickname/w.png';
+import CrownWhiteNicknameLowRes from './images/crown/nickname/wThumb.png';
+import CrownBlue from './images/crown/u.png';
+import CrownBlueLowRes from './images/crown/uThumb.png';
+import CrownBlueFloating from './images/crown/floating/u.png';
+import CrownBlueFloatingLowRes from './images/crown/floating/uThumb.png';
+import CrownBlueNickname from './images/crown/nickname/u.png';
+import CrownBlueNicknameLowRes from './images/crown/nickname/uThumb.png';
+import CrownBlack from './images/crown/b.png';
+import CrownBlackLowRes from './images/crown/bThumb.png';
+import CrownBlackFloating from './images/crown/floating/b.png';
+import CrownBlackFloatingLowRes from './images/crown/floating/bThumb.png';
+import CrownBlackNickname from './images/crown/nickname/b.png';
+import CrownBlackNicknameLowRes from './images/crown/nickname/bThumb.png';
+import CrownRed from './images/crown/r.png';
+import CrownRedLowRes from './images/crown/rThumb.png';
+import CrownRedFloating from './images/crown/floating/r.png';
+import CrownRedFloatingLowRes from './images/crown/floating/rThumb.png';
+import CrownRedNickname from './images/crown/nickname/r.png';
+import CrownRedNicknameLowRes from './images/crown/nickname/rThumb.png';
+import CrownGreen from './images/crown/g.png';
+import CrownGreenLowRes from './images/crown/gThumb.png';
+import CrownGreenFloating from './images/crown/floating/g.png';
+import CrownGreenFloatingLowRes from './images/crown/floating/gThumb.png';
+import CrownGreenNickname from './images/crown/nickname/g.png';
+import CrownGreenNicknameLowRes from './images/crown/nickname/gThumb.png';
+import CrownGold from './images/crown/m.png';
+import CrownGoldLowRes from './images/crown/mThumb.png';
+import CrownGoldFloating from './images/crown/floating/m.png';
+import CrownGoldFloatingLowRes from './images/crown/floating/mThumb.png';
+import CrownGoldNickname from './images/crown/nickname/m.png';
+import CrownGoldNicknameLowRes from './images/crown/nickname/mThumb.png';
+import CrownLand from './images/crown/l.png';
+import CrownLandLowRes from './images/crown/lThumb.png';
+import CrownLandFloating from './images/crown/floating/l.png';
+import CrownLandFloatingLowRes from './images/crown/floating/lThumb.png';
+import CrownLandNickname from './images/crown/nickname/l.png';
+import CrownLandNicknameLowRes from './images/crown/nickname/lThumb.png';
+import CrownColorless from './images/crown/c.png';
+import CrownColorlessLowRes from './images/crown/cThumb.png';
+import CrownColorlessFloating from './images/crown/floating/a.png';
+import CrownColorlessFloatingLowRes from './images/crown/floating/aThumb.png';
+import CrownColorlessNickname from './images/crown/nickname/a.png';
+import CrownColorlessNicknameLowRes from './images/crown/nickname/aThumb.png';
 import InnerCrownArtefact from './images/crown/m15InnerCrownANyx.png';
 import InnerCrownWhite from './images/crown/m15InnerCrownWNyx.png';
 import InnerCrownBlue from './images/crown/m15InnerCrownUNyx.png';
@@ -526,44 +558,66 @@ export const getInnerCrown = (color: ColorType, isArtefact = false) => {
   }
 };
 
+export const getCrownFloatingExtendedArtFix = () => CrownFloatingExtendedArtFix;
+export const getCrownMask = () => CrownMask;
+
 export const getCrown = (
   color: ColorType,
   isFullart = false,
   isLand = false,
   isArtefact = false,
   isNickname = false,
-) => {
+): ImageResData | string => {
   if (isLand && color === ColorType.Colorless) {
-    if (isNickname) return CrownLandNickname;
-    return isFullart ? CrownLandFloating : CrownLand;
+    if (isNickname) return { highRes: CrownLandNickname, lowRes: CrownLandNicknameLowRes };
+    return isFullart
+      ? { highRes: CrownLandFloating, lowRes: CrownLandFloatingLowRes }
+      : { highRes: CrownLand, lowRes: CrownLandLowRes };
   }
   if (isArtefact) {
-    if (isNickname) return CrownArtefactNickname;
-    return isFullart ? CrownArtefactFloating : CrownArtefact;
+    if (isNickname) return { highRes: CrownArtefactNickname, lowRes: CrownArtefactNicknameLowRes };
+    return isFullart
+      ? { highRes: CrownArtefactFloating, lowRes: CrownArtefactFloatingLowRes }
+      : { highRes: CrownArtefact, lowRes: CrownArtefactLowRes };
   }
 
   switch (color) {
     case ColorType.White:
-      if (isNickname) return CrownWhiteNickname;
-      return isFullart ? CrownWhiteFloating : CrownWhite;
+      if (isNickname) return { highRes: CrownWhiteNickname, lowRes: CrownWhiteNicknameLowRes };
+      return isFullart
+        ? { highRes: CrownWhiteFloating, lowRes: CrownWhiteFloatingLowRes }
+        : { highRes: CrownWhite, lowRes: CrownWhiteLowRes };
     case ColorType.Blue:
-      if (isNickname) return CrownBlueNickname;
-      return isFullart ? CrownBlueFloating : CrownBlue;
+      if (isNickname) return { highRes: CrownBlueNickname, lowRes: CrownBlueNicknameLowRes };
+      return isFullart
+        ? { highRes: CrownBlueFloating, lowRes: CrownBlueFloatingLowRes }
+        : { highRes: CrownBlue, lowRes: CrownBlueLowRes };
     case ColorType.Black:
-      if (isNickname) return CrownBlackNickname;
-      return isFullart ? CrownBlackFloating : CrownBlack;
+      if (isNickname) return { highRes: CrownBlackNickname, lowRes: CrownBlackNicknameLowRes };
+      return isFullart
+        ? { highRes: CrownBlackFloating, lowRes: CrownBlackFloatingLowRes }
+        : { highRes: CrownBlack, lowRes: CrownBlackLowRes };
     case ColorType.Red:
-      if (isNickname) return CrownRedNickname;
-      return isFullart ? CrownRedFloating : CrownRed;
+      if (isNickname) return { highRes: CrownRedNickname, lowRes: CrownRedNicknameLowRes };
+      return isFullart
+        ? { highRes: CrownRedFloating, lowRes: CrownRedFloatingLowRes }
+        : { highRes: CrownRed, lowRes: CrownRedLowRes };
     case ColorType.Green:
-      if (isNickname) return CrownGreenNickname;
-      return isFullart ? CrownGreenFloating : CrownGreen;
+      if (isNickname) return { highRes: CrownGreenNickname, lowRes: CrownGreenNicknameLowRes };
+      return isFullart
+        ? { highRes: CrownGreenFloating, lowRes: CrownGreenFloatingLowRes }
+        : { highRes: CrownGreen, lowRes: CrownGreenLowRes };
     case ColorType.Gold:
-      if (isNickname) return CrownGoldNickname;
-      return isFullart ? CrownGoldFloating : CrownGold;
+      if (isNickname) return { highRes: CrownGoldNickname, lowRes: CrownGoldNicknameLowRes };
+      return isFullart
+        ? { highRes: CrownGoldFloating, lowRes: CrownGoldFloatingLowRes }
+        : { highRes: CrownGold, lowRes: CrownGoldLowRes };
     default:
-      if (isNickname) return CrownArtefactNickname;
-      return isFullart ? CrownArtefactFloating : CrownArtefact;
+      if (isNickname)
+        return { highRes: CrownColorlessNickname, lowRes: CrownColorlessNicknameLowRes };
+      return isFullart
+        ? { highRes: CrownColorlessFloating, lowRes: CrownColorlessFloatingLowRes }
+        : { highRes: CrownColorless, lowRes: CrownColorlessLowRes };
   }
 };
 

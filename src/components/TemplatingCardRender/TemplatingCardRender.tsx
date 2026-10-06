@@ -27,6 +27,8 @@ import {
   getBorderlessMainframe,
   getColorMainframe,
   getCrown,
+  getCrownFloatingExtendedArtFix,
+  getCrownMask,
   getExtendedMainframe,
   getFallbackCover,
   getInnerCrown,
@@ -160,7 +162,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
   let { color } = getColor(manaCost);
   const { allColors, orderedCost, hexColor } = getColor(manaCost);
   if (isLand) {
-    const identity = getLandColor(manaCost, cardText);
+    const identity = getLandColor(cardText);
     if (identity.length === 0) {
       color = ColorType.Colorless;
     } else if (identity.length === 1) {
@@ -197,6 +199,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
 
   const black = getBlack();
   let crownBlack: ReactElement | null = null;
+  let crownExtendedArtFix: ReactElement | null = null;
   let crown: ReactElement | null = null;
   let crown2: ReactElement | null = null;
   let crownInner: ReactElement | null = null;
@@ -205,16 +208,31 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
     const crownImagePath = getCrown(color, isFullArt, isLand, isArtifact, isNickname);
     crown = (
       <ImageLoader
-        src={crownImagePath}
-        className={isFullArt ? styles.crownFloating : styles.crown}
+        src={typeof crownImagePath === 'string' ? crownImagePath : crownImagePath.highRes}
+        lowResSrc={typeof crownImagePath === 'string' ? undefined : crownImagePath.lowRes}
+        className={isFullArt || isNickname ? styles.crownFloating : styles.crown}
       />
     );
 
     if (isNickname && !isFullArt) {
       const crownImagePath2 = getCrown(color, false, isLand, isArtifact, false);
-      crown2 = <ImageLoader src={crownImagePath2} className={styles.crown} />;
+      crown2 = (
+        <ImageLoader
+          src={typeof crownImagePath2 === 'string' ? crownImagePath2 : crownImagePath2.highRes}
+          lowResSrc={typeof crownImagePath2 === 'string' ? undefined : crownImagePath2.lowRes}
+          className={styles.crown}
+        />
+      );
     }
 
+    if (artStyle == CardArtStyles.Extended) {
+      crownExtendedArtFix = (
+        <ImageLoader
+          src={getCrownFloatingExtendedArtFix()}
+          className={styles.crownExtendedArtFix}
+        />
+      );
+    }
     if (artStyle != CardArtStyles.Borderless) {
       crownBlack = <ImageLoader src={black} className={styles.crownBlack} />;
     }
@@ -276,6 +294,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
             />
           )}
           {crownBlack}
+          {crownExtendedArtFix}
           {crown2}
           {crown}
           {crownInner}
@@ -316,9 +335,9 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
 
           <div className={`${styles.text} ${isToken ? styles.tokenText : ''}`}>
             <TextResize
-              defaultFontSize={20}
-              maxFontSize={32}
-              minFontSize={14}
+              defaultFontSize={42}
+              maxFontSize={56}
+              minFontSize={38}
               className={styles.textWrap}
             >
               <div>
