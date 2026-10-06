@@ -227,7 +227,7 @@ $editor-width: clamp(310px, calc(100vw / 24 * 21 / 24 * 6 - 16px), 380px);
   position: absolute;
   width: 100vw;
   height: 100vh;
-  background: rgba(255 * 0.2, 255 * 0.2, 255 * 0.2, 1);
+  background: rgba(255, 255, 255, 1);
 }
 
 .loginWrapper > div > div > div > div > * {
