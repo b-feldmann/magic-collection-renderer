@@ -21,33 +21,26 @@ const path = require('path');
 const fs = require('fs');
 const { Jimp } = require('jimp');
 
-const COLORS = ['a', 'b', 'c', 'g', 'm', 'r', 'u', 'v', 'w'];
+const COLORS = ['l', 'a', 'b', 'c', 'g', 'm', 'r', 'u', 'v', 'w'];
 const PART_TYPES = ['pinline', 'rules', 'title', 'type'];
 
 // Two-color combinations in WUBRG wheel order. The first letter is rendered on
 // the left side, the second letter on the right side.
 const COMBINATIONS = ['wu', 'ub', 'br', 'rg', 'gw', 'wb', 'ur', 'bg', 'rw', 'gu'];
 
-const MAINFRAMES_DIR = path.join(
+const IMAGE_DIR = path.join(
   __dirname,
   '..',
   'src',
   'components',
   'TemplatingCardRender',
   'images',
-  'mainframes',
 );
-const PARTS_DIR = path.join(
-  __dirname,
-  '..',
-  'src',
-  'components',
-  'TemplatingCardRender',
-  'images',
-  'parts',
-);
+const MAINFRAMES_DIR = path.join(IMAGE_DIR, 'mainframes');
+const PARTS_DIR = path.join(IMAGE_DIR, 'parts');
 
 const SOURCE_DIR = path.join(MAINFRAMES_DIR, 'm15');
+const SOURCE_LAND_DIR = path.join(MAINFRAMES_DIR, 'lands');
 
 // A mask pixel counts as "on" when its alpha is above this threshold.
 // 0 means any non-transparent pixel is kept (hard binary cutoff).
@@ -127,6 +120,10 @@ async function loadFrames() {
     if (fs.existsSync(sourcePath)) {
       frames.set(color, await Jimp.read(sourcePath));
     }
+  }
+  const sourcePath = path.join(SOURCE_LAND_DIR, `l.png`);
+  if (fs.existsSync(sourcePath)) {
+    frames.set('l', await Jimp.read(sourcePath));
   }
   return frames;
 }

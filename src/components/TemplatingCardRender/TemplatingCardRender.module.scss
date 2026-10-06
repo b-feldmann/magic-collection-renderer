@@ -99,6 +99,17 @@
     left: 0;
   }
 
+  .pinline,
+  .titlePart,
+  .typePart,
+  .rulesPart {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1500px;
+    height: 2100px;
+  }
+
   .title {
     font-family: 'Beleren Bold', sans-serif;
     position: absolute;

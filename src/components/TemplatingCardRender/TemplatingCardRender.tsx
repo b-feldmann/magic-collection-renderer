@@ -34,7 +34,14 @@ import {
   getInventionMainframe,
   getInventionPt,
   getLandMainframe,
+  getLandRulesPart,
+  getLandTitlePart,
+  getLandTypePart,
   getNicknameTitle,
+  getPinline,
+  getRulesPart,
+  getTitlePart,
+  getTypePart,
   getPt,
   getRarityIcon,
   getTokenMainframe,
@@ -162,12 +169,13 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
 
   let { color } = getColor(manaCost);
   const { allColors, orderedCost, hexColor } = getColor(manaCost);
+  let landColors: ColorType[] = [];
   if (isLand) {
-    const identity = getLandColor(cardText);
-    if (identity.length === 0) {
+    landColors = getLandColor(cardText);
+    if (landColors.length === 0) {
       color = ColorType.Colorless;
-    } else if (identity.length === 1) {
-      color = identity[0];
+    } else if (landColors.length === 1) {
+      color = landColors[0];
     } else {
       color = ColorType.Gold;
     }
@@ -181,7 +189,10 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
     artStyle === CardArtStyles.Borderless,
     isLand,
   );
-  console.log(allColors);
+  const pinline = getPinline(isLand ? landColors : allColors, isArtifact);
+  const titlePart = isLand ? getLandTitlePart(landColors) : getTitlePart(allColors, isArtifact);
+  const typePart = isLand ? getLandTypePart(landColors) : getTypePart(allColors, isArtifact);
+  const rulesPart = isLand ? getLandRulesPart(landColors) : getRulesPart(allColors, isArtifact);
 
   if (artStyle === CardArtStyles.Extended) {
     mainframe = getExtendedMainframe(color, isLand, isArtifact, vehicle, isEnchantment);
@@ -302,6 +313,11 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
 
           {/*{!isToken && !isInvention && innerBorderFrame ? <img className={styles.innerBorderFrame} src={innerBorderFrame} alt="" /> : null}*/}
           {/*{overlay ? <img className={styles.overlay} src={overlay} alt="" /> : null}*/}
+
+          {pinline ? <img className={styles.pinline} src={pinline} alt="" /> : null}
+          {titlePart ? <img className={styles.titlePart} src={titlePart} alt="" /> : null}
+          {typePart ? <img className={styles.typePart} src={typePart} alt="" /> : null}
+          {rulesPart ? <img className={styles.rulesPart} src={rulesPart} alt="" /> : null}
 
           <ImageLoader
             src={getRarityIcon(rarity)}

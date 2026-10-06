@@ -3,9 +3,13 @@ import CrownMask from './images/crown/maskCrown.png';
 import CrownArtefact from './images/crown/a.png';
 import CrownArtefactLowRes from './images/crown/aThumb.png';
 import CrownArtefactFloating from './images/crown/floating/a.png';
+import CrownColorlessFloating from './images/crown/floating/a.png';
 import CrownArtefactFloatingLowRes from './images/crown/floating/aThumb.png';
+import CrownColorlessFloatingLowRes from './images/crown/floating/aThumb.png';
 import CrownArtefactNickname from './images/crown/nickname/a.png';
+import CrownColorlessNickname from './images/crown/nickname/a.png';
 import CrownArtefactNicknameLowRes from './images/crown/nickname/aThumb.png';
+import CrownColorlessNicknameLowRes from './images/crown/nickname/aThumb.png';
 import CrownWhite from './images/crown/w.png';
 import CrownWhiteLowRes from './images/crown/wThumb.png';
 import CrownWhiteFloating from './images/crown/floating/w.png';
@@ -50,10 +54,6 @@ import CrownLandNickname from './images/crown/nickname/l.png';
 import CrownLandNicknameLowRes from './images/crown/nickname/lThumb.png';
 import CrownColorless from './images/crown/c.png';
 import CrownColorlessLowRes from './images/crown/cThumb.png';
-import CrownColorlessFloating from './images/crown/floating/a.png';
-import CrownColorlessFloatingLowRes from './images/crown/floating/aThumb.png';
-import CrownColorlessNickname from './images/crown/nickname/a.png';
-import CrownColorlessNicknameLowRes from './images/crown/nickname/aThumb.png';
 import InnerCrownArtefact from './images/crown/m15InnerCrownANyx.png';
 import InnerCrownWhite from './images/crown/m15InnerCrownWNyx.png';
 import InnerCrownBlue from './images/crown/m15InnerCrownUNyx.png';
@@ -67,6 +67,7 @@ import Black from './images/black.png';
 import VehicleMainframe from './images/mainframes/m15/v.png';
 import ArtefactMainframe from './images/mainframes/m15/a.png';
 import ArtefactNyxMainframe from './images/mainframes/m15/nyx/a.png';
+import ColorlessNyxMainframe from './images/mainframes/m15/nyx/a.png';
 import WhiteMainframe from './images/mainframes/m15/w.png';
 import WhiteNyxMainframe from './images/mainframes/m15/nyx/w.png';
 import BlueMainframe from './images/mainframes/m15/u.png';
@@ -80,7 +81,6 @@ import GreenNyxMainframe from './images/mainframes/m15/nyx/g.png';
 import GoldMainframe from './images/mainframes/m15/m.png';
 import GoldNyxMainframe from './images/mainframes/m15/nyx/m.png';
 import ColorlessMainframe from './images/mainframes/m15/c.png';
-import ColorlessNyxMainframe from './images/mainframes/m15/nyx/a.png';
 
 import BorderlessFrameA from './images/mainframes/borderless/m15GenericShowcaseFrameA.png';
 import BorderlessFrameC from './images/mainframes/borderless/m15GenericShowcaseFrameC.png';
@@ -215,6 +215,77 @@ import WhiteBlackInnerBorder from './images/borders/WB.png';
 import WhiteBlueInnerBorder from './images/borders/WU.png';
 import GoldInnerBorder from './images/borders/Gld.png';
 
+import WhitePinline from './images/parts/pinline/w.png';
+import BluePinline from './images/parts/pinline/u.png';
+import BlackPinline from './images/parts/pinline/b.png';
+import RedPinline from './images/parts/pinline/r.png';
+import GreenPinline from './images/parts/pinline/g.png';
+import GoldPinline from './images/parts/pinline/m.png';
+import WhiteBluePinline from './images/parts/pinline/wu.png';
+import BlueBlackPinline from './images/parts/pinline/ub.png';
+import BlackRedPinline from './images/parts/pinline/br.png';
+import RedGreenPinline from './images/parts/pinline/rg.png';
+import GreenWhitePinline from './images/parts/pinline/gw.png';
+import WhiteBlackPinline from './images/parts/pinline/wb.png';
+import BlueRedPinline from './images/parts/pinline/ur.png';
+import BlackGreenPinline from './images/parts/pinline/bg.png';
+import RedWhitePinline from './images/parts/pinline/rw.png';
+import GreenBluePinline from './images/parts/pinline/gu.png';
+
+import WhiteTitle from './images/parts/title/w.png';
+import BlueTitle from './images/parts/title/u.png';
+import BlackTitle from './images/parts/title/b.png';
+import RedTitle from './images/parts/title/r.png';
+import GreenTitle from './images/parts/title/g.png';
+import GoldTitle from './images/parts/title/m.png';
+import WhiteBlueTitle from './images/parts/title/wu.png';
+import BlueBlackTitle from './images/parts/title/ub.png';
+import BlackRedTitle from './images/parts/title/br.png';
+import RedGreenTitle from './images/parts/title/rg.png';
+import GreenWhiteTitle from './images/parts/title/gw.png';
+import WhiteBlackTitle from './images/parts/title/wb.png';
+import BlueRedTitle from './images/parts/title/ur.png';
+import BlackGreenTitle from './images/parts/title/bg.png';
+import RedWhiteTitle from './images/parts/title/rw.png';
+import GreenBlueTitle from './images/parts/title/gu.png';
+
+import WhiteType from './images/parts/type/w.png';
+import BlueType from './images/parts/type/u.png';
+import BlackType from './images/parts/type/b.png';
+import RedType from './images/parts/type/r.png';
+import GreenType from './images/parts/type/g.png';
+import GoldType from './images/parts/type/m.png';
+import WhiteBlueType from './images/parts/type/wu.png';
+import BlueBlackType from './images/parts/type/ub.png';
+import BlackRedType from './images/parts/type/br.png';
+import RedGreenType from './images/parts/type/rg.png';
+import GreenWhiteType from './images/parts/type/gw.png';
+import WhiteBlackType from './images/parts/type/wb.png';
+import BlueRedType from './images/parts/type/ur.png';
+import BlackGreenType from './images/parts/type/bg.png';
+import RedWhiteType from './images/parts/type/rw.png';
+import GreenBlueType from './images/parts/type/gu.png';
+
+import LandTitle from './images/parts/title/l.png';
+import LandType from './images/parts/type/l.png';
+
+import WhiteRules from './images/parts/rules/w.png';
+import BlueRules from './images/parts/rules/u.png';
+import BlackRules from './images/parts/rules/b.png';
+import RedRules from './images/parts/rules/r.png';
+import GreenRules from './images/parts/rules/g.png';
+import GoldRules from './images/parts/rules/m.png';
+import WhiteBlueRules from './images/parts/rules/wu.png';
+import BlueBlackRules from './images/parts/rules/ub.png';
+import BlackRedRules from './images/parts/rules/br.png';
+import RedGreenRules from './images/parts/rules/rg.png';
+import GreenWhiteRules from './images/parts/rules/gw.png';
+import WhiteBlackRules from './images/parts/rules/wb.png';
+import BlueRedRules from './images/parts/rules/ur.png';
+import BlackGreenRules from './images/parts/rules/bg.png';
+import RedWhiteRules from './images/parts/rules/rw.png';
+import GreenBlueRules from './images/parts/rules/gu.png';
+
 import LandOverlay from './images/overlay/C-overlay.png';
 import InvocationPt from './images/pt/invocation/A.png';
 import InventionPt from './images/pt/invention/inventionPT.png';
@@ -224,16 +295,16 @@ import PtU from './images/pt/regular/m15PTU.png';
 import PtB from './images/pt/regular/m15PTB.png';
 import PtR from './images/pt/regular/m15PTR.png';
 import PtG from './images/pt/regular/m15PTM.png';
-import PtC from './images/pt/regular/m15PTC.png';
 import PtM from './images/pt/regular/m15PTM.png';
+import PtC from './images/pt/regular/m15PTC.png';
 import PtANickname from './images/pt/nickname/m15NicknamePTA.png';
 import PtWNickname from './images/pt/nickname/m15NicknamePTW.png';
 import PtUNickname from './images/pt/nickname/m15NicknamePTU.png';
 import PtBNickname from './images/pt/nickname/m15NicknamePTB.png';
 import PtRNickname from './images/pt/nickname/m15NicknamePTR.png';
 import PtGNickname from './images/pt/nickname/m15NicknamePTM.png';
-import PtCNickname from './images/pt/nickname/m15NicknamePTC.png';
 import PtMNickname from './images/pt/nickname/m15NicknamePTM.png';
+import PtCNickname from './images/pt/nickname/m15NicknamePTC.png';
 import PtABorderless from './images/pt/borderless/a.png';
 import PtWBorderless from './images/pt/borderless/w.png';
 import PtUBorderless from './images/pt/borderless/u.png';
@@ -322,6 +393,12 @@ export const getPt = (
     return PtLBorderless;
   }
   if (isArtefact) {
+    if (color === ColorType.Gold) {
+      if (isBorderless) {
+        return isVehicle ? PtVBorderless : PtMBorderless;
+      }
+      return isNickname ? PtMNickname : PtM;
+    }
     if (isBorderless) {
       return isVehicle ? PtVBorderless : PtABorderless;
     }
@@ -763,6 +840,227 @@ export const getInnerBorderFrame = (colors: ColorType[]) => {
   }
   return GoldInnerBorder;
 };
+
+// Maps an unordered pair of colors to its two-color pinline asset. The combo
+// files are named in WUBRG wheel order (wu, ub, br, rg, gw, wb, ur, bg, rw, gu),
+// so we normalize here regardless of the order the colors arrive in.
+const getTwoColorPinline = (colors: ColorType[]) => {
+  if (colors.includes(ColorType.White)) {
+    if (colors.includes(ColorType.Blue)) return WhiteBluePinline;
+    if (colors.includes(ColorType.Black)) return WhiteBlackPinline;
+  }
+  if (colors.includes(ColorType.Blue)) {
+    if (colors.includes(ColorType.Black)) return BlueBlackPinline;
+    if (colors.includes(ColorType.Red)) return BlueRedPinline;
+  }
+  if (colors.includes(ColorType.Black)) {
+    if (colors.includes(ColorType.Green)) return BlackGreenPinline;
+    if (colors.includes(ColorType.Red)) return BlackRedPinline;
+  }
+  if (colors.includes(ColorType.Red)) {
+    if (colors.includes(ColorType.Green)) return RedGreenPinline;
+    if (colors.includes(ColorType.White)) return RedWhitePinline;
+  }
+  if (colors.includes(ColorType.Green)) {
+    if (colors.includes(ColorType.Blue)) return GreenBluePinline;
+    if (colors.includes(ColorType.White)) return GreenWhitePinline;
+  }
+  return GoldPinline;
+};
+
+const getSingleColorPinline = (color: ColorType) => {
+  if (color === ColorType.White) return WhitePinline;
+  if (color === ColorType.Blue) return BluePinline;
+  if (color === ColorType.Black) return BlackPinline;
+  if (color === ColorType.Red) return RedPinline;
+  if (color === ColorType.Green) return GreenPinline;
+  return GoldPinline;
+};
+
+// Pinlines render only on:
+//  - artifacts that are not colorless (pinline matches the card's colors)
+//  - non-artifact gold cards with exactly two colors (two-color combo pinline)
+// Everything else returns '' (no pinline layer).
+export const getPinline = (colors: ColorType[], isArtifact: boolean) => {
+  if (isArtifact) {
+    if (colors.length === 0) return '';
+    if (colors.length === 1) return getSingleColorPinline(colors[0]);
+    if (colors.length === 2) return getTwoColorPinline(colors);
+    return GoldPinline;
+  }
+
+  if (colors.length === 2) return getTwoColorPinline(colors);
+
+  return '';
+};
+
+// Variant key shared by the title / type / rules frame parts. '' means no part.
+type PartVariant =
+  | ''
+  | 'w'
+  | 'u'
+  | 'b'
+  | 'r'
+  | 'g'
+  | 'm'
+  | 'wu'
+  | 'ub'
+  | 'br'
+  | 'rg'
+  | 'gw'
+  | 'wb'
+  | 'ur'
+  | 'bg'
+  | 'rw'
+  | 'gu';
+
+// Maps an unordered color pair to its combo variant key (WUBRG wheel order).
+const getTwoColorVariant = (colors: ColorType[]): PartVariant => {
+  if (colors.includes(ColorType.White)) {
+    if (colors.includes(ColorType.Blue)) return 'wu';
+    if (colors.includes(ColorType.Black)) return 'wb';
+  }
+  if (colors.includes(ColorType.Blue)) {
+    if (colors.includes(ColorType.Black)) return 'ub';
+    if (colors.includes(ColorType.Red)) return 'ur';
+  }
+  if (colors.includes(ColorType.Black)) {
+    if (colors.includes(ColorType.Green)) return 'bg';
+    if (colors.includes(ColorType.Red)) return 'br';
+  }
+  if (colors.includes(ColorType.Red)) {
+    if (colors.includes(ColorType.Green)) return 'rg';
+    if (colors.includes(ColorType.White)) return 'rw';
+  }
+  if (colors.includes(ColorType.Green)) {
+    if (colors.includes(ColorType.Blue)) return 'gu';
+    if (colors.includes(ColorType.White)) return 'gw';
+  }
+  return 'm';
+};
+
+const getSingleColorVariant = (color: ColorType): PartVariant => {
+  if (color === ColorType.White) return 'w';
+  if (color === ColorType.Blue) return 'u';
+  if (color === ColorType.Black) return 'b';
+  if (color === ColorType.Red) return 'r';
+  if (color === ColorType.Green) return 'g';
+  return 'm';
+};
+
+// Selection logic for the rules (text box) frame part:
+//  - artifacts (non-colorless): part matches the card's colors
+//      (single color, two-color combo, or gold for 3+)
+//  - non-artifact cards with exactly two colors: golden ('m') part
+//  - everything else: no part ('')
+// Note this differs from the pinline for two-color non-artifacts, which the
+// user wants rendered as the golden part rather than the two-color combo.
+const getRulesVariant = (colors: ColorType[], isArtifact: boolean): PartVariant => {
+  if (isArtifact) {
+    if (colors.length === 0) return '';
+    if (colors.length === 1) return getSingleColorVariant(colors[0]);
+    if (colors.length === 2) return getTwoColorVariant(colors);
+    return 'm';
+  }
+
+  if (colors.length === 2) return 'm';
+
+  return '';
+};
+
+// Selection logic for the title and type frame parts. Unlike the rules part,
+// these never use the two-color combo: any multicolor artifact (two-color or
+// 3+) uses the golden ('m') part, as do two-color non-artifact cards.
+const getTitleTypeVariant = (colors: ColorType[], isArtifact: boolean): PartVariant => {
+  if (isArtifact) {
+    if (colors.length === 0) return '';
+    if (colors.length === 1) return getSingleColorVariant(colors[0]);
+    return 'm';
+  }
+
+  if (colors.length === 2) return 'm';
+
+  return '';
+};
+
+const TITLE_PARTS: Record<PartVariant, string> = {
+  '': '',
+  w: WhiteTitle,
+  u: BlueTitle,
+  b: BlackTitle,
+  r: RedTitle,
+  g: GreenTitle,
+  m: GoldTitle,
+  wu: WhiteBlueTitle,
+  ub: BlueBlackTitle,
+  br: BlackRedTitle,
+  rg: RedGreenTitle,
+  gw: GreenWhiteTitle,
+  wb: WhiteBlackTitle,
+  ur: BlueRedTitle,
+  bg: BlackGreenTitle,
+  rw: RedWhiteTitle,
+  gu: GreenBlueTitle,
+};
+
+const TYPE_PARTS: Record<PartVariant, string> = {
+  '': '',
+  w: WhiteType,
+  u: BlueType,
+  b: BlackType,
+  r: RedType,
+  g: GreenType,
+  m: GoldType,
+  wu: WhiteBlueType,
+  ub: BlueBlackType,
+  br: BlackRedType,
+  rg: RedGreenType,
+  gw: GreenWhiteType,
+  wb: WhiteBlackType,
+  ur: BlueRedType,
+  bg: BlackGreenType,
+  rw: RedWhiteType,
+  gu: GreenBlueType,
+};
+
+const RULES_PARTS: Record<PartVariant, string> = {
+  '': '',
+  w: WhiteRules,
+  u: BlueRules,
+  b: BlackRules,
+  r: RedRules,
+  g: GreenRules,
+  m: GoldRules,
+  wu: WhiteBlueRules,
+  ub: BlueBlackRules,
+  br: BlackRedRules,
+  rg: RedGreenRules,
+  gw: GreenWhiteRules,
+  wb: WhiteBlackRules,
+  ur: BlueRedRules,
+  bg: BlackGreenRules,
+  rw: RedWhiteRules,
+  gu: GreenBlueRules,
+};
+
+export const getTitlePart = (colors: ColorType[], isArtifact: boolean) =>
+  TITLE_PARTS[getTitleTypeVariant(colors, isArtifact)];
+
+export const getTypePart = (colors: ColorType[], isArtifact: boolean) =>
+  TYPE_PARTS[getTitleTypeVariant(colors, isArtifact)];
+
+export const getRulesPart = (colors: ColorType[], isArtifact: boolean) =>
+  RULES_PARTS[getRulesVariant(colors, isArtifact)];
+
+// Lands only get frame parts when their card-text color identity has exactly
+// two colors: the land ('l') title/type parts plus the two-color text part.
+// Single-color, 3+ color, and colorless lands get no parts.
+export const getLandTitlePart = (colors: ColorType[]) => (colors.length === 2 ? LandTitle : '');
+
+export const getLandTypePart = (colors: ColorType[]) => (colors.length === 2 ? LandType : '');
+
+export const getLandRulesPart = (colors: ColorType[]) =>
+  colors.length === 2 ? RULES_PARTS[getTwoColorVariant(colors)] : '';
 
 export const getLandOverlay = () => LandOverlay;
 
