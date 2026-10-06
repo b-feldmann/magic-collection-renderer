@@ -28,7 +28,6 @@ import {
   getColorMainframe,
   getCrown,
   getCrownFloatingExtendedArtFix,
-  getCrownMask,
   getExtendedMainframe,
   getFallbackCover,
   getInnerCrown,
@@ -148,13 +147,15 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
   };
 
   const isNickname = nickname != null && nickname.length > 0 && artStyle != CardArtStyles.Invention;
-  const isEnchantment = cardMainType === CardMainType.Enchantment;
+  const isEnchantment =
+    cardMainType === CardMainType.Enchantment || cardMainType === CardMainType.EnchantmentCreature;
   const isArtifact =
     cardMainType === CardMainType.Artifact || cardMainType === CardMainType.ArtifactCreature;
   const isCreature =
     cardMainType === CardMainType.Creature ||
     cardMainType === CardMainType.ArtifactCreature ||
-    cardMainType === CardMainType.CreatureToken;
+    cardMainType === CardMainType.CreatureToken ||
+    cardMainType === CardMainType.EnchantmentCreature;
   const isToken =
     cardMainType === CardMainType.CreatureToken || cardMainType === CardMainType.ArtifactToken;
   const isInvention = artStyle === CardArtStyles.Invention;
@@ -203,7 +204,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
   let crown: ReactElement | null = null;
   let crown2: ReactElement | null = null;
   let crownInner: ReactElement | null = null;
-  if (legendary) {
+  if (legendary && !isInvention) {
     const isFullArt = artStyle == CardArtStyles.Borderless || artStyle == CardArtStyles.Extended;
     const crownImagePath = getCrown(color, isFullArt, isLand, isArtifact, isNickname);
     crown = (

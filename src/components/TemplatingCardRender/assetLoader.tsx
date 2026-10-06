@@ -371,7 +371,7 @@ export const getNicknameTitle = (color: ColorType, isArtefact = false, isLand = 
   if (isArtefact) {
     return NicknameTitleA;
   }
-  if (isLand) {
+  if (isLand && color === ColorType.Colorless) {
     return NicknameTitleL;
   }
 

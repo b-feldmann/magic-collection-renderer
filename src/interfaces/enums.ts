@@ -14,6 +14,7 @@ export enum CardMainType {
   Instant = 'Instant',
   Sorcery = 'Sorcery',
   Enchantment = 'Enchantment',
+  EnchantmentCreature = 'Enchantment Creature',
   Artifact = 'Artifact',
   ArtifactCreature = 'Artifact Creature',
   CreatureToken = 'Creature Token',

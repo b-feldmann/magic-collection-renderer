@@ -254,7 +254,8 @@ const CardEditor: React.FC<CardEditorInterface> = ({
   const isCreature = () =>
     getValue('cardMainType') === CardMainType.Creature ||
     getValue('cardMainType') === CardMainType.ArtifactCreature ||
-    getValue('cardMainType') === CardMainType.CreatureToken;
+    getValue('cardMainType') === CardMainType.CreatureToken ||
+    getValue('cardMainType') === CardMainType.EnchantmentCreature;
   const isPlaneswalker = () => getValue('cardMainType') === CardMainType.Planeswalker;
   const isArtifact = () => getValue('cardMainType') === CardMainType.Artifact;
   const hasMana = () =>

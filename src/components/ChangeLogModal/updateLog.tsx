@@ -372,6 +372,10 @@ updateLog.push({
 //     },
 //     {
 //       type: ChangeLogFeatureType.Added,
+//       feature: 'Enchantment Creature Card Type',
+//     },
+//     {
+//       type: ChangeLogFeatureType.Added,
 //       feature: 'Nicknames',
 //       description: 'You can give cards a nickname.',
 //     },
