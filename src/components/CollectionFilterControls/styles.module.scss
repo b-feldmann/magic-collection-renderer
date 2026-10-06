@@ -2,18 +2,18 @@
 // controls card. The surrounding card owns the background, radius and shadow;
 // scrolling is handled by the sidebar's scroll region.
 .controls {
-    width: 100%;
-    padding: 0 8px;
+  width: 100%;
+  padding: 0 8px;
 }
 
 .controlItem {
-    width: 100%;
+  width: 100%;
 }
 
 .controlItem > * {
-    display: block;
-    margin-left: 8px;
-    margin-top: 4px;
+  display: block;
+  margin-left: 8px;
+  margin-top: 4px;
 }
 
 // antd 6 renders the checkbox box (.ant-checkbox) as `display: block` and relies on
@@ -22,6 +22,6 @@
 // Use block-level flex so each checkbox still sits on its own line while the box and
 // label stay aligned on a single row.
 .controlItem > :global(.ant-checkbox-wrapper) {
-    display: flex;
-    margin-inline-start: 8px;
+  display: flex;
+  margin-inline-start: 8px;
 }

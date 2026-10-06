@@ -1,12 +1,12 @@
-export function mapEnum(enumerable: any, fn: Function): any[] {
+export function mapEnum(enumerable: any, fn: (...args: any[]) => any): any[] {
   // get all the members of the enum
-  const enumMembers: any[] = Object.keys(enumerable).map((key) => enumerable[key]);
+  const enumMembers: any[] = Object.keys(enumerable).map(key => enumerable[key]);
 
   // // we are only interested in the numeric identifiers as these represent the values
   // let enumValues: number[] = enumMembers.filter(v => typeof v === 'number');
 
   // now map through the enum values
-  return enumMembers.map((m) => fn(m));
+  return enumMembers.map(m => fn(m));
 }
 
 export enum CardMainType {
@@ -91,4 +91,9 @@ export enum BasicLandArtStyles {
   Regular = 'Regular',
   FullArt = 'Full Art',
   Unstable = 'Unstable',
+}
+
+export enum CoverFit {
+  Stretch = 'Stretch',
+  Zoom = 'Zoom',
 }

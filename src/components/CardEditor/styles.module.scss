@@ -1,109 +1,107 @@
 .noCard {
-    padding-left: 32px;
-    margin-top: 50vh;
-    text-align: center;
+  padding-left: 32px;
+  margin-top: 50vh;
+  text-align: center;
 }
 
 .editor {
-    margin: 16px 8px 8px;
+  margin: 16px 8px 8px;
 
-    .canvas {
-        display: none;
-    }
+  .canvas {
+    display: none;
+  }
 }
 
 .splitInput {
-    display: inline-block;
-    width: 50%;
+  display: inline-block;
+  width: 50%;
 }
 
 .partialField {
-    display: inline-block;
-    padding-right: 8px;
-    padding-left: 8px;
+  display: inline-block;
+  padding-right: 8px;
+  padding-left: 8px;
 }
 
 .fullField {
-    padding-right: 8px;
-    padding-left: 8px;
+  padding-right: 8px;
+  padding-left: 8px;
 }
 
 // Recreates the antd `List` bordered container that `Listy` does not provide.
 .listBordered {
-    border: 1px solid rgba(5, 5, 5, 0.06);
-    border-radius: 8px;
-    overflow: hidden;
+  border: 1px solid rgba(5, 5, 5, 0.06);
+  border-radius: 8px;
+  overflow: hidden;
 }
 
 .listItem {
-    padding: 4px 8px !important;
+  padding: 4px 8px !important;
 }
 
 // Item body: content grows, the remove action sits on the trailing edge
 // (previously the antd `List.Item` `actions` slot).
 .listItemInner {
-    display: flex;
-    align-items: center;
+  display: flex;
+  align-items: center;
 }
 
 .listItemContent {
-    flex: 1;
-    min-width: 0;
+  flex: 1;
+  min-width: 0;
 }
 
 .listItemActions {
-    margin-left: 8px;
-    flex-shrink: 0;
+  margin-left: 8px;
+  flex-shrink: 0;
 }
 
 // Replaces the antd `List` `footer`.
 .listFooter {
-    padding: 8px;
-    border-top: 1px solid rgba(5, 5, 5, 0.06);
+  padding: 8px;
+  border-top: 1px solid rgba(5, 5, 5, 0.06);
 }
 
 .centerParent {
-    text-align: center;
+  text-align: center;
 }
 
 .label {
-    margin-top: 16px;
-    margin-bottom: 2px;
+  margin-top: 16px;
+  margin-bottom: 2px;
 }
 
 .tiny {
-    .label {
-        margin-top: 4px;
-        margin-bottom: 1px;
-    }
+  .label {
+    margin-top: 4px;
+    margin-bottom: 1px;
+  }
 
-    .button {
-        margin-top: 4px;
-    }
+  .button {
+    margin-top: 4px;
+  }
 }
 
 .buttonGroup {
-    margin-top: 16px;
-    width: 100%;
-    text-align: center;
+  margin-top: 16px;
+  width: 100%;
+  text-align: center;
 }
 
 .smallButtonGroup {
-    width: 100%;
-    text-align: center;
-    margin-bottom: -8px;
+  width: 100%;
+  text-align: center;
+  margin-bottom: -8px;
 }
 
 .tooltip {
-    position: absolute;
-    top: 2px;
-    right: 2px;
-    z-index: 999;
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  z-index: 999;
 }
 
 .uploadWrapper {
-    display: flex;
-    width: 100%;
+  display: flex;
+  width: 100%;
 }
-
-

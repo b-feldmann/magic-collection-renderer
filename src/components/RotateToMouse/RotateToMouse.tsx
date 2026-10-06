@@ -87,12 +87,12 @@ const RotateToMouse = ({
       // Track the pointer on this untransformed wrapper: its hit area stays
       // static, so a rotated card sliding out from under the cursor cannot
       // re-trigger enter/leave loops (flicker at the edges).
-      onMouseEnter={(e) => {
+      onMouseEnter={e => {
         cacheRect();
         easeInRef.current = true;
         update(e.clientX, e.clientY);
       }}
-      onMouseMove={(e) => update(e.clientX, e.clientY)}
+      onMouseMove={e => update(e.clientX, e.clientY)}
       onMouseLeave={() => reset()}
       {...rest}
     >

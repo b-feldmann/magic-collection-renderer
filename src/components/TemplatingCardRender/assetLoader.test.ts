@@ -16,16 +16,10 @@ describe('getInnerBorderFrame', () => {
   });
 
   it('returns the gold border for 3+ colors', () => {
-    const gold = getInnerBorderFrame([
-      ColorType.White,
-      ColorType.Blue,
-      ColorType.Black,
-    ]);
+    const gold = getInnerBorderFrame([ColorType.White, ColorType.Blue, ColorType.Black]);
     expect(gold).not.toBe('');
     // All three-color results share the same gold asset.
-    expect(
-      getInnerBorderFrame([ColorType.Red, ColorType.Green, ColorType.White])
-    ).toBe(gold);
+    expect(getInnerBorderFrame([ColorType.Red, ColorType.Green, ColorType.White])).toBe(gold);
   });
 
   it('returns a mono-color border for a single color', () => {
@@ -59,25 +53,28 @@ describe('mainframe getters: colorless artifact uses the artefact frame', () => 
 
   it('colored artifacts keep their color frame (token)', () => {
     expect(getTokenMainframe(ColorType.White, true)).toBe(
-      getTokenMainframe(ColorType.White, false)
+      getTokenMainframe(ColorType.White, false),
     );
   });
 
   it('colored artifacts keep their color frame (invention)', () => {
     expect(getInventionMainframe(ColorType.White, true)).toBe(
-      getInventionMainframe(ColorType.White, false)
+      getInventionMainframe(ColorType.White, false),
     );
   });
 
-  it('colored artifacts keep their color frame (regular)', () => {
-    expect(getColorMainframe(ColorType.White, true)).toBe(
-      getColorMainframe(ColorType.White, false)
-    );
+  it('regular: a colored artifact uses the artefact frame, not its color frame', () => {
+    // Unlike the token/invention getters (which only switch frames for
+    // colorless), getColorMainframe routes EVERY artifact to the generic
+    // artefact frame regardless of color. Note the isArtifact flag is the
+    // third positional argument: (color, isEnchantment, isArtifact, isVehicle).
+    const coloredArtifact = getColorMainframe(ColorType.White, false, true);
+    const coloredNonArtifact = getColorMainframe(ColorType.White, false, false);
+    expect(coloredArtifact).not.toEqual(coloredNonArtifact);
   });
 
   it('regular: colorless artifact resolves to the artefact mainframe', () => {
-    // Regular folder has only Art.png, so the artefact frame is Art.png.
-    // The call must succeed and return a non-empty frame.
-    expect(getColorMainframe(ColorType.Colorless, true)).toBeTruthy();
+    // The artefact frame must be returned for a colorless artifact.
+    expect(getColorMainframe(ColorType.Colorless, false, true)).toBeTruthy();
   });
 });

@@ -32,23 +32,23 @@ import InnerCrownGold from './images/crown/m15InnerCrownMNyx.png';
 
 import Black from './images/black.png';
 
-import VehicleMainframe from './images/mainframes/m15/m15FrameV.png';
-import ArtefactMainframe from './images/mainframes/m15/m15FrameA.png';
-import ArtefactNyxMainframe from './images/mainframes/m15/m15FrameANyx.png';
-import WhiteMainframe from './images/mainframes/m15/m15FrameW.png';
-import WhiteNyxMainframe from './images/mainframes/m15/m15FrameWNyx.png';
-import BlueMainframe from './images/mainframes/m15/m15FrameU.png';
-import BlueNyxMainframe from './images/mainframes/m15/m15FrameUNyx.png';
-import BlackMainframe from './images/mainframes/m15/m15FrameB.png';
-import BlackNyxMainframe from './images/mainframes/m15/m15FrameBNyx.png';
-import RedMainframe from './images/mainframes/m15/m15FrameR.png';
-import RedNyxMainframe from './images/mainframes/m15/m15FrameRNyx.png';
-import GreenMainframe from './images/mainframes/m15/m15FrameG.png';
-import GreenNyxMainframe from './images/mainframes/m15/m15FrameGNyx.png';
-import GoldMainframe from './images/mainframes/m15/m15FrameM.png';
-import GoldNyxMainframe from './images/mainframes/m15/m15FrameMNyx.png';
-import ColorlessMainframe from './images/mainframes/m15/m15FrameA.png';
-import LandMainframe from './images/mainframes/m15/m15FrameL.png';
+import VehicleMainframe from './images/mainframes/m15/v.png';
+import ArtefactMainframe from './images/mainframes/m15/a.png';
+import ArtefactNyxMainframe from './images/mainframes/m15/nyx/a.png';
+import WhiteMainframe from './images/mainframes/m15/w.png';
+import WhiteNyxMainframe from './images/mainframes/m15/nyx/w.png';
+import BlueMainframe from './images/mainframes/m15/u.png';
+import BlueNyxMainframe from './images/mainframes/m15/nyx/u.png';
+import BlackMainframe from './images/mainframes/m15/b.png';
+import BlackNyxMainframe from './images/mainframes/m15/nyx/b.png';
+import RedMainframe from './images/mainframes/m15/r.png';
+import RedNyxMainframe from './images/mainframes/m15/nyx/r.png';
+import GreenMainframe from './images/mainframes/m15/g.png';
+import GreenNyxMainframe from './images/mainframes/m15/nyx/g.png';
+import GoldMainframe from './images/mainframes/m15/m.png';
+import GoldNyxMainframe from './images/mainframes/m15/nyx/m.png';
+import ColorlessMainframe from './images/mainframes/m15/c.png';
+import ColorlessNyxMainframe from './images/mainframes/m15/nyx/a.png';
 
 import BorderlessFrameA from './images/mainframes/borderless/m15GenericShowcaseFrameA.png';
 import BorderlessFrameC from './images/mainframes/borderless/m15GenericShowcaseFrameC.png';
@@ -69,30 +69,29 @@ import BorderlessNicknameFrameR from './images/mainframes/borderless/nickname/m1
 import BorderlessNicknameFrameG from './images/mainframes/borderless/nickname/m15NicknameFrameG.png';
 import BorderlessNicknameFrameM from './images/mainframes/borderless/nickname/m15NicknameFrameM.png';
 
-import ExtendedFrameA from './images/mainframes/extended/a.png'
-import ExtendedFrameANyx from './images/mainframes/extended/nyx/a.png'
-import ExtendedFrameV from './images/mainframes/extended/v.png'
-import ExtendedFrameC from './images/mainframes/extended/c.png'
-import ExtendedFrameL from './images/mainframes/extended/l.png'
-import ExtendedFrameWNyx from './images/mainframes/extended/nyx/w.png'
-import ExtendedFrameW from './images/mainframes/extended/w.png'
-import ExtendedFrameWL from './images/mainframes/extended/lw.png'
-import ExtendedFrameU from './images/mainframes/extended/u.png'
-import ExtendedFrameUNyx from './images/mainframes/extended/nyx/u.png'
-import ExtendedFrameUL from './images/mainframes/extended/lu.png'
-import ExtendedFrameB from './images/mainframes/extended/b.png'
-import ExtendedFrameBNyx from './images/mainframes/extended/nyx/b.png'
-import ExtendedFrameBL from './images/mainframes/extended/lb.png'
-import ExtendedFrameR from './images/mainframes/extended/r.png'
-import ExtendedFrameRNyx from './images/mainframes/extended/nyx/r.png'
-import ExtendedFrameRL from './images/mainframes/extended/lr.png'
-import ExtendedFrameG from './images/mainframes/extended/g.png'
-import ExtendedFrameGNyx from './images/mainframes/extended/nyx/g.png'
-import ExtendedFrameGL from './images/mainframes/extended/lg.png'
-import ExtendedFrameM from './images/mainframes/extended/m.png'
-import ExtendedFrameMNyx from './images/mainframes/extended/nyx/m.png'
-import ExtendedFrameML from './images/mainframes/extended/lm.png'
-
+import ExtendedFrameA from './images/mainframes/extended/a.png';
+import ExtendedFrameANyx from './images/mainframes/extended/nyx/a.png';
+import ExtendedFrameV from './images/mainframes/extended/v.png';
+import ExtendedFrameC from './images/mainframes/extended/c.png';
+import ExtendedFrameL from './images/mainframes/extended/l.png';
+import ExtendedFrameWNyx from './images/mainframes/extended/nyx/w.png';
+import ExtendedFrameW from './images/mainframes/extended/w.png';
+import ExtendedFrameWL from './images/mainframes/extended/lw.png';
+import ExtendedFrameU from './images/mainframes/extended/u.png';
+import ExtendedFrameUNyx from './images/mainframes/extended/nyx/u.png';
+import ExtendedFrameUL from './images/mainframes/extended/lu.png';
+import ExtendedFrameB from './images/mainframes/extended/b.png';
+import ExtendedFrameBNyx from './images/mainframes/extended/nyx/b.png';
+import ExtendedFrameBL from './images/mainframes/extended/lb.png';
+import ExtendedFrameR from './images/mainframes/extended/r.png';
+import ExtendedFrameRNyx from './images/mainframes/extended/nyx/r.png';
+import ExtendedFrameRL from './images/mainframes/extended/lr.png';
+import ExtendedFrameG from './images/mainframes/extended/g.png';
+import ExtendedFrameGNyx from './images/mainframes/extended/nyx/g.png';
+import ExtendedFrameGL from './images/mainframes/extended/lg.png';
+import ExtendedFrameM from './images/mainframes/extended/m.png';
+import ExtendedFrameMNyx from './images/mainframes/extended/nyx/m.png';
+import ExtendedFrameML from './images/mainframes/extended/lm.png';
 
 import TokenArtefactMainframe from './images/mainframes/token/Art.png';
 import TokenColorlessMainframe from './images/mainframes/token/C.png';
@@ -119,14 +118,24 @@ import InventionRedMainframe from './images/mainframes/invention/r.png';
 import InventionGreenMainframe from './images/mainframes/invention/g.png';
 import InventionGoldMainframe from './images/mainframes/invention/m.png';
 
-import LowResWhiteMainframe from './images/mainframes/lowRes/W.png';
-import LowResBlueMainframe from './images/mainframes/lowRes/U.png';
-import LowResBlackMainframe from './images/mainframes/lowRes/B.png';
-import LowResRedMainframe from './images/mainframes/lowRes/R.png';
-import LowResGreenMainframe from './images/mainframes/lowRes/G.png';
-import LowResGoldMainframe from './images/mainframes/lowRes/Gld.png';
-import LowResColorlessMainframe from './images/mainframes/lowRes/Art.png';
-import LowResArtefactMainframe from './images/mainframes/lowRes/Art.png';
+import LowResWhiteMainframe from './images/mainframes/m15/wThumb.png';
+import LowResBlueMainframe from './images/mainframes/m15/uThumb.png';
+import LowResBlackMainframe from './images/mainframes/m15/bThumb.png';
+import LowResRedMainframe from './images/mainframes/m15/rThumb.png';
+import LowResGreenMainframe from './images/mainframes/m15/gThumb.png';
+import LowResGoldMainframe from './images/mainframes/m15/mThumb.png';
+import LowResColorlessMainframe from './images/mainframes/m15/cThumb.png';
+import LowResArtefactMainframe from './images/mainframes/m15/aThumb.png';
+import LowResVehicleMainframe from './images/mainframes/m15/vThumb.png';
+
+import LowResWhiteMainframeNyx from './images/mainframes/m15/nyx/wThumb.png';
+import LowResBlueMainframeNyx from './images/mainframes/m15/nyx/uThumb.png';
+import LowResBlackMainframeNyx from './images/mainframes/m15/nyx/bThumb.png';
+import LowResRedMainframeNyx from './images/mainframes/m15/nyx/rThumb.png';
+import LowResGreenMainframeNyx from './images/mainframes/m15/nyx/gThumb.png';
+import LowResGoldMainframeNyx from './images/mainframes/m15/nyx/mThumb.png';
+import LowResColorlessMainframeNyx from './images/mainframes/m15/nyx/aThumb.png';
+import LowResArtefactMainframeNyx from './images/mainframes/m15/nyx/aThumb.png';
 
 import UnstableBasicLandWhiteMainframe from './images/mainframes/lands/unstable/W.png';
 import UnstableBasicLandBlueMainframe from './images/mainframes/lands/unstable/U.png';
@@ -142,14 +151,20 @@ import FullArtBasicLandRedMainframe from './images/mainframes/lands/fullArt/R.pn
 import FullArtBasicLandGreenMainframe from './images/mainframes/lands/fullArt/G.png';
 import FullArtBasicLandGoldMainframe from './images/mainframes/lands/fullArt/A.png';
 
-import BasicLandWhiteMainframe from './images/mainframes/lands/W.png';
-import BasicLandBlueMainframe from './images/mainframes/lands/U.png';
-import BasicLandBlackMainframe from './images/mainframes/lands/B.png';
-import BasicLandRedMainframe from './images/mainframes/lands/R.png';
-import BasicLandGreenMainframe from './images/mainframes/lands/G.png';
-import BasicLandGoldMainframe from './images/mainframes/lands/A.png';
-
-import LandColorlessMainframe from './images/mainframes/lands/C.png';
+import LandWhiteMainframe from './images/mainframes/lands/lw.png';
+import LandBlueMainframe from './images/mainframes/lands/lu.png';
+import LandBlackMainframe from './images/mainframes/lands/lb.png';
+import LandRedMainframe from './images/mainframes/lands/lr.png';
+import LandGreenMainframe from './images/mainframes/lands/lg.png';
+import LandGoldMainframe from './images/mainframes/lands/lm.png';
+import LandColorlessMainframe from './images/mainframes/lands/l.png';
+import LandWhiteMainframeLowRes from './images/mainframes/lands/lwThumb.png';
+import LandBlueMainframeLowRes from './images/mainframes/lands/luThumb.png';
+import LandBlackMainframeLowRes from './images/mainframes/lands/lbThumb.png';
+import LandRedMainframeLowRes from './images/mainframes/lands/lrThumb.png';
+import LandGreenMainframeLowRes from './images/mainframes/lands/lgThumb.png';
+import LandGoldMainframeLowRes from './images/mainframes/lands/lmThumb.png';
+import LandColorlessMainframeLowRes from './images/mainframes/lands/lThumb.png';
 
 import WhiteInnerBorder from './images/borders/W.png';
 import BlueInnerBorder from './images/borders/U.png';
@@ -210,7 +225,13 @@ import RareIcon from './images/rarity/rare.png';
 import UncommonIcon from './images/rarity/uncommon.png';
 import CommonIcon from './images/rarity/common.png';
 
-import {BasicLandArtStyles, BasicLandType, ColorType, RarityType} from '../../interfaces/enums';
+import {
+  BasicLandArtStyles,
+  BasicLandType,
+  CardArtStyles,
+  ColorType,
+  RarityType,
+} from '../../interfaces/enums';
 
 import PlaneswalkerWhiteMainframe from './images/mainframes/planeswalker/W.png';
 import PlaneswalkerWhiteMainframe2 from './images/mainframes/planeswalker/W2.png';
@@ -249,290 +270,364 @@ import NicknameTitleG from './images/nickname/m15NicknameTitleG.png';
 import NicknameTitleM from './images/nickname/m15NicknameTitleM.png';
 import NicknameTitleL from './images/nickname/m15NicknameTitleL.png';
 
+export interface ImageResData {
+  highRes: string;
+  lowRes?: string;
+}
+
 // export const getFallbackCover = () => NoCover;
-export const getFallbackCover = () => "https://picsum.photos/700/600";
+export const getFallbackCover = () => 'https://picsum.photos/700/600';
 
-export const getPt = (color: ColorType, isArtefact = false, isVehicle = false, isNickname= false, isBorderless = false, isLand = false) => {
-    if (isLand) {
-        return PtLBorderless;
+export const getPt = (
+  color: ColorType,
+  isArtefact = false,
+  isVehicle = false,
+  isNickname = false,
+  isBorderless = false,
+  isLand = false,
+) => {
+  if (isLand) {
+    return PtLBorderless;
+  }
+  if (isArtefact) {
+    if (isBorderless) {
+      return isVehicle ? PtVBorderless : PtABorderless;
     }
-    if (isArtefact) {
-        if (isBorderless) {
-            return isVehicle ? PtVBorderless : PtABorderless;
-        }
-        return isNickname ? PtANickname : PtA;
-    }
+    return isNickname ? PtANickname : PtA;
+  }
 
-    switch (color) {
-        case ColorType.White:
-            if (isBorderless) {
-                return PtWBorderless;
-            }
-            return isNickname ? PtWNickname : PtW;
-        case ColorType.Blue:
-            if (isBorderless) {
-                return PtUBorderless;
-            }
-            return isNickname ? PtUNickname : PtU;
-        case ColorType.Black:
-            if (isBorderless) {
-                return PtBBorderless;
-            }
-            return isNickname ? PtBNickname : PtB;
-        case ColorType.Red:
-            if (isBorderless) {
-                return PtRBorderless;
-            }
-            return isNickname ? PtRNickname : PtR;
-        case ColorType.Green:
-            if (isBorderless) {
-                return PtGBorderless;
-            }
-            return isNickname ? PtGNickname : PtG;
-        case ColorType.Gold:
-            if (isBorderless) {
-                return PtMBorderless;
-            }
-            return isNickname ? PtMNickname : PtM;
-        default:
-            if (isBorderless) {
-                return PtCBorderless;
-            }
-            return isNickname ? PtCNickname : PtC;
-    }
+  switch (color) {
+    case ColorType.White:
+      if (isBorderless) {
+        return PtWBorderless;
+      }
+      return isNickname ? PtWNickname : PtW;
+    case ColorType.Blue:
+      if (isBorderless) {
+        return PtUBorderless;
+      }
+      return isNickname ? PtUNickname : PtU;
+    case ColorType.Black:
+      if (isBorderless) {
+        return PtBBorderless;
+      }
+      return isNickname ? PtBNickname : PtB;
+    case ColorType.Red:
+      if (isBorderless) {
+        return PtRBorderless;
+      }
+      return isNickname ? PtRNickname : PtR;
+    case ColorType.Green:
+      if (isBorderless) {
+        return PtGBorderless;
+      }
+      return isNickname ? PtGNickname : PtG;
+    case ColorType.Gold:
+      if (isBorderless) {
+        return PtMBorderless;
+      }
+      return isNickname ? PtMNickname : PtM;
+    default:
+      if (isBorderless) {
+        return PtCBorderless;
+      }
+      return isNickname ? PtCNickname : PtC;
+  }
 };
 
 export const getNicknameTitle = (color: ColorType, isArtefact = false, isLand = false) => {
-    if (isArtefact) {
-        return NicknameTitleA;
-    }
-    if (isLand) {
-        return NicknameTitleL;
-    }
+  if (isArtefact) {
+    return NicknameTitleA;
+  }
+  if (isLand) {
+    return NicknameTitleL;
+  }
 
-    switch (color) {
-        case ColorType.White:
-            return  NicknameTitleW;
-        case ColorType.Blue:
-            return  NicknameTitleU;
-        case ColorType.Black:
-            return  NicknameTitleB;
-        case ColorType.Red:
-            return  NicknameTitleR;
-        case ColorType.Green:
-            return  NicknameTitleG;
-        case ColorType.Gold:
-            return  NicknameTitleM;
-        default:
-            return  NicknameTitleA;
-    }
+  switch (color) {
+    case ColorType.White:
+      return NicknameTitleW;
+    case ColorType.Blue:
+      return NicknameTitleU;
+    case ColorType.Black:
+      return NicknameTitleB;
+    case ColorType.Red:
+      return NicknameTitleR;
+    case ColorType.Green:
+      return NicknameTitleG;
+    case ColorType.Gold:
+      return NicknameTitleM;
+    default:
+      return NicknameTitleA;
+  }
 };
 
-export const getColorMainframe = (color: ColorType, isEnchantment = false, isArtifact = false, isVehicle = false) => {
-    // A colorless artifact uses the artefact frame instead of the plain colorless frame.
-    if (isArtifact) {
-        if (isEnchantment) {
-            return ArtefactNyxMainframe;
-        }
-        return isVehicle ? VehicleMainframe : ArtefactMainframe
+export const getColorMainframe = (
+  color: ColorType,
+  isEnchantment = false,
+  isArtifact = false,
+  isVehicle = false,
+): ImageResData | string => {
+  // A colorless artifact uses the artefact frame instead of the plain colorless frame.
+  if (isArtifact) {
+    if (isEnchantment) {
+      return { highRes: ArtefactNyxMainframe, lowRes: LowResArtefactMainframeNyx };
     }
-    switch (color) {
-        case ColorType.White:
-            return isEnchantment ? WhiteNyxMainframe : WhiteMainframe;
-        case ColorType.Blue:
-            return isEnchantment ? BlueNyxMainframe : BlueMainframe;
-        case ColorType.Black:
-            return isEnchantment ? BlackNyxMainframe : BlackMainframe;
-        case ColorType.Red:
-            return isEnchantment ? RedNyxMainframe : RedMainframe;
-        case ColorType.Green:
-            return isEnchantment ? GreenNyxMainframe : GreenMainframe;
-        case ColorType.Gold:
-            return isEnchantment ? GoldNyxMainframe : GoldMainframe;
-        default:
-            return ColorlessMainframe;
-    }
+    return isVehicle
+      ? { highRes: VehicleMainframe, lowRes: LowResVehicleMainframe }
+      : {
+          highRes: ArtefactMainframe,
+          lowRes: LowResArtefactMainframe,
+        };
+  }
+  switch (color) {
+    case ColorType.White:
+      return isEnchantment
+        ? {
+            highRes: WhiteNyxMainframe,
+            lowRes: LowResWhiteMainframeNyx,
+          }
+        : { highRes: WhiteMainframe, lowRes: LowResWhiteMainframe };
+    case ColorType.Blue:
+      return isEnchantment
+        ? {
+            highRes: BlueNyxMainframe,
+            lowRes: LowResBlueMainframeNyx,
+          }
+        : { highRes: BlueMainframe, lowRes: LowResBlueMainframe };
+    case ColorType.Black:
+      return isEnchantment
+        ? {
+            highRes: BlackNyxMainframe,
+            lowRes: LowResBlackMainframeNyx,
+          }
+        : { highRes: BlackMainframe, lowRes: LowResBlackMainframe };
+    case ColorType.Red:
+      return isEnchantment
+        ? { highRes: RedNyxMainframe, lowRes: LowResRedMainframeNyx }
+        : {
+            highRes: RedMainframe,
+            lowRes: LowResRedMainframe,
+          };
+    case ColorType.Green:
+      return isEnchantment
+        ? {
+            highRes: GreenNyxMainframe,
+            lowRes: LowResGreenMainframeNyx,
+          }
+        : { highRes: GreenMainframe, lowRes: LowResGreenMainframe };
+    case ColorType.Gold:
+      return isEnchantment
+        ? {
+            highRes: GoldNyxMainframe,
+            lowRes: LowResGoldMainframeNyx,
+          }
+        : { highRes: GoldMainframe, lowRes: LowResGoldMainframe };
+    default:
+      return isEnchantment
+        ? {
+            highRes: ColorlessNyxMainframe,
+            lowRes: LowResColorlessMainframeNyx,
+          }
+        : { highRes: ColorlessMainframe, lowRes: LowResColorlessMainframe };
+  }
 };
 
-export const getBorderlessMainframe = (color: ColorType, isLand = false, isArtifact = false, isNickname = false) => {
-    if (isArtifact) {
-        return isNickname ? BorderlessNicknameFrameA : BorderlessFrameA;
-    }
-    if (isLand) {
-        return isNickname ? BorderlessNicknameFrameL : BorderlessFrameL;
-    }
+export const getBorderlessMainframe = (
+  color: ColorType,
+  isLand = false,
+  isArtifact = false,
+  isNickname = false,
+) => {
+  if (isArtifact) {
+    return isNickname ? BorderlessNicknameFrameA : BorderlessFrameA;
+  }
+  if (isLand && color === ColorType.Colorless) {
+    return isNickname ? BorderlessNicknameFrameL : BorderlessFrameL;
+  }
 
-    switch (color) {
-        case ColorType.White:
-            return isNickname ? BorderlessNicknameFrameW : BorderlessFrameW;
-        case ColorType.Blue:
-            return isNickname ? BorderlessNicknameFrameU : BorderlessFrameU;
-        case ColorType.Black:
-            return isNickname ? BorderlessNicknameFrameB : BorderlessFrameB;
-        case ColorType.Red:
-            return isNickname ? BorderlessNicknameFrameR : BorderlessFrameR;
-        case ColorType.Green:
-            return isNickname ? BorderlessNicknameFrameG : BorderlessFrameG;
-        case ColorType.Gold:
-            return isNickname ? BorderlessNicknameFrameM : BorderlessFrameM;
-        default:
-            return isNickname ? BorderlessNicknameFrameC : BorderlessFrameC;
-    }
+  switch (color) {
+    case ColorType.White:
+      return isNickname ? BorderlessNicknameFrameW : BorderlessFrameW;
+    case ColorType.Blue:
+      return isNickname ? BorderlessNicknameFrameU : BorderlessFrameU;
+    case ColorType.Black:
+      return isNickname ? BorderlessNicknameFrameB : BorderlessFrameB;
+    case ColorType.Red:
+      return isNickname ? BorderlessNicknameFrameR : BorderlessFrameR;
+    case ColorType.Green:
+      return isNickname ? BorderlessNicknameFrameG : BorderlessFrameG;
+    case ColorType.Gold:
+      return isNickname ? BorderlessNicknameFrameM : BorderlessFrameM;
+    default:
+      return isNickname ? BorderlessNicknameFrameC : BorderlessFrameC;
+  }
 };
 
-export const getExtendedMainframe = (color: ColorType, isLand = false, isArtifact = false, isVehicle = false, isEnchantment = false) => {
-    if (isArtifact) {
-        if (isVehicle) return ExtendedFrameV;
-        return isEnchantment ? ExtendedFrameANyx : ExtendedFrameA;
-    }
-    switch (color) {
-        case ColorType.White:
-            if (isEnchantment) return ExtendedFrameWNyx;
-            return isLand ? ExtendedFrameWL : ExtendedFrameW;
-        case ColorType.Blue:
-            if (isEnchantment) return ExtendedFrameUNyx;
-            return isLand ? ExtendedFrameUL : ExtendedFrameU;
-        case ColorType.Black:
-            if (isEnchantment) return ExtendedFrameBNyx;
-            return isLand ? ExtendedFrameBL : ExtendedFrameB;
-        case ColorType.Red:
-            if (isEnchantment) return ExtendedFrameRNyx;
-            return isLand ? ExtendedFrameRL : ExtendedFrameR;
-        case ColorType.Green:
-            if (isEnchantment) return ExtendedFrameGNyx;
-            return isLand ? ExtendedFrameGL : ExtendedFrameG;
-        case ColorType.Gold:
-            if (isEnchantment) return ExtendedFrameMNyx;
-            return isLand ? ExtendedFrameML : ExtendedFrameM;
-        default:
-            if (isEnchantment) return ExtendedFrameANyx;
-            return isLand ? ExtendedFrameL : ExtendedFrameC;
-    }
+export const getExtendedMainframe = (
+  color: ColorType,
+  isLand = false,
+  isArtifact = false,
+  isVehicle = false,
+  isEnchantment = false,
+) => {
+  if (isArtifact) {
+    if (isVehicle) return ExtendedFrameV;
+    return isEnchantment ? ExtendedFrameANyx : ExtendedFrameA;
+  }
+  switch (color) {
+    case ColorType.White:
+      if (isEnchantment) return ExtendedFrameWNyx;
+      return isLand ? ExtendedFrameWL : ExtendedFrameW;
+    case ColorType.Blue:
+      if (isEnchantment) return ExtendedFrameUNyx;
+      return isLand ? ExtendedFrameUL : ExtendedFrameU;
+    case ColorType.Black:
+      if (isEnchantment) return ExtendedFrameBNyx;
+      return isLand ? ExtendedFrameBL : ExtendedFrameB;
+    case ColorType.Red:
+      if (isEnchantment) return ExtendedFrameRNyx;
+      return isLand ? ExtendedFrameRL : ExtendedFrameR;
+    case ColorType.Green:
+      if (isEnchantment) return ExtendedFrameGNyx;
+      return isLand ? ExtendedFrameGL : ExtendedFrameG;
+    case ColorType.Gold:
+      if (isEnchantment) return ExtendedFrameMNyx;
+      return isLand ? ExtendedFrameML : ExtendedFrameM;
+    default:
+      if (isEnchantment) return ExtendedFrameANyx;
+      return isLand ? ExtendedFrameL : ExtendedFrameC;
+  }
 };
 
 export const getBlack = () => {
-    return Black
-}
+  return Black;
+};
 
 export const getInnerCrown = (color: ColorType, isArtefact = false) => {
-    if (isArtefact) {
-        return InnerCrownArtefact;
-    }
+  if (isArtefact) {
+    return InnerCrownArtefact;
+  }
 
-    switch (color) {
-        case ColorType.White:
-            return InnerCrownWhite;
-        case ColorType.Blue:
-            return InnerCrownBlue;
-        case ColorType.Black:
-            return InnerCrownBlack;
-        case ColorType.Red:
-            return InnerCrownRed;
-        case ColorType.Green:
-            return InnerCrownGreen;
-        case ColorType.Gold:
-            return InnerCrownGold;
-        default:
-            return InnerCrownArtefact;
-    }
-}
+  switch (color) {
+    case ColorType.White:
+      return InnerCrownWhite;
+    case ColorType.Blue:
+      return InnerCrownBlue;
+    case ColorType.Black:
+      return InnerCrownBlack;
+    case ColorType.Red:
+      return InnerCrownRed;
+    case ColorType.Green:
+      return InnerCrownGreen;
+    case ColorType.Gold:
+      return InnerCrownGold;
+    default:
+      return InnerCrownArtefact;
+  }
+};
 
-export const getCrown = (color: ColorType, isFullart = false, isLand = false, isArtefact = false, isNickname = false) => {
-    if (isLand) {
-        if (isNickname) return CrownLandNickname;
-        return isFullart ? CrownLandFloating : CrownLand;
-    }
-    if (isArtefact) {
-        if (isNickname) return CrownArtefactNickname;
-        return isFullart ? CrownArtefactFloating : CrownArtefact;
-    }
+export const getCrown = (
+  color: ColorType,
+  isFullart = false,
+  isLand = false,
+  isArtefact = false,
+  isNickname = false,
+) => {
+  if (isLand && color === ColorType.Colorless) {
+    if (isNickname) return CrownLandNickname;
+    return isFullart ? CrownLandFloating : CrownLand;
+  }
+  if (isArtefact) {
+    if (isNickname) return CrownArtefactNickname;
+    return isFullart ? CrownArtefactFloating : CrownArtefact;
+  }
 
-    switch (color) {
-        case ColorType.White:
-            if (isNickname) return CrownWhiteNickname;
-            return isFullart ? CrownWhiteFloating : CrownWhite;
-        case ColorType.Blue:
-            if (isNickname) return CrownBlueNickname;
-            return isFullart ? CrownBlueFloating : CrownBlue;
-        case ColorType.Black:
-            if (isNickname) return CrownBlackNickname;
-            return isFullart ? CrownBlackFloating : CrownBlack;
-        case ColorType.Red:
-            if (isNickname) return CrownRedNickname;
-            return isFullart ? CrownRedFloating : CrownRed;
-        case ColorType.Green:
-            if (isNickname) return CrownGreenNickname;
-            return isFullart ? CrownGreenFloating : CrownGreen;
-        case ColorType.Gold:
-            if (isNickname) return CrownGoldNickname;
-            return isFullart ? CrownGoldFloating : CrownGold;
-        default:
-            if (isNickname) return CrownArtefactNickname;
-            return isFullart ? CrownArtefactFloating : CrownArtefact;
-    }
-}
+  switch (color) {
+    case ColorType.White:
+      if (isNickname) return CrownWhiteNickname;
+      return isFullart ? CrownWhiteFloating : CrownWhite;
+    case ColorType.Blue:
+      if (isNickname) return CrownBlueNickname;
+      return isFullart ? CrownBlueFloating : CrownBlue;
+    case ColorType.Black:
+      if (isNickname) return CrownBlackNickname;
+      return isFullart ? CrownBlackFloating : CrownBlack;
+    case ColorType.Red:
+      if (isNickname) return CrownRedNickname;
+      return isFullart ? CrownRedFloating : CrownRed;
+    case ColorType.Green:
+      if (isNickname) return CrownGreenNickname;
+      return isFullart ? CrownGreenFloating : CrownGreen;
+    case ColorType.Gold:
+      if (isNickname) return CrownGoldNickname;
+      return isFullart ? CrownGoldFloating : CrownGold;
+    default:
+      if (isNickname) return CrownArtefactNickname;
+      return isFullart ? CrownArtefactFloating : CrownArtefact;
+  }
+};
 
 export const getTokenMainframe = (color: ColorType, isArtifact = false) => {
-    if (isArtifact && color === ColorType.Colorless) return TokenArtefactMainframe;
-    switch (color) {
-        case ColorType.White:
-            return TokenWhiteMainframe;
-        case ColorType.Blue:
-            return TokenBlueMainframe;
-        case ColorType.Black:
-            return TokenBlackMainframe;
-        case ColorType.Red:
-            return TokenRedMainframe;
-        case ColorType.Green:
-            return TokenGreenMainframe;
-        case ColorType.Gold:
-            return TokenGoldMainframe;
-        default:
-            return TokenColorlessMainframe;
-    }
+  if (isArtifact && color === ColorType.Colorless) return TokenArtefactMainframe;
+  switch (color) {
+    case ColorType.White:
+      return TokenWhiteMainframe;
+    case ColorType.Blue:
+      return TokenBlueMainframe;
+    case ColorType.Black:
+      return TokenBlackMainframe;
+    case ColorType.Red:
+      return TokenRedMainframe;
+    case ColorType.Green:
+      return TokenGreenMainframe;
+    case ColorType.Gold:
+      return TokenGoldMainframe;
+    default:
+      return TokenColorlessMainframe;
+  }
 };
 
 export const getLoyaltyIcon = (loyaltyAction?: string) => {
-    if (!loyaltyAction) return '';
-    if (loyaltyAction.indexOf('+') !== -1) return LoyaltyUp;
-    if (loyaltyAction.indexOf('-') !== -1) return LoyaltyDown;
-    if (loyaltyAction === '0') return LoyaltyZero;
-    return '';
+  if (!loyaltyAction) return '';
+  if (loyaltyAction.indexOf('+') !== -1) return LoyaltyUp;
+  if (loyaltyAction.indexOf('-') !== -1) return LoyaltyDown;
+  if (loyaltyAction === '0') return LoyaltyZero;
+  return '';
 };
 
 export const getPlaneswalkerPt = () => PlaneswalkerPt;
 
 export const getPlaneswalkerMainframe = (color: ColorType, lines: 2 | 3 | 4 | undefined) => {
-    switch (color) {
-        case ColorType.White:
-            if (lines === 2) return PlaneswalkerWhiteMainframe2;
-            if (lines === 4) return PlaneswalkerWhiteMainframe4;
-            return PlaneswalkerWhiteMainframe;
-        case ColorType.Blue:
-            if (lines === 2) return PlaneswalkerBlueMainframe2;
-            if (lines === 4) return PlaneswalkerBlueMainframe4;
-            return PlaneswalkerBlueMainframe;
-        case ColorType.Black:
-            if (lines === 2) return PlaneswalkerBlackMainframe2;
-            if (lines === 4) return PlaneswalkerBlackMainframe4;
-            return PlaneswalkerBlackMainframe;
-        case ColorType.Red:
-            if (lines === 2) return PlaneswalkerRedMainframe2;
-            if (lines === 4) return PlaneswalkerRedMainframe4;
-            return PlaneswalkerRedMainframe;
-        case ColorType.Green:
-            if (lines === 2) return PlaneswalkerGreenMainframe2;
-            if (lines === 4) return PlaneswalkerGreenMainframe4;
-            return PlaneswalkerGreenMainframe;
-        case ColorType.Colorless:
-            if (lines === 2) return PlaneswalkerColorlessMainframe2;
-            if (lines === 4) return PlaneswalkerColorlessMainframe4;
-            return PlaneswalkerColorlessMainframe;
-        default:
-            if (lines === 2) return PlaneswalkerGoldMainframe2;
-            if (lines === 4) return PlaneswalkerGoldMainframe4;
-            return PlaneswalkerGoldMainframe;
-    }
+  switch (color) {
+    case ColorType.White:
+      if (lines === 2) return PlaneswalkerWhiteMainframe2;
+      if (lines === 4) return PlaneswalkerWhiteMainframe4;
+      return PlaneswalkerWhiteMainframe;
+    case ColorType.Blue:
+      if (lines === 2) return PlaneswalkerBlueMainframe2;
+      if (lines === 4) return PlaneswalkerBlueMainframe4;
+      return PlaneswalkerBlueMainframe;
+    case ColorType.Black:
+      if (lines === 2) return PlaneswalkerBlackMainframe2;
+      if (lines === 4) return PlaneswalkerBlackMainframe4;
+      return PlaneswalkerBlackMainframe;
+    case ColorType.Red:
+      if (lines === 2) return PlaneswalkerRedMainframe2;
+      if (lines === 4) return PlaneswalkerRedMainframe4;
+      return PlaneswalkerRedMainframe;
+    case ColorType.Green:
+      if (lines === 2) return PlaneswalkerGreenMainframe2;
+      if (lines === 4) return PlaneswalkerGreenMainframe4;
+      return PlaneswalkerGreenMainframe;
+    case ColorType.Colorless:
+      if (lines === 2) return PlaneswalkerColorlessMainframe2;
+      if (lines === 4) return PlaneswalkerColorlessMainframe4;
+      return PlaneswalkerColorlessMainframe;
+    default:
+      if (lines === 2) return PlaneswalkerGoldMainframe2;
+      if (lines === 4) return PlaneswalkerGoldMainframe4;
+      return PlaneswalkerGoldMainframe;
+  }
 };
 
 export const getInvocationPt = () => InvocationPt;
@@ -540,156 +635,139 @@ export const getInvocationPt = () => InvocationPt;
 export const getInventionPt = () => InventionPt;
 
 export const getInventionMainframe = (color: ColorType, isArtifact = false) => {
-    if (isArtifact && color === ColorType.Colorless) return InventionArtefactMainframe;
-    switch (color) {
-        case ColorType.White:
-            return InventionWhiteMainframe;
-        case ColorType.Blue:
-            return InventionBlueMainframe;
-        case ColorType.Black:
-            return InventionBlackMainframe;
-        case ColorType.Red:
-            return InventionRedMainframe;
-        case ColorType.Green:
-            return InventionGreenMainframe;
-        case ColorType.Gold:
-            return InventionGoldMainframe;
-        default:
-            return InventionColorlessMainframe;
-    }
+  if (isArtifact && color === ColorType.Colorless) return InventionArtefactMainframe;
+  switch (color) {
+    case ColorType.White:
+      return InventionWhiteMainframe;
+    case ColorType.Blue:
+      return InventionBlueMainframe;
+    case ColorType.Black:
+      return InventionBlackMainframe;
+    case ColorType.Red:
+      return InventionRedMainframe;
+    case ColorType.Green:
+      return InventionGreenMainframe;
+    case ColorType.Gold:
+      return InventionGoldMainframe;
+    default:
+      return InventionColorlessMainframe;
+  }
 };
 
 export const getInvocationMainframe = (color: ColorType) => {
-    switch (color) {
-        case ColorType.White:
-            return InvocationWhiteMainframe;
-        case ColorType.Blue:
-            return InvocationBlueMainframe;
-        case ColorType.Black:
-            return InvocationBlackMainframe;
-        case ColorType.Red:
-            return InvocationRedMainframe;
-        case ColorType.Green:
-            return InvocationGreenMainframe;
-        default:
-            return InvocationGoldMainframe;
-    }
-};
-
-export const getLowResColorMainframe = (color: ColorType, isArtifact = false) => {
-    if (isArtifact && color === ColorType.Colorless) return LowResArtefactMainframe;
-    switch (color) {
-        case ColorType.White:
-            return LowResWhiteMainframe;
-        case ColorType.Blue:
-            return LowResBlueMainframe;
-        case ColorType.Black:
-            return LowResBlackMainframe;
-        case ColorType.Red:
-            return LowResRedMainframe;
-        case ColorType.Green:
-            return LowResGreenMainframe;
-        case ColorType.Gold:
-            return LowResGoldMainframe;
-        case ColorType.Colorless:
-            return LowResColorlessMainframe;
-        default:
-            return undefined;
-    }
+  switch (color) {
+    case ColorType.White:
+      return InvocationWhiteMainframe;
+    case ColorType.Blue:
+      return InvocationBlueMainframe;
+    case ColorType.Black:
+      return InvocationBlackMainframe;
+    case ColorType.Red:
+      return InvocationRedMainframe;
+    case ColorType.Green:
+      return InvocationGreenMainframe;
+    default:
+      return InvocationGoldMainframe;
+  }
 };
 
 export const getInnerBorderFrame = (colors: ColorType[]) => {
-    // Colorless cards have no colored pips, so there is no colored inner border
-    // to render. Returning an empty string avoids falling through to the gold
-    // multicolor fallback below.
-    if (colors.length === 0) return '';
+  // Colorless cards have no colored pips, so there is no colored inner border
+  // to render. Returning an empty string avoids falling through to the gold
+  // multicolor fallback below.
+  if (colors.length === 0) return '';
 
-    if (colors.length > 2) return GoldInnerBorder;
+  if (colors.length > 2) return GoldInnerBorder;
 
-    if (colors.length === 1) {
-        if (colors[0] === ColorType.White) return WhiteInnerBorder;
-        if (colors[0] === ColorType.Blue) return BlueInnerBorder;
-        if (colors[0] === ColorType.Black) return BlackInnerBorder;
-        if (colors[0] === ColorType.Red) return RedInnerBorder;
-        if (colors[0] === ColorType.Green) return GreenInnerBorder;
-    }
+  if (colors.length === 1) {
+    if (colors[0] === ColorType.White) return WhiteInnerBorder;
+    if (colors[0] === ColorType.Blue) return BlueInnerBorder;
+    if (colors[0] === ColorType.Black) return BlackInnerBorder;
+    if (colors[0] === ColorType.Red) return RedInnerBorder;
+    if (colors[0] === ColorType.Green) return GreenInnerBorder;
+  }
 
-    if (colors.includes(ColorType.White)) {
-        if (colors.includes(ColorType.Blue)) return WhiteBlueInnerBorder;
-        if (colors.includes(ColorType.Black)) return WhiteBlackInnerBorder;
-    }
-    if (colors.includes(ColorType.Blue)) {
-        if (colors.includes(ColorType.Black)) return BlueBlackInnerBorder;
-        if (colors.includes(ColorType.Red)) return BlueRedInnerBorder;
-    }
-    if (colors.includes(ColorType.Black)) {
-        if (colors.includes(ColorType.Green)) return BlackGreenInnerBorder;
-        if (colors.includes(ColorType.Red)) return BlackRedInnerBorder;
-    }
-    if (colors.includes(ColorType.Red)) {
-        if (colors.includes(ColorType.Green)) return RedGreenInnerBorder;
-        if (colors.includes(ColorType.White)) return RedWhiteInnerBorder;
-    }
-    if (colors.includes(ColorType.Green)) {
-        if (colors.includes(ColorType.Blue)) return GreenBlueInnerBorder;
-        if (colors.includes(ColorType.White)) return GreenWhiteInnerBorder;
-    }
-    return GoldInnerBorder;
+  if (colors.includes(ColorType.White)) {
+    if (colors.includes(ColorType.Blue)) return WhiteBlueInnerBorder;
+    if (colors.includes(ColorType.Black)) return WhiteBlackInnerBorder;
+  }
+  if (colors.includes(ColorType.Blue)) {
+    if (colors.includes(ColorType.Black)) return BlueBlackInnerBorder;
+    if (colors.includes(ColorType.Red)) return BlueRedInnerBorder;
+  }
+  if (colors.includes(ColorType.Black)) {
+    if (colors.includes(ColorType.Green)) return BlackGreenInnerBorder;
+    if (colors.includes(ColorType.Red)) return BlackRedInnerBorder;
+  }
+  if (colors.includes(ColorType.Red)) {
+    if (colors.includes(ColorType.Green)) return RedGreenInnerBorder;
+    if (colors.includes(ColorType.White)) return RedWhiteInnerBorder;
+  }
+  if (colors.includes(ColorType.Green)) {
+    if (colors.includes(ColorType.Blue)) return GreenBlueInnerBorder;
+    if (colors.includes(ColorType.White)) return GreenWhiteInnerBorder;
+  }
+  return GoldInnerBorder;
 };
 
 export const getLandOverlay = () => LandOverlay;
 
-export const getLandMainframe = () => LandColorlessMainframe;
-
 export const getBasicLandSymbols = (landType: BasicLandType) => {
-    switch (landType) {
-        case BasicLandType.Plains:
-            return SymbolLandWhite;
-        case BasicLandType.Island:
-            return SymbolLandBlue;
-        case BasicLandType.Swamp:
-            return SymbolLandBlack;
-        case BasicLandType.Mountain:
-            return SymbolLandRed;
-        case BasicLandType.Forest:
-            return SymbolLandGreen;
-        default:
-            return SymbolLandColorless;
-    }
+  switch (landType) {
+    case BasicLandType.Plains:
+      return SymbolLandWhite;
+    case BasicLandType.Island:
+      return SymbolLandBlue;
+    case BasicLandType.Swamp:
+      return SymbolLandBlack;
+    case BasicLandType.Mountain:
+      return SymbolLandRed;
+    case BasicLandType.Forest:
+      return SymbolLandGreen;
+    default:
+      return SymbolLandColorless;
+  }
 };
 
-export const getBasicLandMainframe = (color: string, artStyle: BasicLandArtStyles) => {
-    switch (color) {
-        case BasicLandType.Plains:
-            if (artStyle === BasicLandArtStyles.Unstable) return UnstableBasicLandWhiteMainframe;
-            if (artStyle === BasicLandArtStyles.FullArt) return FullArtBasicLandWhiteMainframe;
-            return BasicLandWhiteMainframe;
-        case BasicLandType.Island:
-            if (artStyle === BasicLandArtStyles.Unstable) return UnstableBasicLandBlueMainframe;
-            if (artStyle === BasicLandArtStyles.FullArt) return FullArtBasicLandBlueMainframe;
-            return BasicLandBlueMainframe;
-        case BasicLandType.Swamp:
-            if (artStyle === BasicLandArtStyles.Unstable) return UnstableBasicLandBlackMainframe;
-            if (artStyle === BasicLandArtStyles.FullArt) return FullArtBasicLandBlackMainframe;
-            return BasicLandBlackMainframe;
-        case BasicLandType.Mountain:
-            if (artStyle === BasicLandArtStyles.Unstable) return UnstableBasicLandRedMainframe;
-            if (artStyle === BasicLandArtStyles.FullArt) return FullArtBasicLandRedMainframe;
-            return BasicLandRedMainframe;
-        case BasicLandType.Forest:
-            if (artStyle === BasicLandArtStyles.Unstable) return UnstableBasicLandGreenMainframe;
-            if (artStyle === BasicLandArtStyles.FullArt) return FullArtBasicLandGreenMainframe;
-            return BasicLandGreenMainframe;
-        default:
-            if (artStyle === BasicLandArtStyles.Unstable) return UnstableBasicLandGoldMainframe;
-            if (artStyle === BasicLandArtStyles.FullArt) return FullArtBasicLandGoldMainframe;
-            return BasicLandGoldMainframe;
-    }
+export const getLandMainframe = (
+  color: ColorType,
+  artStyle: BasicLandArtStyles | CardArtStyles | undefined,
+): ImageResData | string => {
+  switch (color) {
+    case ColorType.White:
+      if (artStyle === BasicLandArtStyles.Unstable) return UnstableBasicLandWhiteMainframe;
+      if (artStyle === BasicLandArtStyles.FullArt) return FullArtBasicLandWhiteMainframe;
+      return { highRes: LandWhiteMainframe, lowRes: LandWhiteMainframeLowRes };
+    case ColorType.Blue:
+      if (artStyle === BasicLandArtStyles.Unstable) return UnstableBasicLandBlueMainframe;
+      if (artStyle === BasicLandArtStyles.FullArt) return FullArtBasicLandBlueMainframe;
+      return { highRes: LandBlueMainframe, lowRes: LandBlueMainframeLowRes };
+    case ColorType.Black:
+      if (artStyle === BasicLandArtStyles.Unstable) return UnstableBasicLandBlackMainframe;
+      if (artStyle === BasicLandArtStyles.FullArt) return FullArtBasicLandBlackMainframe;
+      return { highRes: LandBlackMainframe, lowRes: LandBlackMainframeLowRes };
+    case ColorType.Red:
+      if (artStyle === BasicLandArtStyles.Unstable) return UnstableBasicLandRedMainframe;
+      if (artStyle === BasicLandArtStyles.FullArt) return FullArtBasicLandRedMainframe;
+      return { highRes: LandRedMainframe, lowRes: LandRedMainframeLowRes };
+    case ColorType.Green:
+      if (artStyle === BasicLandArtStyles.Unstable) return UnstableBasicLandGreenMainframe;
+      if (artStyle === BasicLandArtStyles.FullArt) return FullArtBasicLandGreenMainframe;
+      return { highRes: LandGreenMainframe, lowRes: LandGreenMainframeLowRes };
+    case ColorType.Gold:
+      if (artStyle === BasicLandArtStyles.Unstable) return UnstableBasicLandGoldMainframe;
+      if (artStyle === BasicLandArtStyles.FullArt) return FullArtBasicLandGoldMainframe;
+      return { highRes: LandGoldMainframe, lowRes: LandGoldMainframeLowRes };
+    default:
+      if (artStyle === BasicLandArtStyles.Unstable) return UnstableBasicLandGoldMainframe;
+      if (artStyle === BasicLandArtStyles.FullArt) return FullArtBasicLandGoldMainframe;
+      return { highRes: LandColorlessMainframe, lowRes: LandColorlessMainframeLowRes };
+  }
 };
 
 export const getRarityIcon = (rarity: RarityType) => {
-    if (rarity === RarityType.MythicRare) return MythicRareIcon;
-    if (rarity === RarityType.Rare) return RareIcon;
-    if (rarity === RarityType.Uncommon) return UncommonIcon;
-    return CommonIcon;
+  if (rarity === RarityType.MythicRare) return MythicRareIcon;
+  if (rarity === RarityType.Rare) return RareIcon;
+  if (rarity === RarityType.Uncommon) return UncommonIcon;
+  return CommonIcon;
 };

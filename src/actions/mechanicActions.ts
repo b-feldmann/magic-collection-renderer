@@ -17,13 +17,13 @@ export const getMechanics = (dispatch: (value: Action) => void) => {
   const args = { params: { accessKey: getAccessToken() } };
   axios
     .get(request, args)
-    .then((result) => {
+    .then(result => {
       dispatch({
         type: MechanicActionType.GetMechanics,
         payload: { mechanics: result.data.mechanics },
       });
     })
-    .catch((error) => {
+    .catch(error => {
       captureError(error, ActionTag.Mechanic, RequestTag.Get, {});
     });
 };
@@ -36,7 +36,7 @@ export const createMechanic = (dispatch: (value: Action) => void) => {
 
   axios
     .post(request, args)
-    .then((result) => {
+    .then(result => {
       return dispatch({
         type: MechanicActionType.CreateMechanic,
         payload: {
@@ -44,7 +44,7 @@ export const createMechanic = (dispatch: (value: Action) => void) => {
         },
       });
     })
-    .catch((error) => {
+    .catch(error => {
       staticAntd.message.error('Failed creating a new mechanic :(');
       captureError(error, ActionTag.Mechanic, RequestTag.Create, {});
     });
@@ -65,7 +65,7 @@ export const updateMechanic = (dispatch: (value: Action) => void, updated: Mecha
   delete (parsed as Record<string, unknown>).__v;
   axios
     .put(request, { mechanic: parsed, accessKey: getAccessToken() })
-    .then((result) => {
+    .then(result => {
       return dispatch({
         type: MechanicActionType.UpdateMechanic,
         payload: {
@@ -73,7 +73,7 @@ export const updateMechanic = (dispatch: (value: Action) => void, updated: Mecha
         },
       });
     })
-    .catch((error) => {
+    .catch(error => {
       captureError(error, ActionTag.Mechanic, RequestTag.Update, {});
       staticAntd.message.error("Could'nt update mechanic");
     });

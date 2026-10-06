@@ -6,7 +6,7 @@ import { Mana } from '../Mana/Mana';
 
 import TextResize from '../TextResize/TextResize';
 
-import { CardMainType, RarityType } from '../../interfaces/enums';
+import { CardMainType, CoverFit, RarityType } from '../../interfaces/enums';
 import { Store, StoreType } from '../../store';
 import { getColor } from '../../utils/cardToColor';
 
@@ -23,6 +23,7 @@ import parseStats from '../../utils/parseStats';
 import parseCollectionNumber from '../../utils/parseCollectionNumber';
 import FlavourText from './FlavourText';
 import { CARD_WIDTH, CARD_HEIGHT } from '../../utils/constants';
+import getCoverFitClass from './getCoverFitClass';
 
 interface InvocationCardRenderProps {
   name: string;
@@ -39,6 +40,7 @@ interface InvocationCardRenderProps {
   flavourText?: string;
   flavourAuthor?: string;
   cover?: string;
+  coverFit?: CoverFit;
   backFace?: boolean;
   collectionNumber: number;
   collectionSize: number;
@@ -47,7 +49,7 @@ interface InvocationCardRenderProps {
 
 const InvocationCardRender = (cardRender: InvocationCardRenderProps) => {
   const { legendary, vehicle, cardMainType, cardSubTypes } = cardRender;
-  const { name, manaCost, cardStats, cover, creator } = cardRender;
+  const { name, manaCost, cardStats, cover, coverFit, creator } = cardRender;
   const { cardText, flavourText = '', flavourAuthor, cardID } = cardRender;
   const { backFace, collectionNumber, collectionSize } = cardRender;
   const { containerWidth = CARD_WIDTH } = cardRender;
@@ -67,8 +69,7 @@ const InvocationCardRender = (cardRender: InvocationCardRenderProps) => {
     cardMainType === CardMainType.ArtifactCreature ||
     cardMainType === CardMainType.CreatureToken;
   const isArtifact =
-    cardMainType === CardMainType.Artifact ||
-    cardMainType === CardMainType.ArtifactCreature;
+    cardMainType === CardMainType.Artifact || cardMainType === CardMainType.ArtifactCreature;
 
   const { color, orderedCost } = getColor(manaCost);
   const mainframe = getInvocationMainframe(color);
@@ -94,7 +95,7 @@ const InvocationCardRender = (cardRender: InvocationCardRenderProps) => {
           <ImageLoader
             src={cover || getFallbackCover()}
             alt="cover"
-            className={`${styles.cover} card-cover`}
+            className={`${styles.cover} ${getCoverFitClass(styles, coverFit)} card-cover`}
           />
           <ImageLoader src={mainframe} className={styles.mainframe} fallBackColor="#eed66b" />
 

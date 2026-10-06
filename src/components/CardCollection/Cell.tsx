@@ -41,7 +41,6 @@ const Cell = ({
   seenCardUuids,
   currentEditId,
   addSeenCard,
-  downloadCard,
   editCard,
   toggleShowBackConfig,
   width,
@@ -64,9 +63,9 @@ const Cell = ({
       {isNew && <GlowingStar />}
       <Spin size="large" spinning={!!card.loading}>
         <ActionHover
-            onClick={() => {
-              editCard(card.uuid);
-            }}
+          onClick={() => {
+            editCard(card.uuid);
+          }}
           onHover={() => {
             if (isNew) addSeenCard(card.uuid);
             if (mobile) editCard(card.uuid);

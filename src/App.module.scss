@@ -119,20 +119,20 @@ $editor-width: clamp(310px, calc(100vw / 24 * 21 / 24 * 6 - 16px), 380px);
   }
 
   .mobileControls {
-     background: #fff;
-     width: 100vw;
-     padding: 0 8px 8px;
-     border-radius: $muse-card-radius;
-     box-shadow: $muse-card-shadow;
+    background: #fff;
+    width: 100vw;
+    padding: 0 8px 8px;
+    border-radius: $muse-card-radius;
+    box-shadow: $muse-card-shadow;
 
-     @media only screen and (min-width: 600px) {
-       justify-content: center;
-       display: flex;
-       flex-direction: column;
-       height: 100vh;
-       width: 25vw;
-     }
-   }
+    @media only screen and (min-width: 600px) {
+      justify-content: center;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      width: 25vw;
+    }
+  }
 
   @media only screen and (max-width: 900px) {
     .mobileControls > div {
@@ -193,7 +193,7 @@ $editor-width: clamp(310px, calc(100vw / 24 * 21 / 24 * 6 - 16px), 380px);
   text-align: center;
   color: whitesmoke;
   padding: 4px;
-  background: rgba(0,0,0,0.8);
+  background: rgba(0, 0, 0, 0.8);
 }
 
 .landscapeAddButton {
@@ -205,7 +205,7 @@ $editor-width: clamp(310px, calc(100vw / 24 * 21 / 24 * 6 - 16px), 380px);
   text-align: center;
   color: whitesmoke;
   padding: 4px;
-  background: rgba(0,0,0,0.4);
+  background: rgba(0, 0, 0, 0.4);
 }
 
 .accessKeyInput {

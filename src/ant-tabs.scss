@@ -24,7 +24,9 @@
   background: #fff !important;
   border-radius: 999px !important;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06) !important;
-  transition: background 0.3s, box-shadow 0.3s;
+  transition:
+    background 0.3s,
+    box-shadow 0.3s;
 }
 
 .ant-tabs > .ant-tabs-nav .ant-tabs-tab:not(.ant-tabs-tab-active):hover {

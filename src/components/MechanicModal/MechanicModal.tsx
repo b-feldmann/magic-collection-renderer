@@ -32,7 +32,7 @@ const MechanicModal = ({
     updateMechanic(dispatch, { ...rest, description });
   };
 
-  const sortedMechanics: RecordProps[] = sortBy(mechanics, [(o) => o.uuid]).map((mechanic) => ({
+  const sortedMechanics: RecordProps[] = sortBy(mechanics, [o => o.uuid]).map(mechanic => ({
     ...mechanic,
     key: mechanic.uuid,
   }));

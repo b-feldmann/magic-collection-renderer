@@ -4,7 +4,7 @@ import AntIcon from '../AntIcon/AntIcon';
 import React from 'react';
 import styles from './styles.module.scss';
 import resizeImage from '../../utils/resizeImage';
-import EditorTooltip from "../EditorTooltip";
+import EditorTooltip from '../EditorTooltip';
 import MechanicInterface from '../../interfaces/MechanicInterface';
 
 const { TextArea } = Input;
@@ -39,7 +39,7 @@ const EditField = (props: EditFieldInterface) => {
         <Input
           size="small"
           value={getValue(fieldKey)}
-          onChange={(e) => saveValue(fieldKey, e.target.value)}
+          onChange={e => saveValue(fieldKey, e.target.value)}
         />
       </span>
     );
@@ -72,7 +72,7 @@ const EditField = (props: EditFieldInterface) => {
               reader.readAsDataURL(file);
               reader.onload = () => {
                 if (typeof reader.result === 'string') {
-                  resizeImage(reader.result, (image) => {
+                  resizeImage(reader.result, image => {
                     saveValue(fieldKey, `base64:${image}`);
                   });
                 } else {
@@ -89,7 +89,7 @@ const EditField = (props: EditFieldInterface) => {
             size="small"
             placeholder={getPlaceholder(getValue(fieldKey))}
             value={stripValue(getValue(fieldKey))}
-            onChange={(e) => saveValue(fieldKey, `url:${e.target.value}`)}
+            onChange={e => saveValue(fieldKey, `url:${e.target.value}`)}
           />
         </div>
       </span>
@@ -107,7 +107,7 @@ const EditField = (props: EditFieldInterface) => {
           <Input
             size="small"
             value={splitArray[0]}
-            onChange={(e) => saveValue(fieldKey, `${e.target.value}/${splitArray[1]}`)}
+            onChange={e => saveValue(fieldKey, `${e.target.value}/${splitArray[1]}`)}
           />
         </div>
         <div className={styles.splitInput}>
@@ -115,7 +115,7 @@ const EditField = (props: EditFieldInterface) => {
           <Input
             size="small"
             value={splitArray[1]}
-            onChange={(e) => saveValue(fieldKey, `${splitArray[0]}/${e.target.value}`)}
+            onChange={e => saveValue(fieldKey, `${splitArray[0]}/${e.target.value}`)}
           />
         </div>
       </span>
@@ -128,7 +128,7 @@ const EditField = (props: EditFieldInterface) => {
         <p className={styles.label}>{name}</p>
         <TextArea
           value={getValue(fieldKey)}
-          onChange={(e) => saveValue(fieldKey, e.target.value)}
+          onChange={e => saveValue(fieldKey, e.target.value)}
           autoSize
         />
       </span>
@@ -141,7 +141,7 @@ const EditField = (props: EditFieldInterface) => {
         <div className={styles.label}>
           <Checkbox
             checked={getValue(fieldKey)}
-            onChange={(e) => saveValue(fieldKey, e.target.checked)}
+            onChange={e => saveValue(fieldKey, e.target.checked)}
           >
             {name}
           </Checkbox>
@@ -159,7 +159,7 @@ const EditField = (props: EditFieldInterface) => {
           value={getValue(fieldKey)}
           onChange={(key: string) => saveValue(fieldKey, key)}
           style={{ width: '100%' }}
-          options={data.map((d) => ({
+          options={data.map(d => ({
             key: `${fieldKey} + ${d.key}`,
             value: d.key,
             label: d.value,
@@ -176,10 +176,10 @@ const EditField = (props: EditFieldInterface) => {
         <Radio.Group
           buttonStyle="solid"
           value={getValue(fieldKey) || 'Regular'}
-          onChange={(e) => saveValue(fieldKey, e.target.value)}
+          onChange={e => saveValue(fieldKey, e.target.value)}
           style={{ width: '100%' }}
         >
-          {data.map((d) => (
+          {data.map(d => (
             <Radio.Button key={`${fieldKey} + ${d.key}`} value={d.key}>
               {d.value}
             </Radio.Button>
@@ -201,7 +201,9 @@ const EditField = (props: EditFieldInterface) => {
 
     return (
       <span>
-        <p className={styles.label}>{name} <EditorTooltip className={styles.tooltip}/></p>
+        <p className={styles.label}>
+          {name} <EditorTooltip className={styles.tooltip} />
+        </p>
 
         {/* `List` was deprecated in antd 6. `Listy` has no `bordered`, no
             per-item `actions`, and no `footer`, so those are recreated with
@@ -221,7 +223,7 @@ const EditField = (props: EditFieldInterface) => {
                   {type === 'list' ? (
                     <TextArea
                       value={item}
-                      onChange={(e) => {
+                      onChange={e => {
                         const list = getValue(fieldKey);
                         list[i] = e.target.value;
                         saveValue(fieldKey, list);
@@ -233,7 +235,7 @@ const EditField = (props: EditFieldInterface) => {
                       <Input
                         style={{ width: '20%' }}
                         value={split(item).cost}
-                        onChange={(e) => {
+                        onChange={e => {
                           const list = getValue(fieldKey);
                           list[i] = `${e.target.value}|${split(item).text}`;
                           saveValue(fieldKey, list);
@@ -242,7 +244,7 @@ const EditField = (props: EditFieldInterface) => {
                       <TextArea
                         style={{ width: '80%' }}
                         value={split(item).text}
-                        onChange={(e) => {
+                        onChange={e => {
                           const list = getValue(fieldKey);
                           list[i] = `${split(item).cost}|${e.target.value}`;
                           saveValue(fieldKey, list);
@@ -287,16 +289,16 @@ const EditField = (props: EditFieldInterface) => {
                     style={{ width: 150 }}
                     placeholder="Add Mechanic"
                     value={null}
-                    onClick={(e) => e.stopPropagation()}
+                    onClick={e => e.stopPropagation()}
                     options={[...mechanics]
                       .sort((a, b) => a.name.localeCompare(b.name))
-                      .map((mechanic) => ({
-                      key: `${fieldKey}-mechanic-${mechanic.uuid}`,
-                      value: mechanic.uuid,
-                      label: mechanic.name,
-                    }))}
+                      .map(mechanic => ({
+                        key: `${fieldKey}-mechanic-${mechanic.uuid}`,
+                        value: mechanic.uuid,
+                        label: mechanic.name,
+                      }))}
                     onSelect={(uuid: string | null) => {
-                      const mechanic = mechanics.find((m) => m.uuid === uuid);
+                      const mechanic = mechanics.find(m => m.uuid === uuid);
                       if (!mechanic) return;
                       const list = getValue(fieldKey);
                       list.push(`[${mechanic.name} X]`);

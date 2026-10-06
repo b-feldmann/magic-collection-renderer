@@ -1,11 +1,19 @@
 @mixin glowEffect($spread) {
-  box-shadow: 0 0 2px white, 0 0 3px white,
-  0 0 4px lightblue, 0 0 5px $spread lightblue,
-  0 0 5px $spread blue, 0 0 8px $spread blue,
-  0 0 12px $spread blue, 0 0 20px $spread blue,
-  0 0 30px $spread lightblue, 0 0 40px $spread lightblue,
-  0 0 50px $spread white, 0 0 60px $spread white,
-  0 0 80px white, 0 0 100px white;
+  box-shadow:
+    0 0 2px white,
+    0 0 3px white,
+    0 0 4px lightblue,
+    0 0 5px $spread lightblue,
+    0 0 5px $spread blue,
+    0 0 8px $spread blue,
+    0 0 12px $spread blue,
+    0 0 20px $spread blue,
+    0 0 30px $spread lightblue,
+    0 0 40px $spread lightblue,
+    0 0 50px $spread white,
+    0 0 60px $spread white,
+    0 0 80px white,
+    0 0 100px white;
 }
 
 @keyframes glow {

@@ -86,10 +86,7 @@ const Harness: React.FC<{ initialCard: CardInterface }> = ({ initialCard }) => {
   const setCardsRef = useRef(setCards);
   setCardsRef.current = setCards;
   serverUpdate = (card: CardInterface) =>
-    setCardsRef.current((prev) => [
-      ...prev.filter((c) => c.uuid !== card.uuid),
-      cloneDeep(card),
-    ]);
+    setCardsRef.current(prev => [...prev.filter(c => c.uuid !== card.uuid), cloneDeep(card)]);
 
   const saveTmpCard = (value: CardInterface | null) => {
     saveTmpCardCalls.push(value);
@@ -97,9 +94,9 @@ const Harness: React.FC<{ initialCard: CardInterface }> = ({ initialCard }) => {
   };
 
   const merged = cards
-    .filter((c) => c.uuid !== (tmpCard ? tmpCard.uuid : ''))
+    .filter(c => c.uuid !== (tmpCard ? tmpCard.uuid : ''))
     .concat(tmpCard ? [tmpCard] : []);
-  const card = merged.find((c) => c.uuid === editId);
+  const card = merged.find(c => c.uuid === editId);
 
   return (
     <Store.Provider value={mockStoreValue}>

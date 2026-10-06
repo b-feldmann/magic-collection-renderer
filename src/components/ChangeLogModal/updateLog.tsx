@@ -37,17 +37,20 @@ updateLog.push({
     {
       type: ChangeLogFeatureType.Added,
       feature: 'Mechanics',
-      description:
-          (
-              <div>
-                <p>'You can now add mechanics. At the bottom left is a button that opens the mechanic edit dialog. Mechanics are predefined effects that you only have to write once, but can use them on many cards. A Mechanic has a name and a description. You can render it on a card by putting the name in square brackets.'</p>
-                <Text>Examples:</Text>
-                {exampleMechanics.map((m) => (
-                    <Text code>{m}</Text>
-                ))}
-              </div>
-          )
-        ,
+      description: (
+        <div>
+          <p>
+            'You can now add mechanics. At the bottom left is a button that opens the mechanic edit
+            dialog. Mechanics are predefined effects that you only have to write once, but can use
+            them on many cards. A Mechanic has a name and a description. You can render it on a card
+            by putting the name in square brackets.'
+          </p>
+          <Text>Examples:</Text>
+          {exampleMechanics.map(m => (
+            <Text code>{m}</Text>
+          ))}
+        </div>
+      ),
     },
   ],
 });
@@ -280,7 +283,7 @@ updateLog.push({
       type: ChangeLogFeatureType.Fixed,
       feature: 'Image Uploading',
       description:
-          'Images are now separated from card and are lazy loaded just before the card is shown.',
+        'Images are now separated from card and are lazy loaded just before the card is shown.',
     },
   ],
 });
@@ -319,19 +322,19 @@ updateLog.push({
     {
       type: ChangeLogFeatureType.Fixed,
       feature: 'Better Changelog',
-      description: 'Changelog is looks better and is easier to dismiss'
+      description: 'Changelog is looks better and is easier to dismiss',
     },
     {
       type: ChangeLogFeatureType.Changed,
       feature: 'Card Saving',
-      description: 'Cards are automatically saved while editing'
+      description: 'Cards are automatically saved while editing',
     },
     {
       type: ChangeLogFeatureType.Changed,
       feature: 'New Theme',
-      description: 'Implemented modern theme'
-    }
-  ]
+      description: 'Implemented modern theme',
+    },
+  ],
 });
 
 updateLog.push({
@@ -342,8 +345,8 @@ updateLog.push({
       type: ChangeLogFeatureType.Added,
       feature: 'Better Filters',
       description: 'Redesign the filter sidebar.',
-    }
-  ]
+    },
+  ],
 });
 
 // updateLog.push({
@@ -371,6 +374,11 @@ updateLog.push({
 //       type: ChangeLogFeatureType.Added,
 //       feature: 'Nicknames',
 //       description: 'You can give cards a nickname.',
+//     },
+//     {
+//       type: ChangeLogFeatureType.Added,
+//       feature: 'Cover Fit',
+//       description: 'You can now configure if the cover image should be stretched or zoomed in to fit the frame.',
 //     },
 //     {
 //       type: ChangeLogFeatureType.Changed,

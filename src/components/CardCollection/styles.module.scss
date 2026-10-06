@@ -1,20 +1,20 @@
 .collection {
-    //padding-left: 14px;
-    margin-top: -16px;
-    overflow-x: hidden !important;
+  //padding-left: 14px;
+  margin-top: -16px;
+  overflow-x: hidden !important;
 }
 
 .swapButton {
-    position: absolute;
-    left: 50%;
-    transform: translateX(calc(-50% + 1px)) translateY(-110%);
+  position: absolute;
+  left: 50%;
+  transform: translateX(calc(-50% + 1px)) translateY(-110%);
 }
 
 .cardBox {
-    padding: 8px;
+  padding: 8px;
 }
 
 .edit {
-    /*border: crimson solid 2px;*/
-    transform: scale(0.9);
+  /*border: crimson solid 2px;*/
+  transform: scale(0.9);
 }

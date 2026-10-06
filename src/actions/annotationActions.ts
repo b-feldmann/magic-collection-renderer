@@ -18,13 +18,13 @@ export const getAnnotations = (dispatch: (value: Action) => void) => {
   const args = { params: { accessKey: getAccessToken() } };
   axios
     .get(MIDDLEWARE_ENDPOINT, args)
-    .then((result) => {
+    .then(result => {
       dispatch({
         type: AnnotationActionType.GetAnnotations,
         payload: { annotations: result.data.annotations },
       });
     })
-    .catch((error) => {
+    .catch(error => {
       captureError(error, ActionTag.Annotation, RequestTag.Get, {});
     });
 };
@@ -40,7 +40,7 @@ export const createAnnotation = (
 
   axios
     .post(MIDDLEWARE_ENDPOINT, args)
-    .then((result) => {
+    .then(result => {
       return dispatch({
         type: AnnotationActionType.CreateAnnotation,
         payload: {
@@ -48,7 +48,7 @@ export const createAnnotation = (
         },
       });
     })
-    .catch((error) => {
+    .catch(error => {
       captureError(error, ActionTag.Annotation, RequestTag.Create, {});
       staticAntd.message.error('Failed creating a new comment :(');
     });
@@ -62,7 +62,7 @@ export const updateAnnotation = (
 
   axios
     .put(MIDDLEWARE_ENDPOINT, { mechanic: updated, accessKey: getAccessToken() })
-    .then((result) => {
+    .then(result => {
       return dispatch({
         type: AnnotationActionType.UpdateAnnotation,
         payload: {
@@ -70,7 +70,7 @@ export const updateAnnotation = (
         },
       });
     })
-    .catch((error) => {
+    .catch(error => {
       captureError(error, ActionTag.Annotation, RequestTag.Update, {});
       staticAntd.message.error("Couldn't update comment");
     });

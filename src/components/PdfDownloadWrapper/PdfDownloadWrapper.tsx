@@ -10,7 +10,7 @@ interface PdfDownloadWrapperInterface {
 const PdfDownloadWrapper: React.FC<PdfDownloadWrapperInterface> = (
   props: PdfDownloadWrapperInterface,
 ) => {
-  const { fileName, render } = props;
+  const { render } = props;
   const { message } = App.useApp();
   // const cardRef = useRef<PDFExport>(null);
   //

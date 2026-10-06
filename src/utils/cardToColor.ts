@@ -51,8 +51,10 @@ export const getBasicLandColor = (basicLandType: string) => {
       return colorToColorHex(ColorType.Gold);
   }
 };
-
-export const getColor = (manaCost: string = '') => {
+// : {}
+export const getColor = (
+  manaCost: string = '',
+): { color: ColorType; allColors: ColorType[]; orderedCost: string; hexColor: string } => {
   let parsedColor: ColorType = ColorType.Colorless;
   const allColors: ColorType[] = [];
 
@@ -224,7 +226,7 @@ const cardToColor = (
 const addUpColorlessCost = (costs: string[]) => {
   let count = 0;
   try {
-    costs.forEach((cost) => {
+    costs.forEach(cost => {
       count += parseInt(cost, 10);
     });
   } catch (e) {
@@ -236,9 +238,9 @@ const addUpColorlessCost = (costs: string[]) => {
 
 const join = (...items: string[][]) => {
   return items
-    .map((list) =>
+    .map(list =>
       list
-        .map((value) => (value ? `{${value}}` : ''))
+        .map(value => (value ? `{${value}}` : ''))
         .sort((colorA, colorB) => colorB.length - colorA.length)
         .join(''),
     )
@@ -247,7 +249,7 @@ const join = (...items: string[][]) => {
 
 const getOrdering = (colorDict: ColorDictInterface): string => {
   let orderedCost = addUpColorlessCost(colorDict.colorless);
-  orderedCost += colorDict.x.map((value) => `{${value}}`).join('');
+  orderedCost += colorDict.x.map(value => `{${value}}`).join('');
 
   let binaryColorRepresentation = 0;
   if (colorDict.white.length > 0) binaryColorRepresentation += 1;
@@ -294,7 +296,7 @@ const getOrdering = (colorDict: ColorDictInterface): string => {
   else if (binaryColorRepresentation === 30) orderedCost += join(U, B, R, G);
   else if (binaryColorRepresentation === 31) orderedCost += join(W, U, B, R, G);
 
-  orderedCost += colorDict.rest.map((value) => (value ? `{${value}}` : '')).join('');
+  orderedCost += colorDict.rest.map(value => (value ? `{${value}}` : '')).join('');
 
   return orderedCost;
 };

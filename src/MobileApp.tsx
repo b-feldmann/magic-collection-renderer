@@ -65,7 +65,7 @@ const MobileApp: React.FC = () => {
   }, [currentUser.seenCards]);
 
   const mergedCollection = useMemo(() => {
-    const merged = cards.filter((card) => card.uuid !== (tmpCard ? tmpCard.uuid : ''));
+    const merged = cards.filter(card => card.uuid !== (tmpCard ? tmpCard.uuid : ''));
     if (tmpCard) merged.push(tmpCard);
     return merged;
   }, [cards, tmpCard]);
@@ -83,14 +83,14 @@ const MobileApp: React.FC = () => {
       return Math.max(lastAnnotation.datetime, card.meta.lastUpdated);
     };
 
-    return sortBy(mergedCollection, [(o: CardInterface) => -1 * lastUpdated(o)]).filter((o) =>
+    return sortBy(mergedCollection, [(o: CardInterface) => -1 * lastUpdated(o)]).filter(o =>
       o.name.toLowerCase().includes(deferredNameFilter.toLowerCase()),
     );
   }, [mergedCollection, annotationAccessor, deferredNameFilter]);
 
   // O(1) uuid -> card lookups instead of a linear scan on every call.
   const cardByUuid = useMemo(
-    () => new Map(filteredCollection.map((card) => [card.uuid, card])),
+    () => new Map(filteredCollection.map(card => [card.uuid, card])),
     [filteredCollection],
   );
 
@@ -180,7 +180,7 @@ const MobileApp: React.FC = () => {
           <Tabs
             defaultActiveKey="tab-key-Card Drafts / Idea Dump"
             className={styles.collection}
-            items={cardTabs.map((tabObj) => ({
+            items={cardTabs.map(tabObj => ({
               key: `tab-key-${tabObj.name}`,
               label: (
                 <Badge
@@ -197,12 +197,12 @@ const MobileApp: React.FC = () => {
                   <CardCollection
                     cards={filteredCollection.filter(tabObj.filter)}
                     currentEditId={cardEditId}
-                    editCard={(id) => {
+                    editCard={id => {
                       if (cardEditId === NO_CARD) openCardInEditor(id, '');
                       else openCardInEditor(id, getCard(collection, cardEditId).name);
                     }}
                     seenCardUuids={seenCardObject}
-                    addSeenCard={(uuid) => addSeenCard(dispatch, uuid, currentUser)}
+                    addSeenCard={uuid => addSeenCard(dispatch, uuid, currentUser)}
                     mobile
                   />
                 </div>
@@ -228,7 +228,7 @@ const MobileApp: React.FC = () => {
             <Search
               placeholder="Input Access Key"
               enterButton="Enter"
-              onSearch={(value) => {
+              onSearch={value => {
                 updateAccessToken(value);
                 window.location.reload();
               }}
@@ -247,12 +247,12 @@ const MobileApp: React.FC = () => {
           <Select
             size="large"
             onChange={(key: string) =>
-              setCurrentUser(dispatch, user.find((o) => o.uuid === key) || UNKNOWN_CREATOR)
+              setCurrentUser(dispatch, user.find(o => o.uuid === key) || UNKNOWN_CREATOR)
             }
             style={{ width: '100%' }}
             options={user
-              .filter((u) => u.name !== 'ADMIN')
-              .map((d) => ({ key: `login-user-${d.uuid}`, value: d.uuid, label: d.name }))}
+              .filter(u => u.name !== 'ADMIN')
+              .map(d => ({ key: `login-user-${d.uuid}`, value: d.uuid, label: d.name }))}
           />
         </Card>
       </div>

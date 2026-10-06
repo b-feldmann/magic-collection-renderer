@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 import LogRocket from 'logrocket';
-import { Action, CardActionType, ImageActionType } from '../reducer';
+import { Action, ImageActionType } from '../reducer';
 
 import CardInterface from '../interfaces/CardInterface';
 import { getAccessToken } from '../utils/accessService';
@@ -16,13 +16,13 @@ export const getImage = (dispatch: (value: Action) => void, card: CardInterface,
   const args = { params: { accessKey: getAccessToken(), cardUuid: card.uuid, face } };
   axios
     .get(MIDDLEWARE_ENDPOINT, args)
-    .then((result) => {
+    .then(result => {
       dispatch({
         type: ImageActionType.ReadImage,
         payload: { base64: result.data.base64, face, cardUuid: card.uuid },
       });
     })
-    .catch((error) => {
+    .catch(error => {
       captureError(error, ActionTag.Image, RequestTag.Get, {});
       staticAntd.message.error("Could'nt load card image.");
     });
@@ -39,13 +39,13 @@ export const createImage = (
 
   axios
     .post(MIDDLEWARE_ENDPOINT, args)
-    .then((result) => {
+    .then(() => {
       dispatch({
         type: ImageActionType.ReadImage,
         payload: { base64, face, cardUuid: card.uuid },
       });
     })
-    .catch((error) => {
+    .catch(error => {
       captureError(error, ActionTag.Image, RequestTag.Create, {});
       staticAntd.message.error('Failed creating a new image :(');
     });

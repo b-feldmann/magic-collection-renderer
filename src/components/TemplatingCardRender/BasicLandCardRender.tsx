@@ -2,31 +2,61 @@ import React from 'react';
 
 import 'mana-font/css/mana.css';
 // @ts-ignore
-import {Mana} from '../Mana/Mana';
+import { Mana } from '../Mana/Mana';
 
-import {BasicLandArtStyles, BasicLandType, RarityType,} from '../../interfaces/enums';
-import {getBasicLandColor} from '../../utils/cardToColor';
+import {
+  BasicLandArtStyles,
+  BasicLandType,
+  ColorType,
+  CoverFit,
+  RarityType,
+} from '../../interfaces/enums';
+import { getBasicLandColor } from '../../utils/cardToColor';
 
 import styles from './TemplatingCardRender.module.scss';
-import {getBasicLandMainframe, getBasicLandSymbols, getFallbackCover, getRarityIcon,} from './assetLoader';
+import {
+  getBasicLandSymbols,
+  getFallbackCover,
+  getLandMainframe,
+  getRarityIcon,
+} from './assetLoader';
 import ImageLoader from '../ImageLoader/ImageLoader';
 import parseCollectionNumber from '../../utils/parseCollectionNumber';
-import { CARD_WIDTH, CARD_HEIGHT } from '../../utils/constants';
+import { CARD_HEIGHT, CARD_WIDTH } from '../../utils/constants';
+import getCoverFitClass from './getCoverFitClass';
 
 interface BasicLandCardRenderProps {
   cardID: string;
   creator?: string;
   landType: BasicLandType;
   cover?: string;
+  coverFit?: CoverFit;
   artStyle: BasicLandArtStyles;
   collectionNumber: number;
   collectionSize: number;
   containerWidth?: number;
 }
 
+const basicLandTypeToColor = (landType: BasicLandType) => {
+  switch (landType) {
+    case BasicLandType.Plains:
+      return ColorType.White;
+    case BasicLandType.Island:
+      return ColorType.Blue;
+    case BasicLandType.Swamp:
+      return ColorType.Black;
+    case BasicLandType.Mountain:
+      return ColorType.Red;
+    case BasicLandType.Forest:
+      return ColorType.Green;
+    default:
+      return ColorType.White;
+  }
+};
+
 const BasicLandCardRender = (cardRender: BasicLandCardRenderProps) => {
   const { creator, collectionNumber, collectionSize } = cardRender;
-  const { landType, cover, artStyle, cardID } = cardRender;
+  const { landType, cover, coverFit, artStyle, cardID } = cardRender;
   const { containerWidth = CARD_WIDTH } = cardRender;
 
   const resizeFactor = (width: number) => {
@@ -37,7 +67,7 @@ const BasicLandCardRender = (cardRender: BasicLandCardRenderProps) => {
     return resizeFactor(width) * CARD_HEIGHT;
   };
 
-  const mainframe = getBasicLandMainframe(landType, artStyle);
+  const mainframe = getLandMainframe(basicLandTypeToColor(landType), artStyle);
   return (
     <div style={{ height: `${getHeight(containerWidth)}px` }}>
       <div
@@ -58,12 +88,13 @@ const BasicLandCardRender = (cardRender: BasicLandCardRenderProps) => {
           <ImageLoader
             src={cover || getFallbackCover()}
             alt="cover"
-            className={`${styles.cover} ${
+            className={`${styles.cover} ${getCoverFitClass(styles, coverFit)} ${
               artStyle !== BasicLandArtStyles.Unstable && 'card-cover'
             }`}
           />
           <ImageLoader
-            src={mainframe}
+            src={typeof mainframe === 'string' ? mainframe : mainframe.highRes}
+            lowResSrc={typeof mainframe === 'string' ? undefined : mainframe.lowRes}
             className={styles.mainframe}
             fallBackColor={getBasicLandColor(landType || BasicLandType.Plains)}
           />

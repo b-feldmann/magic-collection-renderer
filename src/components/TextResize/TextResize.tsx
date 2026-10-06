@@ -28,13 +28,13 @@ const TextResize: React.FC<TextResizeProps> = ({
     if (!el) return undefined;
 
     const paragraphs = Array.from(el.querySelectorAll<HTMLElement>('p'));
-    paragraphs.forEach((p) => {
+    paragraphs.forEach(p => {
       p.style.marginTop = '';
       p.style.marginBottom = '';
     });
     el.style.lineHeight = '';
 
-    const baseMargins = paragraphs.map((p) => {
+    const baseMargins = paragraphs.map(p => {
       const cs = getComputedStyle(p);
       return { top: parseFloat(cs.marginTop), bottom: parseFloat(cs.marginBottom) };
     });
@@ -51,7 +51,7 @@ const TextResize: React.FC<TextResizeProps> = ({
         });
       } else {
         el.style.lineHeight = '';
-        paragraphs.forEach((p) => {
+        paragraphs.forEach(p => {
           p.style.marginTop = '';
           p.style.marginBottom = '';
         });

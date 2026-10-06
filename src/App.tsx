@@ -114,7 +114,7 @@ const App: React.FC = () => {
   }, [currentUser.seenCards]);
 
   const mergedCollection = useMemo(() => {
-    const merged = cards.filter((card) => card.uuid !== (tmpCard ? tmpCard.uuid : ''));
+    const merged = cards.filter(card => card.uuid !== (tmpCard ? tmpCard.uuid : ''));
     if (tmpCard) merged.push(tmpCard);
     return merged;
   }, [cards, tmpCard]);
@@ -122,7 +122,7 @@ const App: React.FC = () => {
   // Cards belonging to the currently selected tab. Drives the sidebar filter
   // counts so they reflect the active tab rather than the whole collection.
   const activeTab = useMemo(
-    () => CARD_TABS.find((tab) => tabKey(tab.name) === activeTabKey) || CARD_TABS[0],
+    () => CARD_TABS.find(tab => tabKey(tab.name) === activeTabKey) || CARD_TABS[0],
     [activeTabKey],
   );
   const tabCollection = useMemo(() => cards.filter(activeTab.filter), [cards, activeTab]);
@@ -139,7 +139,7 @@ const App: React.FC = () => {
   const filteredCollection = useMemo(
     () =>
       sortCardsBy(mergedCollection, sortList).filter(
-        (o) =>
+        o =>
           o.name.toLowerCase().includes(deferredNameFilter.toLowerCase()) &&
           collectionFilter.colors[
             cardToColor(o.front.cardMainType, o.manaCost, o.front.cardText).color
@@ -153,7 +153,7 @@ const App: React.FC = () => {
 
   // O(1) uuid -> card lookups instead of a linear scan on every call.
   const cardByUuid = useMemo(
-    () => new Map(filteredCollection.map((card) => [card.uuid, card])),
+    () => new Map(filteredCollection.map(card => [card.uuid, card])),
     [filteredCollection],
   );
 
@@ -195,7 +195,7 @@ const App: React.FC = () => {
   const downloadCollectionAsJson = (cardCollection: CardInterface[]) => {
     const collectionData: object[] = [];
 
-    cardCollection.forEach((card) => {
+    cardCollection.forEach(card => {
       collectionData.push(card);
     });
 
@@ -250,7 +250,7 @@ const App: React.FC = () => {
             activeKey={activeTabKey}
             onChange={setActiveTabKey}
             className={styles.tabs}
-            items={CARD_TABS.map((tabObj) => ({
+            items={CARD_TABS.map(tabObj => ({
               key: tabKey(tabObj.name),
               label: (
                 <Badge
@@ -267,15 +267,15 @@ const App: React.FC = () => {
                   <CardCollection
                     cards={filteredCollection.filter(tabObj.filter)}
                     currentEditId={cardEditId}
-                    editCard={(id) => {
+                    editCard={id => {
                       if (cardEditId === NO_CARD) openCardInEditor(id, '');
                       else openCardInEditor(id, getCard(collection, cardEditId).name);
                     }}
-                    downloadImage={(id) => downloadImage(id, getCard(collection, id).name)}
-                    downloadJson={(id) => downloadJson(getCard(collection, id))}
+                    downloadImage={id => downloadImage(id, getCard(collection, id).name)}
+                    downloadJson={id => downloadJson(getCard(collection, id))}
                     colSpanSetting={colSpanSetting}
                     seenCardUuids={seenCardObject}
-                    addSeenCard={(uuid) => addSeenCard(dispatch, uuid, currentUser)}
+                    addSeenCard={uuid => addSeenCard(dispatch, uuid, currentUser)}
                   />
                 </div>
               ),
@@ -301,7 +301,7 @@ const App: React.FC = () => {
               className={styles.accessKeyInput}
               placeholder="Input Access Key"
               enterButton="Enter"
-              onSearch={(value) => {
+              onSearch={value => {
                 updateAccessToken(value);
                 window.location.reload();
               }}
@@ -320,12 +320,12 @@ const App: React.FC = () => {
           <Select
             size="large"
             onChange={(key: string) =>
-              setCurrentUser(dispatch, user.find((o) => o.uuid === key) || UNKNOWN_CREATOR)
+              setCurrentUser(dispatch, user.find(o => o.uuid === key) || UNKNOWN_CREATOR)
             }
             style={{ width: '100%' }}
             options={user
-              .filter((u) => u.name !== 'ADMIN')
-              .map((d) => ({ key: `login-user-${d.uuid}`, value: d.uuid, label: d.name }))}
+              .filter(u => u.name !== 'ADMIN')
+              .map(d => ({ key: `login-user-${d.uuid}`, value: d.uuid, label: d.name }))}
           />
         </Card>
       </div>
@@ -347,7 +347,7 @@ const App: React.FC = () => {
                   // @ts-ignore
                   onChange={(newSortByValue: SortByType) => setSortBy(newSortByValue)}
                   aria-label="Primary sort"
-                  options={(Object.keys(SortByType) as (keyof typeof SortByType)[]).map((d) => ({
+                  options={(Object.keys(SortByType) as (keyof typeof SortByType)[]).map(d => ({
                     key: `collection-sort-primary-${d}`,
                     value: SortByType[d],
                     label: SortByType[d],
@@ -361,7 +361,7 @@ const App: React.FC = () => {
                   // @ts-ignore
                   onChange={(newSortByValue: SortByType) => setSecondarySortBy(newSortByValue)}
                   aria-label="Secondary sort"
-                  options={(Object.keys(SortByType) as (keyof typeof SortByType)[]).map((d) => ({
+                  options={(Object.keys(SortByType) as (keyof typeof SortByType)[]).map(d => ({
                     key: `collection-sort-secondary-${d}`,
                     value: SortByType[d],
                     label: SortByType[d],

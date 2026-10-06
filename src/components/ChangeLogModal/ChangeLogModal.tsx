@@ -16,7 +16,7 @@ const ChangeLogModal = () => {
   const renderLog = () => {
     return updateLog
       .filter((log, i) => i > currentUser.lastSeenVersion)
-      .map((entry) => <LogEntry {...entry} />);
+      .map(entry => <LogEntry {...entry} />);
   };
 
   useEffect(() => {

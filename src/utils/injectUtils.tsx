@@ -74,14 +74,14 @@ const injectDomElement: InjectFunc = (
 ) => {
   const workingArray: (string | JSX.Element)[] = [];
   if (Array.isArray(text)) {
-    text.forEach((t) => workingArray.push(t));
+    text.forEach(t => workingArray.push(t));
   } else {
     workingArray.push(text);
   }
 
   const resultArray: (string | JSX.Element)[] = [];
 
-  workingArray.forEach((elem) => {
+  workingArray.forEach(elem => {
     if (React.isValidElement(elem)) {
       resultArray.push(elem);
       return;
@@ -127,7 +127,7 @@ export const injectWithConfig = (
       config.style,
     );
 
-  config.forEach((c) => {
+  config.forEach(c => {
     workingArray = injectDomElement(
       workingArray,
       c.toReplace,
@@ -266,20 +266,20 @@ export const injectMechanics = (
   const arr: (string | JSX.Element)[] = Array.isArray(text) ? text : [text];
 
   const result: (string | JSX.Element)[] = [];
-  arr.forEach((elem) => {
+  arr.forEach(elem => {
     if (typeof elem !== 'string') {
       result.push(elem);
       return;
     }
 
-    const lines = elem.split(/(\[.*\])/).filter((line) => line.length > 0 && !line.match(/^\s*$/));
+    const lines = elem.split(/(\[.*\])/).filter(line => line.length > 0 && !line.match(/^\s*$/));
     lines.forEach((line, i) => {
       if (line.indexOf('[') === -1 || line.indexOf(']') === -1) {
         result.push(line);
         return;
       }
       const usedMechanic = mechanics.find(
-        (mechanic) => line.indexOf(mechanic.name) !== -1 && !mechanic.name.match(/^\s*$/),
+        mechanic => line.indexOf(mechanic.name) !== -1 && !mechanic.name.match(/^\s*$/),
       );
       if (!usedMechanic) {
         result.push(line);

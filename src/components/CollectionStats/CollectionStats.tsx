@@ -8,7 +8,7 @@ import styles from './collectionStats.module.scss';
 
 const CollectionStats = ({ collection }: { collection: CardInterface[] }) => {
   const cardTypes = {};
-  Object.values(CardMainType).forEach((key) => {
+  Object.values(CardMainType).forEach(key => {
     // @ts-ignore
     cardTypes[key] = 0;
   });
@@ -24,7 +24,7 @@ const CollectionStats = ({ collection }: { collection: CardInterface[] }) => {
     land: { Count: 0, Common: 0, Uncommon: 0, Rare: 0, 'Mythic Rare': 0, ...cardTypes },
   };
 
-  collection.forEach((card) => {
+  collection.forEach(card => {
     const { color } = cardToColor(card.front.cardMainType, card.manaCost, card.front.cardText);
     // @ts-ignore
     stats[color][card.rarity] += 1;
@@ -52,7 +52,7 @@ const CollectionStats = ({ collection }: { collection: CardInterface[] }) => {
   addColumn('Uncommon');
   addColumn('Rare');
   addColumn('Mythic Rare');
-  Object.values(CardMainType).forEach((key) => addColumn(key));
+  Object.values(CardMainType).forEach(key => addColumn(key));
 
   const content = <Table size="small" dataSource={data} columns={columns} />;
 

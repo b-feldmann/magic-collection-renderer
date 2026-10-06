@@ -47,7 +47,7 @@ export const refreshCollection = (dispatch: (value: Action) => void) => {
   const args = { params: { accessKey: getAccessToken() } };
   axios
     .get(request, args)
-    .then((result) => {
+    .then(result => {
       // result.data.cards.forEach((card: CardInterface) => {
       //   if (!card.createdAt) {
       //     card.createdAt = moment().valueOf();
@@ -60,7 +60,7 @@ export const refreshCollection = (dispatch: (value: Action) => void) => {
         payload: { cards: result.data.cards },
       });
     })
-    .catch((error) => {
+    .catch(error => {
       if (error.response) {
         const { response } = error;
         if (response.status && response.status === 401) {
@@ -86,7 +86,7 @@ export const createCard = (dispatch: (value: Action) => void, creator: UserInter
 
   axios
     .post(request, args)
-    .then((result) => {
+    .then(result => {
       return dispatch({
         type: CardActionType.CreateCard,
         payload: {
@@ -94,7 +94,7 @@ export const createCard = (dispatch: (value: Action) => void, creator: UserInter
         },
       });
     })
-    .catch((error) => {
+    .catch(error => {
       captureError(error, ActionTag.Card, RequestTag.Create, {});
       staticAntd.message.error('Failed creating a new card :(');
     });
@@ -135,7 +135,7 @@ export const updateCard = (
 
   return axios
     .put(request, { card: parsed, accessKey: getAccessToken() })
-    .then((result) => {
+    .then(result => {
       if (
         result.data.card.front.cover &&
         (result.data.card.front.cover === 'loading' ||
@@ -159,7 +159,7 @@ export const updateCard = (
         },
       });
     })
-    .catch((error) => {
+    .catch(error => {
       captureError(error, ActionTag.Card, RequestTag.Update, {});
       staticAntd.message.error("Could'nt update the card");
       throw error;
@@ -178,7 +178,7 @@ export const deleteCard = (dispatch: (value: Action) => void, uuid: string): Pro
         payload: { uuid },
       });
     })
-    .catch((error) => {
+    .catch(error => {
       captureError(error, ActionTag.Card, RequestTag.Delete, {});
       staticAntd.message.error("Could'nt delete the card");
       throw error;

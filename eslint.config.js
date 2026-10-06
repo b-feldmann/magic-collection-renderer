@@ -40,14 +40,18 @@ module.exports = tseslint.config(
       '@typescript-eslint/ban-ts-comment': 'off',
       '@typescript-eslint/no-unsafe-function-type': 'warn',
       '@typescript-eslint/no-unused-expressions': ['error', { allowShortCircuit: true }],
-      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+      '@typescript-eslint/no-unused-vars': [
+        'warn',
+        { argsIgnorePattern: '^_', ignoreRestSiblings: true },
+      ],
       'no-unused-vars': 'off'
     }
   },
   {
     files: ['src/**/*.{ts,tsx}'],
     rules: {
-      'prettier/prettier': ['error', { singleQuote: true, printWidth: 100 }]
+      // Options are read from .prettierrc.json (single source of truth).
+      'prettier/prettier': 'error'
     }
   },
   prettierConfig

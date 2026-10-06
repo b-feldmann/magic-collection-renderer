@@ -65,7 +65,7 @@ const AnnotationEditor = ({
       <TextArea
         autoSize={{ minRows: 2, maxRows: 5 }}
         value={content}
-        onChange={(e) => setContent(e.target.value)}
+        onChange={e => setContent(e.target.value)}
         placeholder="Your comment"
       />
       <Popover

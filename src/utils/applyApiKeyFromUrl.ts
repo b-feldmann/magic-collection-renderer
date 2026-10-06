@@ -2,7 +2,7 @@ import { updateAccessToken } from './accessService';
 
 export const applyApiKeyFromUrl = () => {
   const params = new URLSearchParams(window.location.search);
-  const key = [...params.keys()].find((name) => name.toLowerCase() === 'apikey');
+  const key = [...params.keys()].find(name => name.toLowerCase() === 'apikey');
   if (!key) {
     return;
   }

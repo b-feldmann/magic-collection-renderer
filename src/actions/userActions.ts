@@ -62,7 +62,7 @@ export const getUser = (dispatch: (value: Action) => void) => {
   LogRocket.log('Try to get all user');
   axios
     .get(MIDDLEWARE_ENDPOINT, args)
-    .then((result) => {
+    .then(result => {
       const users = result.data.user.map((user: UserInterface) => fixUser(user));
       dispatch({
         type: UserActionType.GetUser,
@@ -79,7 +79,7 @@ export const getUser = (dispatch: (value: Action) => void) => {
         localStorage.removeItem(CURRENT_USER_STORAGE_KEY);
       }
     })
-    .catch((error) => {
+    .catch(error => {
       captureError(error, ActionTag.User, RequestTag.Get, {});
     });
 };
@@ -93,13 +93,13 @@ export const addLastSeenVersion = (
   LogRocket.log('Try to update user', updated);
   axios
     .put(MIDDLEWARE_ENDPOINT, { user: updated, accessKey: getAccessToken() })
-    .then((result) => {
+    .then(result => {
       dispatch({
         type: UserActionType.UpdateUser,
         payload: { user: result.data.user },
       });
     })
-    .catch((error) => {
+    .catch(error => {
       captureError(error, ActionTag.User, RequestTag.Get, {});
     });
 };
@@ -109,19 +109,19 @@ export const addSeenCard = (
   cardUuid: string,
   currentUser: UserInterface,
 ) => {
-  if (currentUser.seenCards.some((uuid) => uuid === cardUuid)) return;
+  if (currentUser.seenCards.some(uuid => uuid === cardUuid)) return;
 
   const updated = { ...currentUser, seenCards: [...currentUser.seenCards, cardUuid] };
   LogRocket.log('Try to update user', updated);
   axios
     .put(MIDDLEWARE_ENDPOINT, { user: updated, accessKey: getAccessToken() })
-    .then((result) => {
+    .then(result => {
       dispatch({
         type: UserActionType.UpdateUser,
         payload: { user: result.data.user },
       });
     })
-    .catch((error) => {
+    .catch(error => {
       captureError(error, ActionTag.User, RequestTag.Get, {});
     });
 };

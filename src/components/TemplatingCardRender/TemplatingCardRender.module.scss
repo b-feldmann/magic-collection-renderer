@@ -1,31 +1,31 @@
 @font-face {
-  font-family: "MPlantin";
-  src: url("font/MPlantin.ttf");
+  font-family: 'MPlantin';
+  src: url('font/MPlantin.ttf');
 }
 
 @font-face {
-  font-family: "Gotham Medium";
-  src: url("font/GothamMedium.ttf");
+  font-family: 'Gotham Medium';
+  src: url('font/GothamMedium.ttf');
 }
 
 @font-face {
-  font-family: "Invocation V1";
-  src: url("font/Invocation_v1.ttf");
+  font-family: 'Invocation V1';
+  src: url('font/Invocation_v1.ttf');
 }
 
 @font-face {
-  font-family: "Invocation";
-  src: url("font/Invocation.ttf");
+  font-family: 'Invocation';
+  src: url('font/Invocation.ttf');
 }
 
 @font-face {
-  font-family: "Beleren Bold";
-  src: url("font/BelerenB.ttf");
+  font-family: 'Beleren Bold';
+  src: url('font/BelerenB.ttf');
 }
 
 @font-face {
-  font-family: "Beleren Bold Small Caps";
-  src: url("font/BelerenBoldSmallCaps.ttf");
+  font-family: 'Beleren Bold Small Caps';
+  src: url('font/BelerenBoldSmallCaps.ttf');
 }
 
 .cardRender {
@@ -93,7 +93,7 @@
   }
 
   .title {
-    font-family: "Beleren Bold", sans-serif;
+    font-family: 'Beleren Bold', sans-serif;
     position: absolute;
     font-size: 2.45em;
     top: 97px;
@@ -101,7 +101,7 @@
   }
 
   .nicknameText {
-    font-family: "Beleren Bold", sans-serif;
+    font-family: 'Beleren Bold', sans-serif;
     font-size: 1.05em;
     color: white;
     position: absolute;
@@ -120,7 +120,7 @@
   }
 
   .type {
-    font-family: "Beleren Bold", sans-serif;
+    font-family: 'Beleren Bold', sans-serif;
     position: absolute;
     font-size: 2em;
     top: 1190px;
@@ -177,7 +177,7 @@
 
   .basicLandTitle {
     color: white;
-    font-family: "Beleren Bold", sans-serif;
+    font-family: 'Beleren Bold', sans-serif;
     position: absolute;
     font-size: 2.5em;
     top: 12.5px;
@@ -193,7 +193,7 @@
   }
 
   .text {
-    font-family: "MPlantin", sans-serif;
+    font-family: 'MPlantin', sans-serif;
     position: absolute;
     font-size: 1.625em;
     top: 1337.5px;
@@ -253,7 +253,7 @@
   }
 
   .stats {
-    font-family: "Beleren Bold Small Caps", sans-serif;
+    font-family: 'Beleren Bold Small Caps', sans-serif;
     font-size: 2.3em;
     position: absolute;
     top: 1890px;
@@ -270,7 +270,7 @@
   .copyright,
   .copyrightStats {
     color: white;
-    font-family: "Gotham Medium", sans-serif;
+    font-family: 'Gotham Medium', sans-serif;
     position: absolute;
   }
 
@@ -305,7 +305,7 @@
   }
 
   .artist {
-    font-family: "Beleren Bold Small Caps", sans-serif;
+    font-family: 'Beleren Bold Small Caps', sans-serif;
     letter-spacing: 2.08px;
     margin-left: 58.33px;
   }
@@ -399,7 +399,7 @@
     height: 96.64px;
   }
 
-  i:not([title="Artist (Nib)"]) {
+  i:not([title='Artist (Nib)']) {
     font-size: 0.9em;
     background: transparent !important;
     box-shadow: 0 0 2.01px 2.01px #111 !important;
@@ -413,7 +413,7 @@
 
   .title,
   .type {
-    font-family: "Invocation V1", sans-serif;
+    font-family: 'Invocation V1', sans-serif;
     //font-weight: bold;
     letter-spacing: -2.01px;
   }
@@ -429,7 +429,7 @@
   }
 
   .text {
-    font-family: "Gotham Medium", sans-serif;;
+    font-family: 'Gotham Medium', sans-serif;
     text-align: center;
     top: 1377.18px;
     left: 169.13px;
@@ -506,7 +506,7 @@
     top: 184px;
     left: 0;
     width: 1500px;
-    height: 1100px;
+    height: 1116px;
   }
 
   .type {
@@ -514,7 +514,7 @@
   }
 }
 
-.extended.colorless {
+:not(.enchantment):not(.land).colorless {
   .cover {
     top: 104px;
     height: 1820px;
@@ -567,7 +567,7 @@
   }
 
   .type2 {
-    font-family: "Beleren Bold", sans-serif;
+    font-family: 'Beleren Bold', sans-serif;
     position: absolute;
     font-size: 2em;
     left: 1116.67px;
@@ -583,4 +583,15 @@
   .landSymbol > * > * {
     width: 270px;
   }
+}
+
+// Controls how the cover image fills its fixed-size box. `stretch` keeps the
+// browser default (distorts the image to fit); `zoom` preserves aspect ratio
+// and crops the overflow so nothing is stretched.
+.coverStretch {
+  object-fit: fill;
+}
+
+.coverZoom {
+  object-fit: cover;
 }

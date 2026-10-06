@@ -20,8 +20,8 @@ describe('injectUtils', () => {
 
     renderToStaticMarkup(content);
 
-    const keyWarnings = warningSpy.mock.calls.filter((args) =>
-      args.some((arg) => String(arg).includes('unique "key" prop')),
+    const keyWarnings = warningSpy.mock.calls.filter(args =>
+      args.some(arg => String(arg).includes('unique "key" prop')),
     );
     expect(keyWarnings).toEqual([]);
     warningSpy.mockRestore();

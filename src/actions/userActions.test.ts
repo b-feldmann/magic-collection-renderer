@@ -129,7 +129,7 @@ describe('getUser restores the stored user', () => {
     await vi.waitFor(() => {
       expect(actions).toContainEqual({ type: UserActionType.GetUser, payload: { user: [alice] } });
     });
-    expect(actions.filter((a) => a.type === UserActionType.SetCurrentUser)).toHaveLength(0);
+    expect(actions.filter(a => a.type === UserActionType.SetCurrentUser)).toHaveLength(0);
     expect(localStorage.getItem(STORAGE_KEY)).toBeNull();
   });
 
@@ -144,7 +144,7 @@ describe('getUser restores the stored user', () => {
     await vi.waitFor(() => {
       expect(actions).toContainEqual({ type: UserActionType.GetUser, payload: { user: [alice] } });
     });
-    expect(actions.filter((a) => a.type === UserActionType.SetCurrentUser)).toHaveLength(0);
+    expect(actions.filter(a => a.type === UserActionType.SetCurrentUser)).toHaveLength(0);
     expect(localStorage.getItem(STORAGE_KEY)).toBeNull();
   });
 });

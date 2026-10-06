@@ -32,29 +32,26 @@ export const buildSortAccessors = (
 ): SortAccessor[] => {
   const accessors: Record<SortByType, SortAccessor[]> = {
     [SortByType.Color]: [
-      (o) =>
+      o =>
         Object.values(ColorType).indexOf(
           cardToColor(o.front.cardMainType, o.manaCost, o.front.cardText).color,
         ),
-      (o) => o.front.name.toLowerCase(),
+      o => o.front.name.toLowerCase(),
     ],
     [SortByType.Creator]: [
-      (o) => (o.creator.uuid === UNKNOWN_CREATOR.uuid ? 'zzzzz' : o.creator.name),
-      (o) =>
+      o => (o.creator.uuid === UNKNOWN_CREATOR.uuid ? 'zzzzz' : o.creator.name),
+      o =>
         Object.values(ColorType).indexOf(
           cardToColor(o.front.cardMainType, o.manaCost, o.front.cardText).color,
         ),
-      (o) => o.front.name.toLowerCase(),
+      o => o.front.name.toLowerCase(),
     ],
-    [SortByType.LastUpdated]: [(o) => -1 * getLastUpdated(o, annotationAccessor)],
+    [SortByType.LastUpdated]: [o => -1 * getLastUpdated(o, annotationAccessor)],
     [SortByType.Rarity]: [
-      (o) => Object.values(RarityType).length - 1 - Object.values(RarityType).indexOf(o.rarity),
+      o => Object.values(RarityType).length - 1 - Object.values(RarityType).indexOf(o.rarity),
     ],
-    [SortByType.ManaCost]: [
-      (o) => getConvertedManaCost(o.manaCost),
-      (o) => o.front.name.toLowerCase(),
-    ],
-    [SortByType.Name]: [(o) => o.front.name.toLowerCase()],
+    [SortByType.ManaCost]: [o => getConvertedManaCost(o.manaCost), o => o.front.name.toLowerCase()],
+    [SortByType.Name]: [o => o.front.name.toLowerCase()],
   };
 
   const list: SortAccessor[] = [...accessors[sortBy]];

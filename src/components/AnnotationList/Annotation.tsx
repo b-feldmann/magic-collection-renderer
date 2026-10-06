@@ -27,7 +27,7 @@ const Annotation = ({ annotation }: AnnotationProps) => {
     </Tooltip>
   );
 
-  const author = user.find((o) => o.uuid === annotation.author);
+  const author = user.find(o => o.uuid === annotation.author);
 
   return (
     <Comment

@@ -81,7 +81,7 @@ const getLandColor = (manaCost: string = '', cardText: string[] = []): ColorType
 
   const addColor = (type: ColorType) => {
     if (type === ColorType.Colorless || type === ColorType.Gold) return;
-    if (!allColors.some((c) => c === type)) allColors.push(type);
+    if (!allColors.some(c => c === type)) allColors.push(type);
   };
 
   const array = manaCost.split(/\}\{|\{|\}/);
@@ -89,7 +89,7 @@ const getLandColor = (manaCost: string = '', cardText: string[] = []): ColorType
     addColor(getSingleColor(cost));
   });
 
-  cardText.forEach((line) => {
+  cardText.forEach(line => {
     if (allColors.length === 5) return;
     if (line.toLowerCase().indexOf('mana of any color') !== -1) {
       addColor(ColorType.White);

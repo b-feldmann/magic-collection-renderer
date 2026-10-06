@@ -27,7 +27,7 @@ describe('buildSortAccessors', () => {
     ];
 
     const accessors = buildSortAccessors(SortByType.Rarity, SortByType.Name, NO_ANNOTATIONS);
-    const sorted = sortBy(cards, accessors).map((c) => c.front.name);
+    const sorted = sortBy(cards, accessors).map(c => c.front.name);
 
     expect(sorted).toEqual(['Zeta', 'Alpha', 'Alpha', 'Beta']);
   });
@@ -40,7 +40,7 @@ describe('buildSortAccessors', () => {
     ];
 
     const accessors = buildSortAccessors(SortByType.ManaCost, SortByType.Name, NO_ANNOTATIONS);
-    const sorted = sortBy(cards, accessors).map((c) => c.front.name);
+    const sorted = sortBy(cards, accessors).map(c => c.front.name);
 
     expect(sorted).toEqual(['Free', 'Mid', 'Big']);
   });
@@ -53,7 +53,7 @@ describe('buildSortAccessors', () => {
     ];
 
     const accessors = buildSortAccessors(SortByType.LastUpdated, SortByType.Name, NO_ANNOTATIONS);
-    const sorted = sortBy(cards, accessors).map((c) => c.front.name);
+    const sorted = sortBy(cards, accessors).map(c => c.front.name);
 
     expect(sorted).toEqual(['Ann', 'Zed', 'Old']);
   });
@@ -65,7 +65,7 @@ describe('buildSortAccessors', () => {
     ];
 
     const accessors = buildSortAccessors(SortByType.Rarity, SortByType.Rarity, NO_ANNOTATIONS);
-    const sorted = sortBy(cards, accessors).map((c) => c.front.name);
+    const sorted = sortBy(cards, accessors).map(c => c.front.name);
 
     expect(accessors).toHaveLength(1);
     // Only the primary key applies: original order preserved for ties.

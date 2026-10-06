@@ -55,13 +55,13 @@ describe('EditorTooltip', () => {
 
     // Popover opens after the default mouseEnterDelay (100ms) plus animation.
     await act(async () => {
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      await new Promise(resolve => setTimeout(resolve, 500));
     });
 
     const manaIcons = Array.from(document.body.querySelectorAll('i.ms'));
     const hybridSymbols = ['wu', 'wb', 'ub', 'ur', 'br', 'bg', 'rg', 'rw', 'gw', 'gu'];
-    hybridSymbols.forEach((symbol) => {
-      const icon = manaIcons.find((el) => el.classList.contains(`ms-${symbol}`));
+    hybridSymbols.forEach(symbol => {
+      const icon = manaIcons.find(el => el.classList.contains(`ms-${symbol}`));
       expect(icon, `symbol {${symbol}} missing from tooltip`).toBeDefined();
       expect(icon?.classList.contains('ms-cost'), `{${symbol}} missing ms-cost class`).toBe(true);
     });

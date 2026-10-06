@@ -52,7 +52,7 @@ const AnnotationList = ({
           <Listy<AnnotationInterface>
             rowKey="uuid"
             items={sortBy(annotations, (o: AnnotationInterface) => o.datetime)}
-            itemRender={(item) => <Annotation annotation={item} />}
+            itemRender={item => <Annotation annotation={item} />}
           />
         </div>
       </div>

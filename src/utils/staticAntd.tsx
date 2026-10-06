@@ -15,8 +15,20 @@ type AppApi = ReturnType<typeof App.useApp>;
  *
  * `StaticAntdBridge` (mounted inside antd's <App>) writes the context-aware
  * instances here so non-React code can use them without the warning.
+ *
+ * Until the bridge mounts, the holder is seeded with no-op implementations so
+ * that thunks firing early (or during tests that never mount the bridge) cannot
+ * crash with "Cannot read properties of undefined". The bridge overwrites these
+ * with the real context-aware instances once it renders.
  */
-export const staticAntd = {} as AppApi;
+const noop = () => undefined;
+const noopApi = new Proxy({}, { get: () => noop }) as never;
+
+export const staticAntd = {
+  message: noopApi,
+  notification: noopApi,
+  modal: noopApi,
+} as AppApi;
 
 /**
  * Bridges antd's context-aware feedback APIs to the `staticAntd` holder.

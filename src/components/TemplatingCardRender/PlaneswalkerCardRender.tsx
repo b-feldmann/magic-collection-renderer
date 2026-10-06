@@ -6,7 +6,7 @@ import { Mana } from '../Mana/Mana';
 
 import TextResize from '../TextResize/TextResize';
 
-import { CardMainType, RarityType } from '../../interfaces/enums';
+import { CardMainType, CoverFit, RarityType } from '../../interfaces/enums';
 import { Store, StoreType } from '../../store';
 import { getColor } from '../../utils/cardToColor';
 
@@ -25,6 +25,7 @@ import ImageLoader from '../ImageLoader/ImageLoader';
 import getRarityCode from '../../utils/getRarityCode';
 import parseCollectionNumber from '../../utils/parseCollectionNumber';
 import { CARD_WIDTH, CARD_HEIGHT } from '../../utils/constants';
+import getCoverFitClass from './getCoverFitClass';
 
 interface PlaneswalkerCardRenderProps {
   name: string;
@@ -41,6 +42,7 @@ interface PlaneswalkerCardRenderProps {
   flavourText?: string;
   flavourAuthor?: string;
   cover?: string;
+  coverFit?: CoverFit;
   backFace?: boolean;
   collectionNumber: number;
   collectionSize: number;
@@ -49,8 +51,8 @@ interface PlaneswalkerCardRenderProps {
 
 const PlaneswalkerCardRender = (cardRender: PlaneswalkerCardRenderProps) => {
   const { legendary, cardMainType, cardSubTypes } = cardRender;
-  const { name, manaCost, cardStats, cover, creator } = cardRender;
-  const { cardText, flavourText = '', flavourAuthor, cardID } = cardRender;
+  const { name, manaCost, cardStats, cover, coverFit, creator } = cardRender;
+  const { cardText, cardID } = cardRender;
   const { backFace, collectionNumber, collectionSize, rarity } = cardRender;
   const { containerWidth = CARD_WIDTH } = cardRender;
 
@@ -104,7 +106,7 @@ const PlaneswalkerCardRender = (cardRender: PlaneswalkerCardRenderProps) => {
             src={cover || getFallbackCover()}
             alt="cover"
             fallBackColor="black"
-            className={`${styles.cover} card-cover`}
+            className={`${styles.cover} ${getCoverFitClass(styles, coverFit)} card-cover`}
           />
           <ImageLoader src={mainframe} className={styles.mainframe} fallBackColor="#eed66b" />
           <ImageLoader src={getRarityIcon(rarity)} alt="" className={styles.rarity} />
