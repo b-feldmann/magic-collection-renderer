@@ -14,6 +14,12 @@
  * the left side, the second color the right side, with a narrow gradient blend
  * across the centre. These are written to `parts/<type>/<combo>.png`.
  *
+ * Additionally, pinline variants for the `extended` and `borderless` art
+ * styles are generated from those styles' own single-color frames (in
+ * `mainframes/extended` and `mainframes/borderless`) using the
+ * `parts/extendedPinline.png` mask. Only the two-color combinations are
+ * produced for these variants, written to `parts/pinline/<variant>/<combo>.png`.
+ *
  * Run with: npm run generate:parts
  */
 
@@ -23,6 +29,7 @@ const { Jimp } = require('jimp');
 
 const COLORS = ['l', 'a', 'b', 'c', 'g', 'm', 'r', 'u', 'v', 'w'];
 const PART_TYPES = ['pinline', 'rules', 'title', 'type'];
+const EXTENDED_PART_TYPES = ['extendedPinline'];
 
 // Two-color combinations in WUBRG wheel order. The first letter is rendered on
 // the left side, the second letter on the right side.
@@ -132,6 +139,39 @@ function sameSize(frame, maskW, maskH) {
   return frame.bitmap.width === maskW && frame.bitmap.height === maskH;
 }
 
+/**
+ * Carve the two-color combinations from the given frames and mask, writing one
+ * `<combo>.png` per combination to `outputDir`. Returns the number of written
+ * files and a list of skip reasons.
+ */
+async function writeCombos(label, frames, mask, maskW, maskH, outputDir) {
+  let written = 0;
+  const skipped = [];
+
+  for (const combo of COMBINATIONS) {
+    const [c1, c2] = combo.split('');
+    const frame1 = frames.get(c1);
+    const frame2 = frames.get(c2);
+
+    if (!frame1 || !frame2) {
+      const missing = [!frame1 && c1, !frame2 && c2].filter(Boolean).join(', ');
+      skipped.push(`${combo} (source missing: ${missing})`);
+      continue;
+    }
+    if (!sameSize(frame1, maskW, maskH) || !sameSize(frame2, maskW, maskH)) {
+      skipped.push(`${combo} (source size != mask ${maskW}x${maskH})`);
+      continue;
+    }
+
+    const out = carveCombo(frame1, frame2, mask);
+    await out.write(path.join(outputDir, `${combo}.png`));
+    written += 1;
+    console.log(`${label}  ✓ ${combo}.png`);
+  }
+
+  return { written, skipped };
+}
+
 async function generate(type, maskPath, frames, outputDir) {
   if (!fs.existsSync(maskPath)) {
     throw new Error(`Mask image not found: ${maskPath}`);
@@ -168,26 +208,9 @@ async function generate(type, maskPath, frames, outputDir) {
   }
 
   // Two-color combinations.
-  for (const combo of COMBINATIONS) {
-    const [c1, c2] = combo.split('');
-    const frame1 = frames.get(c1);
-    const frame2 = frames.get(c2);
-
-    if (!frame1 || !frame2) {
-      const missing = [!frame1 && c1, !frame2 && c2].filter(Boolean).join(', ');
-      skipped.push(`${combo} (source missing: ${missing})`);
-      continue;
-    }
-    if (!sameSize(frame1, maskW, maskH) || !sameSize(frame2, maskW, maskH)) {
-      skipped.push(`${combo} (source size != mask ${maskW}x${maskH})`);
-      continue;
-    }
-
-    const out = carveCombo(frame1, frame2, mask);
-    await out.write(path.join(outputDir, `${combo}.png`));
-    written += 1;
-    console.log(`${type}  ✓ ${combo}.png`);
-  }
+  const comboResult = await writeCombos(type, frames, mask, maskW, maskH, outputDir);
+  written += comboResult.written;
+  skipped.push(...comboResult.skipped);
 
   console.log(`\nDone. Wrote ${written} ${type} image(s) to ${outputDir}`);
   if (skipped.length > 0) {
@@ -202,6 +225,68 @@ async function run() {
     const maskPath = path.join(PARTS_DIR, `${type}.png`);
     const outputDir = path.join(PARTS_DIR, type);
     await generate(type, maskPath, frames, outputDir);
+  }
+  await generateVariantPinlines();
+}
+
+// Pinline variants for the extended and borderless art styles: the single
+// colors come from the art style's own frames, and only the two-color
+// combinations are generated (using the extendedPinline mask for both).
+const VARIANT_COLORS = ['w', 'u', 'b', 'r', 'g'];
+const PINLINE_VARIANTS = [
+  {
+    name: 'extended',
+    sourceFor: color => path.join(MAINFRAMES_DIR, 'extended', `${color}.png`),
+  },
+  {
+    name: 'borderless',
+    sourceFor: color =>
+      path.join(MAINFRAMES_DIR, 'borderless', `m15GenericShowcaseFrame${color.toUpperCase()}.png`),
+  },
+];
+
+async function generateVariantPinlines() {
+  const maskPath = path.join(PARTS_DIR, 'extendedPinline.png');
+  if (!fs.existsSync(maskPath)) {
+    throw new Error(`Mask image not found: ${maskPath}`);
+  }
+  const mask = await Jimp.read(maskPath);
+  const { width: maskW, height: maskH } = mask.bitmap;
+
+  for (const variant of PINLINE_VARIANTS) {
+    const frames = new Map();
+    for (const color of VARIANT_COLORS) {
+      const sourcePath = variant.sourceFor(color);
+      if (fs.existsSync(sourcePath)) {
+        const frame = await Jimp.read(sourcePath);
+        // The borderless showcase frames are smaller than the mask (same
+        // aspect ratio), so scale them up to the mask size before carving.
+        if (!sameSize(frame, maskW, maskH)) {
+          frame.resize({ w: maskW, h: maskH });
+        }
+        frames.set(color, frame);
+      }
+    }
+
+    const outputDir = path.join(PARTS_DIR, 'pinline', variant.name);
+    if (!fs.existsSync(outputDir)) {
+      fs.mkdirSync(outputDir, { recursive: true });
+    }
+
+    const { written, skipped } = await writeCombos(
+      `pinline/${variant.name}`,
+      frames,
+      mask,
+      maskW,
+      maskH,
+      outputDir,
+    );
+
+    console.log(`\nDone. Wrote ${written} pinline/${variant.name} image(s) to ${outputDir}`);
+    if (skipped.length > 0) {
+      console.log(`Skipped ${skipped.length}:`);
+      for (const s of skipped) console.log(`  - ${s}`);
+    }
   }
 }
 

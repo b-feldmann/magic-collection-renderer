@@ -190,9 +190,14 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
     isLand,
   );
   const pinline = getPinline(isLand ? landColors : allColors, isArtifact);
-  const titlePart = isLand ? getLandTitlePart(landColors) : getTitlePart(allColors, isArtifact);
-  const typePart = isLand ? getLandTypePart(landColors) : getTypePart(allColors, isArtifact);
-  const rulesPart = isLand ? getLandRulesPart(landColors) : getRulesPart(allColors, isArtifact);
+  let titlePart = isLand ? getLandTitlePart(landColors) : getTitlePart(allColors, isArtifact);
+  let typePart = isLand ? getLandTypePart(landColors) : getTypePart(allColors, isArtifact);
+  let rulesPart = isLand ? getLandRulesPart(landColors) : getRulesPart(allColors, isArtifact);
+  if (artStyle === CardArtStyles.Borderless) {
+    titlePart = '';
+    typePart = '';
+    rulesPart = '';
+  }
 
   if (artStyle === CardArtStyles.Extended) {
     mainframe = getExtendedMainframe(color, isLand, isArtifact, vehicle, isEnchantment);
