@@ -340,6 +340,50 @@ import BorderlessBlackGreenPinline from './images/parts/pinline/borderless/bg.pn
 import BorderlessRedWhitePinline from './images/parts/pinline/borderless/rw.png';
 import BorderlessGreenBluePinline from './images/parts/pinline/borderless/gu.png';
 
+import PwRegularWhiteBluePinline from './images/parts/pinline/planeswalker/regular/wu.png';
+import PwRegularBlueBlackPinline from './images/parts/pinline/planeswalker/regular/ub.png';
+import PwRegularBlackRedPinline from './images/parts/pinline/planeswalker/regular/br.png';
+import PwRegularRedGreenPinline from './images/parts/pinline/planeswalker/regular/rg.png';
+import PwRegularGreenWhitePinline from './images/parts/pinline/planeswalker/regular/gw.png';
+import PwRegularWhiteBlackPinline from './images/parts/pinline/planeswalker/regular/wb.png';
+import PwRegularBlueRedPinline from './images/parts/pinline/planeswalker/regular/ur.png';
+import PwRegularBlackGreenPinline from './images/parts/pinline/planeswalker/regular/bg.png';
+import PwRegularRedWhitePinline from './images/parts/pinline/planeswalker/regular/rw.png';
+import PwRegularGreenBluePinline from './images/parts/pinline/planeswalker/regular/gu.png';
+
+import PwTallWhiteBluePinline from './images/parts/pinline/planeswalker/tall/wu.png';
+import PwTallBlueBlackPinline from './images/parts/pinline/planeswalker/tall/ub.png';
+import PwTallBlackRedPinline from './images/parts/pinline/planeswalker/tall/br.png';
+import PwTallRedGreenPinline from './images/parts/pinline/planeswalker/tall/rg.png';
+import PwTallGreenWhitePinline from './images/parts/pinline/planeswalker/tall/gw.png';
+import PwTallWhiteBlackPinline from './images/parts/pinline/planeswalker/tall/wb.png';
+import PwTallBlueRedPinline from './images/parts/pinline/planeswalker/tall/ur.png';
+import PwTallBlackGreenPinline from './images/parts/pinline/planeswalker/tall/bg.png';
+import PwTallRedWhitePinline from './images/parts/pinline/planeswalker/tall/rw.png';
+import PwTallGreenBluePinline from './images/parts/pinline/planeswalker/tall/gu.png';
+
+import PwBorderlessWhiteBluePinline from './images/parts/pinline/planeswalker/borderless/wu.png';
+import PwBorderlessBlueBlackPinline from './images/parts/pinline/planeswalker/borderless/ub.png';
+import PwBorderlessBlackRedPinline from './images/parts/pinline/planeswalker/borderless/br.png';
+import PwBorderlessRedGreenPinline from './images/parts/pinline/planeswalker/borderless/rg.png';
+import PwBorderlessGreenWhitePinline from './images/parts/pinline/planeswalker/borderless/gw.png';
+import PwBorderlessWhiteBlackPinline from './images/parts/pinline/planeswalker/borderless/wb.png';
+import PwBorderlessBlueRedPinline from './images/parts/pinline/planeswalker/borderless/ur.png';
+import PwBorderlessBlackGreenPinline from './images/parts/pinline/planeswalker/borderless/bg.png';
+import PwBorderlessRedWhitePinline from './images/parts/pinline/planeswalker/borderless/rw.png';
+import PwBorderlessGreenBluePinline from './images/parts/pinline/planeswalker/borderless/gu.png';
+
+import PwTallBorderlessWhiteBluePinline from './images/parts/pinline/planeswalker/tallBorderless/wu.png';
+import PwTallBorderlessBlueBlackPinline from './images/parts/pinline/planeswalker/tallBorderless/ub.png';
+import PwTallBorderlessBlackRedPinline from './images/parts/pinline/planeswalker/tallBorderless/br.png';
+import PwTallBorderlessRedGreenPinline from './images/parts/pinline/planeswalker/tallBorderless/rg.png';
+import PwTallBorderlessGreenWhitePinline from './images/parts/pinline/planeswalker/tallBorderless/gw.png';
+import PwTallBorderlessWhiteBlackPinline from './images/parts/pinline/planeswalker/tallBorderless/wb.png';
+import PwTallBorderlessBlueRedPinline from './images/parts/pinline/planeswalker/tallBorderless/ur.png';
+import PwTallBorderlessBlackGreenPinline from './images/parts/pinline/planeswalker/tallBorderless/bg.png';
+import PwTallBorderlessRedWhitePinline from './images/parts/pinline/planeswalker/tallBorderless/rw.png';
+import PwTallBorderlessGreenBluePinline from './images/parts/pinline/planeswalker/tallBorderless/gu.png';
+
 import WhiteTitle from './images/parts/title/w.png';
 import BlueTitle from './images/parts/title/u.png';
 import BlackTitle from './images/parts/title/b.png';
@@ -1501,6 +1545,112 @@ const BORDERLESS_PINLINES: Record<PartVariant, string> = {
   bg: BorderlessBlackGreenPinline,
   rw: BorderlessRedWhitePinline,
   gu: BorderlessGreenBluePinline,
+};
+
+// Planeswalker pinlines, one map per frame style. Like the extended /
+// borderless pinlines, only the two-color combinations exist; non-combo keys
+// map to '' because single-color (and colorless / 3+ color) planeswalkers
+// render the whole frame instead of carving a pinline out of it.
+const PLANESWALKER_REGULAR_PINLINES: Record<PartVariant, string> = {
+  '': '',
+  w: '',
+  u: '',
+  b: '',
+  r: '',
+  g: '',
+  m: '',
+  wu: PwRegularWhiteBluePinline,
+  ub: PwRegularBlueBlackPinline,
+  br: PwRegularBlackRedPinline,
+  rg: PwRegularRedGreenPinline,
+  gw: PwRegularGreenWhitePinline,
+  wb: PwRegularWhiteBlackPinline,
+  ur: PwRegularBlueRedPinline,
+  bg: PwRegularBlackGreenPinline,
+  rw: PwRegularRedWhitePinline,
+  gu: PwRegularGreenBluePinline,
+};
+
+const PLANESWALKER_TALL_PINLINES: Record<PartVariant, string> = {
+  '': '',
+  w: '',
+  u: '',
+  b: '',
+  r: '',
+  g: '',
+  m: '',
+  wu: PwTallWhiteBluePinline,
+  ub: PwTallBlueBlackPinline,
+  br: PwTallBlackRedPinline,
+  rg: PwTallRedGreenPinline,
+  gw: PwTallGreenWhitePinline,
+  wb: PwTallWhiteBlackPinline,
+  ur: PwTallBlueRedPinline,
+  bg: PwTallBlackGreenPinline,
+  rw: PwTallRedWhitePinline,
+  gu: PwTallGreenBluePinline,
+};
+
+const PLANESWALKER_BORDERLESS_PINLINES: Record<PartVariant, string> = {
+  '': '',
+  w: '',
+  u: '',
+  b: '',
+  r: '',
+  g: '',
+  m: '',
+  wu: PwBorderlessWhiteBluePinline,
+  ub: PwBorderlessBlueBlackPinline,
+  br: PwBorderlessBlackRedPinline,
+  rg: PwBorderlessRedGreenPinline,
+  gw: PwBorderlessGreenWhitePinline,
+  wb: PwBorderlessWhiteBlackPinline,
+  ur: PwBorderlessBlueRedPinline,
+  bg: PwBorderlessBlackGreenPinline,
+  rw: PwBorderlessRedWhitePinline,
+  gu: PwBorderlessGreenBluePinline,
+};
+
+const PLANESWALKER_TALL_BORDERLESS_PINLINES: Record<PartVariant, string> = {
+  '': '',
+  w: '',
+  u: '',
+  b: '',
+  r: '',
+  g: '',
+  m: '',
+  wu: PwTallBorderlessWhiteBluePinline,
+  ub: PwTallBorderlessBlueBlackPinline,
+  br: PwTallBorderlessBlackRedPinline,
+  rg: PwTallBorderlessRedGreenPinline,
+  gw: PwTallBorderlessGreenWhitePinline,
+  wb: PwTallBorderlessWhiteBlackPinline,
+  ur: PwTallBorderlessBlueRedPinline,
+  bg: PwTallBorderlessBlackGreenPinline,
+  rw: PwTallBorderlessRedWhitePinline,
+  gu: PwTallBorderlessGreenBluePinline,
+};
+
+// Selects the two-color pinline overlay for a planeswalker frame. Mirrors the
+// variant branch logic of getPlaneswalkerMainframe. Returns '' unless the card
+// has exactly two colors (single-color / colorless / 3+ render no pinline).
+export const getPlaneswalkerPinline = (
+  colors: ColorType[],
+  isTall = false,
+  isBorderless = false,
+): string => {
+  if (colors.length !== 2) return '';
+
+  let variantPinlines: Record<PartVariant, string>;
+  if (isBorderless) {
+    variantPinlines = isTall
+      ? PLANESWALKER_TALL_BORDERLESS_PINLINES
+      : PLANESWALKER_BORDERLESS_PINLINES;
+  } else {
+    variantPinlines = isTall ? PLANESWALKER_TALL_PINLINES : PLANESWALKER_REGULAR_PINLINES;
+  }
+
+  return variantPinlines[getTwoColorVariant(colors)];
 };
 
 // Token frame parts, keyed by combo variant. Like the extended / borderless

@@ -20,6 +20,14 @@
  * `parts/extendedPinline.png` mask. Only the two-color combinations are
  * produced for these variants, written to `parts/pinline/<variant>/<combo>.png`.
  *
+ * Planeswalkers get their own two-color pinlines for all four frame styles
+ * (regular, tall, borderless, tallBorderless), carved from each style's own
+ * single-color frames in `mainframes/planeswalker/<variant>/`. The regular and
+ * tall styles use their dedicated pinline masks; the borderless and
+ * tallBorderless styles have no mask of their own and reuse the regular / tall
+ * masks. Only the two-color combinations are produced, written to
+ * `parts/pinline/planeswalker/<variant>/<combo>.png`.
+ *
  * Nickname title plates (`images/nickname/m15NicknameTitle<X>.png`) also get
  * their two-color combinations, blended from the single-color plates into
  * `m15NicknameTitle<combo>.png`.
@@ -247,6 +255,7 @@ async function run() {
     await generate(type, maskPath, frames, outputDir);
   }
   await generateVariantPinlines();
+  await generatePlaneswalkerPinlines();
   await generateTokenParts();
   await generateNicknameCombos();
   await generateCrownCombos();
@@ -409,6 +418,85 @@ async function generateVariantPinlines() {
     );
 
     console.log(`\nDone. Wrote ${written} pinline/${variant.name} image(s) to ${outputDir}`);
+    if (skipped.length > 0) {
+      console.log(`Skipped ${skipped.length}:`);
+      for (const s of skipped) console.log(`  - ${s}`);
+    }
+  }
+}
+
+// Pinline variants for the four planeswalker frame styles (regular, tall,
+// borderless, tallBorderless): the single colors come from each style's own
+// frames, and only the two-color combinations are generated. The regular and
+// tall styles have dedicated pinline masks; the borderless and tallBorderless
+// styles have none, so they reuse the regular / tall masks respectively (all
+// four share the same 1500x2100 internal layout). Written to
+// `parts/pinline/planeswalker/<variant>/<combo>.png`.
+const PLANESWALKER_DIR = path.join(MAINFRAMES_DIR, 'planeswalker');
+const PLANESWALKER_PINLINE_VARIANTS = [
+  {
+    name: 'regular',
+    sourceFor: color =>
+      path.join(PLANESWALKER_DIR, 'regular', `planeswalkerFrame${color.toUpperCase()}.png`),
+    maskPath: path.join(PLANESWALKER_DIR, 'regular', 'planeswalkerMaskPinline.png'),
+  },
+  {
+    name: 'tall',
+    sourceFor: color =>
+      path.join(PLANESWALKER_DIR, 'tall', `planeswalkerTall${color.toUpperCase()}.png`),
+    maskPath: path.join(PLANESWALKER_DIR, 'tall', 'planeswalkerTallMaskPinline.png'),
+  },
+  {
+    name: 'borderless',
+    sourceFor: color => path.join(PLANESWALKER_DIR, 'borderless', `${color}.png`),
+    // No dedicated borderless pinline mask: reuse the regular mask.
+    maskPath: path.join(PLANESWALKER_DIR, 'regular', 'planeswalkerMaskPinline.png'),
+  },
+  {
+    name: 'tallBorderless',
+    sourceFor: color => path.join(PLANESWALKER_DIR, 'tallBorderless', `${color}.png`),
+    // No dedicated tallBorderless pinline mask: reuse the tall mask.
+    maskPath: path.join(PLANESWALKER_DIR, 'tall', 'planeswalkerTallMaskPinline.png'),
+  },
+];
+
+async function generatePlaneswalkerPinlines() {
+  for (const variant of PLANESWALKER_PINLINE_VARIANTS) {
+    if (!fs.existsSync(variant.maskPath)) {
+      throw new Error(`Mask image not found: ${variant.maskPath}`);
+    }
+    const mask = await Jimp.read(variant.maskPath);
+    const { width: maskW, height: maskH } = mask.bitmap;
+
+    const frames = new Map();
+    for (const color of VARIANT_COLORS) {
+      const sourcePath = variant.sourceFor(color);
+      if (fs.existsSync(sourcePath)) {
+        const frame = await Jimp.read(sourcePath);
+        if (!sameSize(frame, maskW, maskH)) {
+          frame.resize({ w: maskW, h: maskH });
+        }
+        frames.set(color, frame);
+      }
+    }
+
+    const outputDir = path.join(PARTS_DIR, 'pinline', 'planeswalker', variant.name);
+    if (!fs.existsSync(outputDir)) {
+      fs.mkdirSync(outputDir, { recursive: true });
+    }
+
+    const { written, skipped } = await writeCombos(
+      `pinline/planeswalker/${variant.name}`,
+      frames,
+      mask,
+      maskW,
+      maskH,
+      outputDir,
+    );
+
+    console.log(
+      `\nDone. Wrote ${written} pinline/planeswalker/${variant.name} image(s) to ${outputDir}`,
+    );
     if (skipped.length > 0) {
       console.log(`Skipped ${skipped.length}:`);
       for (const s of skipped) console.log(`  - ${s}`);

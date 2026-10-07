@@ -23,7 +23,7 @@ import {
   getFallbackCover,
   getLoyaltyIcon,
   getPlaneswalkerMainframe,
-  getPlaneswalkerPt,
+  getPlaneswalkerPinline,
   getRarityIcon,
 } from './assetLoader';
 import { injectForText, injectManaIcons } from '../../utils/injectUtils';
@@ -81,9 +81,9 @@ const PlaneswalkerCardRender = (cardRender: PlaneswalkerCardRenderProps) => {
 
   const lineLayouts = getAbilityLineLayouts(lineCount, isTall);
 
-  const { color, orderedCost } = getColor(manaCost);
+  const { color, allColors, orderedCost } = getColor(manaCost);
   const mainframe = getPlaneswalkerMainframe(color, isTall, isBorderless);
-  const pt = getPlaneswalkerPt();
+  const pinline = getPlaneswalkerPinline(allColors, isTall, isBorderless);
 
   const parsePlaneswalkerLine = (line: string) => {
     if (!line) return { loyalty: '', text: '', loyaltyImage: '' };
@@ -126,6 +126,7 @@ const PlaneswalkerCardRender = (cardRender: PlaneswalkerCardRenderProps) => {
             className={styles.mainframe}
             fallBackColor="#eed66b"
           />
+          {pinline ? <img className={styles.pinline} src={pinline} alt="" /> : null}
           <ImageLoader src={getRarityIcon(rarity)} alt="" className={styles.rarity} />
 
           <div>
