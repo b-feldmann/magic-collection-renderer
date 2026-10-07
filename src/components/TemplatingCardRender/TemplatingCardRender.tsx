@@ -189,7 +189,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
     artStyle === CardArtStyles.Borderless,
     isLand,
   );
-  const pinline = getPinline(isLand ? landColors : allColors, isArtifact);
+  const pinline = getPinline(isLand ? landColors : allColors, isArtifact, artStyle);
   let titlePart = isLand ? getLandTitlePart(landColors) : getTitlePart(allColors, isArtifact);
   let typePart = isLand ? getLandTypePart(landColors) : getTypePart(allColors, isArtifact);
   let rulesPart = isLand ? getLandRulesPart(landColors) : getRulesPart(allColors, isArtifact);
@@ -304,9 +304,10 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
             fallBackColor={artStyle !== CardArtStyles.Borderless ? hexColor : undefined}
           />
 
+          {pinline ? <img className={styles.pinline} src={pinline} alt="" /> : null}
           {isNickname && !crown && (
             <ImageLoader
-              src={getNicknameTitle(color, isArtifact, isLand)}
+              src={getNicknameTitle(color, isArtifact, isLand, isLand ? landColors : allColors)}
               className={styles.nickname}
             />
           )}
@@ -319,7 +320,6 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
           {/*{!isToken && !isInvention && innerBorderFrame ? <img className={styles.innerBorderFrame} src={innerBorderFrame} alt="" /> : null}*/}
           {/*{overlay ? <img className={styles.overlay} src={overlay} alt="" /> : null}*/}
 
-          {pinline ? <img className={styles.pinline} src={pinline} alt="" /> : null}
           {titlePart ? <img className={styles.titlePart} src={titlePart} alt="" /> : null}
           {typePart ? <img className={styles.typePart} src={typePart} alt="" /> : null}
           {rulesPart ? <img className={styles.rulesPart} src={rulesPart} alt="" /> : null}

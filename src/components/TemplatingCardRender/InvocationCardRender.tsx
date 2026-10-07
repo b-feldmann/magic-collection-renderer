@@ -124,9 +124,9 @@ const InvocationCardRender = (cardRender: InvocationCardRenderProps) => {
 
           <div className={styles.text}>
             <TextResize
-              defaultFontSize={20}
-              maxFontSize={32}
-              minFontSize={14}
+              defaultFontSize={42}
+              maxFontSize={56}
+              minFontSize={38}
               className={styles.textWrap}
             >
               <div>

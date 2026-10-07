@@ -20,6 +20,10 @@
  * `parts/extendedPinline.png` mask. Only the two-color combinations are
  * produced for these variants, written to `parts/pinline/<variant>/<combo>.png`.
  *
+ * Nickname title plates (`images/nickname/m15NicknameTitle<X>.png`) also get
+ * their two-color combinations, blended from the single-color plates into
+ * `m15NicknameTitle<combo>.png`.
+ *
  * Run with: npm run generate:parts
  */
 
@@ -48,6 +52,9 @@ const PARTS_DIR = path.join(IMAGE_DIR, 'parts');
 
 const SOURCE_DIR = path.join(MAINFRAMES_DIR, 'm15');
 const SOURCE_LAND_DIR = path.join(MAINFRAMES_DIR, 'lands');
+// Nickname title plates live outside mainframes and already carry their own
+// transparent silhouette, so no extra mask is needed to blend combinations.
+const NICKNAME_DIR = path.join(IMAGE_DIR, 'nickname');
 
 // A mask pixel counts as "on" when its alpha is above this threshold.
 // 0 means any non-transparent pixel is kept (hard binary cutoff).
@@ -227,6 +234,7 @@ async function run() {
     await generate(type, maskPath, frames, outputDir);
   }
   await generateVariantPinlines();
+  await generateNicknameCombos();
 }
 
 // Pinline variants for the extended and borderless art styles: the single
@@ -287,6 +295,57 @@ async function generateVariantPinlines() {
       console.log(`Skipped ${skipped.length}:`);
       for (const s of skipped) console.log(`  - ${s}`);
     }
+  }
+}
+
+// Nickname title plates for two-color combinations: blend the existing
+// single-color plates (e.g. m15NicknameTitleW.png + m15NicknameTitleU.png)
+// left/right with a centre gradient. The plates already carry their own
+// transparent silhouette, and all share the same shape, so the first plate
+// doubles as the mask when carving. Written to
+// `<NICKNAME_DIR>/m15NicknameTitle<combo>.png`.
+async function generateNicknameCombos() {
+  const comboLetterMap = { w: 'W', u: 'U', b: 'B', r: 'R', g: 'G' };
+
+  const plates = new Map();
+  for (const [letter, upper] of Object.entries(comboLetterMap)) {
+    const sourcePath = path.join(NICKNAME_DIR, `m15NicknameTitle${upper}.png`);
+    if (fs.existsSync(sourcePath)) {
+      plates.set(letter, await Jimp.read(sourcePath));
+    }
+  }
+
+  const sample = await Jimp.read(path.join(NICKNAME_DIR, 'm15NicknameTitleW.png'));
+  const { width, height } = sample.bitmap;
+
+  let written = 0;
+  const skipped = [];
+
+  for (const combo of COMBINATIONS) {
+    const [c1, c2] = combo.split('');
+    const plate1 = plates.get(c1);
+    const plate2 = plates.get(c2);
+
+    if (!plate1 || !plate2) {
+      const missing = [!plate1 && c1, !plate2 && c2].filter(Boolean).join(', ');
+      skipped.push(`${combo} (source missing: ${missing})`);
+      continue;
+    }
+    if (!sameSize(plate1, width, height) || !sameSize(plate2, width, height)) {
+      skipped.push(`${combo} (source size != ${width}x${height})`);
+      continue;
+    }
+
+    const out = carveCombo(plate1, plate2, sample);
+    await out.write(path.join(NICKNAME_DIR, `m15NicknameTitle${combo.toUpperCase()}.png`));
+    written += 1;
+    console.log(`nickname  ✓ m15NicknameTitle${combo.toUpperCase()}.png`);
+  }
+
+  console.log(`\nDone. Wrote ${written} nickname combo image(s) to ${NICKNAME_DIR}`);
+  if (skipped.length > 0) {
+    console.log(`Skipped ${skipped.length}:`);
+    for (const s of skipped) console.log(`  - ${s}`);
   }
 }
 

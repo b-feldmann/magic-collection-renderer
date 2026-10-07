@@ -232,6 +232,28 @@ import BlackGreenPinline from './images/parts/pinline/bg.png';
 import RedWhitePinline from './images/parts/pinline/rw.png';
 import GreenBluePinline from './images/parts/pinline/gu.png';
 
+import ExtendedWhiteBluePinline from './images/parts/pinline/extended/wu.png';
+import ExtendedBlueBlackPinline from './images/parts/pinline/extended/ub.png';
+import ExtendedBlackRedPinline from './images/parts/pinline/extended/br.png';
+import ExtendedRedGreenPinline from './images/parts/pinline/extended/rg.png';
+import ExtendedGreenWhitePinline from './images/parts/pinline/extended/gw.png';
+import ExtendedWhiteBlackPinline from './images/parts/pinline/extended/wb.png';
+import ExtendedBlueRedPinline from './images/parts/pinline/extended/ur.png';
+import ExtendedBlackGreenPinline from './images/parts/pinline/extended/bg.png';
+import ExtendedRedWhitePinline from './images/parts/pinline/extended/rw.png';
+import ExtendedGreenBluePinline from './images/parts/pinline/extended/gu.png';
+
+import BorderlessWhiteBluePinline from './images/parts/pinline/borderless/wu.png';
+import BorderlessBlueBlackPinline from './images/parts/pinline/borderless/ub.png';
+import BorderlessBlackRedPinline from './images/parts/pinline/borderless/br.png';
+import BorderlessRedGreenPinline from './images/parts/pinline/borderless/rg.png';
+import BorderlessGreenWhitePinline from './images/parts/pinline/borderless/gw.png';
+import BorderlessWhiteBlackPinline from './images/parts/pinline/borderless/wb.png';
+import BorderlessBlueRedPinline from './images/parts/pinline/borderless/ur.png';
+import BorderlessBlackGreenPinline from './images/parts/pinline/borderless/bg.png';
+import BorderlessRedWhitePinline from './images/parts/pinline/borderless/rw.png';
+import BorderlessGreenBluePinline from './images/parts/pinline/borderless/gu.png';
+
 import WhiteTitle from './images/parts/title/w.png';
 import BlueTitle from './images/parts/title/u.png';
 import BlackTitle from './images/parts/title/b.png';
@@ -372,6 +394,16 @@ import NicknameTitleR from './images/nickname/m15NicknameTitleR.png';
 import NicknameTitleG from './images/nickname/m15NicknameTitleG.png';
 import NicknameTitleM from './images/nickname/m15NicknameTitleM.png';
 import NicknameTitleL from './images/nickname/m15NicknameTitleL.png';
+import NicknameTitleWhiteBlue from './images/nickname/m15NicknameTitleWU.png';
+import NicknameTitleBlueBlack from './images/nickname/m15NicknameTitleUB.png';
+import NicknameTitleBlackRed from './images/nickname/m15NicknameTitleBR.png';
+import NicknameTitleRedGreen from './images/nickname/m15NicknameTitleRG.png';
+import NicknameTitleGreenWhite from './images/nickname/m15NicknameTitleGW.png';
+import NicknameTitleWhiteBlack from './images/nickname/m15NicknameTitleWB.png';
+import NicknameTitleBlueRed from './images/nickname/m15NicknameTitleUR.png';
+import NicknameTitleBlackGreen from './images/nickname/m15NicknameTitleBG.png';
+import NicknameTitleRedWhite from './images/nickname/m15NicknameTitleRW.png';
+import NicknameTitleGreenBlue from './images/nickname/m15NicknameTitleGU.png';
 
 export interface ImageResData {
   highRes: string;
@@ -444,12 +476,43 @@ export const getPt = (
   }
 };
 
-export const getNicknameTitle = (color: ColorType, isArtefact = false, isLand = false) => {
+// Two-color nickname title plates, keyed by the combo variant.
+const NICKNAME_TITLE_COMBOS: Record<PartVariant, string> = {
+  '': '',
+  w: '',
+  u: '',
+  b: '',
+  r: '',
+  g: '',
+  m: '',
+  wu: NicknameTitleWhiteBlue,
+  ub: NicknameTitleBlueBlack,
+  br: NicknameTitleBlackRed,
+  rg: NicknameTitleRedGreen,
+  gw: NicknameTitleGreenWhite,
+  wb: NicknameTitleWhiteBlack,
+  ur: NicknameTitleBlueRed,
+  bg: NicknameTitleBlackGreen,
+  rw: NicknameTitleRedWhite,
+  gu: NicknameTitleGreenBlue,
+};
+
+// On two-color cards the blended combo plate replaces the regular gold ('m')
+// plate. Pass the card's colors (card-text identity for lands).
+export const getNicknameTitle = (
+  color: ColorType,
+  isArtefact = false,
+  isLand = false,
+  colors?: ColorType[],
+) => {
   if (isArtefact) {
     return NicknameTitleA;
   }
   if (isLand && color === ColorType.Colorless) {
     return NicknameTitleL;
+  }
+  if (colors && colors.length === 2) {
+    return NICKNAME_TITLE_COMBOS[getTwoColorVariant(colors)];
   }
 
   switch (color) {
@@ -881,7 +944,27 @@ const getSingleColorPinline = (color: ColorType) => {
 //  - artifacts that are not colorless (pinline matches the card's colors)
 //  - non-artifact gold cards with exactly two colors (two-color combo pinline)
 // Everything else returns '' (no pinline layer).
-export const getPinline = (colors: ColorType[], isArtifact: boolean) => {
+//
+// For the extended and borderless art styles, only two-color combination
+// pinlines were generated (from those styles' own frames); every other case
+// gets no pinline instead of falling back to the regular m15-carved assets.
+export const getPinline = (
+  colors: ColorType[],
+  isArtifact: boolean,
+  artStyle?: BasicLandArtStyles | CardArtStyles,
+) => {
+  const variantPinlines =
+    artStyle === CardArtStyles.Extended
+      ? EXTENDED_PINLINES
+      : artStyle === CardArtStyles.Borderless
+        ? BORDERLESS_PINLINES
+        : null;
+
+  if (variantPinlines) {
+    if (colors.length === 2) return variantPinlines[getTwoColorVariant(colors)];
+    return '';
+  }
+
   if (isArtifact) {
     if (colors.length === 0) return '';
     if (colors.length === 1) return getSingleColorPinline(colors[0]);
@@ -1041,6 +1124,48 @@ const RULES_PARTS: Record<PartVariant, string> = {
   bg: BlackGreenRules,
   rw: RedWhiteRules,
   gu: GreenBlueRules,
+};
+
+// Pinline variants generated from the extended / borderless frames. Only the
+// two-color combinations exist; non-combo keys map to ''.
+const EXTENDED_PINLINES: Record<PartVariant, string> = {
+  '': '',
+  w: '',
+  u: '',
+  b: '',
+  r: '',
+  g: '',
+  m: '',
+  wu: ExtendedWhiteBluePinline,
+  ub: ExtendedBlueBlackPinline,
+  br: ExtendedBlackRedPinline,
+  rg: ExtendedRedGreenPinline,
+  gw: ExtendedGreenWhitePinline,
+  wb: ExtendedWhiteBlackPinline,
+  ur: ExtendedBlueRedPinline,
+  bg: ExtendedBlackGreenPinline,
+  rw: ExtendedRedWhitePinline,
+  gu: ExtendedGreenBluePinline,
+};
+
+const BORDERLESS_PINLINES: Record<PartVariant, string> = {
+  '': '',
+  w: '',
+  u: '',
+  b: '',
+  r: '',
+  g: '',
+  m: '',
+  wu: BorderlessWhiteBluePinline,
+  ub: BorderlessBlueBlackPinline,
+  br: BorderlessBlackRedPinline,
+  rg: BorderlessRedGreenPinline,
+  gw: BorderlessGreenWhitePinline,
+  wb: BorderlessWhiteBlackPinline,
+  ur: BorderlessBlueRedPinline,
+  bg: BorderlessBlackGreenPinline,
+  rw: BorderlessRedWhitePinline,
+  gu: BorderlessGreenBluePinline,
 };
 
 export const getTitlePart = (colors: ColorType[], isArtifact: boolean) =>

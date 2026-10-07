@@ -12,8 +12,9 @@ import {
   getLandTitlePart,
   getLandTypePart,
   getLandRulesPart,
+  getNicknameTitle,
 } from './assetLoader';
-import { ColorType } from '../../interfaces/enums';
+import { ColorType, CardArtStyles } from '../../interfaces/enums';
 
 describe('getInnerBorderFrame', () => {
   it('returns no border (empty string) for colorless cards with no colors', () => {
@@ -94,6 +95,94 @@ describe('getPinline', () => {
 
   it('renders no pinline on a 3+ color non-artifact card', () => {
     expect(getPinline([ColorType.White, ColorType.Blue, ColorType.Black], false)).toBe('');
+  });
+});
+
+// On two-color cards the blended combo nickname plate replaces the gold plate.
+describe('getNicknameTitle', () => {
+  it('renders the combo plate on a two-color card instead of the gold plate', () => {
+    const wu = getNicknameTitle(ColorType.Gold, false, false, [ColorType.White, ColorType.Blue]);
+    const gold = getNicknameTitle(ColorType.Gold, false, false, [
+      ColorType.White,
+      ColorType.Blue,
+      ColorType.Black,
+    ]);
+    expect(wu).not.toBe('');
+    expect(wu).not.toBe(gold);
+  });
+
+  it('normalizes color-pair order to the same combo plate', () => {
+    expect(getNicknameTitle(ColorType.Gold, false, false, [ColorType.Blue, ColorType.White])).toBe(
+      getNicknameTitle(ColorType.Gold, false, false, [ColorType.White, ColorType.Blue]),
+    );
+  });
+
+  it('keeps the artifact plate for two-color artifacts', () => {
+    const combo = getNicknameTitle(ColorType.Gold, false, false, [ColorType.White, ColorType.Blue]);
+    expect(getNicknameTitle(ColorType.Gold, true, false, [ColorType.White, ColorType.Blue])).toBe(
+      getNicknameTitle(ColorType.Gold, true),
+    );
+    expect(
+      getNicknameTitle(ColorType.Gold, true, false, [ColorType.White, ColorType.Blue]),
+    ).not.toBe(combo);
+  });
+
+  it('renders the combo plate on a two-color land (card-text colors)', () => {
+    expect(
+      getNicknameTitle(ColorType.Gold, false, true, [ColorType.White, ColorType.Blue]),
+    ).not.toBe('');
+  });
+
+  it('keeps the regular plates for mono-color cards', () => {
+    const withoutColors = getNicknameTitle(ColorType.White);
+    expect(getNicknameTitle(ColorType.White, false, false, [ColorType.White])).toBe(withoutColors);
+  });
+});
+
+// The extended / borderless art styles use their own combo-only pinlines.
+describe.each([
+  ['extended', CardArtStyles.Extended],
+  ['borderless', CardArtStyles.Borderless],
+])('getPinline (%s art style)', (_name, artStyle) => {
+  const WU = [ColorType.White, ColorType.Blue];
+
+  it('renders the variant two-color pinline, different from the regular one', () => {
+    const variant = getPinline(WU, false, artStyle);
+    const regular = getPinline(WU, false);
+    expect(variant).not.toBe('');
+    expect(variant).not.toBe(regular);
+
+    const extended = getPinline(WU, false, CardArtStyles.Extended);
+    const borderless = getPinline(WU, false, CardArtStyles.Borderless);
+    if (artStyle === CardArtStyles.Extended) {
+      expect(variant).not.toBe(borderless);
+    } else {
+      expect(variant).not.toBe(extended);
+    }
+  });
+
+  it('uses the same variant asset for artifacts and non-artifacts with two colors', () => {
+    expect(getPinline(WU, true, artStyle)).toBe(getPinline(WU, false, artStyle));
+  });
+
+  it('renders no pinline on a colored artifact (no variant asset exists)', () => {
+    expect(getPinline([ColorType.White], true, artStyle)).toBe('');
+  });
+
+  it('renders no pinline on a 3+ color artifact', () => {
+    expect(getPinline([ColorType.White, ColorType.Blue, ColorType.Black], true, artStyle)).toBe('');
+  });
+
+  it('renders no pinline on a colorless artifact', () => {
+    expect(getPinline([], true, artStyle)).toBe('');
+  });
+
+  it('renders no pinline on a land with anything but exactly two colors', () => {
+    expect(getPinline([ColorType.White], false, artStyle)).toBe('');
+    expect(getPinline([ColorType.White, ColorType.Blue, ColorType.Black], false, artStyle)).toBe(
+      '',
+    );
+    expect(getPinline([], false, artStyle)).toBe('');
   });
 });
 

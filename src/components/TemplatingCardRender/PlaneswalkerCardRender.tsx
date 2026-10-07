@@ -140,9 +140,9 @@ const PlaneswalkerCardRender = (cardRender: PlaneswalkerCardRenderProps) => {
                   </div>
                   <div className={planeswalkerStyles[`loyaltyText${i + 1}`]}>
                     <TextResize
-                      defaultFontSize={20}
-                      maxFontSize={32}
-                      minFontSize={14}
+                      defaultFontSize={42}
+                      maxFontSize={56}
+                      minFontSize={38}
                       className={styles.textWrap}
                     >
                       <div>{injectForText(text, name, mechanics)}</div>
