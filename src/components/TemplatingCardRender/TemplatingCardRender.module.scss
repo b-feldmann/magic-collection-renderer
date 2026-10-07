@@ -32,6 +32,9 @@
   position: relative;
   font-size: 33.33px;
   color: black;
+  // Clip the parallax cover (RotateToMouse translates/scales it) to the card
+  // border; every other layer is designed to sit inside the card anyway.
+  overflow: hidden;
 
   .mainframe {
     border-radius: 61.46px;
@@ -320,11 +323,11 @@
 
 .borderless {
   .cover {
-    left: 0;
-    top: 0;
-    height: 100%;
-    width: 100%;
-    border-radius: 52.08px;
+    left: 0 !important;
+    top: 0 !important;
+    height: 100% !important;
+    width: 100% !important;
+    border-radius: 60px;
   }
 
   .pt {
@@ -510,15 +513,6 @@
   }
 }
 
-.extended {
-  .cover {
-    top: 184px;
-    left: 0;
-    width: 1500px;
-    height: 1116px;
-  }
-}
-
 :not(.artifact).extended {
   .type {
     color: white;
@@ -530,8 +524,17 @@
   .cover {
     top: 58px;
     left: 58px;
-    height: 2000px;
+    height: 1990px;
     width: calc(100% - 58px * 2);
+  }
+}
+
+.extended {
+  .cover {
+    top: 184px;
+    left: 0 !important;
+    width: 1500px !important;
+    height: 1116px;
   }
 }
 
