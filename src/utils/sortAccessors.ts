@@ -34,7 +34,8 @@ export const buildSortAccessors = (
     [SortByType.Color]: [
       o =>
         Object.values(ColorType).indexOf(
-          cardToColor(o.front.cardMainType, o.manaCost, o.front.cardText).color,
+          cardToColor(o.front.cardMainType, o.manaCost, o.front.cardText, o.front.tokenColors)
+            .color,
         ),
       o => o.front.name.toLowerCase(),
     ],
@@ -42,7 +43,8 @@ export const buildSortAccessors = (
       o => (o.creator.uuid === UNKNOWN_CREATOR.uuid ? 'zzzzz' : o.creator.name),
       o =>
         Object.values(ColorType).indexOf(
-          cardToColor(o.front.cardMainType, o.manaCost, o.front.cardText).color,
+          cardToColor(o.front.cardMainType, o.manaCost, o.front.cardText, o.front.tokenColors)
+            .color,
         ),
       o => o.front.name.toLowerCase(),
     ],

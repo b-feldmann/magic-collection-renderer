@@ -54,7 +54,26 @@ export const getBasicLandColor = (basicLandType: string) => {
 // : {}
 export const getColor = (
   manaCost: string = '',
+  tokenColors?: string[],
 ): { color: ColorType; allColors: ColorType[]; orderedCost: string; hexColor: string } => {
+  if (tokenColors && tokenColors.length > 0) {
+    const selected = tokenColors.filter(t =>
+      (Object.values(ColorType) as string[]).includes(t),
+    ) as ColorType[];
+    const overrideColor =
+      selected.length === 1
+        ? selected[0]
+        : selected.length >= 2
+          ? ColorType.Gold
+          : ColorType.Colorless;
+    return {
+      color: overrideColor,
+      allColors: selected,
+      orderedCost: '',
+      hexColor: colorToColorHex(overrideColor),
+    };
+  }
+
   let parsedColor: ColorType = ColorType.Colorless;
   const allColors: ColorType[] = [];
 
@@ -127,9 +146,26 @@ const cardToColor = (
   cardMainType: CardMainType,
   manaCost?: string,
   cardText: string[] = [],
+  tokenColors?: string[],
 ): { color: ColorType; allColors: ColorType[] } => {
   let color: ColorType = ColorType.Colorless;
   const allColors: ColorType[] = [];
+
+  const isToken =
+    cardMainType === CardMainType.CreatureToken || cardMainType === CardMainType.ArtifactToken;
+
+  // Tokens take their colors from the explicit tokenColors selection instead
+  // of the mana cost; a token without a selection is colorless.
+  if (isToken) {
+    if (tokenColors && tokenColors.length > 0) {
+      const selected = tokenColors.filter(t =>
+        (Object.values(ColorType) as string[]).includes(t),
+      ) as ColorType[];
+      if (selected.length >= 2) return { color: ColorType.Gold, allColors: selected };
+      if (selected.length === 1) return { color: selected[0], allColors: selected };
+    }
+    return { color: ColorType.Colorless, allColors: [] };
+  }
 
   // Lands usually have no mana cost, so their colour identity is derived from
   // the mana symbols in their rules text instead.

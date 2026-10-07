@@ -1,7 +1,8 @@
-import { BasicLandType, CardMainType, CoverFit } from './enums';
+import { BasicLandType, CardMainType, ColorType, CoverFit } from './enums';
 
 export default interface CardFaceInterface {
   [key: string]: number | string | boolean | undefined | string[];
+
   name: string;
   nickname?: string;
   legendary?: boolean;
@@ -15,4 +16,5 @@ export default interface CardFaceInterface {
   flavourAuthor?: string;
   cover?: string;
   coverFit?: CoverFit;
+  tokenColors?: ColorType[];
 }

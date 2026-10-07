@@ -1,0 +1,66 @@
+import { describe, it, expect } from 'vitest';
+
+import { CardMainType, ColorType } from '../interfaces/enums';
+import { getColor, default as cardToColor } from './cardToColor';
+
+describe('getColor - tokenColors override', () => {
+  it('uses tokenColors directly instead of the mana cost', () => {
+    const result = getColor('{2}{U}', [ColorType.Red]);
+    expect(result.color).toBe(ColorType.Red);
+    expect(result.allColors).toEqual([ColorType.Red]);
+  });
+
+  it('two selected token colors resolve to Gold', () => {
+    const result = getColor('', [ColorType.White, ColorType.Blue]);
+    expect(result.color).toBe(ColorType.Gold);
+    expect(result.allColors).toEqual([ColorType.White, ColorType.Blue]);
+  });
+
+  it('an empty override falls back to the mana cost', () => {
+    const result = getColor('{2}{U}', []);
+    expect(result.color).toBe(ColorType.Blue);
+    expect(result.allColors).toEqual([ColorType.Blue]);
+  });
+
+  it('an undefined override falls back to the mana cost', () => {
+    const result = getColor('{2}{U}');
+    expect(result.color).toBe(ColorType.Blue);
+    expect(result.allColors).toEqual([ColorType.Blue]);
+  });
+
+  it('a non-empty override ignores the mana cost completely', () => {
+    const result = getColor('{5}{W}{W}', [ColorType.Green]);
+    expect(result.color).toBe(ColorType.Green);
+    expect(result.orderedCost).toBe('');
+  });
+});
+
+describe('cardToColor - tokenColors override', () => {
+  it('uses tokenColors for tokens', () => {
+    const result = cardToColor(
+      CardMainType.CreatureToken,
+      '',
+      [],
+      [ColorType.Black, ColorType.Green],
+    );
+    expect(result.color).toBe(ColorType.Gold);
+    expect(result.allColors).toEqual([ColorType.Black, ColorType.Green]);
+  });
+
+  it('treats tokens without tokenColors as colorless', () => {
+    const result = cardToColor(CardMainType.CreatureToken, '{2}{U}', [], undefined);
+    expect(result.color).toBe(ColorType.Colorless);
+    expect(result.allColors).toEqual([]);
+  });
+
+  it('CONTROL: regular cards are unaffected by the tokenColors param', () => {
+    const result = cardToColor(CardMainType.Creature, '{2}{U}', [], [ColorType.Green]);
+    expect(result.color).toBe(ColorType.Blue);
+    expect(result.allColors).toEqual([ColorType.Blue]);
+  });
+
+  it('lands still derive colors from rules text', () => {
+    const result = cardToColor(CardMainType.Land, '', ['{T}: Add {W}.'], undefined);
+    expect(result.color).toBe(ColorType.White);
+  });
+});

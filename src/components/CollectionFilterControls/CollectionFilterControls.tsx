@@ -109,7 +109,14 @@ const CollectionFilterControls = ({
       stats[key] = 0;
     });
     collection.forEach(card => {
-      stats[cardToColor(card.front.cardMainType, card.manaCost, card.front.cardText).color] += 1;
+      stats[
+        cardToColor(
+          card.front.cardMainType,
+          card.manaCost,
+          card.front.cardText,
+          card.front.tokenColors,
+        ).color
+      ] += 1;
       stats[card.front.cardMainType] += 1;
       stats[card.rarity] += 1;
     });

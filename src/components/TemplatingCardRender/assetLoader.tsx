@@ -387,6 +387,9 @@ import TokenBlueRedType from './images/parts/tokenType/ur.png';
 import TokenBlackGreenType from './images/parts/tokenType/bg.png';
 import TokenRedWhiteType from './images/parts/tokenType/rw.png';
 import TokenGreenBlueType from './images/parts/tokenType/gu.png';
+// Token gold type plate, carved from the token gold frame; used by two-color
+// tokens so the plate matches their gold token mainframe.
+import TokenGoldType from './images/parts/tokenType/m.png';
 // Token land type part: carved from the token land frame (tokenFrameLShort.png)
 // with the tokenType mask by scripts/generate-parts.cjs.
 import TokenLandType from './images/parts/tokenType/l.png';
@@ -413,6 +416,7 @@ import PtR from './images/pt/regular/m15PTR.png';
 import PtG from './images/pt/regular/m15PTM.png';
 import PtM from './images/pt/regular/m15PTM.png';
 import PtC from './images/pt/regular/m15PTC.png';
+import PtV from './images/pt/regular/m15PTV.png';
 import PtANickname from './images/pt/nickname/m15NicknamePTA.png';
 import PtWNickname from './images/pt/nickname/m15NicknamePTW.png';
 import PtUNickname from './images/pt/nickname/m15NicknamePTU.png';
@@ -528,7 +532,10 @@ export const getPt = (
     if (isBorderless) {
       return isVehicle ? PtVBorderless : PtABorderless;
     }
-    return isNickname ? PtANickname : PtA;
+    if (isNickname) {
+      return isVehicle ? PtV : PtANickname;
+    }
+    return isVehicle ? PtV : PtA;
   }
 
   switch (color) {
@@ -1347,7 +1354,7 @@ const TOKEN_TYPE_PARTS: Record<PartVariant, string> = {
   b: '',
   r: '',
   g: '',
-  m: '',
+  m: TokenGoldType,
   wu: TokenWhiteBlueType,
   ub: TokenBlueBlackType,
   br: TokenBlackRedType,
@@ -1390,7 +1397,11 @@ export const getTitlePart = (colors: ColorType[], isArtifact: boolean) =>
 
 export const getTypePart = (colors: ColorType[], isArtifact: boolean, isToken = false) =>
   isToken
-    ? TOKEN_TYPE_PARTS[getTokenPartVariant(colors)]
+    ? colors.length === 2
+      ? // Two-color tokens use the token gold type plate (carved from the
+        // token gold frame), consistent with the gold token mainframe.
+        TOKEN_TYPE_PARTS.m
+      : TOKEN_TYPE_PARTS[getTokenPartVariant(colors)]
     : TYPE_PARTS[getTitleTypeVariant(colors, isArtifact)];
 
 export const getRulesPart = (colors: ColorType[], isArtifact: boolean, isToken = false) =>

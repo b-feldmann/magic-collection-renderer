@@ -12,6 +12,7 @@ import {
   CardArtStyles,
   CardMainType,
   CardState,
+  ColorType,
   CoverFit,
   RarityType,
 } from '../../interfaces/enums';
@@ -86,6 +87,7 @@ interface InputConfigInterface {
     | 'split-input'
     | 'upload-input'
     | 'select'
+    | 'multi-select'
     | 'area'
     | 'radio'
     | 'list'
@@ -265,6 +267,11 @@ const CardEditor: React.FC<CardEditorInterface> = ({
     getValue('cardMainType') !== CardMainType.TokenLand &&
     getValue('cardMainType') !== CardMainType.Land &&
     getValue('cardMainType') !== CardMainType.Emblem;
+  // Tokens take their colors from the explicit Token Colors selection instead
+  // of a mana cost (TokenLand keeps deriving colors from its rules text).
+  const isColoredToken = () =>
+    getValue('cardMainType') === CardMainType.CreatureToken ||
+    getValue('cardMainType') === CardMainType.ArtifactToken;
 
   const hasStats = () => isCreature() || isPlaneswalker();
 
@@ -301,6 +308,21 @@ const CardEditor: React.FC<CardEditorInterface> = ({
     { key: 'legendary', type: 'bool', name: 'Legendary?', width: 100 },
     { key: 'vehicle', type: 'bool', name: 'Vehicle?', width: isArtifact() ? 100 : 0 },
     { key: 'manaCost', type: 'input', name: 'Mana Cost', width: hasMana() ? 50 : 0 },
+    {
+      key: 'tokenColors',
+      type: 'multi-select',
+      name: 'Token Colors',
+      data: (Object.keys(ColorType) as (keyof typeof ColorType)[])
+        .filter(
+          colorKey =>
+            ColorType[colorKey] !== ColorType.Colorless && ColorType[colorKey] !== ColorType.Gold,
+        )
+        .map(type => ({
+          key: ColorType[type],
+          value: `${ColorType[type].charAt(0).toUpperCase()}${ColorType[type].slice(1)}`,
+        })),
+      width: isColoredToken() ? 100 : 0,
+    },
     {
       key: 'rarity',
       type: 'select',

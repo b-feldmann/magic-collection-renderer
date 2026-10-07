@@ -258,9 +258,10 @@ async function run() {
 // Single-color token frames are rendered whole elsewhere, so only the two-color
 // combinations are generated here, written to `parts/<tokenType>/<combo>.png`.
 const TOKEN_LAND_COLOR = 'l';
+const TOKEN_GOLD_COLOR = 'm';
 const TOKEN_PART_TYPES = [
   { type: 'tokenPinline', mask: 'tokenPinline.png' },
-  { type: 'tokenType', mask: 'tokenType.png', singles: [TOKEN_LAND_COLOR] },
+  { type: 'tokenType', mask: 'tokenType.png', singles: [TOKEN_LAND_COLOR, TOKEN_GOLD_COLOR] },
   { type: 'tokenRules', mask: 'tokenRules.png' },
 ];
 
@@ -302,6 +303,21 @@ async function generateTokenParts() {
         frame.resize({ w: maskW, h: maskH });
       }
       frames.set(TOKEN_LAND_COLOR, frame);
+    }
+
+    // The token gold frame is loaded so the token gold type plate can be
+    // carved (used by two-color tokens, matching their gold token mainframe).
+    const tokenGoldFramePath = path.join(
+      MAINFRAMES_DIR,
+      'token',
+      `tokenFrame${TOKEN_GOLD_COLOR.toUpperCase()}Short.png`,
+    );
+    if (fs.existsSync(tokenGoldFramePath)) {
+      const frame = await Jimp.read(tokenGoldFramePath);
+      if (!sameSize(frame, maskW, maskH)) {
+        frame.resize({ w: maskW, h: maskH });
+      }
+      frames.set(TOKEN_GOLD_COLOR, frame);
     }
 
     const outputDir = path.join(PARTS_DIR, type);

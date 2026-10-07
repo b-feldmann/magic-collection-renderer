@@ -142,7 +142,8 @@ const App: React.FC = () => {
         o =>
           o.name.toLowerCase().includes(deferredNameFilter.toLowerCase()) &&
           collectionFilter.colors[
-            cardToColor(o.front.cardMainType, o.manaCost, o.front.cardText).color
+            cardToColor(o.front.cardMainType, o.manaCost, o.front.cardText, o.front.tokenColors)
+              .color
           ] &&
           collectionFilter.rarity[o.rarity] &&
           collectionFilter.types[o.front.cardMainType] &&

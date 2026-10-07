@@ -74,6 +74,7 @@ interface TemplatingCardRenderProps {
   basicLandType?: BasicLandType;
   cardText: string[];
   cardStats?: string;
+  tokenColors?: ColorType[];
   flavourText?: string;
   flavourAuthor?: string;
   cover?: string;
@@ -173,8 +174,11 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
     cardMainType === CardMainType.TokenLand;
   const isInvention = artStyle === CardArtStyles.Invention;
 
-  let { color } = getColor(manaCost);
-  const { allColors, orderedCost, hexColor } = getColor(manaCost);
+  // Tokens take their colors from the explicit tokenColors selection; a token
+  // without a selection is colorless. The mana cost is never used for tokens.
+  const tokenFaceColors = isToken ? cardRenderProps.tokenColors : undefined;
+  let { color } = getColor(isToken ? '' : manaCost, tokenFaceColors);
+  const { allColors, orderedCost, hexColor } = getColor(isToken ? '' : manaCost, tokenFaceColors);
   let landColors: ColorType[] = [];
   if (isLand) {
     landColors = getLandColor(cardText);

@@ -244,6 +244,7 @@
 
   .pt {
     position: absolute;
+    width: 282px;
     bottom: calc(2100px / 1400 * 54);
     right: calc(1500px / 746 * 41);
   }
@@ -502,7 +503,9 @@
     width: 1500px;
     height: 1116px;
   }
+}
 
+:not(.artifact).extended {
   .type {
     color: white;
   }

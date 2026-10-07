@@ -17,6 +17,7 @@ interface EditFieldInterface {
     | 'split-input'
     | 'upload-input'
     | 'select'
+    | 'multi-select'
     | 'area'
     | 'radio'
     | 'list'
@@ -159,6 +160,28 @@ const EditField = (props: EditFieldInterface) => {
           value={getValue(fieldKey)}
           onChange={(key: string) => saveValue(fieldKey, key)}
           style={{ width: '100%' }}
+          options={data.map(d => ({
+            key: `${fieldKey} + ${d.key}`,
+            value: d.key,
+            label: d.value,
+          }))}
+        />
+      </span>
+    );
+  }
+
+  if (type === 'multi-select' && data) {
+    return (
+      <span>
+        <p className={styles.label}>{name}</p>
+        <Select
+          size="small"
+          mode="multiple"
+          allowClear
+          value={getValue(fieldKey) || []}
+          onChange={(keys: string[]) => saveValue(fieldKey, keys)}
+          style={{ width: '100%' }}
+          placeholder="Select Colors"
           options={data.map(d => ({
             key: `${fieldKey} + ${d.key}`,
             value: d.key,
