@@ -28,6 +28,8 @@ import {
 } from './assetLoader';
 import { injectForText, injectManaIcons } from '../../utils/injectUtils';
 import ImageLoader from '../ImageLoader/ImageLoader';
+import PlaneswalkerRulesBackground from './PlaneswalkerRulesBackground';
+import { getAbilityLineLayouts } from './planeswalkerGeometry';
 import getRarityCode from '../../utils/getRarityCode';
 import parseCollectionNumber from '../../utils/parseCollectionNumber';
 import { CARD_WIDTH, CARD_HEIGHT } from '../../utils/constants';
@@ -73,12 +75,11 @@ const PlaneswalkerCardRender = (cardRender: PlaneswalkerCardRenderProps) => {
     return resizeFactor(width) * CARD_HEIGHT;
   };
 
-  let lines: 2 | 3 | 4 = 3;
-  if (cardText.length === 2) lines = 2;
-  else if (cardText.length === 4) lines = 4;
-
-  const isTall = cardText.length >= 4;
+  const lineCount = cardText.length;
+  const isTall = lineCount >= 4;
   const isBorderless = artStyle === CardArtStyles.Borderless;
+
+  const lineLayouts = getAbilityLineLayouts(lineCount, isTall);
 
   const { color, orderedCost } = getColor(manaCost);
   const mainframe = getPlaneswalkerMainframe(color, isTall, isBorderless);
@@ -110,7 +111,7 @@ const PlaneswalkerCardRender = (cardRender: PlaneswalkerCardRenderProps) => {
             width: `${CARD_WIDTH}px`,
             height: `${CARD_HEIGHT}px`,
           }}
-          className={`${styles.cardRender} ${styles.planeswalker} ${lines === 4 && styles.lines4}`}
+          className={`${styles.cardRender} ${styles.planeswalker} ${isBorderless} ${styles.borderless} ${isTall && styles.lines4}`}
         >
           <ImageLoader
             src={cover || getFallbackCover()}
@@ -118,6 +119,7 @@ const PlaneswalkerCardRender = (cardRender: PlaneswalkerCardRenderProps) => {
             fallBackColor="black"
             className={`${styles.cover} ${getCoverFitClass(styles, coverFit)} card-cover`}
           />
+          <PlaneswalkerRulesBackground lineCount={lineCount} isTall={isTall} />
           <ImageLoader
             src={mainframe.highRes}
             lowResSrc={mainframe.lowRes}
@@ -141,18 +143,28 @@ const PlaneswalkerCardRender = (cardRender: PlaneswalkerCardRenderProps) => {
             {cardSubTypes ? ` – ${cardSubTypes}` : ''}
           </div>
 
-          <div className={planeswalkerStyles[`lines${lines}`]}>
+          <div>
             {cardText.map((val, i) => {
               const { loyalty, text, loyaltyImage } = parsePlaneswalkerLine(val);
+              const layout = lineLayouts[i];
               return (
                 <div key={`pw-line-${cardID}-${i}`}>
-                  <div className={planeswalkerStyles[`loyaltyIcon${i + 1}`]}>
+                  <div
+                    className={planeswalkerStyles.loyaltyIcon}
+                    style={{ top: `${layout.iconTop}px` }}
+                  >
                     {loyaltyImage ? <img src={loyaltyImage} alt="" /> : null}
                   </div>
-                  <div className={planeswalkerStyles[`loyaltyIcon${i + 1}`]}>
+                  <div
+                    className={planeswalkerStyles.loyaltyIcon}
+                    style={{ top: `${layout.iconTop}px` }}
+                  >
                     <p>{loyalty}</p>
                   </div>
-                  <div className={planeswalkerStyles[`loyaltyText${i + 1}`]}>
+                  <div
+                    className={planeswalkerStyles.loyaltyText}
+                    style={{ top: `${layout.textTop}px`, height: `${layout.textHeight}px` }}
+                  >
                     <TextResize
                       defaultFontSize={42}
                       maxFontSize={56}

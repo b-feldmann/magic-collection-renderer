@@ -540,6 +540,12 @@ import PlaneswalkerTallBorderlessColorlessThumb from './images/mainframes/planes
 
 import PlaneswalkerPt from './images/pt/planeswalker/LoyaltyBegin.png';
 
+// Ability-line dividers and rules-area masks for the banded text background.
+import PlaneswalkerAbilityLineOdd from './images/mainframes/planeswalker/abilityLineOdd.png';
+import PlaneswalkerAbilityLineEven from './images/mainframes/planeswalker/abilityLineEven.png';
+import PlaneswalkerRulesMask from './images/mainframes/planeswalker/regular/planeswalkerMaskRules.png';
+import PlaneswalkerTallRulesMask from './images/mainframes/planeswalker/tall/planeswalkerTallMaskRules.png';
+
 import LoyaltyUp from './images/symbols/loyalty/LoyaltyUp.png';
 import LoyaltyDown from './images/symbols/loyalty/LoyaltyDown.png';
 import LoyaltyNeutral from './images/symbols/loyalty/LoyaltyNeutral.png';
@@ -1170,6 +1176,17 @@ export const getPlaneswalkerMainframe = (
 
   return planeswalkerFrames[variant][color];
 };
+
+// Divider strips drawn between ability bands. `abilityLineOdd` transitions from
+// the lighter band (top) to the darker band (bottom); `abilityLineEven` is the
+// reverse. The band fill colors are the translucent edge rows of these strips.
+export const getPlaneswalkerAbilityDivider = (odd: boolean) =>
+  odd ? PlaneswalkerAbilityLineOdd : PlaneswalkerAbilityLineEven;
+
+// Full-card (1500x2100) mask of the rules/text region, used to clip the banded
+// background to the exact text-box shape (including the loyalty-plate notch).
+export const getPlaneswalkerRulesMask = (isTall = false) =>
+  isTall ? PlaneswalkerTallRulesMask : PlaneswalkerRulesMask;
 
 export const getInvocationPt = () => InvocationPt;
 

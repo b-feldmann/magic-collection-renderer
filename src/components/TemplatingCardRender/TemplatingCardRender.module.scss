@@ -321,6 +321,45 @@
   }
 }
 
+.planeswalker.lines4 {
+  .type {
+    top: 1046px;
+  }
+  .rarity {
+    top: 1048px;
+  }
+}
+
+.planeswalker {
+  .title {
+    top: 74px;
+    color: black !important;
+  }
+
+  .type {
+    color: black !important;
+  }
+
+  .cost {
+    top: 76px;
+  }
+
+  .cover {
+    top: 200px;
+    left: 100px;
+    width: calc(100% - 100px * 2);
+    height: 1760px;
+  }
+
+  .stats {
+    font-size: 2em;
+    top: 1924px;
+    left: 1314px;
+    transform: translateX(-50%) translateY(-50%);
+    color: white;
+  }
+}
+
 .borderless {
   .cover {
     left: 0 !important;
@@ -367,38 +406,6 @@
   }
 
   .stats {
-    color: white;
-  }
-}
-
-.planeswalker.lines4 {
-  .type,
-  .rarity {
-    top: 1062.5px;
-  }
-}
-
-.planeswalker {
-  .title {
-    top: 74px;
-  }
-
-  .cost {
-    top: 76px;
-  }
-
-  .cover {
-    top: 187.5px;
-    left: 75px;
-    width: 1350px;
-    height: 1775px;
-  }
-
-  .stats {
-    font-size: 2em;
-    top: 1924px;
-    left: 1314px;
-    transform: translateX(-50%) translateY(-50%);
     color: white;
   }
 }

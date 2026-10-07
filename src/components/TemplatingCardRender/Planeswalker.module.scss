@@ -1,19 +1,18 @@
-.loyaltyText1,
-.loyaltyText2,
-.loyaltyText3,
-.loyaltyText4 {
+// Vertical positions (top/height) are supplied inline from
+// planeswalkerGeometry.ts so the text aligns with the equal-height ability
+// bands drawn by PlaneswalkerRulesBackground.
+.loyaltyText {
   font-family: 'MPlantin', sans-serif;
   position: absolute;
   font-size: 1.625em;
   left: 254px;
-  width: 1147.92px;
-  border: hotpink 6px solid;
+  width: 1132px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
-.loyaltyIcon1,
-.loyaltyIcon2,
-.loyaltyIcon3,
-.loyaltyIcon4 {
+.loyaltyIcon {
   position: absolute;
   left: 146px;
   transform: translateX(-50%) translateY(-50%);
@@ -28,77 +27,5 @@
 
   p {
     margin-top: -44px;
-  }
-}
-
-.lines3 {
-  .loyaltyText1 {
-    top: 1343.75px;
-    height: 166.67px;
-  }
-  .loyaltyText2 {
-    top: 1552.08px;
-    height: 166.67px;
-  }
-  .loyaltyText3 {
-    top: 1750px;
-    height: 145.83px;
-  }
-  .loyaltyIcon1 {
-    top: 1441.67px;
-  }
-  .loyaltyIcon2 {
-    top: 1647.92px;
-  }
-  .loyaltyIcon3 {
-    top: 1835.42px;
-  }
-}
-
-.lines2 {
-  .loyaltyText1 {
-    top: 1364.58px;
-    height: 239.58px;
-  }
-  .loyaltyText2 {
-    top: 1685.42px;
-    height: 172.92px;
-  }
-  .loyaltyIcon1 {
-    top: 1493.75px;
-  }
-  .loyaltyIcon2 {
-    top: 1777.08px;
-  }
-}
-
-.lines4 {
-  .loyaltyText1 {
-    top: 1197.92px;
-    height: 166.67px;
-  }
-  .loyaltyText2 {
-    top: 1389.58px;
-    height: 166.67px;
-  }
-  .loyaltyText3 {
-    top: 1581.25px;
-    height: 166.67px;
-  }
-  .loyaltyText4 {
-    top: 1760.42px;
-    height: 141.67px;
-  }
-  .loyaltyIcon1 {
-    top: 1293.75px;
-  }
-  .loyaltyIcon2 {
-    top: 1483.33px;
-  }
-  .loyaltyIcon3 {
-    top: 1677.08px;
-  }
-  .loyaltyIcon4 {
-    top: 1845.83px;
   }
 }
