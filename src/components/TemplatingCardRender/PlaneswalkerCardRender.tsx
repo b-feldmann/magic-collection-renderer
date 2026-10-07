@@ -150,13 +150,17 @@ const PlaneswalkerCardRender = (cardRender: PlaneswalkerCardRenderProps) => {
               return (
                 <div key={`pw-line-${cardID}-${i}`}>
                   <div
-                    className={planeswalkerStyles.loyaltyIcon}
+                    className={`${planeswalkerStyles.loyaltyIcon} ${
+                      loyalty === '0' ? planeswalkerStyles.loyaltyIconNeutral : ''
+                    }`}
                     style={{ top: `${layout.iconTop}px` }}
                   >
                     {loyaltyImage ? <img src={loyaltyImage} alt="" /> : null}
                   </div>
                   <div
-                    className={planeswalkerStyles.loyaltyIcon}
+                    className={`${planeswalkerStyles.loyaltyIcon} ${
+                      loyalty === '0' ? planeswalkerStyles.loyaltyIconNeutral : ''
+                    }`}
                     style={{ top: `${layout.iconTop}px` }}
                   >
                     <p>{loyalty}</p>
