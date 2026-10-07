@@ -475,7 +475,7 @@ import PtW from './images/pt/regular/m15PTW.png';
 import PtU from './images/pt/regular/m15PTU.png';
 import PtB from './images/pt/regular/m15PTB.png';
 import PtR from './images/pt/regular/m15PTR.png';
-import PtG from './images/pt/regular/m15PTM.png';
+import PtG from './images/pt/regular/m15PTG.png';
 import PtM from './images/pt/regular/m15PTM.png';
 import PtC from './images/pt/regular/m15PTC.png';
 import PtV from './images/pt/regular/m15PTV.png';

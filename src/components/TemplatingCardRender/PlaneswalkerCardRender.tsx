@@ -181,7 +181,7 @@ const PlaneswalkerCardRender = (cardRender: PlaneswalkerCardRenderProps) => {
                     <p>{loyalty}</p>
                   </div>
                   <div
-                    className={planeswalkerStyles.loyaltyText}
+                    className={`${planeswalkerStyles.loyaltyText} ${!loyalty ? planeswalkerStyles.loyaltyTextNoIcon : ''}`}
                     style={{ top: `${layout.textTop}px`, height: `${layout.textHeight}px` }}
                   >
                     <TextResize

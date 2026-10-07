@@ -12,6 +12,13 @@
   justify-content: center;
 }
 
+// Abilities without a loyalty marker have no icon column to clear,
+// so the text starts more left and uses the freed-up width.
+.loyaltyTextNoIcon {
+  left: 198px;
+  width: 1200px;
+}
+
 .loyaltyIcon {
   position: absolute;
   left: 146px;
