@@ -189,8 +189,10 @@ import ExtendedFrameML from './images/mainframes/extended/lm.png';
 
 import TokenArtefactMainframe from './images/mainframes/token/tokenFrameAShort.png';
 import TokenArtefactMainframeLowRes from './images/mainframes/token/tokenFrameAShortThumb.png';
-import TokenColorlessMainframe from './images/mainframes/token/tokenFrameLShort.png';
-import TokenColorlessMainframeLowRes from './images/mainframes/token/tokenFrameLShortThumb.png';
+import TokenColorlessMainframe from './images/mainframes/token/frameC.png';
+import TokenColorlessMainframeLowRes from './images/mainframes/token/frameCThumb.png';
+import TokenLandMainframe from './images/mainframes/token/tokenFrameLShort.png';
+import TokenLandMainframeLowRes from './images/mainframes/token/tokenFrameLShortThumb.png';
 import TokenWhiteMainframe from './images/mainframes/token/tokenFrameWShort.png';
 import TokenWhiteMainframeLowRes from './images/mainframes/token/tokenFrameWShortThumb.png';
 import TokenBlueMainframe from './images/mainframes/token/tokenFrameUShort.png';
@@ -385,6 +387,9 @@ import TokenBlueRedType from './images/parts/tokenType/ur.png';
 import TokenBlackGreenType from './images/parts/tokenType/bg.png';
 import TokenRedWhiteType from './images/parts/tokenType/rw.png';
 import TokenGreenBlueType from './images/parts/tokenType/gu.png';
+// Token land type part: carved from the token land frame (tokenFrameLShort.png)
+// with the tokenType mask by scripts/generate-parts.cjs.
+import TokenLandType from './images/parts/tokenType/l.png';
 
 import TokenWhiteBlueRules from './images/parts/tokenRules/wu.png';
 import TokenBlueBlackRules from './images/parts/tokenRules/ub.png';
@@ -930,9 +935,11 @@ const TokenBlackFrame = { highRes: TokenBlackMainframe, lowRes: TokenBlackMainfr
 const TokenRedFrame = { highRes: TokenRedMainframe, lowRes: TokenRedMainframeLowRes };
 const TokenGreenFrame = { highRes: TokenGreenMainframe, lowRes: TokenGreenMainframeLowRes };
 const TokenGoldFrame = { highRes: TokenGoldMainframe, lowRes: TokenGoldMainframeLowRes };
+const TokenLandFrame = { highRes: TokenLandMainframe, lowRes: TokenLandMainframeLowRes };
 
-export const getTokenMainframe = (color: ColorType, isArtifact = false) => {
+export const getTokenMainframe = (color: ColorType, isArtifact = false, isLand = false) => {
   if (isArtifact && color === ColorType.Colorless) return TokenArtefactFrame;
+  if (isLand && color === ColorType.Colorless) return TokenLandFrame;
   switch (color) {
     case ColorType.White:
       return TokenWhiteFrame;
@@ -1397,6 +1404,10 @@ export const getRulesPart = (colors: ColorType[], isArtifact: boolean, isToken =
 export const getLandTitlePart = (colors: ColorType[]) => (colors.length === 2 ? LandTitle : '');
 
 export const getLandTypePart = (colors: ColorType[]) => (colors.length === 2 ? LandType : '');
+
+// Token lands are colorless, so their type part is the single 'l' part carved
+// from the token land frame itself (no color-combination variants exist).
+export const getTokenLandTypePart = () => TokenLandType;
 
 export const getLandRulesPart = (colors: ColorType[]) =>
   colors.length === 2 ? RULES_PARTS[getTwoColorVariant(colors)] : '';

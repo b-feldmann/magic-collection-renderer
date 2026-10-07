@@ -30,7 +30,10 @@
  * `parts/tokenRules.png` masks. The single-color token frames are rendered
  * whole elsewhere, so only the two-color combinations are produced, written to
  * `parts/tokenPinline/<combo>.png`, `parts/tokenType/<combo>.png` and
- * `parts/tokenRules/<combo>.png`.
+ * `parts/tokenRules/<combo>.png`. In addition, the token land frame
+ * (`tokenFrameLShort.png`) is carved with the `tokenType` mask into a single
+ * `parts/tokenType/l.png`, so token lands keep a land-shaped type plate that
+ * matches the token-land frame.
  *
  * Run with: npm run generate:parts
  */
@@ -254,14 +257,15 @@ async function run() {
 // (`mainframes/token/tokenFrame<X>Short.png`) using the token-specific masks.
 // Single-color token frames are rendered whole elsewhere, so only the two-color
 // combinations are generated here, written to `parts/<tokenType>/<combo>.png`.
+const TOKEN_LAND_COLOR = 'l';
 const TOKEN_PART_TYPES = [
   { type: 'tokenPinline', mask: 'tokenPinline.png' },
-  { type: 'tokenType', mask: 'tokenType.png' },
+  { type: 'tokenType', mask: 'tokenType.png', singles: [TOKEN_LAND_COLOR] },
   { type: 'tokenRules', mask: 'tokenRules.png' },
 ];
 
 async function generateTokenParts() {
-  for (const { type, mask: maskName } of TOKEN_PART_TYPES) {
+    for (const { type, mask: maskName, singles = [] } of TOKEN_PART_TYPES) {
     const maskPath = path.join(PARTS_DIR, maskName);
     if (!fs.existsSync(maskPath)) {
       throw new Error(`Mask image not found: ${maskPath}`);
@@ -285,19 +289,47 @@ async function generateTokenParts() {
       }
     }
 
+    // The token land frame (tokenFrameLShort.png) is the land variant of the
+    // token colorless frame; load it as 'l' so token-land singles can be carved.
+    const tokenLandFramePath = path.join(
+      MAINFRAMES_DIR,
+      'token',
+      `tokenFrame${TOKEN_LAND_COLOR.toUpperCase()}Short.png`,
+    );
+    if (fs.existsSync(tokenLandFramePath)) {
+      const frame = await Jimp.read(tokenLandFramePath);
+      if (!sameSize(frame, maskW, maskH)) {
+        frame.resize({ w: maskW, h: maskH });
+      }
+      frames.set(TOKEN_LAND_COLOR, frame);
+    }
+
     const outputDir = path.join(PARTS_DIR, type);
     if (!fs.existsSync(outputDir)) {
       fs.mkdirSync(outputDir, { recursive: true });
     }
 
-    const { written, skipped } = await writeCombos(
-      type,
-      frames,
-      mask,
-      maskW,
-      maskH,
-      outputDir,
-    );
+    const comboResult = await writeCombos(type, frames, mask, maskW, maskH, outputDir);
+    let written = comboResult.written;
+    const skipped = comboResult.skipped;
+
+    // Single-color parts carved from whole frames. Only the token land needs
+    // this today ('tokenType'): the others are rendered whole or are combo-only.
+    for (const color of singles) {
+      const frame = frames.get(color);
+      if (!frame) {
+        skipped.push(`${color} (source missing)`);
+        continue;
+      }
+      if (!sameSize(frame, maskW, maskH)) {
+        skipped.push(`${color} (source size != mask ${maskW}x${maskH})`);
+        continue;
+      }
+      const out = carveSingle(frame, mask);
+      await out.write(path.join(outputDir, `${color}.png`));
+      written += 1;
+      console.log(`${type}  ✓ ${color}.png`);
+    }
 
     console.log(`\nDone. Wrote ${written} ${type} image(s) to ${outputDir}`);
     if (skipped.length > 0) {

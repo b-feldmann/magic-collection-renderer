@@ -41,6 +41,7 @@ import {
   getPinline,
   getRulesPart,
   getTitlePart,
+  getTokenLandTypePart,
   getTypePart,
   getPt,
   getRarityIcon,
@@ -103,7 +104,10 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
   };
 
   const parsedCover = stripCoverValue(cover);
-  const isLand = cardMainType === CardMainType.Land || cardMainType === CardMainType.BasicLand;
+  const isLand =
+    cardMainType === CardMainType.Land ||
+    cardMainType === CardMainType.BasicLand ||
+    cardMainType === CardMainType.TokenLand;
 
   if (cardMainType === CardMainType.BasicLand) {
     let landType: BasicLandType = BasicLandType.Plains;
@@ -164,7 +168,9 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
     cardMainType === CardMainType.CreatureToken ||
     cardMainType === CardMainType.EnchantmentCreature;
   const isToken =
-    cardMainType === CardMainType.CreatureToken || cardMainType === CardMainType.ArtifactToken;
+    cardMainType === CardMainType.CreatureToken ||
+    cardMainType === CardMainType.ArtifactToken ||
+    cardMainType === CardMainType.TokenLand;
   const isInvention = artStyle === CardArtStyles.Invention;
 
   let { color } = getColor(manaCost);
@@ -191,9 +197,15 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
   );
   const pinline = getPinline(isLand ? landColors : allColors, isArtifact, artStyle, isToken);
   let titlePart = isLand ? getLandTitlePart(landColors) : getTitlePart(allColors, isArtifact);
-  let typePart = isLand ? getLandTypePart(landColors) : getTypePart(allColors, isArtifact, isToken);
+  let typePart = isLand
+    ? isToken
+      ? getTokenLandTypePart()
+      : getLandTypePart(landColors)
+    : getTypePart(allColors, isArtifact, isToken);
   let rulesPart = isLand
-    ? getLandRulesPart(landColors)
+    ? isToken
+      ? getRulesPart(landColors, isArtifact, true)
+      : getLandRulesPart(landColors)
     : getRulesPart(allColors, isArtifact, isToken);
   if (artStyle === CardArtStyles.Borderless) {
     titlePart = '';
@@ -209,7 +221,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
     mainframe = getInventionMainframe(color, isArtifact);
     pt = getInventionPt();
   } else if (isToken) {
-    mainframe = getTokenMainframe(color, isArtifact);
+    mainframe = getTokenMainframe(color, isArtifact, isLand);
   } else if (isLand) {
     mainframe = getLandMainframe(color, artStyle);
   } else {
@@ -300,6 +312,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
             ${isNickname && styles.nicknameFrame}
             ${isEnchantment && styles.enchantment}
             ${isLand && styles.land}
+            ${isArtifact && styles.artifact}
             ${artStyle === CardArtStyles.Extended && styles.extended}
             ${color === ColorType.Colorless && styles.colorless}
           `}
@@ -355,11 +368,14 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
             </div>
           )}
 
-          {cardRenderProps.cardMainType !== CardMainType.Land && !isToken && !backFace && (
-            <div className={`${styles.cost} ${isToken ? styles.tokenCost : ''}`}>
-              {injectManaIcons(orderedCost, true)}
-            </div>
-          )}
+          {cardRenderProps.cardMainType !== CardMainType.Land &&
+            cardRenderProps.cardMainType !== CardMainType.TokenLand &&
+            !isToken &&
+            !backFace && (
+              <div className={`${styles.cost} ${isToken ? styles.tokenCost : ''}`}>
+                {injectManaIcons(orderedCost, true)}
+              </div>
+            )}
 
           <div className={`${styles.title} ${isToken ? styles.tokenTitle : ''}`}>{name}</div>
           {isNickname && <div className={styles.nicknameText}>{nickname}</div>}

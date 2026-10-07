@@ -51,7 +51,8 @@ const isArtStyleAvailableForType = (artStyle: string, cardMainType: CardMainType
     return (
       cardMainType !== CardMainType.Planeswalker &&
       cardMainType !== CardMainType.CreatureToken &&
-      cardMainType !== CardMainType.ArtifactToken
+      cardMainType !== CardMainType.ArtifactToken &&
+      cardMainType !== CardMainType.TokenLand
     );
   }
   return true;
@@ -261,6 +262,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
   const hasMana = () =>
     getValue('cardMainType') !== CardMainType.ArtifactToken &&
     getValue('cardMainType') !== CardMainType.CreatureToken &&
+    getValue('cardMainType') !== CardMainType.TokenLand &&
     getValue('cardMainType') !== CardMainType.Land &&
     getValue('cardMainType') !== CardMainType.Emblem;
 

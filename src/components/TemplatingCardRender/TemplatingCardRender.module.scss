@@ -508,10 +508,11 @@
   }
 }
 
-:not(.enchantment):not(.land).colorless {
+:not(.enchantment):not(.land):not(.artifact).colorless {
   .cover {
     top: 104px;
     height: 1820px;
+    //left: 40px;
   }
 }
 

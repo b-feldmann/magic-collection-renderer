@@ -28,7 +28,7 @@ const mockStoreValue: StoreType = {
   dispatch: () => {},
 };
 
-const renderLand = (cardText: string[]) =>
+const renderCard = (cardMainType: CardMainType, cardText: string[]) =>
   render(
     <Store.Provider value={mockStoreValue}>
       <TemplatingCardRender
@@ -36,7 +36,7 @@ const renderLand = (cardText: string[]) =>
         rarity={RarityType.Common}
         cardID="test-land"
         manaCost=""
-        cardMainType={CardMainType.Land}
+        cardMainType={cardMainType}
         cardSubTypes=""
         cardText={cardText}
         collectionNumber={1}
@@ -44,6 +44,8 @@ const renderLand = (cardText: string[]) =>
       />
     </Store.Provider>,
   );
+
+const renderLand = (cardText: string[]) => renderCard(CardMainType.Land, cardText);
 
 const getPinlineImage = () => {
   const images = Array.from(document.querySelectorAll('img'));
@@ -75,5 +77,39 @@ describe('TemplatingCardRender - land pinlines (colors from card text)', () => {
     renderLand(['{T}: Add {C}.']);
 
     expect(getPinlineImage()).toBeUndefined();
+  });
+});
+
+describe('TemplatingCardRender - token land frame parts', () => {
+  it('a two-color token land shows the token land type part and the token rules part', () => {
+    renderCard(CardMainType.TokenLand, ['{T}: Add {W} or {U}.']);
+
+    const typePart = Array.from(document.querySelectorAll('img')).find(img =>
+      img.className.includes('typePart'),
+    );
+    const rulesPart = Array.from(document.querySelectorAll('img')).find(img =>
+      img.className.includes('rulesPart'),
+    );
+    expect(typePart?.getAttribute('src')).toContain('/tokenType/l.png');
+    expect(rulesPart?.getAttribute('src')).toContain('/tokenRules/wu.png');
+  });
+
+  it('a colorless token land still shows the token land type part', () => {
+    renderCard(CardMainType.TokenLand, ['{T}: Add {C}.']);
+
+    const typePart = Array.from(document.querySelectorAll('img')).find(img =>
+      img.className.includes('typePart'),
+    );
+    expect(typePart?.getAttribute('src')).toContain('/tokenType/l.png');
+  });
+
+  it('a two-color regular land shows the regular rules part, not the token one', () => {
+    renderCard(CardMainType.Land, ['{T}: Add {W} or {U}.']);
+
+    const rulesPart = Array.from(document.querySelectorAll('img')).find(img =>
+      img.className.includes('rulesPart'),
+    );
+    expect(rulesPart?.getAttribute('src')).toContain('/rules/wu.png');
+    expect(rulesPart?.getAttribute('src')).not.toContain('tokenRules');
   });
 });
