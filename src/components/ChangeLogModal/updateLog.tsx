@@ -386,7 +386,13 @@ updateLog.push({
 //     },
 //     {
 //       type: ChangeLogFeatureType.Changed,
+//       feature: 'Updated Card Text Editor',
+//       description: 'Card text no longer has multiple instructions but is a single text field.'
+//     },
+//     {
+//       type: ChangeLogFeatureType.Changed,
 //       feature: 'Higher Resolution Frames',
+//       description: 'Also added thumbnails to increase the loading of the images'
 //     },
 //     {
 //       type: ChangeLogFeatureType.Changed,

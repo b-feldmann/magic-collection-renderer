@@ -187,14 +187,22 @@ import ExtendedFrameM from './images/mainframes/extended/m.png';
 import ExtendedFrameMNyx from './images/mainframes/extended/nyx/m.png';
 import ExtendedFrameML from './images/mainframes/extended/lm.png';
 
-import TokenArtefactMainframe from './images/mainframes/token/Art.png';
-import TokenColorlessMainframe from './images/mainframes/token/C.png';
-import TokenWhiteMainframe from './images/mainframes/token/W.png';
-import TokenBlueMainframe from './images/mainframes/token/U.png';
-import TokenBlackMainframe from './images/mainframes/token/B.png';
-import TokenRedMainframe from './images/mainframes/token/R.png';
-import TokenGreenMainframe from './images/mainframes/token/G.png';
-import TokenGoldMainframe from './images/mainframes/token/Gld.png';
+import TokenArtefactMainframe from './images/mainframes/token/tokenFrameAShort.png';
+import TokenArtefactMainframeLowRes from './images/mainframes/token/tokenFrameAShortThumb.png';
+import TokenColorlessMainframe from './images/mainframes/token/tokenFrameLShort.png';
+import TokenColorlessMainframeLowRes from './images/mainframes/token/tokenFrameLShortThumb.png';
+import TokenWhiteMainframe from './images/mainframes/token/tokenFrameWShort.png';
+import TokenWhiteMainframeLowRes from './images/mainframes/token/tokenFrameWShortThumb.png';
+import TokenBlueMainframe from './images/mainframes/token/tokenFrameUShort.png';
+import TokenBlueMainframeLowRes from './images/mainframes/token/tokenFrameUShortThumb.png';
+import TokenBlackMainframe from './images/mainframes/token/tokenFrameBShort.png';
+import TokenBlackMainframeLowRes from './images/mainframes/token/tokenFrameBShortThumb.png';
+import TokenRedMainframe from './images/mainframes/token/tokenFrameRShort.png';
+import TokenRedMainframeLowRes from './images/mainframes/token/tokenFrameRShortThumb.png';
+import TokenGreenMainframe from './images/mainframes/token/tokenFrameGShort.png';
+import TokenGreenMainframeLowRes from './images/mainframes/token/tokenFrameGShortThumb.png';
+import TokenGoldMainframe from './images/mainframes/token/tokenFrameMShort.png';
+import TokenGoldMainframeLowRes from './images/mainframes/token/tokenFrameMShortThumb.png';
 
 import InvocationWhiteMainframe from './images/mainframes/invocation/W.png';
 import InvocationBlueMainframe from './images/mainframes/invocation/U.png';
@@ -872,23 +880,38 @@ export const getCrown = (
   }
 };
 
+const TokenArtefactFrame = {
+  highRes: TokenArtefactMainframe,
+  lowRes: TokenArtefactMainframeLowRes,
+};
+const TokenColorlessFrame = {
+  highRes: TokenColorlessMainframe,
+  lowRes: TokenColorlessMainframeLowRes,
+};
+const TokenWhiteFrame = { highRes: TokenWhiteMainframe, lowRes: TokenWhiteMainframeLowRes };
+const TokenBlueFrame = { highRes: TokenBlueMainframe, lowRes: TokenBlueMainframeLowRes };
+const TokenBlackFrame = { highRes: TokenBlackMainframe, lowRes: TokenBlackMainframeLowRes };
+const TokenRedFrame = { highRes: TokenRedMainframe, lowRes: TokenRedMainframeLowRes };
+const TokenGreenFrame = { highRes: TokenGreenMainframe, lowRes: TokenGreenMainframeLowRes };
+const TokenGoldFrame = { highRes: TokenGoldMainframe, lowRes: TokenGoldMainframeLowRes };
+
 export const getTokenMainframe = (color: ColorType, isArtifact = false) => {
-  if (isArtifact && color === ColorType.Colorless) return TokenArtefactMainframe;
+  if (isArtifact && color === ColorType.Colorless) return TokenArtefactFrame;
   switch (color) {
     case ColorType.White:
-      return TokenWhiteMainframe;
+      return TokenWhiteFrame;
     case ColorType.Blue:
-      return TokenBlueMainframe;
+      return TokenBlueFrame;
     case ColorType.Black:
-      return TokenBlackMainframe;
+      return TokenBlackFrame;
     case ColorType.Red:
-      return TokenRedMainframe;
+      return TokenRedFrame;
     case ColorType.Green:
-      return TokenGreenMainframe;
+      return TokenGreenFrame;
     case ColorType.Gold:
-      return TokenGoldMainframe;
+      return TokenGoldFrame;
     default:
-      return TokenColorlessMainframe;
+      return TokenColorlessFrame;
   }
 };
 
