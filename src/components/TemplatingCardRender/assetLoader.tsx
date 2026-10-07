@@ -1,5 +1,4 @@
 import CrownFloatingExtendedArtFix from './images/crown/floating/extendedArtFix.png';
-import CrownMask from './images/crown/maskCrown.png';
 import CrownArtefact from './images/crown/a.png';
 import CrownArtefactLowRes from './images/crown/aThumb.png';
 import CrownArtefactFloating from './images/crown/floating/a.png';
@@ -377,19 +376,6 @@ import TokenBlackGreenPinline from './images/parts/tokenPinline/bg.png';
 import TokenRedWhitePinline from './images/parts/tokenPinline/rw.png';
 import TokenGreenBluePinline from './images/parts/tokenPinline/gu.png';
 
-import TokenWhiteBlueType from './images/parts/tokenType/wu.png';
-import TokenBlueBlackType from './images/parts/tokenType/ub.png';
-import TokenBlackRedType from './images/parts/tokenType/br.png';
-import TokenRedGreenType from './images/parts/tokenType/rg.png';
-import TokenGreenWhiteType from './images/parts/tokenType/gw.png';
-import TokenWhiteBlackType from './images/parts/tokenType/wb.png';
-import TokenBlueRedType from './images/parts/tokenType/ur.png';
-import TokenBlackGreenType from './images/parts/tokenType/bg.png';
-import TokenRedWhiteType from './images/parts/tokenType/rw.png';
-import TokenGreenBlueType from './images/parts/tokenType/gu.png';
-// Token gold type plate, carved from the token gold frame; used by two-color
-// tokens so the plate matches their gold token mainframe.
-import TokenGoldType from './images/parts/tokenType/m.png';
 // Token land type part: carved from the token land frame (tokenFrameLShort.png)
 // with the tokenType mask by scripts/generate-parts.cjs.
 import TokenLandType from './images/parts/tokenType/l.png';
@@ -802,7 +788,6 @@ export const getInnerCrown = (color: ColorType, isArtefact = false) => {
 };
 
 export const getCrownFloatingExtendedArtFix = () => CrownFloatingExtendedArtFix;
-export const getCrownMask = () => CrownMask;
 
 // Keys for the two-color crown combos, in WUBRG wheel order. These match the
 // combo variant keys returned by getTwoColorVariant for a two-color card.
@@ -1347,26 +1332,6 @@ const TOKEN_PINLINES: Record<PartVariant, string> = {
   gu: TokenGreenBluePinline,
 };
 
-const TOKEN_TYPE_PARTS: Record<PartVariant, string> = {
-  '': '',
-  w: '',
-  u: '',
-  b: '',
-  r: '',
-  g: '',
-  m: TokenGoldType,
-  wu: TokenWhiteBlueType,
-  ub: TokenBlueBlackType,
-  br: TokenBlackRedType,
-  rg: TokenRedGreenType,
-  gw: TokenGreenWhiteType,
-  wb: TokenWhiteBlackType,
-  ur: TokenBlueRedType,
-  bg: TokenBlackGreenType,
-  rw: TokenRedWhiteType,
-  gu: TokenGreenBlueType,
-};
-
 const TOKEN_RULES_PARTS: Record<PartVariant, string> = {
   '': '',
   w: '',
@@ -1392,17 +1357,11 @@ const TOKEN_RULES_PARTS: Record<PartVariant, string> = {
 const getTokenPartVariant = (colors: ColorType[]): PartVariant =>
   colors.length === 2 ? getTwoColorVariant(colors) : '';
 
-export const getTitlePart = (colors: ColorType[], isArtifact: boolean) =>
-  TITLE_PARTS[getTitleTypeVariant(colors, isArtifact)];
+export const getTitlePart = (colors: ColorType[], isArtifact: boolean, isToken = false) =>
+  isToken ? '' : TITLE_PARTS[getTitleTypeVariant(colors, isArtifact)];
 
 export const getTypePart = (colors: ColorType[], isArtifact: boolean, isToken = false) =>
-  isToken
-    ? colors.length === 2
-      ? // Two-color tokens use the token gold type plate (carved from the
-        // token gold frame), consistent with the gold token mainframe.
-        TOKEN_TYPE_PARTS.m
-      : TOKEN_TYPE_PARTS[getTokenPartVariant(colors)]
-    : TYPE_PARTS[getTitleTypeVariant(colors, isArtifact)];
+  isToken ? '' : TYPE_PARTS[getTitleTypeVariant(colors, isArtifact)];
 
 export const getRulesPart = (colors: ColorType[], isArtifact: boolean, isToken = false) =>
   isToken

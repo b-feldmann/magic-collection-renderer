@@ -101,14 +101,4 @@ describe('TemplatingCardRender - token colors', () => {
     expect(pinline).toBeInTheDocument();
     expect(pinline?.getAttribute('src')).toContain('/tokenPinline/wu');
   });
-
-  it('renders the token gold type part for a two-color token', () => {
-    renderToken([ColorType.White, ColorType.Blue]);
-
-    const typePart = Array.from(document.querySelectorAll('img')).find(img =>
-      img.className.includes('typePart'),
-    );
-    expect(typePart).toBeInTheDocument();
-    expect(typePart?.getAttribute('src')).toContain('/tokenType/m');
-  });
 });

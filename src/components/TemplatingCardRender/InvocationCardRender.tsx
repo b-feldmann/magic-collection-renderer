@@ -99,7 +99,7 @@ const InvocationCardRender = (cardRender: InvocationCardRenderProps) => {
           />
           <ImageLoader src={mainframe} className={styles.mainframe} fallBackColor="#eed66b" />
 
-          {isCreature && (
+          {(isCreature || (isArtifact && vehicle)) && (
             <div>
               <img className={styles.overlay} src={pt} alt="" />
               <div className={styles.stats}>

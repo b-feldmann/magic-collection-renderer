@@ -200,7 +200,9 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
     isLand,
   );
   const pinline = getPinline(isLand ? landColors : allColors, isArtifact, artStyle, isToken);
-  let titlePart = isLand ? getLandTitlePart(landColors) : getTitlePart(allColors, isArtifact);
+  let titlePart = isLand
+    ? getLandTitlePart(landColors)
+    : getTitlePart(allColors, isArtifact, isToken);
   let typePart = isLand
     ? isToken
       ? getTokenLandTypePart()
@@ -363,7 +365,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
             className={`${styles.rarity} ${isToken ? styles.tokenRarity : ''}`}
           />
 
-          {isCreature && (
+          {(isCreature || (isArtifact && vehicle)) && (
             <div>
               {pt ? <img className={styles.pt} src={pt} alt="" /> : null}
               <div className={styles.stats}>
@@ -418,7 +420,11 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
             </span>
             <span className={styles.artist}>{creator}</span>
           </div>
-          <div className={isCreature ? styles.copyrightStats : styles.copyright}>
+          <div
+            className={
+              isCreature || (isArtifact && vehicle) ? styles.copyrightStats : styles.copyright
+            }
+          >
             &#8482; &amp; &#169; 2019 BJennWare
           </div>
         </div>

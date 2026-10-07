@@ -511,20 +511,13 @@
   }
 }
 
-:not(.enchantment):not(.land):not(.artifact).colorless {
-  .cover {
-    top: 104px;
-    height: 1820px;
-    //left: 40px;
-  }
-}
-
+:not(.enchantment):not(.land):not(.artifact).colorless,
 .token {
   .cover {
-    left: 58.33px;
-    top: 58.33px;
+    top: 58px;
+    left: 58px;
     height: 2000px;
-    width: calc(100% - 58.33px * 2);
+    width: calc(100% - 58px * 2);
   }
 }
 

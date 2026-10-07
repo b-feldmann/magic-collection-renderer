@@ -393,13 +393,6 @@ describe('token parts', () => {
     expect(token).not.toBe(regular);
   });
 
-  it('getTypePart renders the token gold type part, different from the regular gold part', () => {
-    const token = getTypePart(WU, false, true);
-    const regular = getTypePart(WU, false);
-    expect(token).not.toBe('');
-    expect(token).not.toBe(regular);
-  });
-
   it('getRulesPart renders the token two-color part, different from the regular part', () => {
     const token = getRulesPart(WU, false, true);
     const regular = getRulesPart(WU, false);

@@ -273,7 +273,8 @@ const CardEditor: React.FC<CardEditorInterface> = ({
     getValue('cardMainType') === CardMainType.CreatureToken ||
     getValue('cardMainType') === CardMainType.ArtifactToken;
 
-  const hasStats = () => isCreature() || isPlaneswalker();
+  const hasStats = () =>
+    isCreature() || isPlaneswalker() || (isArtifact() && !!getValue('vehicle'));
 
   const hasNickname = () =>
     getValue('artStyle') !== CardArtStyles.Invention &&
