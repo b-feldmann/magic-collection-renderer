@@ -35,9 +35,14 @@
 
   .ant-modal,
   .ant-modal-body,
-  .ant-modal-content {
+  .ant-modal-content,
+  // antd 6 moved the panel background/padding/shadow from `.ant-modal-content`
+  // (removed) to `.ant-modal-container`. Without clearing it, the collapsed
+  // 0x0 mobile modal leaks a white strip at the left of the viewport.
+  .ant-modal-container {
     padding: 0;
     background: rgba(0, 0, 0, 0) !important;
+    box-shadow: none !important;
   }
 
   .ant-modal-body > * {

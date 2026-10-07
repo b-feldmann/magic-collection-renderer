@@ -92,16 +92,22 @@ $editor-width: clamp(310px, calc(100vw / 24 * 21 / 24 * 6 - 16px), 380px);
     min-width: 0;
     max-width: none;
     width: auto;
+
+    // Desktop only: the collection column reserves the clamped editor width
+    // (plus 8px gaps) on the right so the grid stops just before the floating
+    // editor. The mobile layout hides the editor entirely (editorSpan = 0) and
+    // its controls take their space as real flex items, so the reserve would
+    // squeeze the tabs/grid to zero width there.
+    .collection {
+      margin-right: calc(#{$editor-width} + 16px);
+    }
   }
 
   .collection {
     height: 100%;
-    // Fill the content column, then reserve the clamped editor width (plus 8px
-    // gaps) on the right so the grid stops just before the floating editor.
     flex: 1 1 0;
     min-width: 0;
     max-width: none;
-    margin-right: calc(#{$editor-width} + 16px);
   }
 
   .tabs {

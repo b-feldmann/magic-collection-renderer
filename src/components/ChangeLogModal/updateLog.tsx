@@ -402,6 +402,10 @@ updateLog.push({
       feature: 'New Borderless Frame',
     },
     {
+      type: ChangeLogFeatureType.Fixed,
+      feature: 'Mobile View',
+    },
+    {
       type: ChangeLogFeatureType.Removed,
       feature: 'Invocations are temporarily disabled',
     },
