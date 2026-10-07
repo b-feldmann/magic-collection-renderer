@@ -133,7 +133,7 @@ const PlaneswalkerCardRender = (cardRender: PlaneswalkerCardRenderProps) => {
             className={styles.mainframe}
             fallBackColor="#eed66b"
           />
-          {pinline && !isNickname ? <img className={styles.pinline} src={pinline} alt="" /> : null}
+          {pinline ? <img className={styles.pinline} src={pinline} alt="" /> : null}
           {isNickname && nicknamePlate ? (
             <img className={`${styles.pinline} ${styles.nickname}`} src={nicknamePlate} alt="" />
           ) : null}
