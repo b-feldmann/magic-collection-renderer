@@ -1,11 +1,11 @@
 import { describe, it, expect } from 'vitest';
 
 import {
-  getInnerBorderFrame,
   getColorMainframe,
   getTokenMainframe,
   getInventionMainframe,
   getPinline,
+  getCrown,
   getTitlePart,
   getTypePart,
   getRulesPart,
@@ -15,36 +15,6 @@ import {
   getNicknameTitle,
 } from './assetLoader';
 import { ColorType, CardArtStyles } from '../../interfaces/enums';
-
-describe('getInnerBorderFrame', () => {
-  it('returns no border (empty string) for colorless cards with no colors', () => {
-    // A colorless card produces an empty color array. It must NOT fall back to
-    // the gold multicolor border.
-    expect(getInnerBorderFrame([])).toBe('');
-  });
-
-  it('returns the gold border for 3+ colors', () => {
-    const gold = getInnerBorderFrame([ColorType.White, ColorType.Blue, ColorType.Black]);
-    expect(gold).not.toBe('');
-    // All three-color results share the same gold asset.
-    expect(getInnerBorderFrame([ColorType.Red, ColorType.Green, ColorType.White])).toBe(gold);
-  });
-
-  it('returns a mono-color border for a single color', () => {
-    const white = getInnerBorderFrame([ColorType.White]);
-    const blue = getInnerBorderFrame([ColorType.Blue]);
-    expect(white).not.toBe('');
-    expect(blue).not.toBe('');
-    expect(white).not.toBe(blue);
-  });
-
-  it('returns a two-color border for a color pair', () => {
-    const wu = getInnerBorderFrame([ColorType.White, ColorType.Blue]);
-    const mono = getInnerBorderFrame([ColorType.White]);
-    expect(wu).not.toBe('');
-    expect(wu).not.toBe(mono);
-  });
-});
 
 describe('getPinline', () => {
   it('renders no pinline on a colorless artifact', () => {
@@ -98,6 +68,85 @@ describe('getPinline', () => {
   });
 });
 
+describe('getCrown', () => {
+  // getCrown returns either an ImageResData ({ highRes, lowRes }) or a string;
+  // normalize to the high-res asset for comparison.
+  const highResOf = (crown: ReturnType<typeof getCrown>) =>
+    typeof crown === 'string' ? crown : crown.highRes;
+
+  it('renders a two-color combo crown for a card with exactly two colors', () => {
+    const wu = getCrown(ColorType.Gold, false, false, false, false, [
+      ColorType.White,
+      ColorType.Blue,
+    ]);
+    const gold = getCrown(ColorType.Gold, false, false, false, false, [
+      ColorType.White,
+      ColorType.Blue,
+      ColorType.Black,
+    ]);
+    expect(highResOf(wu)).not.toBe('');
+    // The two-color crown must differ from the gold fallback crown.
+    expect(highResOf(wu)).not.toBe(highResOf(gold));
+  });
+
+  it('normalizes color-pair order to the same combo crown', () => {
+    const wu = getCrown(ColorType.Gold, false, false, false, false, [
+      ColorType.White,
+      ColorType.Blue,
+    ]);
+    const uw = getCrown(ColorType.Gold, false, false, false, false, [
+      ColorType.Blue,
+      ColorType.White,
+    ]);
+    expect(highResOf(wu)).toBe(highResOf(uw));
+  });
+
+  it('distinguishes the base, floating and nickname crown styles for the same pair', () => {
+    const pair = [ColorType.White, ColorType.Blue];
+    const base = getCrown(ColorType.Gold, false, false, false, false, pair);
+    const floating = getCrown(ColorType.Gold, true, false, false, false, pair);
+    const nickname = getCrown(ColorType.Gold, false, false, false, true, pair);
+    expect(highResOf(base)).not.toBe(highResOf(floating));
+    expect(highResOf(base)).not.toBe(highResOf(nickname));
+    expect(highResOf(floating)).not.toBe(highResOf(nickname));
+  });
+
+  it('falls back to the gold crown for 3+ colors', () => {
+    const gold = getCrown(ColorType.Gold, false, false, false, false, [
+      ColorType.White,
+      ColorType.Blue,
+      ColorType.Black,
+    ]);
+    const goldNoColors = getCrown(ColorType.Gold);
+    expect(highResOf(gold)).toBe(highResOf(goldNoColors));
+  });
+
+  it('uses the two-color combo crown for a two-color artifact', () => {
+    const artefactCombo = getCrown(ColorType.Gold, false, false, true, false, [
+      ColorType.White,
+      ColorType.Blue,
+    ]);
+    const combo = getCrown(ColorType.Gold, false, false, false, false, [
+      ColorType.White,
+      ColorType.Blue,
+    ]);
+    // A two-color artifact gets the same combo crown as a non-artifact pair.
+    expect(highResOf(artefactCombo)).toBe(highResOf(combo));
+  });
+
+  it('still uses the artefact crown for a mono-color or 3+ color artifact', () => {
+    const mono = getCrown(ColorType.Colorless, false, false, true, false, [ColorType.White]);
+    const many = getCrown(ColorType.Colorless, false, false, true, false, [
+      ColorType.White,
+      ColorType.Blue,
+      ColorType.Black,
+    ]);
+    const artefact = getCrown(ColorType.Colorless, false, false, true, false, []);
+    expect(highResOf(mono)).toBe(highResOf(artefact));
+    expect(highResOf(many)).toBe(highResOf(artefact));
+  });
+});
+
 // On two-color cards the blended combo nickname plate replaces the gold plate.
 describe('getNicknameTitle', () => {
   it('renders the combo plate on a two-color card instead of the gold plate', () => {
@@ -117,14 +166,24 @@ describe('getNicknameTitle', () => {
     );
   });
 
-  it('keeps the artifact plate for two-color artifacts', () => {
+  it('uses the combo plate for two-color artifacts', () => {
     const combo = getNicknameTitle(ColorType.Gold, false, false, [ColorType.White, ColorType.Blue]);
+    // A two-color artifact gets the same combo plate as a non-artifact pair.
     expect(getNicknameTitle(ColorType.Gold, true, false, [ColorType.White, ColorType.Blue])).toBe(
-      getNicknameTitle(ColorType.Gold, true),
+      combo,
     );
+  });
+
+  it('keeps the artifact plate for mono-color or 3+ color artifacts', () => {
+    const artifact = getNicknameTitle(ColorType.Gold, true);
+    expect(getNicknameTitle(ColorType.Gold, true, false, [ColorType.White])).toBe(artifact);
     expect(
-      getNicknameTitle(ColorType.Gold, true, false, [ColorType.White, ColorType.Blue]),
-    ).not.toBe(combo);
+      getNicknameTitle(ColorType.Gold, true, false, [
+        ColorType.White,
+        ColorType.Blue,
+        ColorType.Black,
+      ]),
+    ).toBe(artifact);
   });
 
   it('renders the combo plate on a two-color land (card-text colors)', () => {
