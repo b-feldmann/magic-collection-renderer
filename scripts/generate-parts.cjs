@@ -24,6 +24,14 @@
  * their two-color combinations, blended from the single-color plates into
  * `m15NicknameTitle<combo>.png`.
  *
+ * Token frames have their own pinline, type and rules shapes, so the token
+ * parts are carved from the token frames (`mainframes/token/tokenFrame<X>Short.png`)
+ * using the dedicated `parts/tokenPinline.png`, `parts/tokenType.png` and
+ * `parts/tokenRules.png` masks. The single-color token frames are rendered
+ * whole elsewhere, so only the two-color combinations are produced, written to
+ * `parts/tokenPinline/<combo>.png`, `parts/tokenType/<combo>.png` and
+ * `parts/tokenRules/<combo>.png`.
+ *
  * Run with: npm run generate:parts
  */
 
@@ -236,8 +244,67 @@ async function run() {
     await generate(type, maskPath, frames, outputDir);
   }
   await generateVariantPinlines();
+  await generateTokenParts();
   await generateNicknameCombos();
   await generateCrownCombos();
+}
+
+// Token pinline, type and rules parts: the token frames differ from the m15
+// frames in these regions, so the color pairs are carved from the token frames
+// (`mainframes/token/tokenFrame<X>Short.png`) using the token-specific masks.
+// Single-color token frames are rendered whole elsewhere, so only the two-color
+// combinations are generated here, written to `parts/<tokenType>/<combo>.png`.
+const TOKEN_PART_TYPES = [
+  { type: 'tokenPinline', mask: 'tokenPinline.png' },
+  { type: 'tokenType', mask: 'tokenType.png' },
+  { type: 'tokenRules', mask: 'tokenRules.png' },
+];
+
+async function generateTokenParts() {
+  for (const { type, mask: maskName } of TOKEN_PART_TYPES) {
+    const maskPath = path.join(PARTS_DIR, maskName);
+    if (!fs.existsSync(maskPath)) {
+      throw new Error(`Mask image not found: ${maskPath}`);
+    }
+    const mask = await Jimp.read(maskPath);
+    const { width: maskW, height: maskH } = mask.bitmap;
+
+    const frames = new Map();
+    for (const color of VARIANT_COLORS) {
+      const sourcePath = path.join(
+        MAINFRAMES_DIR,
+        'token',
+        `tokenFrame${color.toUpperCase()}Short.png`,
+      );
+      if (fs.existsSync(sourcePath)) {
+        const frame = await Jimp.read(sourcePath);
+        if (!sameSize(frame, maskW, maskH)) {
+          frame.resize({ w: maskW, h: maskH });
+        }
+        frames.set(color, frame);
+      }
+    }
+
+    const outputDir = path.join(PARTS_DIR, type);
+    if (!fs.existsSync(outputDir)) {
+      fs.mkdirSync(outputDir, { recursive: true });
+    }
+
+    const { written, skipped } = await writeCombos(
+      type,
+      frames,
+      mask,
+      maskW,
+      maskH,
+      outputDir,
+    );
+
+    console.log(`\nDone. Wrote ${written} ${type} image(s) to ${outputDir}`);
+    if (skipped.length > 0) {
+      console.log(`Skipped ${skipped.length}:`);
+      for (const s of skipped) console.log(`  - ${s}`);
+    }
+  }
 }
 
 // Pinline variants for the extended and borderless art styles: the single

@@ -379,6 +379,72 @@ describe('getLandRulesPart (land)', () => {
   });
 });
 
+// Tokens have their own pinline / type / rules frame parts. Like the extended
+// and borderless pinlines, only the two-color combinations exist; everything
+// else gets no part. The isToken flag selects them over the regular assets.
+describe('token parts', () => {
+  const WU = [ColorType.White, ColorType.Blue];
+  const THREE = [ColorType.White, ColorType.Blue, ColorType.Black];
+
+  it('getPinline renders the token two-color pinline, different from the regular one', () => {
+    const token = getPinline(WU, false, undefined, true);
+    const regular = getPinline(WU, false);
+    expect(token).not.toBe('');
+    expect(token).not.toBe(regular);
+  });
+
+  it('getTypePart renders the token two-color part, different from the regular gold part', () => {
+    const token = getTypePart(WU, false, true);
+    const regular = getTypePart(WU, false);
+    expect(token).not.toBe('');
+    expect(token).not.toBe(regular);
+  });
+
+  it('getRulesPart renders the token two-color part, different from the regular part', () => {
+    const token = getRulesPart(WU, false, true);
+    const regular = getRulesPart(WU, false);
+    expect(token).not.toBe('');
+    expect(token).not.toBe(regular);
+  });
+
+  it('normalizes color-pair order to the same token asset', () => {
+    const UW = [ColorType.Blue, ColorType.White];
+    expect(getPinline(UW, false, undefined, true)).toBe(getPinline(WU, false, undefined, true));
+    expect(getTypePart(UW, false, true)).toBe(getTypePart(WU, false, true));
+    expect(getRulesPart(UW, false, true)).toBe(getRulesPart(WU, false, true));
+  });
+
+  it('renders no token part for a mono-color token', () => {
+    expect(getPinline([ColorType.White], false, undefined, true)).toBe('');
+    expect(getTypePart([ColorType.White], false, true)).toBe('');
+    expect(getRulesPart([ColorType.White], false, true)).toBe('');
+  });
+
+  it('renders no token part for a 3+ color token', () => {
+    expect(getPinline(THREE, false, undefined, true)).toBe('');
+    expect(getTypePart(THREE, false, true)).toBe('');
+    expect(getRulesPart(THREE, false, true)).toBe('');
+  });
+
+  it('renders no token part for a colorless token', () => {
+    expect(getPinline([], false, undefined, true)).toBe('');
+    expect(getTypePart([], false, true)).toBe('');
+    expect(getRulesPart([], false, true)).toBe('');
+  });
+
+  it('uses the same token asset for two-color artifact and non-artifact tokens', () => {
+    expect(getPinline(WU, true, undefined, true)).toBe(getPinline(WU, false, undefined, true));
+    expect(getTypePart(WU, true, true)).toBe(getTypePart(WU, false, true));
+    expect(getRulesPart(WU, true, true)).toBe(getRulesPart(WU, false, true));
+  });
+
+  it('token pinline differs from the extended and borderless variant pinlines', () => {
+    const token = getPinline(WU, false, undefined, true);
+    expect(token).not.toBe(getPinline(WU, false, CardArtStyles.Extended));
+    expect(token).not.toBe(getPinline(WU, false, CardArtStyles.Borderless));
+  });
+});
+
 describe('mainframe getters: colorless artifact uses the artefact frame', () => {
   it('token: a colorless artifact gets a different frame than a colorless non-artifact', () => {
     const colorlessArtifact = getTokenMainframe(ColorType.Colorless, true);

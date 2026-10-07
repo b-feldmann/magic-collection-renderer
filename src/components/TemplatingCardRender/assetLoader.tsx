@@ -361,6 +361,42 @@ import BlackGreenRules from './images/parts/rules/bg.png';
 import RedWhiteRules from './images/parts/rules/rw.png';
 import GreenBlueRules from './images/parts/rules/gu.png';
 
+// Token frame parts. Only the two-color combinations exist (carved from the
+// token frames by scripts/generate-parts.cjs); single colors are rendered as
+// the whole token frame instead.
+import TokenWhiteBluePinline from './images/parts/tokenPinline/wu.png';
+import TokenBlueBlackPinline from './images/parts/tokenPinline/ub.png';
+import TokenBlackRedPinline from './images/parts/tokenPinline/br.png';
+import TokenRedGreenPinline from './images/parts/tokenPinline/rg.png';
+import TokenGreenWhitePinline from './images/parts/tokenPinline/gw.png';
+import TokenWhiteBlackPinline from './images/parts/tokenPinline/wb.png';
+import TokenBlueRedPinline from './images/parts/tokenPinline/ur.png';
+import TokenBlackGreenPinline from './images/parts/tokenPinline/bg.png';
+import TokenRedWhitePinline from './images/parts/tokenPinline/rw.png';
+import TokenGreenBluePinline from './images/parts/tokenPinline/gu.png';
+
+import TokenWhiteBlueType from './images/parts/tokenType/wu.png';
+import TokenBlueBlackType from './images/parts/tokenType/ub.png';
+import TokenBlackRedType from './images/parts/tokenType/br.png';
+import TokenRedGreenType from './images/parts/tokenType/rg.png';
+import TokenGreenWhiteType from './images/parts/tokenType/gw.png';
+import TokenWhiteBlackType from './images/parts/tokenType/wb.png';
+import TokenBlueRedType from './images/parts/tokenType/ur.png';
+import TokenBlackGreenType from './images/parts/tokenType/bg.png';
+import TokenRedWhiteType from './images/parts/tokenType/rw.png';
+import TokenGreenBlueType from './images/parts/tokenType/gu.png';
+
+import TokenWhiteBlueRules from './images/parts/tokenRules/wu.png';
+import TokenBlueBlackRules from './images/parts/tokenRules/ub.png';
+import TokenBlackRedRules from './images/parts/tokenRules/br.png';
+import TokenRedGreenRules from './images/parts/tokenRules/rg.png';
+import TokenGreenWhiteRules from './images/parts/tokenRules/gw.png';
+import TokenWhiteBlackRules from './images/parts/tokenRules/wb.png';
+import TokenBlueRedRules from './images/parts/tokenRules/ur.png';
+import TokenBlackGreenRules from './images/parts/tokenRules/bg.png';
+import TokenRedWhiteRules from './images/parts/tokenRules/rw.png';
+import TokenGreenBlueRules from './images/parts/tokenRules/gu.png';
+
 import LandOverlay from './images/overlay/C-overlay.png';
 import InvocationPt from './images/pt/invocation/A.png';
 import InventionPt from './images/pt/invention/inventionPT.png';
@@ -1043,11 +1079,21 @@ const getSingleColorPinline = (color: ColorType) => {
 // For the extended and borderless art styles, only two-color combination
 // pinlines were generated (from those styles' own frames); every other case
 // gets no pinline instead of falling back to the regular m15-carved assets.
+//
+// Tokens behave the same way: only the two-color token pinlines exist, so a
+// token with any other color count gets no pinline (the token frame is drawn
+// whole instead).
 export const getPinline = (
   colors: ColorType[],
   isArtifact: boolean,
   artStyle?: BasicLandArtStyles | CardArtStyles,
+  isToken = false,
 ) => {
+  if (isToken) {
+    if (colors.length === 2) return TOKEN_PINLINES[getTwoColorVariant(colors)];
+    return '';
+  }
+
   const variantPinlines =
     artStyle === CardArtStyles.Extended
       ? EXTENDED_PINLINES
@@ -1263,14 +1309,87 @@ const BORDERLESS_PINLINES: Record<PartVariant, string> = {
   gu: BorderlessGreenBluePinline,
 };
 
+// Token frame parts, keyed by combo variant. Like the extended / borderless
+// pinlines, only the two-color combinations exist; non-combo keys map to ''
+// because single-color (and colorless / 3+ color) tokens render the whole
+// token frame instead of carving a part out of it.
+const TOKEN_PINLINES: Record<PartVariant, string> = {
+  '': '',
+  w: '',
+  u: '',
+  b: '',
+  r: '',
+  g: '',
+  m: '',
+  wu: TokenWhiteBluePinline,
+  ub: TokenBlueBlackPinline,
+  br: TokenBlackRedPinline,
+  rg: TokenRedGreenPinline,
+  gw: TokenGreenWhitePinline,
+  wb: TokenWhiteBlackPinline,
+  ur: TokenBlueRedPinline,
+  bg: TokenBlackGreenPinline,
+  rw: TokenRedWhitePinline,
+  gu: TokenGreenBluePinline,
+};
+
+const TOKEN_TYPE_PARTS: Record<PartVariant, string> = {
+  '': '',
+  w: '',
+  u: '',
+  b: '',
+  r: '',
+  g: '',
+  m: '',
+  wu: TokenWhiteBlueType,
+  ub: TokenBlueBlackType,
+  br: TokenBlackRedType,
+  rg: TokenRedGreenType,
+  gw: TokenGreenWhiteType,
+  wb: TokenWhiteBlackType,
+  ur: TokenBlueRedType,
+  bg: TokenBlackGreenType,
+  rw: TokenRedWhiteType,
+  gu: TokenGreenBlueType,
+};
+
+const TOKEN_RULES_PARTS: Record<PartVariant, string> = {
+  '': '',
+  w: '',
+  u: '',
+  b: '',
+  r: '',
+  g: '',
+  m: '',
+  wu: TokenWhiteBlueRules,
+  ub: TokenBlueBlackRules,
+  br: TokenBlackRedRules,
+  rg: TokenRedGreenRules,
+  gw: TokenGreenWhiteRules,
+  wb: TokenWhiteBlackRules,
+  ur: TokenBlueRedRules,
+  bg: TokenBlackGreenRules,
+  rw: TokenRedWhiteRules,
+  gu: TokenGreenBlueRules,
+};
+
+// Tokens only ever carry a part for the two-color combinations; every other
+// color count renders the whole token frame instead.
+const getTokenPartVariant = (colors: ColorType[]): PartVariant =>
+  colors.length === 2 ? getTwoColorVariant(colors) : '';
+
 export const getTitlePart = (colors: ColorType[], isArtifact: boolean) =>
   TITLE_PARTS[getTitleTypeVariant(colors, isArtifact)];
 
-export const getTypePart = (colors: ColorType[], isArtifact: boolean) =>
-  TYPE_PARTS[getTitleTypeVariant(colors, isArtifact)];
+export const getTypePart = (colors: ColorType[], isArtifact: boolean, isToken = false) =>
+  isToken
+    ? TOKEN_TYPE_PARTS[getTokenPartVariant(colors)]
+    : TYPE_PARTS[getTitleTypeVariant(colors, isArtifact)];
 
-export const getRulesPart = (colors: ColorType[], isArtifact: boolean) =>
-  RULES_PARTS[getRulesVariant(colors, isArtifact)];
+export const getRulesPart = (colors: ColorType[], isArtifact: boolean, isToken = false) =>
+  isToken
+    ? TOKEN_RULES_PARTS[getTokenPartVariant(colors)]
+    : RULES_PARTS[getRulesVariant(colors, isArtifact)];
 
 // Lands only get frame parts when their card-text color identity has exactly
 // two colors: the land ('l') title/type parts plus the two-color text part.

@@ -189,10 +189,12 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
     artStyle === CardArtStyles.Borderless,
     isLand,
   );
-  const pinline = getPinline(isLand ? landColors : allColors, isArtifact, artStyle);
+  const pinline = getPinline(isLand ? landColors : allColors, isArtifact, artStyle, isToken);
   let titlePart = isLand ? getLandTitlePart(landColors) : getTitlePart(allColors, isArtifact);
-  let typePart = isLand ? getLandTypePart(landColors) : getTypePart(allColors, isArtifact);
-  let rulesPart = isLand ? getLandRulesPart(landColors) : getRulesPart(allColors, isArtifact);
+  let typePart = isLand ? getLandTypePart(landColors) : getTypePart(allColors, isArtifact, isToken);
+  let rulesPart = isLand
+    ? getLandRulesPart(landColors)
+    : getRulesPart(allColors, isArtifact, isToken);
   if (artStyle === CardArtStyles.Borderless) {
     titlePart = '';
     typePart = '';
@@ -221,7 +223,8 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
   let crown2: ReactElement | null = null;
   let crownInner: ReactElement | null = null;
   if (legendary && !isInvention) {
-    const isFullArt = artStyle == CardArtStyles.Borderless || artStyle == CardArtStyles.Extended;
+    const isFullArt =
+      artStyle == CardArtStyles.Borderless || artStyle == CardArtStyles.Extended || isToken;
     const crownImagePath = getCrown(
       color,
       isFullArt,
