@@ -33,7 +33,6 @@ const { Jimp } = require('jimp');
 
 const COLORS = ['l', 'a', 'b', 'c', 'g', 'm', 'r', 'u', 'v', 'w'];
 const PART_TYPES = ['pinline', 'rules', 'title', 'type'];
-const EXTENDED_PART_TYPES = ['extendedPinline'];
 
 // Two-color combinations in WUBRG wheel order. The first letter is rendered on
 // the left side, the second letter on the right side.
@@ -55,6 +54,9 @@ const SOURCE_LAND_DIR = path.join(MAINFRAMES_DIR, 'lands');
 // Nickname title plates live outside mainframes and already carry their own
 // transparent silhouette, so no extra mask is needed to blend combinations.
 const NICKNAME_DIR = path.join(IMAGE_DIR, 'nickname');
+// Crown images already carry their own transparent silhouette (same as the
+// nickname plates), so combinations are self-masked and need no mask file.
+const CROWN_DIR = path.join(IMAGE_DIR, 'crown');
 
 // A mask pixel counts as "on" when its alpha is above this threshold.
 // 0 means any non-transparent pixel is kept (hard binary cutoff).
@@ -235,6 +237,7 @@ async function run() {
   }
   await generateVariantPinlines();
   await generateNicknameCombos();
+  await generateCrownCombos();
 }
 
 // Pinline variants for the extended and borderless art styles: the single
@@ -346,6 +349,77 @@ async function generateNicknameCombos() {
   if (skipped.length > 0) {
     console.log(`Skipped ${skipped.length}:`);
     for (const s of skipped) console.log(`  - ${s}`);
+  }
+}
+
+// Two-color crowns: blend the existing single-color crowns (e.g. w.png + u.png)
+// left/right with a centre gradient, for both the full-res and the low-res
+// `<color>Thumb.png` variants. The crowns already carry their own transparent
+// silhouette, and all share the same shape, so the first crown doubles as the
+// mask when carving (exactly like the nickname plates). Only the two-color
+// WUBRG combinations are produced; single colors, inner crowns and the
+// gold/land/colorless/artifact crowns are left untouched. This runs for the
+// base crowns and the `floating` and `nickname` crown styles.
+async function generateCrownCombos() {
+  // Base crown dir plus the floating/nickname style subdirectories. All use
+  // the same single-letter `<color>.png` / `<color>Thumb.png` naming.
+  const crownDirs = [
+    { label: 'crown', dir: CROWN_DIR },
+    { label: 'crown/floating', dir: path.join(CROWN_DIR, 'floating') },
+    { label: 'crown/nickname', dir: path.join(CROWN_DIR, 'nickname') },
+  ];
+
+  // Generate the full-res crowns (`w.png`) and the low-res thumbs
+  // (`wThumb.png`) as separate passes, since the two sets have different sizes.
+  const passes = [
+    { suffix: '', comboSuffix: '' },
+    { suffix: 'Thumb', comboSuffix: 'Thumb' },
+  ];
+
+  for (const { label, dir } of crownDirs) {
+    for (const pass of passes) {
+      const crowns = new Map();
+      for (const color of VARIANT_COLORS) {
+        const sourcePath = path.join(dir, `${color}${pass.suffix}.png`);
+        if (fs.existsSync(sourcePath)) {
+          crowns.set(color, await Jimp.read(sourcePath));
+        }
+      }
+
+      let written = 0;
+      const skipped = [];
+      const passLabel = `${label}${pass.suffix ? ` (${pass.suffix})` : ''}`;
+
+      for (const combo of COMBINATIONS) {
+        const [c1, c2] = combo.split('');
+        const crown1 = crowns.get(c1);
+        const crown2 = crowns.get(c2);
+
+        if (!crown1 || !crown2) {
+          const missing = [!crown1 && c1, !crown2 && c2].filter(Boolean).join(', ');
+          skipped.push(`${combo}${pass.suffix} (source missing: ${missing})`);
+          continue;
+        }
+
+        const { width, height } = crown1.bitmap;
+        if (!sameSize(crown2, width, height)) {
+          skipped.push(`${combo}${pass.suffix} (source sizes differ)`);
+          continue;
+        }
+
+        // The first crown doubles as the mask: its own alpha defines the shape.
+        const out = carveCombo(crown1, crown2, crown1);
+        await out.write(path.join(dir, `${combo}${pass.comboSuffix}.png`));
+        written += 1;
+        console.log(`${passLabel}  ✓ ${combo}${pass.comboSuffix}.png`);
+      }
+
+      console.log(`\nDone. Wrote ${written} ${passLabel} crown image(s) to ${dir}`);
+      if (skipped.length > 0) {
+        console.log(`Skipped ${skipped.length}:`);
+        for (const s of skipped) console.log(`  - ${s}`);
+      }
+    }
   }
 }
 

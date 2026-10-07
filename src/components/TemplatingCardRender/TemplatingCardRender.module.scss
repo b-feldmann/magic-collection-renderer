@@ -89,10 +89,10 @@
   .nickname {
     top: 85px;
     left: 72px;
+    width: 1357px;
     position: absolute;
   }
 
-  .innerBorderFrame,
   .overlay {
     position: absolute;
     top: 0;
@@ -347,14 +347,6 @@
     border-radius: 52.08px;
   }
 
-  .innerBorderFrame {
-    opacity: 0.75;
-    //$clipTop: 222.92px;
-    //$clipBottom: 1187.5px;
-    //-webkit-clip-path: polygon(0% 0%, 0% 100%, 0 100%, 0 $clipTop, 100% $clipTop, 100% $clipBottom, 0 $clipBottom, 0 100%, 100% 100%, 100% 0%);
-    //clip-path: polygon(0% 0%, 0% 100%, 0 100%, 0 $clipTop, 100% $clipTop, 100% $clipBottom, 0 $clipBottom, 0 100%, 100% 100%, 100% 0%);
-  }
-
   .pt {
     position: absolute;
     bottom: calc(2100px / 1400 * 54 + 8px);
@@ -375,10 +367,6 @@
 }
 
 .nicknameFrame {
-  .title {
-    color: white;
-  }
-
   .crownFloating {
     top: 38px;
     left: 35px;
@@ -555,10 +543,6 @@
     height: 2000px;
     width: calc(100% - 58.33px * 2);
   }
-
-  .innerBorderFrame {
-    opacity: 1;
-  }
 }
 
 .invention {
@@ -568,10 +552,6 @@
     height: 2000px;
     width: calc(100% - 60px * 2);
     border-radius: 20px;
-  }
-
-  .innerBorderFrame {
-    opacity: 1;
   }
 }
 

@@ -222,7 +222,14 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
   let crownInner: ReactElement | null = null;
   if (legendary && !isInvention) {
     const isFullArt = artStyle == CardArtStyles.Borderless || artStyle == CardArtStyles.Extended;
-    const crownImagePath = getCrown(color, isFullArt, isLand, isArtifact, isNickname);
+    const crownImagePath = getCrown(
+      color,
+      isFullArt,
+      isLand,
+      isArtifact,
+      isNickname,
+      isLand ? landColors : allColors,
+    );
     crown = (
       <ImageLoader
         src={typeof crownImagePath === 'string' ? crownImagePath : crownImagePath.highRes}
@@ -232,7 +239,14 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
     );
 
     if (isNickname && !isFullArt) {
-      const crownImagePath2 = getCrown(color, false, isLand, isArtifact, false);
+      const crownImagePath2 = getCrown(
+        color,
+        false,
+        isLand,
+        isArtifact,
+        false,
+        isLand ? landColors : allColors,
+      );
       crown2 = (
         <ImageLoader
           src={typeof crownImagePath2 === 'string' ? crownImagePath2 : crownImagePath2.highRes}
@@ -317,7 +331,6 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
           {crown}
           {crownInner}
 
-          {/*{!isToken && !isInvention && innerBorderFrame ? <img className={styles.innerBorderFrame} src={innerBorderFrame} alt="" /> : null}*/}
           {/*{overlay ? <img className={styles.overlay} src={overlay} alt="" /> : null}*/}
 
           {titlePart ? <img className={styles.titlePart} src={titlePart} alt="" /> : null}
