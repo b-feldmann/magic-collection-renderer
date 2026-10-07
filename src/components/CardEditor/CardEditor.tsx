@@ -92,6 +92,7 @@ interface InputConfigInterface {
     | 'radio'
     | 'list'
     | 'split-list'
+    | 'text-list'
     | 'bool';
   name: string;
   data?: { key: string; value: string }[];
@@ -347,7 +348,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
     { key: 'cardSubTypes', type: 'input', name: 'Card Sub Types', width: 50 },
     {
       key: 'cardText',
-      type: isPlaneswalker() ? 'split-list' : 'list',
+      type: isPlaneswalker() ? 'split-list' : 'text-list',
       name: 'Card Text',
       width: 100,
     },

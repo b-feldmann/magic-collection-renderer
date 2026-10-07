@@ -39,13 +39,13 @@ import {
   getLandTypePart,
   getNicknameTitle,
   getPinline,
+  getPt,
+  getRarityIcon,
   getRulesPart,
   getTitlePart,
   getTokenLandTypePart,
-  getTypePart,
-  getPt,
-  getRarityIcon,
   getTokenMainframe,
+  getTypePart,
 } from './assetLoader';
 import { injectForText, injectManaIcons } from '../../utils/injectUtils';
 import ImageLoader from '../ImageLoader/ImageLoader';
@@ -313,6 +313,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
           className={`
             ${styles.cardRender} 
             ${artStyle === CardArtStyles.Borderless && styles.borderless}
+            ${color === ColorType.Gold && styles.gold}
             ${isToken && styles.token}
             ${isInvention && styles.invention}
             ${isNickname && styles.nicknameFrame}

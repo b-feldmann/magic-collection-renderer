@@ -344,6 +344,10 @@
   .type {
     color: white;
   }
+
+  .stats {
+    color: white;
+  }
 }
 
 .nicknameFrame {
@@ -351,6 +355,16 @@
     top: 38px;
     left: 35px;
     width: 1432px;
+  }
+}
+
+:not(.gold).nicknameFrame {
+  .title {
+    color: white;
+  }
+
+  .stats {
+    color: white;
   }
 }
 

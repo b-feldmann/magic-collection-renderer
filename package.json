@@ -54,6 +54,7 @@
     "format:check": "prettier --check \"src/**/*.{ts,tsx,css,scss,json}\"",
     "electron": "electron .",
     "generate:parts": "node scripts/generate-parts.cjs",
+    "transparentize:thumbs": "node scripts/transparentize-thumbs.cjs",
     "dev": "nf start",
     "prepare": "husky",
     "predeploy": "npm run build",

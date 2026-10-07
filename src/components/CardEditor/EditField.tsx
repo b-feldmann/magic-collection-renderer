@@ -22,6 +22,7 @@ interface EditFieldInterface {
     | 'radio'
     | 'list'
     | 'split-list'
+    | 'text-list'
     | 'bool';
   name: string;
   data?: { key: string; value: string }[];
@@ -32,6 +33,34 @@ interface EditFieldInterface {
 
 const EditField = (props: EditFieldInterface) => {
   const { type, fieldKey, name, data, getValue, saveValue, mechanics } = props;
+
+  const renderAddMechanic = () => {
+    if (!mechanics || mechanics.length === 0) return null;
+
+    return (
+      <Select
+        size="small"
+        style={{ width: 150 }}
+        placeholder="Add Mechanic"
+        value={null}
+        onClick={e => e.stopPropagation()}
+        options={[...mechanics]
+          .sort((a, b) => a.name.localeCompare(b.name))
+          .map(mechanic => ({
+            key: `${fieldKey}-mechanic-${mechanic.uuid}`,
+            value: mechanic.uuid,
+            label: mechanic.name,
+          }))}
+        onSelect={(uuid: string | null) => {
+          const mechanic = mechanics.find(m => m.uuid === uuid);
+          if (!mechanic) return;
+          const list = getValue(fieldKey) || [];
+          list.push(`[${mechanic.name} {X}]`);
+          saveValue(fieldKey, list);
+        }}
+      />
+    );
+  };
 
   if (type === 'input') {
     return (
@@ -306,32 +335,32 @@ const EditField = (props: EditFieldInterface) => {
                 >
                   Add Instruction
                 </Button>
-                {mechanics && mechanics.length > 0 && (
-                  <Select
-                    size="small"
-                    style={{ width: 150 }}
-                    placeholder="Add Mechanic"
-                    value={null}
-                    onClick={e => e.stopPropagation()}
-                    options={[...mechanics]
-                      .sort((a, b) => a.name.localeCompare(b.name))
-                      .map(mechanic => ({
-                        key: `${fieldKey}-mechanic-${mechanic.uuid}`,
-                        value: mechanic.uuid,
-                        label: mechanic.name,
-                      }))}
-                    onSelect={(uuid: string | null) => {
-                      const mechanic = mechanics.find(m => m.uuid === uuid);
-                      if (!mechanic) return;
-                      const list = getValue(fieldKey);
-                      list.push(`[${mechanic.name} X]`);
-                      saveValue(fieldKey, list);
-                    }}
-                  />
-                )}
+                {renderAddMechanic()}
               </Space.Compact>
             </div>
           </div>
+        </div>
+      </span>
+    );
+  }
+
+  if (type === 'text-list') {
+    // Every line in the text area maps 1:1 to a cardText element — including
+    // empty lines, which are stored as empty strings (round-trip stable).
+    const joined = ((getValue(fieldKey) as string[]) || []).join('\n');
+
+    return (
+      <span>
+        <p className={styles.label}>
+          {name} <EditorTooltip className={styles.tooltip} />
+        </p>
+        <TextArea
+          value={joined}
+          onChange={e => saveValue(fieldKey, e.target.value.split('\n'))}
+          autoSize
+        />
+        <div className={styles.listFooter}>
+          <div className={styles.centerParent}>{renderAddMechanic()}</div>
         </div>
       </span>
     );

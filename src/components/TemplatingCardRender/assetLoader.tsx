@@ -152,6 +152,15 @@ import BorderlessFrameB from './images/mainframes/borderless/m15GenericShowcaseF
 import BorderlessFrameR from './images/mainframes/borderless/m15GenericShowcaseFrameR.png';
 import BorderlessFrameG from './images/mainframes/borderless/m15GenericShowcaseFrameG.png';
 import BorderlessFrameM from './images/mainframes/borderless/m15GenericShowcaseFrameM.png';
+import BorderlessFrameALowRes from './images/mainframes/borderless/m15GenericShowcaseFrameAThumb.png';
+import BorderlessFrameCLowRes from './images/mainframes/borderless/m15GenericShowcaseFrameCThumb.png';
+import BorderlessFrameLLowRes from './images/mainframes/borderless/m15GenericShowcaseFrameLThumb.png';
+import BorderlessFrameWLowRes from './images/mainframes/borderless/m15GenericShowcaseFrameWThumb.png';
+import BorderlessFrameULowRes from './images/mainframes/borderless/m15GenericShowcaseFrameUThumb.png';
+import BorderlessFrameBLowRes from './images/mainframes/borderless/m15GenericShowcaseFrameBThumb.png';
+import BorderlessFrameRLowRes from './images/mainframes/borderless/m15GenericShowcaseFrameRThumb.png';
+import BorderlessFrameGLowRes from './images/mainframes/borderless/m15GenericShowcaseFrameGThumb.png';
+import BorderlessFrameMLowRes from './images/mainframes/borderless/m15GenericShowcaseFrameMThumb.png';
 import BorderlessNicknameFrameA from './images/mainframes/borderless/nickname/m15NicknameFrameA.png';
 import BorderlessNicknameFrameC from './images/mainframes/borderless/nickname/m15NicknameFrameA.png';
 import BorderlessNicknameFrameL from './images/mainframes/borderless/nickname/m15NicknameFrameL.png';
@@ -164,27 +173,50 @@ import BorderlessNicknameFrameM from './images/mainframes/borderless/nickname/m1
 
 import ExtendedFrameA from './images/mainframes/extended/a.png';
 import ExtendedFrameANyx from './images/mainframes/extended/nyx/a.png';
+import ExtendedFrameALowRes from './images/mainframes/extended/aThumb.png';
+import ExtendedFrameANyxLowRes from './images/mainframes/extended/nyx/aThumb.png';
 import ExtendedFrameV from './images/mainframes/extended/v.png';
+import ExtendedFrameVLowRes from './images/mainframes/extended/vThumb.png';
 import ExtendedFrameC from './images/mainframes/extended/c.png';
+import ExtendedFrameCLowRes from './images/mainframes/extended/cThumb.png';
 import ExtendedFrameL from './images/mainframes/extended/l.png';
+import ExtendedFrameLLowRes from './images/mainframes/extended/lThumb.png';
 import ExtendedFrameWNyx from './images/mainframes/extended/nyx/w.png';
+import ExtendedFrameWNyxLowRes from './images/mainframes/extended/nyx/wThumb.png';
 import ExtendedFrameW from './images/mainframes/extended/w.png';
+import ExtendedFrameWLowRes from './images/mainframes/extended/wThumb.png';
 import ExtendedFrameWL from './images/mainframes/extended/lw.png';
+import ExtendedFrameWLLowRes from './images/mainframes/extended/lwThumb.png';
 import ExtendedFrameU from './images/mainframes/extended/u.png';
 import ExtendedFrameUNyx from './images/mainframes/extended/nyx/u.png';
+import ExtendedFrameULowRes from './images/mainframes/extended/uThumb.png';
+import ExtendedFrameUNyxLowRes from './images/mainframes/extended/nyx/uThumb.png';
 import ExtendedFrameUL from './images/mainframes/extended/lu.png';
+import ExtendedFrameULLowRes from './images/mainframes/extended/luThumb.png';
 import ExtendedFrameB from './images/mainframes/extended/b.png';
 import ExtendedFrameBNyx from './images/mainframes/extended/nyx/b.png';
+import ExtendedFrameBLowRes from './images/mainframes/extended/bThumb.png';
+import ExtendedFrameBNyxLowRes from './images/mainframes/extended/nyx/bThumb.png';
 import ExtendedFrameBL from './images/mainframes/extended/lb.png';
+import ExtendedFrameBLLowRes from './images/mainframes/extended/lbThumb.png';
 import ExtendedFrameR from './images/mainframes/extended/r.png';
 import ExtendedFrameRNyx from './images/mainframes/extended/nyx/r.png';
+import ExtendedFrameRLowRes from './images/mainframes/extended/rThumb.png';
+import ExtendedFrameRNyxLowRes from './images/mainframes/extended/nyx/rThumb.png';
 import ExtendedFrameRL from './images/mainframes/extended/lr.png';
+import ExtendedFrameRLLowRes from './images/mainframes/extended/lrThumb.png';
 import ExtendedFrameG from './images/mainframes/extended/g.png';
 import ExtendedFrameGNyx from './images/mainframes/extended/nyx/g.png';
+import ExtendedFrameGLowRes from './images/mainframes/extended/gThumb.png';
+import ExtendedFrameGNyxLowRes from './images/mainframes/extended/nyx/gThumb.png';
 import ExtendedFrameGL from './images/mainframes/extended/lg.png';
+import ExtendedFrameGLLowRes from './images/mainframes/extended/lgThumb.png';
 import ExtendedFrameM from './images/mainframes/extended/m.png';
 import ExtendedFrameMNyx from './images/mainframes/extended/nyx/m.png';
+import ExtendedFrameMLowRes from './images/mainframes/extended/mThumb.png';
+import ExtendedFrameMNyxLowRes from './images/mainframes/extended/nyx/mThumb.png';
 import ExtendedFrameML from './images/mainframes/extended/lm.png';
+import ExtendedFrameMLLowRes from './images/mainframes/extended/lmThumb.png';
 
 import TokenArtefactMainframe from './images/mainframes/token/tokenFrameAShort.png';
 import TokenArtefactMainframeLowRes from './images/mainframes/token/tokenFrameAShortThumb.png';
@@ -698,29 +730,49 @@ export const getBorderlessMainframe = (
   isLand = false,
   isArtifact = false,
   isNickname = false,
-) => {
+): ImageResData => {
+  // The borderless nickname frames have no thumb variants, so only the base
+  // showcase frames carry a low-res asset.
   if (isArtifact) {
-    return isNickname ? BorderlessNicknameFrameA : BorderlessFrameA;
+    return isNickname
+      ? { highRes: BorderlessNicknameFrameA }
+      : { highRes: BorderlessFrameA, lowRes: BorderlessFrameALowRes };
   }
   if (isLand && color === ColorType.Colorless) {
-    return isNickname ? BorderlessNicknameFrameL : BorderlessFrameL;
+    return isNickname
+      ? { highRes: BorderlessNicknameFrameL }
+      : { highRes: BorderlessFrameL, lowRes: BorderlessFrameLLowRes };
   }
 
   switch (color) {
     case ColorType.White:
-      return isNickname ? BorderlessNicknameFrameW : BorderlessFrameW;
+      return isNickname
+        ? { highRes: BorderlessNicknameFrameW }
+        : { highRes: BorderlessFrameW, lowRes: BorderlessFrameWLowRes };
     case ColorType.Blue:
-      return isNickname ? BorderlessNicknameFrameU : BorderlessFrameU;
+      return isNickname
+        ? { highRes: BorderlessNicknameFrameU }
+        : { highRes: BorderlessFrameU, lowRes: BorderlessFrameULowRes };
     case ColorType.Black:
-      return isNickname ? BorderlessNicknameFrameB : BorderlessFrameB;
+      return isNickname
+        ? { highRes: BorderlessNicknameFrameB }
+        : { highRes: BorderlessFrameB, lowRes: BorderlessFrameBLowRes };
     case ColorType.Red:
-      return isNickname ? BorderlessNicknameFrameR : BorderlessFrameR;
+      return isNickname
+        ? { highRes: BorderlessNicknameFrameR }
+        : { highRes: BorderlessFrameR, lowRes: BorderlessFrameRLowRes };
     case ColorType.Green:
-      return isNickname ? BorderlessNicknameFrameG : BorderlessFrameG;
+      return isNickname
+        ? { highRes: BorderlessNicknameFrameG }
+        : { highRes: BorderlessFrameG, lowRes: BorderlessFrameGLowRes };
     case ColorType.Gold:
-      return isNickname ? BorderlessNicknameFrameM : BorderlessFrameM;
+      return isNickname
+        ? { highRes: BorderlessNicknameFrameM }
+        : { highRes: BorderlessFrameM, lowRes: BorderlessFrameMLowRes };
     default:
-      return isNickname ? BorderlessNicknameFrameC : BorderlessFrameC;
+      return isNickname
+        ? { highRes: BorderlessNicknameFrameC }
+        : { highRes: BorderlessFrameC, lowRes: BorderlessFrameCLowRes };
   }
 };
 
@@ -730,33 +782,49 @@ export const getExtendedMainframe = (
   isArtifact = false,
   isVehicle = false,
   isEnchantment = false,
-) => {
+): ImageResData => {
   if (isArtifact) {
-    if (isVehicle) return ExtendedFrameV;
-    return isEnchantment ? ExtendedFrameANyx : ExtendedFrameA;
+    if (isVehicle) return { highRes: ExtendedFrameV, lowRes: ExtendedFrameVLowRes };
+    return isEnchantment
+      ? { highRes: ExtendedFrameANyx, lowRes: ExtendedFrameANyxLowRes }
+      : { highRes: ExtendedFrameA, lowRes: ExtendedFrameALowRes };
   }
   switch (color) {
     case ColorType.White:
-      if (isEnchantment) return ExtendedFrameWNyx;
-      return isLand ? ExtendedFrameWL : ExtendedFrameW;
+      if (isEnchantment) return { highRes: ExtendedFrameWNyx, lowRes: ExtendedFrameWNyxLowRes };
+      return isLand
+        ? { highRes: ExtendedFrameWL, lowRes: ExtendedFrameWLLowRes }
+        : { highRes: ExtendedFrameW, lowRes: ExtendedFrameWLowRes };
     case ColorType.Blue:
-      if (isEnchantment) return ExtendedFrameUNyx;
-      return isLand ? ExtendedFrameUL : ExtendedFrameU;
+      if (isEnchantment) return { highRes: ExtendedFrameUNyx, lowRes: ExtendedFrameUNyxLowRes };
+      return isLand
+        ? { highRes: ExtendedFrameUL, lowRes: ExtendedFrameULLowRes }
+        : { highRes: ExtendedFrameU, lowRes: ExtendedFrameULowRes };
     case ColorType.Black:
-      if (isEnchantment) return ExtendedFrameBNyx;
-      return isLand ? ExtendedFrameBL : ExtendedFrameB;
+      if (isEnchantment) return { highRes: ExtendedFrameBNyx, lowRes: ExtendedFrameBNyxLowRes };
+      return isLand
+        ? { highRes: ExtendedFrameBL, lowRes: ExtendedFrameBLLowRes }
+        : { highRes: ExtendedFrameB, lowRes: ExtendedFrameBLowRes };
     case ColorType.Red:
-      if (isEnchantment) return ExtendedFrameRNyx;
-      return isLand ? ExtendedFrameRL : ExtendedFrameR;
+      if (isEnchantment) return { highRes: ExtendedFrameRNyx, lowRes: ExtendedFrameRNyxLowRes };
+      return isLand
+        ? { highRes: ExtendedFrameRL, lowRes: ExtendedFrameRLLowRes }
+        : { highRes: ExtendedFrameR, lowRes: ExtendedFrameRLowRes };
     case ColorType.Green:
-      if (isEnchantment) return ExtendedFrameGNyx;
-      return isLand ? ExtendedFrameGL : ExtendedFrameG;
+      if (isEnchantment) return { highRes: ExtendedFrameGNyx, lowRes: ExtendedFrameGNyxLowRes };
+      return isLand
+        ? { highRes: ExtendedFrameGL, lowRes: ExtendedFrameGLLowRes }
+        : { highRes: ExtendedFrameG, lowRes: ExtendedFrameGLowRes };
     case ColorType.Gold:
-      if (isEnchantment) return ExtendedFrameMNyx;
-      return isLand ? ExtendedFrameML : ExtendedFrameM;
+      if (isEnchantment) return { highRes: ExtendedFrameMNyx, lowRes: ExtendedFrameMNyxLowRes };
+      return isLand
+        ? { highRes: ExtendedFrameML, lowRes: ExtendedFrameMLLowRes }
+        : { highRes: ExtendedFrameM, lowRes: ExtendedFrameMLowRes };
     default:
-      if (isEnchantment) return ExtendedFrameANyx;
-      return isLand ? ExtendedFrameL : ExtendedFrameC;
+      if (isEnchantment) return { highRes: ExtendedFrameANyx, lowRes: ExtendedFrameANyxLowRes };
+      return isLand
+        ? { highRes: ExtendedFrameL, lowRes: ExtendedFrameLLowRes }
+        : { highRes: ExtendedFrameC, lowRes: ExtendedFrameCLowRes };
   }
 };
 
