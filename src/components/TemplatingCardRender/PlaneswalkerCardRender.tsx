@@ -23,6 +23,7 @@ import {
   getFallbackCover,
   getLoyaltyIcon,
   getPlaneswalkerMainframe,
+  getPlaneswalkerNicknamePlate,
   getPlaneswalkerPinline,
   getRarityIcon,
 } from './assetLoader';
@@ -67,6 +68,9 @@ const PlaneswalkerCardRender = (cardRender: PlaneswalkerCardRenderProps) => {
 
   const { mechanics } = useContext<StoreType>(Store);
 
+  const { nickname } = cardRender;
+  const isNickname = nickname != null && nickname.length > 0;
+
   const resizeFactor = (width: number) => {
     return width / CARD_WIDTH;
   };
@@ -84,6 +88,7 @@ const PlaneswalkerCardRender = (cardRender: PlaneswalkerCardRenderProps) => {
   const { color, allColors, orderedCost } = getColor(manaCost);
   const mainframe = getPlaneswalkerMainframe(color, isTall, isBorderless);
   const pinline = getPlaneswalkerPinline(allColors, isTall, isBorderless);
+  const nicknamePlate = isNickname ? getPlaneswalkerNicknamePlate(color, allColors) : '';
 
   const parsePlaneswalkerLine = (line: string) => {
     if (!line) return { loyalty: '', text: '', loyaltyImage: '' };
@@ -111,7 +116,9 @@ const PlaneswalkerCardRender = (cardRender: PlaneswalkerCardRenderProps) => {
             width: `${CARD_WIDTH}px`,
             height: `${CARD_HEIGHT}px`,
           }}
-          className={`${styles.cardRender} ${styles.planeswalker} ${isBorderless} ${styles.borderless} ${isTall && styles.lines4}`}
+          className={`${styles.cardRender} ${styles.planeswalker} ${isBorderless} ${styles.borderless} ${isTall && styles.lines4} ${
+            isNickname && styles.nicknameFrame
+          }`}
         >
           <ImageLoader
             src={cover || getFallbackCover()}
@@ -126,7 +133,10 @@ const PlaneswalkerCardRender = (cardRender: PlaneswalkerCardRenderProps) => {
             className={styles.mainframe}
             fallBackColor="#eed66b"
           />
-          {pinline ? <img className={styles.pinline} src={pinline} alt="" /> : null}
+          {pinline && !isNickname ? <img className={styles.pinline} src={pinline} alt="" /> : null}
+          {isNickname && nicknamePlate ? (
+            <img className={`${styles.pinline} ${styles.nickname}`} src={nicknamePlate} alt="" />
+          ) : null}
           <ImageLoader src={getRarityIcon(rarity)} alt="" className={styles.rarity} />
 
           <div>
@@ -138,6 +148,10 @@ const PlaneswalkerCardRender = (cardRender: PlaneswalkerCardRenderProps) => {
           {!backFace && <div className={styles.cost}>{injectManaIcons(orderedCost, true)}</div>}
 
           <div className={styles.title}>{name}</div>
+          {isNickname && nicknamePlate ? (
+            <div className={`${styles.nicknameText} ${styles.nicknameText}`}>{nickname}</div>
+          ) : null}
+
           <div className={styles.type}>
             {legendary ? 'Legendary ' : ''}
             {cardMainType}

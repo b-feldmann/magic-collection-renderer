@@ -28,6 +28,13 @@
  * masks. Only the two-color combinations are produced, written to
  * `parts/pinline/planeswalker/<variant>/<combo>.png`.
  *
+ * Planeswalker nickname pinlines (`mainframes/planeswalker/nickname/
+ * planeswalkerNicknameFrame<X>.png`) carry their own transparent silhouette,
+ * so their two-color combinations are self-masked (no mask file) and written
+ * in place as `planeswalkerNicknameFrame<combo>.png`. The single-color frames
+ * differ slightly in height per color; heights are never rescaled — the right
+ * frame is top-aligned via crop/pad at its original scale before blending.
+ *
  * Nickname title plates (`images/nickname/m15NicknameTitle<X>.png`) also get
  * their two-color combinations, blended from the single-color plates into
  * `m15NicknameTitle<combo>.png`.
@@ -256,6 +263,7 @@ async function run() {
   }
   await generateVariantPinlines();
   await generatePlaneswalkerPinlines();
+  await generatePlaneswalkerNicknameCombos();
   await generateTokenParts();
   await generateNicknameCombos();
   await generateCrownCombos();
@@ -501,6 +509,84 @@ async function generatePlaneswalkerPinlines() {
       console.log(`Skipped ${skipped.length}:`);
       for (const s of skipped) console.log(`  - ${s}`);
     }
+  }
+}
+
+// Two-color planeswalker nickname pinlines: blend the existing single-color
+// nickname frames (e.g. planeswalkerNicknameFrameW.png +
+// planeswalkerNicknameFrameU.png) left/right with a centre gradient. These
+// frames already carry their own transparent silhouette, so the first frame
+// doubles as the mask when carving (like the nickname title plates and the
+// crowns). The single-color frames differ slightly in height per color, but
+// share the same silhouette cropped from the same top origin (the difference
+// is transparent bottom padding only), so the right frame is kept at its
+// original height and top-aligned via crop/pad instead of being rescaled.
+// Only the two-color WUBRG combinations are produced, written in place to
+// `mainframes/planeswalker/nickname/planeswalkerNicknameFrame<COMBO>.png`.
+
+/** Return `frame` scaled to `width` x `height` ONLY if the source aspect
+ * matches; otherwise undefined (caller should skip / handle). */
+function alignTopTo(frame, width, height) {
+  if (frame.bitmap.width !== width) return null;
+  if (frame.bitmap.height === height) return frame;
+  if (frame.bitmap.height < height) {
+    // Shorter frame: keep it at its original scale and pad the bottom.
+    const padded = new Jimp({ width, height, color: 0x00000000 });
+    padded.composite(frame, 0, 0);
+    return padded;
+  }
+  // Taller frame: keep it at its original scale and crop the bottom.
+  return frame.crop({ x: 0, y: 0, w: width, h: height });
+}
+
+async function generatePlaneswalkerNicknameCombos() {
+  const comboLetterMap = { w: 'W', u: 'U', b: 'B', r: 'R', g: 'G' };
+  const nicknameDir = path.join(PLANESWALKER_DIR, 'nickname');
+
+  const frames = new Map();
+  for (const [letter, upper] of Object.entries(comboLetterMap)) {
+    const sourcePath = path.join(nicknameDir, `planeswalkerNicknameFrame${upper}.png`);
+    if (fs.existsSync(sourcePath)) {
+      frames.set(letter, await Jimp.read(sourcePath));
+    }
+  }
+
+  let written = 0;
+  const skipped = [];
+
+  for (const combo of COMBINATIONS) {
+    const [c1, c2] = combo.split('');
+    const frame1 = frames.get(c1);
+    const frame2 = frames.get(c2);
+
+    if (!frame1 || !frame2) {
+      const missing = [!frame1 && c1, !frame2 && c2].filter(Boolean).join(', ');
+      skipped.push(`${combo} (source missing: ${missing})`);
+      continue;
+    }
+
+    const { width, height } = frame1.bitmap;
+    // Align the right frame's canvas to the left one WITHOUT scaling the
+    // height: the single-color frames only differ in transparent bottom
+    // padding, and carving blends pixel-for-pixel top-aligned.
+    const right = alignTopTo(frame2.clone(), width, height);
+    if (!right) {
+      skipped.push(`${combo} (right frame width ${frame2.bitmap.width} != ${width})`);
+      continue;
+    }
+
+    // The first frame doubles as the mask: its own alpha defines the shape.
+    const out = carveCombo(frame1, right, frame1);
+    const name = `planeswalkerNicknameFrame${combo.toUpperCase()}.png`;
+    await out.write(path.join(nicknameDir, name));
+    written += 1;
+    console.log(`planeswalker/nickname  ✓ ${name}`);
+  }
+
+  console.log(`\nDone. Wrote ${written} planeswalker nickname combo image(s) to ${nicknameDir}`);
+  if (skipped.length > 0) {
+    console.log(`Skipped ${skipped.length}:`);
+    for (const s of skipped) console.log(`  - ${s}`);
   }
 }
 

@@ -325,6 +325,7 @@
   .type {
     top: 1046px;
   }
+
   .rarity {
     top: 1048px;
   }
@@ -334,6 +335,10 @@
   .title {
     top: 74px;
     color: black !important;
+  }
+
+  .nicknameText {
+    top: 208px;
   }
 
   .type {
@@ -357,6 +362,16 @@
     left: 1315px;
     transform: translateX(-50%) translateY(-50%);
     color: white;
+  }
+}
+
+.planeswalker.nicknameFrame {
+  img.nickname {
+    height: unset !important;
+  }
+
+  .title {
+    color: white !important;
   }
 }
 

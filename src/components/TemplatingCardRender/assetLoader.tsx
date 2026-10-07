@@ -613,6 +613,26 @@ import NicknameTitleBlackGreen from './images/nickname/m15NicknameTitleBG.png';
 import NicknameTitleRedWhite from './images/nickname/m15NicknameTitleRW.png';
 import NicknameTitleGreenBlue from './images/nickname/m15NicknameTitleGU.png';
 
+// Nickname pinlines for the planeswalker card title region: single colors and
+// the blended two-color combos produced by scripts/generate-parts.cjs.
+import PlaneswalkerNicknamePlateA from './images/mainframes/planeswalker/nickname/planeswalkerNicknameFrameA.png';
+import PlaneswalkerNicknamePlateW from './images/mainframes/planeswalker/nickname/planeswalkerNicknameFrameW.png';
+import PlaneswalkerNicknamePlateU from './images/mainframes/planeswalker/nickname/planeswalkerNicknameFrameU.png';
+import PlaneswalkerNicknamePlateB from './images/mainframes/planeswalker/nickname/planeswalkerNicknameFrameB.png';
+import PlaneswalkerNicknamePlateR from './images/mainframes/planeswalker/nickname/planeswalkerNicknameFrameR.png';
+import PlaneswalkerNicknamePlateG from './images/mainframes/planeswalker/nickname/planeswalkerNicknameFrameG.png';
+import PlaneswalkerNicknamePlateM from './images/mainframes/planeswalker/nickname/planeswalkerNicknameFrameM.png';
+import PlaneswalkerNicknamePlateWhiteBlue from './images/mainframes/planeswalker/nickname/planeswalkerNicknameFrameWU.png';
+import PlaneswalkerNicknamePlateBlueBlack from './images/mainframes/planeswalker/nickname/planeswalkerNicknameFrameUB.png';
+import PlaneswalkerNicknamePlateBlackRed from './images/mainframes/planeswalker/nickname/planeswalkerNicknameFrameBR.png';
+import PlaneswalkerNicknamePlateRedGreen from './images/mainframes/planeswalker/nickname/planeswalkerNicknameFrameRG.png';
+import PlaneswalkerNicknamePlateGreenWhite from './images/mainframes/planeswalker/nickname/planeswalkerNicknameFrameGW.png';
+import PlaneswalkerNicknamePlateWhiteBlack from './images/mainframes/planeswalker/nickname/planeswalkerNicknameFrameWB.png';
+import PlaneswalkerNicknamePlateBlueRed from './images/mainframes/planeswalker/nickname/planeswalkerNicknameFrameUR.png';
+import PlaneswalkerNicknamePlateBlackGreen from './images/mainframes/planeswalker/nickname/planeswalkerNicknameFrameBG.png';
+import PlaneswalkerNicknamePlateRedWhite from './images/mainframes/planeswalker/nickname/planeswalkerNicknameFrameRW.png';
+import PlaneswalkerNicknamePlateGreenBlue from './images/mainframes/planeswalker/nickname/planeswalkerNicknameFrameGU.png';
+
 export interface ImageResData {
   highRes: string;
   lowRes?: string;
@@ -1651,6 +1671,53 @@ export const getPlaneswalkerPinline = (
   }
 
   return variantPinlines[getTwoColorVariant(colors)];
+};
+
+// Two-color planeswalker nickname plates, keyed by the combo variant.
+const PLANESWALKER_NICKNAME_COMBOS: Record<PartVariant, string> = {
+  '': '',
+  w: '',
+  u: '',
+  b: '',
+  r: '',
+  g: '',
+  m: '',
+  wu: PlaneswalkerNicknamePlateWhiteBlue,
+  ub: PlaneswalkerNicknamePlateBlueBlack,
+  br: PlaneswalkerNicknamePlateBlackRed,
+  rg: PlaneswalkerNicknamePlateRedGreen,
+  gw: PlaneswalkerNicknamePlateGreenWhite,
+  wb: PlaneswalkerNicknamePlateWhiteBlack,
+  ur: PlaneswalkerNicknamePlateBlueRed,
+  bg: PlaneswalkerNicknamePlateBlackGreen,
+  rw: PlaneswalkerNicknamePlateRedWhite,
+  gu: PlaneswalkerNicknamePlateGreenBlue,
+};
+
+// Selects the nickname plate for a planeswalker with a nickname. Two-color
+// cards use the blended combo plate, matching getNicknameTitle. Colorless (or
+// artifact) planeswalkers use the 'a' plate, gold (3+ colors) the 'm' plate.
+export const getPlaneswalkerNicknamePlate = (color: ColorType, colors?: ColorType[]): string => {
+  if (colors && colors.length === 2) {
+    return PLANESWALKER_NICKNAME_COMBOS[getTwoColorVariant(colors)];
+  }
+
+  switch (color) {
+    case ColorType.White:
+      return PlaneswalkerNicknamePlateW;
+    case ColorType.Blue:
+      return PlaneswalkerNicknamePlateU;
+    case ColorType.Black:
+      return PlaneswalkerNicknamePlateB;
+    case ColorType.Red:
+      return PlaneswalkerNicknamePlateR;
+    case ColorType.Green:
+      return PlaneswalkerNicknamePlateG;
+    case ColorType.Colorless:
+      return PlaneswalkerNicknamePlateA;
+    default:
+      return PlaneswalkerNicknamePlateM;
+  }
 };
 
 // Token frame parts, keyed by combo variant. Like the extended / borderless
