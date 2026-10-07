@@ -81,6 +81,16 @@ describe('CardEditor - Vehicle (artifact + vehicle flag)', () => {
     expect(screen.getByText('Toughness')).toBeVisible();
   });
 
+  it('shows the Vehicle checkbox for an artifact creature', () => {
+    render(
+      <Store.Provider value={mockStoreValue}>
+        <CardEditor card={makeCard(CardMainType.ArtifactCreature)} saveTmpCard={() => {}} />
+      </Store.Provider>,
+    );
+
+    expect(screen.getByText('Vehicle?')).toBeVisible();
+  });
+
   it('CONTROL: a plain Artifact hides the Power/Toughness input', () => {
     render(
       <Store.Provider value={mockStoreValue}>
@@ -90,5 +100,15 @@ describe('CardEditor - Vehicle (artifact + vehicle flag)', () => {
 
     expect(screen.getByText('Power')).not.toBeVisible();
     expect(screen.getByText('Toughness')).not.toBeVisible();
+  });
+
+  it('CONTROL: a Creature hides the Vehicle checkbox', () => {
+    render(
+      <Store.Provider value={mockStoreValue}>
+        <CardEditor card={makeCard(CardMainType.Creature)} saveTmpCard={() => {}} />
+      </Store.Provider>,
+    );
+
+    expect(screen.getByText('Vehicle?')).not.toBeVisible();
   });
 });

@@ -327,9 +327,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
           <ImageLoader
             src={parsedCover || getFallbackCover()}
             alt="cover"
-            className={`${styles.cover} ${getCoverFitClass(styles, coverFit)} ${
-              artStyle !== CardArtStyles.Borderless && 'card-cover'
-            }`}
+            className={`${styles.cover} ${getCoverFitClass(styles, coverFit)} card-cover`}
           />
 
           <ImageLoader

@@ -308,7 +308,12 @@ const CardEditor: React.FC<CardEditorInterface> = ({
       width: 50,
     },
     { key: 'legendary', type: 'bool', name: 'Legendary?', width: 100 },
-    { key: 'vehicle', type: 'bool', name: 'Vehicle?', width: isArtifact() ? 100 : 0 },
+    {
+      key: 'vehicle',
+      type: 'bool',
+      name: 'Vehicle?',
+      width: isArtifact() || getValue('cardMainType') === CardMainType.ArtifactCreature ? 100 : 0,
+    },
     { key: 'manaCost', type: 'input', name: 'Mana Cost', width: hasMana() ? 50 : 0 },
     {
       key: 'tokenColors',
