@@ -474,33 +474,75 @@ import {
   RarityType,
 } from '../../interfaces/enums';
 
-import PlaneswalkerWhiteMainframe from './images/mainframes/planeswalker/W.png';
-import PlaneswalkerWhiteMainframe2 from './images/mainframes/planeswalker/W2.png';
-import PlaneswalkerWhiteMainframe4 from './images/mainframes/planeswalker/W4.png';
-import PlaneswalkerBlueMainframe from './images/mainframes/planeswalker/U.png';
-import PlaneswalkerBlueMainframe2 from './images/mainframes/planeswalker/U2.png';
-import PlaneswalkerBlueMainframe4 from './images/mainframes/planeswalker/U4.png';
-import PlaneswalkerBlackMainframe from './images/mainframes/planeswalker/B.png';
-import PlaneswalkerBlackMainframe2 from './images/mainframes/planeswalker/B2.png';
-import PlaneswalkerBlackMainframe4 from './images/mainframes/planeswalker/B4.png';
-import PlaneswalkerRedMainframe from './images/mainframes/planeswalker/R.png';
-import PlaneswalkerRedMainframe2 from './images/mainframes/planeswalker/R2.png';
-import PlaneswalkerRedMainframe4 from './images/mainframes/planeswalker/R4.png';
-import PlaneswalkerGreenMainframe from './images/mainframes/planeswalker/G.png';
-import PlaneswalkerGreenMainframe2 from './images/mainframes/planeswalker/G2.png';
-import PlaneswalkerGreenMainframe4 from './images/mainframes/planeswalker/G4.png';
-import PlaneswalkerColorlessMainframe from './images/mainframes/planeswalker/Art.png';
-import PlaneswalkerColorlessMainframe2 from './images/mainframes/planeswalker/Art2.png';
-import PlaneswalkerColorlessMainframe4 from './images/mainframes/planeswalker/Art4.png';
-import PlaneswalkerGoldMainframe from './images/mainframes/planeswalker/Gld.png';
-import PlaneswalkerGoldMainframe2 from './images/mainframes/planeswalker/Gld2.png';
-import PlaneswalkerGoldMainframe4 from './images/mainframes/planeswalker/Gld4.png';
+// Regular planeswalker frames (used for cards with up to 3 ability lines).
+import PlaneswalkerRegularWhite from './images/mainframes/planeswalker/regular/planeswalkerFrameW.png';
+import PlaneswalkerRegularWhiteThumb from './images/mainframes/planeswalker/regular/planeswalkerFrameWThumb.png';
+import PlaneswalkerRegularBlue from './images/mainframes/planeswalker/regular/planeswalkerFrameU.png';
+import PlaneswalkerRegularBlueThumb from './images/mainframes/planeswalker/regular/planeswalkerFrameUThumb.png';
+import PlaneswalkerRegularBlack from './images/mainframes/planeswalker/regular/planeswalkerFrameB.png';
+import PlaneswalkerRegularBlackThumb from './images/mainframes/planeswalker/regular/planeswalkerFrameBThumb.png';
+import PlaneswalkerRegularRed from './images/mainframes/planeswalker/regular/planeswalkerFrameR.png';
+import PlaneswalkerRegularRedThumb from './images/mainframes/planeswalker/regular/planeswalkerFrameRThumb.png';
+import PlaneswalkerRegularGreen from './images/mainframes/planeswalker/regular/planeswalkerFrameG.png';
+import PlaneswalkerRegularGreenThumb from './images/mainframes/planeswalker/regular/planeswalkerFrameGThumb.png';
+import PlaneswalkerRegularGold from './images/mainframes/planeswalker/regular/planeswalkerFrameM.png';
+import PlaneswalkerRegularGoldThumb from './images/mainframes/planeswalker/regular/planeswalkerFrameMThumb.png';
+import PlaneswalkerRegularColorless from './images/mainframes/planeswalker/regular/planeswalkerFrameA.png';
+import PlaneswalkerRegularColorlessThumb from './images/mainframes/planeswalker/regular/planeswalkerFrameAThumb.png';
+
+// Tall planeswalker frames (used for cards with 4 or more ability lines).
+import PlaneswalkerTallWhite from './images/mainframes/planeswalker/tall/planeswalkerTallW.png';
+import PlaneswalkerTallWhiteThumb from './images/mainframes/planeswalker/tall/planeswalkerTallWThumb.png';
+import PlaneswalkerTallBlue from './images/mainframes/planeswalker/tall/planeswalkerTallU.png';
+import PlaneswalkerTallBlueThumb from './images/mainframes/planeswalker/tall/planeswalkerTallUThumb.png';
+import PlaneswalkerTallBlack from './images/mainframes/planeswalker/tall/planeswalkerTallB.png';
+import PlaneswalkerTallBlackThumb from './images/mainframes/planeswalker/tall/planeswalkerTallBThumb.png';
+import PlaneswalkerTallRed from './images/mainframes/planeswalker/tall/planeswalkerTallR.png';
+import PlaneswalkerTallRedThumb from './images/mainframes/planeswalker/tall/planeswalkerTallRThumb.png';
+import PlaneswalkerTallGreen from './images/mainframes/planeswalker/tall/planeswalkerTallG.png';
+import PlaneswalkerTallGreenThumb from './images/mainframes/planeswalker/tall/planeswalkerTallGThumb.png';
+import PlaneswalkerTallGold from './images/mainframes/planeswalker/tall/planeswalkerTallM.png';
+import PlaneswalkerTallGoldThumb from './images/mainframes/planeswalker/tall/planeswalkerTallMThumb.png';
+import PlaneswalkerTallColorless from './images/mainframes/planeswalker/tall/planeswalkerTallA.png';
+import PlaneswalkerTallColorlessThumb from './images/mainframes/planeswalker/tall/planeswalkerTallAThumb.png';
+
+// Borderless planeswalker frames (Borderless art style, up to 3 ability lines).
+import PlaneswalkerBorderlessWhite from './images/mainframes/planeswalker/borderless/w.png';
+import PlaneswalkerBorderlessWhiteThumb from './images/mainframes/planeswalker/borderless/wThumb.png';
+import PlaneswalkerBorderlessBlue from './images/mainframes/planeswalker/borderless/u.png';
+import PlaneswalkerBorderlessBlueThumb from './images/mainframes/planeswalker/borderless/uThumb.png';
+import PlaneswalkerBorderlessBlack from './images/mainframes/planeswalker/borderless/b.png';
+import PlaneswalkerBorderlessBlackThumb from './images/mainframes/planeswalker/borderless/bThumb.png';
+import PlaneswalkerBorderlessRed from './images/mainframes/planeswalker/borderless/r.png';
+import PlaneswalkerBorderlessRedThumb from './images/mainframes/planeswalker/borderless/rThumb.png';
+import PlaneswalkerBorderlessGreen from './images/mainframes/planeswalker/borderless/g.png';
+import PlaneswalkerBorderlessGreenThumb from './images/mainframes/planeswalker/borderless/gThumb.png';
+import PlaneswalkerBorderlessGold from './images/mainframes/planeswalker/borderless/m.png';
+import PlaneswalkerBorderlessGoldThumb from './images/mainframes/planeswalker/borderless/mThumb.png';
+import PlaneswalkerBorderlessColorless from './images/mainframes/planeswalker/borderless/a.png';
+import PlaneswalkerBorderlessColorlessThumb from './images/mainframes/planeswalker/borderless/aThumb.png';
+
+// Tall borderless planeswalker frames (Borderless art style, 4+ ability lines).
+import PlaneswalkerTallBorderlessWhite from './images/mainframes/planeswalker/tallBorderless/w.png';
+import PlaneswalkerTallBorderlessWhiteThumb from './images/mainframes/planeswalker/tallBorderless/wThumb.png';
+import PlaneswalkerTallBorderlessBlue from './images/mainframes/planeswalker/tallBorderless/u.png';
+import PlaneswalkerTallBorderlessBlueThumb from './images/mainframes/planeswalker/tallBorderless/uThumb.png';
+import PlaneswalkerTallBorderlessBlack from './images/mainframes/planeswalker/tallBorderless/b.png';
+import PlaneswalkerTallBorderlessBlackThumb from './images/mainframes/planeswalker/tallBorderless/bThumb.png';
+import PlaneswalkerTallBorderlessRed from './images/mainframes/planeswalker/tallBorderless/r.png';
+import PlaneswalkerTallBorderlessRedThumb from './images/mainframes/planeswalker/tallBorderless/rThumb.png';
+import PlaneswalkerTallBorderlessGreen from './images/mainframes/planeswalker/tallBorderless/g.png';
+import PlaneswalkerTallBorderlessGreenThumb from './images/mainframes/planeswalker/tallBorderless/gThumb.png';
+import PlaneswalkerTallBorderlessGold from './images/mainframes/planeswalker/tallBorderless/m.png';
+import PlaneswalkerTallBorderlessGoldThumb from './images/mainframes/planeswalker/tallBorderless/mThumb.png';
+import PlaneswalkerTallBorderlessColorless from './images/mainframes/planeswalker/tallBorderless/a.png';
+import PlaneswalkerTallBorderlessColorlessThumb from './images/mainframes/planeswalker/tallBorderless/aThumb.png';
 
 import PlaneswalkerPt from './images/pt/planeswalker/LoyaltyBegin.png';
 
 import LoyaltyUp from './images/symbols/loyalty/LoyaltyUp.png';
 import LoyaltyDown from './images/symbols/loyalty/LoyaltyDown.png';
-import LoyaltyZero from './images/symbols/loyalty/LoyaltyZero.png';
+import LoyaltyNeutral from './images/symbols/loyalty/LoyaltyNeutral.png';
 
 import NicknameTitleA from './images/nickname/m15NicknameTitleA.png';
 import NicknameTitleW from './images/nickname/m15NicknameTitleW.png';
@@ -1022,43 +1064,111 @@ export const getLoyaltyIcon = (loyaltyAction?: string) => {
   if (!loyaltyAction) return '';
   if (loyaltyAction.indexOf('+') !== -1) return LoyaltyUp;
   if (loyaltyAction.indexOf('-') !== -1) return LoyaltyDown;
-  if (loyaltyAction === '0') return LoyaltyZero;
+  if (loyaltyAction === '0') return LoyaltyNeutral;
   return '';
 };
 
 export const getPlaneswalkerPt = () => PlaneswalkerPt;
 
-export const getPlaneswalkerMainframe = (color: ColorType, lines: 2 | 3 | 4 | undefined) => {
-  switch (color) {
-    case ColorType.White:
-      if (lines === 2) return PlaneswalkerWhiteMainframe2;
-      if (lines === 4) return PlaneswalkerWhiteMainframe4;
-      return PlaneswalkerWhiteMainframe;
-    case ColorType.Blue:
-      if (lines === 2) return PlaneswalkerBlueMainframe2;
-      if (lines === 4) return PlaneswalkerBlueMainframe4;
-      return PlaneswalkerBlueMainframe;
-    case ColorType.Black:
-      if (lines === 2) return PlaneswalkerBlackMainframe2;
-      if (lines === 4) return PlaneswalkerBlackMainframe4;
-      return PlaneswalkerBlackMainframe;
-    case ColorType.Red:
-      if (lines === 2) return PlaneswalkerRedMainframe2;
-      if (lines === 4) return PlaneswalkerRedMainframe4;
-      return PlaneswalkerRedMainframe;
-    case ColorType.Green:
-      if (lines === 2) return PlaneswalkerGreenMainframe2;
-      if (lines === 4) return PlaneswalkerGreenMainframe4;
-      return PlaneswalkerGreenMainframe;
-    case ColorType.Colorless:
-      if (lines === 2) return PlaneswalkerColorlessMainframe2;
-      if (lines === 4) return PlaneswalkerColorlessMainframe4;
-      return PlaneswalkerColorlessMainframe;
-    default:
-      if (lines === 2) return PlaneswalkerGoldMainframe2;
-      if (lines === 4) return PlaneswalkerGoldMainframe4;
-      return PlaneswalkerGoldMainframe;
-  }
+// Each entry pairs the full-resolution frame with its low-res thumbnail, used
+// by ImageLoader for the blur-up placeholder while the full frame loads.
+const planeswalkerFrames: Record<
+  'regular' | 'tall' | 'borderless' | 'tallBorderless',
+  Record<ColorType, ImageResData>
+> = {
+  regular: {
+    [ColorType.White]: { highRes: PlaneswalkerRegularWhite, lowRes: PlaneswalkerRegularWhiteThumb },
+    [ColorType.Blue]: { highRes: PlaneswalkerRegularBlue, lowRes: PlaneswalkerRegularBlueThumb },
+    [ColorType.Black]: { highRes: PlaneswalkerRegularBlack, lowRes: PlaneswalkerRegularBlackThumb },
+    [ColorType.Red]: { highRes: PlaneswalkerRegularRed, lowRes: PlaneswalkerRegularRedThumb },
+    [ColorType.Green]: { highRes: PlaneswalkerRegularGreen, lowRes: PlaneswalkerRegularGreenThumb },
+    [ColorType.Gold]: { highRes: PlaneswalkerRegularGold, lowRes: PlaneswalkerRegularGoldThumb },
+    [ColorType.Colorless]: {
+      highRes: PlaneswalkerRegularColorless,
+      lowRes: PlaneswalkerRegularColorlessThumb,
+    },
+  },
+  tall: {
+    [ColorType.White]: { highRes: PlaneswalkerTallWhite, lowRes: PlaneswalkerTallWhiteThumb },
+    [ColorType.Blue]: { highRes: PlaneswalkerTallBlue, lowRes: PlaneswalkerTallBlueThumb },
+    [ColorType.Black]: { highRes: PlaneswalkerTallBlack, lowRes: PlaneswalkerTallBlackThumb },
+    [ColorType.Red]: { highRes: PlaneswalkerTallRed, lowRes: PlaneswalkerTallRedThumb },
+    [ColorType.Green]: { highRes: PlaneswalkerTallGreen, lowRes: PlaneswalkerTallGreenThumb },
+    [ColorType.Gold]: { highRes: PlaneswalkerTallGold, lowRes: PlaneswalkerTallGoldThumb },
+    [ColorType.Colorless]: {
+      highRes: PlaneswalkerTallColorless,
+      lowRes: PlaneswalkerTallColorlessThumb,
+    },
+  },
+  borderless: {
+    [ColorType.White]: {
+      highRes: PlaneswalkerBorderlessWhite,
+      lowRes: PlaneswalkerBorderlessWhiteThumb,
+    },
+    [ColorType.Blue]: {
+      highRes: PlaneswalkerBorderlessBlue,
+      lowRes: PlaneswalkerBorderlessBlueThumb,
+    },
+    [ColorType.Black]: {
+      highRes: PlaneswalkerBorderlessBlack,
+      lowRes: PlaneswalkerBorderlessBlackThumb,
+    },
+    [ColorType.Red]: { highRes: PlaneswalkerBorderlessRed, lowRes: PlaneswalkerBorderlessRedThumb },
+    [ColorType.Green]: {
+      highRes: PlaneswalkerBorderlessGreen,
+      lowRes: PlaneswalkerBorderlessGreenThumb,
+    },
+    [ColorType.Gold]: {
+      highRes: PlaneswalkerBorderlessGold,
+      lowRes: PlaneswalkerBorderlessGoldThumb,
+    },
+    [ColorType.Colorless]: {
+      highRes: PlaneswalkerBorderlessColorless,
+      lowRes: PlaneswalkerBorderlessColorlessThumb,
+    },
+  },
+  tallBorderless: {
+    [ColorType.White]: {
+      highRes: PlaneswalkerTallBorderlessWhite,
+      lowRes: PlaneswalkerTallBorderlessWhiteThumb,
+    },
+    [ColorType.Blue]: {
+      highRes: PlaneswalkerTallBorderlessBlue,
+      lowRes: PlaneswalkerTallBorderlessBlueThumb,
+    },
+    [ColorType.Black]: {
+      highRes: PlaneswalkerTallBorderlessBlack,
+      lowRes: PlaneswalkerTallBorderlessBlackThumb,
+    },
+    [ColorType.Red]: {
+      highRes: PlaneswalkerTallBorderlessRed,
+      lowRes: PlaneswalkerTallBorderlessRedThumb,
+    },
+    [ColorType.Green]: {
+      highRes: PlaneswalkerTallBorderlessGreen,
+      lowRes: PlaneswalkerTallBorderlessGreenThumb,
+    },
+    [ColorType.Gold]: {
+      highRes: PlaneswalkerTallBorderlessGold,
+      lowRes: PlaneswalkerTallBorderlessGoldThumb,
+    },
+    [ColorType.Colorless]: {
+      highRes: PlaneswalkerTallBorderlessColorless,
+      lowRes: PlaneswalkerTallBorderlessColorlessThumb,
+    },
+  },
+};
+
+export const getPlaneswalkerMainframe = (
+  color: ColorType,
+  isTall = false,
+  isBorderless = false,
+): ImageResData => {
+  let variant: 'regular' | 'tall' | 'borderless' | 'tallBorderless';
+  if (isBorderless) variant = isTall ? 'tallBorderless' : 'borderless';
+  else variant = isTall ? 'tall' : 'regular';
+
+  return planeswalkerFrames[variant][color];
 };
 
 export const getInvocationPt = () => InvocationPt;

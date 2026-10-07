@@ -5,8 +5,9 @@
   font-family: 'MPlantin', sans-serif;
   position: absolute;
   font-size: 1.625em;
-  left: 254.17px;
+  left: 254px;
   width: 1147.92px;
+  border: hotpink 6px solid;
 }
 
 .loyaltyIcon1,
@@ -14,14 +15,19 @@
 .loyaltyIcon3,
 .loyaltyIcon4 {
   position: absolute;
-  left: 125px;
+  left: 146px;
   transform: translateX(-50%) translateY(-50%);
   color: white;
   font-family: MPlantin, sans-serif;
-  font-size: 1.7em;
+  font-size: 1.8em;
+
+  img {
+    width: 220px !important;
+    height: 100% !important;
+  }
 
   p {
-    margin-top: 45.83px;
+    margin-top: -44px;
   }
 }
 

@@ -6,7 +6,13 @@ import { Mana } from '../Mana/Mana';
 
 import TextResize from '../TextResize/TextResize';
 
-import { CardMainType, CoverFit, RarityType } from '../../interfaces/enums';
+import {
+  BasicLandArtStyles,
+  CardArtStyles,
+  CardMainType,
+  CoverFit,
+  RarityType,
+} from '../../interfaces/enums';
 import { Store, StoreType } from '../../store';
 import { getColor } from '../../utils/cardToColor';
 
@@ -28,6 +34,7 @@ import { CARD_WIDTH, CARD_HEIGHT } from '../../utils/constants';
 import getCoverFitClass from './getCoverFitClass';
 
 interface PlaneswalkerCardRenderProps {
+  artStyle?: BasicLandArtStyles | CardArtStyles;
   name: string;
   rarity: RarityType;
   creator?: string;
@@ -54,7 +61,7 @@ const PlaneswalkerCardRender = (cardRender: PlaneswalkerCardRenderProps) => {
   const { name, manaCost, cardStats, cover, coverFit, creator } = cardRender;
   const { cardText, cardID } = cardRender;
   const { backFace, collectionNumber, collectionSize, rarity } = cardRender;
-  const { containerWidth = CARD_WIDTH } = cardRender;
+  const { containerWidth = CARD_WIDTH, artStyle } = cardRender;
 
   const { mechanics } = useContext<StoreType>(Store);
 
@@ -70,8 +77,11 @@ const PlaneswalkerCardRender = (cardRender: PlaneswalkerCardRenderProps) => {
   if (cardText.length === 2) lines = 2;
   else if (cardText.length === 4) lines = 4;
 
+  const isTall = cardText.length >= 4;
+  const isBorderless = artStyle === CardArtStyles.Borderless;
+
   const { color, orderedCost } = getColor(manaCost);
-  const mainframe = getPlaneswalkerMainframe(color, lines);
+  const mainframe = getPlaneswalkerMainframe(color, isTall, isBorderless);
   const pt = getPlaneswalkerPt();
 
   const parsePlaneswalkerLine = (line: string) => {
@@ -108,11 +118,15 @@ const PlaneswalkerCardRender = (cardRender: PlaneswalkerCardRenderProps) => {
             fallBackColor="black"
             className={`${styles.cover} ${getCoverFitClass(styles, coverFit)} card-cover`}
           />
-          <ImageLoader src={mainframe} className={styles.mainframe} fallBackColor="#eed66b" />
+          <ImageLoader
+            src={mainframe.highRes}
+            lowResSrc={mainframe.lowRes}
+            className={styles.mainframe}
+            fallBackColor="#eed66b"
+          />
           <ImageLoader src={getRarityIcon(rarity)} alt="" className={styles.rarity} />
 
           <div>
-            <img className={styles.overlay} src={pt} alt="" />
             <div className={styles.stats}>
               <div>{cardStats}</div>
             </div>

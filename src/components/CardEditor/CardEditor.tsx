@@ -49,12 +49,17 @@ const isArtStyleAvailableForType = (artStyle: string, cardMainType: CardMainType
     return cardMainType === CardMainType.Artifact || cardMainType === CardMainType.ArtifactCreature;
   }
   if (artStyle !== CardArtStyles.Regular) {
-    return (
-      cardMainType !== CardMainType.Planeswalker &&
-      cardMainType !== CardMainType.CreatureToken &&
-      cardMainType !== CardMainType.ArtifactToken &&
-      cardMainType !== CardMainType.TokenLand
-    );
+    const isToken =
+      cardMainType === CardMainType.CreatureToken ||
+      cardMainType === CardMainType.ArtifactToken ||
+      cardMainType === CardMainType.TokenLand;
+    if (isToken) return false;
+    // Planeswalkers only support the Borderless showcase frames, not the other
+    // non-regular art styles.
+    if (cardMainType === CardMainType.Planeswalker) {
+      return artStyle === CardArtStyles.Borderless;
+    }
+    return true;
   }
   return true;
 };
