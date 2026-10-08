@@ -4,6 +4,7 @@ import AnnotationInterface from './interfaces/AnnotationInterface';
 import AnnotationAccessorInterface from './interfaces/AnnotationAccessorInterface';
 import UserInterface from './interfaces/UserInterface';
 import { UNKNOWN_CREATOR } from './utils/constants';
+import { normalizeCard } from './utils/cardTypes';
 
 export enum ImageActionType {
   CreateImage = 'create-image',
@@ -87,7 +88,7 @@ const reducer: React.Reducer<State, Action> = (state, action) => {
     case CardActionType.CreateCard:
       return {
         ...state,
-        cards: [...state.cards, action.payload.card],
+        cards: [...state.cards, normalizeCard(action.payload.card)],
         newUuid: action.payload.card.uuid,
       };
     case CardActionType.ReadCard:
@@ -95,7 +96,7 @@ const reducer: React.Reducer<State, Action> = (state, action) => {
         ...state,
         cards: [
           ...state.cards.filter(card => card.uuid !== action.payload.card.uuid),
-          action.payload.card,
+          normalizeCard(action.payload.card),
         ],
       };
     case CardActionType.BulkReadCard:
@@ -105,7 +106,7 @@ const reducer: React.Reducer<State, Action> = (state, action) => {
           ...state.cards.filter(
             card => !action.payload.cards.find(newCard => newCard.uuid === card.uuid),
           ),
-          ...action.payload.cards,
+          ...action.payload.cards.map(normalizeCard),
         ],
       };
     case CardActionType.UpdateCard:
@@ -113,7 +114,7 @@ const reducer: React.Reducer<State, Action> = (state, action) => {
         ...state,
         cards: [
           ...state.cards.filter(card => card.uuid !== action.payload.card.uuid),
-          action.payload.card,
+          normalizeCard(action.payload.card),
         ],
       };
     case CardActionType.DeleteCard:

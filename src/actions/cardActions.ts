@@ -4,9 +4,10 @@ import axios from 'axios';
 import dayjs from 'dayjs';
 import LogRocket from 'logrocket';
 import { Action, CardActionType } from '../reducer';
-import { CardMainType, CardState, RarityType } from '../interfaces/enums';
+import { CardType, CardState, RarityType } from '../interfaces/enums';
 
 import CardInterface from '../interfaces/CardInterface';
+import { deriveLegacyMainType } from '../utils/cardTypes';
 import { getAccessToken, deleteAccessToken } from '../utils/accessService';
 import { UNKNOWN_CREATOR } from '../utils/constants';
 import UserInterface from '../interfaces/UserInterface';
@@ -21,7 +22,7 @@ export const EMPTY_CARD = (): CardInterface => ({
   uuid: uuidv4(),
   front: {
     name: '',
-    cardMainType: CardMainType.Creature,
+    cardTypes: [CardType.Creature],
     cardText: [],
   },
   manaCost: '',
@@ -119,6 +120,10 @@ export const updateCard = (
   // right after creating it fails. The app keys cards by `uuid`, so drop them.
   delete (parsed as Record<string, unknown>)._id;
   delete (parsed as Record<string, unknown>).__v;
+  parsed.front = { ...parsed.front, cardMainType: deriveLegacyMainType(parsed.front) };
+  if (parsed.back) {
+    parsed.back = { ...parsed.back, cardMainType: deriveLegacyMainType(parsed.back) };
+  }
   if (updated.front.cover && updated.front.cover.startsWith('base64:')) {
     createImage(dispatch, updated.front.cover.substring(7), updated, 0);
     parsed.front.cover = 'loading';
