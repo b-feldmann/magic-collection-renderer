@@ -122,21 +122,46 @@ function carveSingle(frame, mask) {
 }
 
 /**
- * Carve a two-color combination down to the mask shape. frame1 fills the left,
- * frame2 the right, with a linear blend across the centre BLEND_RATIO band.
+ * X coordinate of the centre of the mask's visible pixels (alpha above the
+ * threshold), averaged over every visible pixel. Falls back to the geometric
+ * centre when the mask has no visible pixels. Used as the blend midpoint so
+ * the two-color gradient stays centred inside irregular mask shapes (e.g. the
+ * left-hand adventure rules box).
  */
-function carveCombo(frame1, frame2, mask) {
+function visiblePixelCentroidX(mask) {
+  const { width, data } = mask.bitmap;
+  let sum = 0;
+  let count = 0;
+  for (let i = 0; i < data.length; i += 4) {
+    if (data[i + 3] > MASK_ALPHA_THRESHOLD) {
+      sum += (i / 4) % width;
+      count += 1;
+    }
+  }
+  return count > 0 ? sum / count : width / 2;
+}
+
+/**
+ * Carve a two-color combination down to the mask shape. frame1 fills the left,
+ * frame2 the right, with a linear blend across the BLEND_RATIO band centred
+ * on `blendCenterX` (the visible-pixel centroid when the mask's centre is not
+ * the image centre).
+ */
+function carveCombo(frame1, frame2, mask, blendCenterX) {
   const { width, height } = mask.bitmap;
   const d1 = frame1.bitmap.data;
   const d2 = frame2.bitmap.data;
   const maskData = mask.bitmap.data;
 
+  // Keep the default path byte-identical to the original formulation.
+  const blendStart =
+    blendCenterX === undefined ? width * (0.5 - BLEND_RATIO / 2) : blendCenterX - width * (BLEND_RATIO / 2);
+  const blendEnd =
+    blendCenterX === undefined ? width * (0.5 + BLEND_RATIO / 2) : blendCenterX + width * (BLEND_RATIO / 2);
+  const blendSpan = blendEnd - blendStart;
+
   const out = new Jimp({ width, height, color: 0x00000000 });
   const outData = out.bitmap.data;
-
-  const blendStart = width * (0.5 - BLEND_RATIO / 2);
-  const blendEnd = width * (0.5 + BLEND_RATIO / 2);
-  const blendSpan = blendEnd - blendStart;
 
   for (let i = 0; i < d1.length; i += 4) {
     if (maskData[i + 3] > MASK_ALPHA_THRESHOLD) {
@@ -181,10 +206,11 @@ function sameSize(frame, maskW, maskH) {
 
 /**
  * Carve the two-color combinations from the given frames and mask, writing one
- * `<combo>.png` per combination to `outputDir`. Returns the number of written
- * files and a list of skip reasons.
+ * `<combo>.png` per combination to `outputDir`. `blendCenterX` optionally
+ * overrides the horizontal blend midpoint (defaults to the image centre).
+ * Returns the number of written files and a list of skip reasons.
  */
-async function writeCombos(label, frames, mask, maskW, maskH, outputDir) {
+async function writeCombos(label, frames, mask, maskW, maskH, outputDir, blendCenterX) {
   let written = 0;
   const skipped = [];
 
@@ -203,7 +229,7 @@ async function writeCombos(label, frames, mask, maskW, maskH, outputDir) {
       continue;
     }
 
-    const out = carveCombo(frame1, frame2, mask);
+    const out = carveCombo(frame1, frame2, mask, blendCenterX);
     await out.write(path.join(outputDir, `${combo}.png`));
     written += 1;
     console.log(`${label}  ✓ ${combo}.png`);
@@ -464,34 +490,64 @@ async function generateVariantPinlines() {
   }
 }
 
-// Adventure frame parts: adventure cards have their own pinline and a
-// left-hand rules box, so both parts are carved from the adventure-specific
-// frames (`mainframes/adventure/<color>.png`) using the dedicated
-// `parts/adventurePinline.png` and `parts/adventureRulesLeft.png` masks. The
-// five WUBRG single colors and the gold (`m`) single are produced (gold for
-// multicolor adventures), along with the ten two-color combinations. Written
-// to `parts/adventurePinline/<color|combo>.png` and
-// `parts/adventureRulesLeft/<color|combo>.png`.
+// Adventure frame parts: adventure cards have a pinline and a rules box on
+// each side of the textbox. Regular-style parts are carved from the
+// adventure frames (`mainframes/adventure/regular/<color>.png`) using the
+// dedicated `parts/adventurePinline.svg` (rasterized via @resvg/resvg-js),
+// `parts/adventureRulesLeft.png` and `parts/adventureRulesRight.png` masks.
+// Alternate-art parts are carved from
+// `mainframes/adventure/alternateArt/<color>.png` using the dedicated
+// `parts/adventureAlternatePinline.png` and `parts/adventureAlternateRulesLeft.png`
+// masks. The five WUBRG single colors and the gold (`m`) single are produced
+// (gold for multicolor adventures), along with the ten two-color combinations.
+// Written to `parts/<type>/<color|combo>.png`.
 const ADVENTURE_DIR = path.join(MAINFRAMES_DIR, 'adventure');
 const ADVENTURE_GOLD_COLOR = 'm';
 const ADVENTURE_SINGLE_COLORS = [...VARIANT_COLORS, ADVENTURE_GOLD_COLOR];
 const ADVENTURE_PART_TYPES = [
-  { type: 'adventurePinline', mask: 'adventurePinline.png' },
-  { type: 'adventureRulesLeft', mask: 'adventureRulesLeft.png' },
+  { type: 'adventurePinline', mask: 'adventurePinline.svg', style: 'regular' },
+  { type: 'adventureRulesLeft', mask: 'adventureRulesLeft.png', style: 'regular' },
+  { type: 'adventureRulesRight', mask: 'adventureRulesRight.png', style: 'regular' },
+  {
+    type: 'adventureAlternatePinline',
+    mask: 'adventureAlternatePinline.png',
+    style: 'alternateArt',
+  },
+  {
+    type: 'adventureAlternateRulesLeft',
+    mask: 'adventureAlternateRulesLeft.png',
+    style: 'alternateArt',
+  },
 ];
 
+/** Rasterize an SVG mask into a Jimp image at its intrinsic size. */
+async function readSvgMask(svgPath) {
+  const { Resvg } = require('@resvg/resvg-js');
+  const svg = fs.readFileSync(svgPath, 'utf8');
+  const png = new Resvg(svg).render().asPng();
+  return Jimp.read(png);
+}
+
+/** Read a mask image, rasterizing SVG masks via readSvgMask. */
+async function readMask(maskPath) {
+  if (path.extname(maskPath).toLowerCase() === '.svg') {
+    return readSvgMask(maskPath);
+  }
+  return Jimp.read(maskPath);
+}
+
 async function generateAdventureParts() {
-  for (const { type, mask: maskName } of ADVENTURE_PART_TYPES) {
+  for (const { type, mask: maskName, style } of ADVENTURE_PART_TYPES) {
     const maskPath = path.join(PARTS_DIR, maskName);
     if (!fs.existsSync(maskPath)) {
       throw new Error(`Mask image not found: ${maskPath}`);
     }
-    const mask = await Jimp.read(maskPath);
+    const mask = await readMask(maskPath);
     const { width: maskW, height: maskH } = mask.bitmap;
 
     const frames = new Map();
     for (const color of ADVENTURE_SINGLE_COLORS) {
-      const sourcePath = path.join(ADVENTURE_DIR, `${color}.png`);
+      const sourcePath = path.join(ADVENTURE_DIR, style, `${color}.png`);
       if (fs.existsSync(sourcePath)) {
         const frame = await Jimp.read(sourcePath);
         if (!sameSize(frame, maskW, maskH)) {
@@ -526,8 +582,19 @@ async function generateAdventureParts() {
       console.log(`${type}  ✓ ${color}.png`);
     }
 
-    // Two-color combinations.
-    const comboResult = await writeCombos(type, frames, mask, maskW, maskH, outputDir);
+    // Two-color combinations. The adventure rules boxes sit off the image
+    // centre (left and right), so the two colors are mixed around the centroid
+    // of the mask's visible pixels instead of the geometric image centre.
+    const blendCenterX = /Rules/.test(type) ? visiblePixelCentroidX(mask) : undefined;
+    const comboResult = await writeCombos(
+      type,
+      frames,
+      mask,
+      maskW,
+      maskH,
+      outputDir,
+      blendCenterX,
+    );
     written += comboResult.written;
     skipped.push(...comboResult.skipped);
 
