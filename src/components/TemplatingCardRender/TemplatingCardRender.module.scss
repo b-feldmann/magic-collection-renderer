@@ -113,6 +113,17 @@
     height: 2100px;
   }
 
+  // Decorative Adventure overlay for the left rules column. Image-only, no
+  // text is rendered into this box; sits above the mainframe/pinline layers.
+  .adventureRulesLeft {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1500px;
+    height: 2100px;
+    pointer-events: none;
+  }
+
   .title {
     font-family: 'Beleren Bold', sans-serif;
     position: absolute;
