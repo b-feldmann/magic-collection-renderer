@@ -17,8 +17,9 @@
  * Additionally, pinline variants for the `extended` and `borderless` art
  * styles are generated from those styles' own single-color frames (in
  * `mainframes/extended` and `mainframes/borderless`) using the
- * `parts/extendedPinline.png` mask. Only the two-color combinations are
- * produced for these variants, written to `parts/pinline/<variant>/<combo>.png`.
+ * `parts/extendedPinline.png` mask. Both the five single colors (for
+ * single-color artifacts) and the two-color combinations are produced for
+ * these variants, written to `parts/pinline/<variant>/<color|combo>.png`.
  *
  * Planeswalkers get their own two-color pinlines for all four frame styles
  * (regular, tall, borderless, tallBorderless), carved from each style's own
@@ -416,7 +417,30 @@ async function generateVariantPinlines() {
       fs.mkdirSync(outputDir, { recursive: true });
     }
 
-    const { written, skipped } = await writeCombos(
+    let written = 0;
+    const skipped = [];
+
+    // Single colors: single-color artifacts carve a colored pinline out of the
+    // variant's own frame (matching the two-color combos). Only the five WUBRG
+    // colors are produced (no gold / colorless / land variant frames exist).
+    for (const color of VARIANT_COLORS) {
+      const frame = frames.get(color);
+      if (!frame) {
+        skipped.push(`${color} (source missing)`);
+        continue;
+      }
+      if (!sameSize(frame, maskW, maskH)) {
+        skipped.push(`${color} (source size != mask ${maskW}x${maskH})`);
+        continue;
+      }
+      const out = carveSingle(frame, mask);
+      await out.write(path.join(outputDir, `${color}.png`));
+      written += 1;
+      console.log(`pinline/${variant.name}  ✓ ${color}.png`);
+    }
+
+    // Two-color combinations.
+    const comboResult = await writeCombos(
       `pinline/${variant.name}`,
       frames,
       mask,
@@ -424,6 +448,8 @@ async function generateVariantPinlines() {
       maskH,
       outputDir,
     );
+    written += comboResult.written;
+    skipped.push(...comboResult.skipped);
 
     console.log(`\nDone. Wrote ${written} pinline/${variant.name} image(s) to ${outputDir}`);
     if (skipped.length > 0) {

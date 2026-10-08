@@ -318,6 +318,11 @@ import BlackGreenPinline from './images/parts/pinline/bg.png';
 import RedWhitePinline from './images/parts/pinline/rw.png';
 import GreenBluePinline from './images/parts/pinline/gu.png';
 
+import ExtendedWhitePinline from './images/parts/pinline/extended/w.png';
+import ExtendedBluePinline from './images/parts/pinline/extended/u.png';
+import ExtendedBlackPinline from './images/parts/pinline/extended/b.png';
+import ExtendedRedPinline from './images/parts/pinline/extended/r.png';
+import ExtendedGreenPinline from './images/parts/pinline/extended/g.png';
 import ExtendedWhiteBluePinline from './images/parts/pinline/extended/wu.png';
 import ExtendedBlueBlackPinline from './images/parts/pinline/extended/ub.png';
 import ExtendedBlackRedPinline from './images/parts/pinline/extended/br.png';
@@ -329,6 +334,11 @@ import ExtendedBlackGreenPinline from './images/parts/pinline/extended/bg.png';
 import ExtendedRedWhitePinline from './images/parts/pinline/extended/rw.png';
 import ExtendedGreenBluePinline from './images/parts/pinline/extended/gu.png';
 
+import BorderlessWhitePinline from './images/parts/pinline/borderless/w.png';
+import BorderlessBluePinline from './images/parts/pinline/borderless/u.png';
+import BorderlessBlackPinline from './images/parts/pinline/borderless/b.png';
+import BorderlessRedPinline from './images/parts/pinline/borderless/r.png';
+import BorderlessGreenPinline from './images/parts/pinline/borderless/g.png';
 import BorderlessWhiteBluePinline from './images/parts/pinline/borderless/wu.png';
 import BorderlessBlueBlackPinline from './images/parts/pinline/borderless/ub.png';
 import BorderlessBlackRedPinline from './images/parts/pinline/borderless/br.png';
@@ -1334,9 +1344,11 @@ const getSingleColorPinline = (color: ColorType) => {
 //  - non-artifact gold cards with exactly two colors (two-color combo pinline)
 // Everything else returns '' (no pinline layer).
 //
-// For the extended and borderless art styles, only two-color combination
-// pinlines were generated (from those styles' own frames); every other case
-// gets no pinline instead of falling back to the regular m15-carved assets.
+// For the extended and borderless art styles, single-color (for single-color
+// artifacts) and two-color combination pinlines were generated from those
+// styles' own frames; every other case (colorless, 3+ color, and single-color
+// non-artifacts) gets no pinline instead of falling back to the regular
+// m15-carved assets.
 //
 // Tokens behave the same way: only the two-color token pinlines exist, so a
 // token with any other color count gets no pinline (the token frame is drawn
@@ -1361,6 +1373,12 @@ export const getPinline = (
 
   if (variantPinlines) {
     if (colors.length === 2) return variantPinlines[getTwoColorVariant(colors)];
+    // Single-color artifacts get the variant's colored single-color pinline,
+    // matching the regular art style. Single-color non-artifacts (and 3+ color
+    // or colorless cards) still get no pinline.
+    if (isArtifact && colors.length === 1) {
+      return variantPinlines[getSingleColorVariant(colors[0])];
+    }
     return '';
   }
 
@@ -1525,15 +1543,16 @@ const RULES_PARTS: Record<PartVariant, string> = {
   gu: GreenBlueRules,
 };
 
-// Pinline variants generated from the extended / borderless frames. Only the
-// two-color combinations exist; non-combo keys map to ''.
+// Pinline variants generated from the extended / borderless frames. The five
+// single colors (for single-color artifacts) and the two-color combinations
+// exist; the gold ('m') and '' keys map to '' (no variant asset).
 const EXTENDED_PINLINES: Record<PartVariant, string> = {
   '': '',
-  w: '',
-  u: '',
-  b: '',
-  r: '',
-  g: '',
+  w: ExtendedWhitePinline,
+  u: ExtendedBluePinline,
+  b: ExtendedBlackPinline,
+  r: ExtendedRedPinline,
+  g: ExtendedGreenPinline,
   m: '',
   wu: ExtendedWhiteBluePinline,
   ub: ExtendedBlueBlackPinline,
@@ -1549,11 +1568,11 @@ const EXTENDED_PINLINES: Record<PartVariant, string> = {
 
 const BORDERLESS_PINLINES: Record<PartVariant, string> = {
   '': '',
-  w: '',
-  u: '',
-  b: '',
-  r: '',
-  g: '',
+  w: BorderlessWhitePinline,
+  u: BorderlessBluePinline,
+  b: BorderlessBlackPinline,
+  r: BorderlessRedPinline,
+  g: BorderlessGreenPinline,
   m: '',
   wu: BorderlessWhiteBluePinline,
   ub: BorderlessBlueBlackPinline,

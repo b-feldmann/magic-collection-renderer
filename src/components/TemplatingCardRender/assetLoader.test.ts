@@ -224,8 +224,22 @@ describe.each([
     expect(getPinline(WU, true, artStyle)).toBe(getPinline(WU, false, artStyle));
   });
 
-  it('renders no pinline on a colored artifact (no variant asset exists)', () => {
-    expect(getPinline([ColorType.White], true, artStyle)).toBe('');
+  it('renders a single-color pinline on a mono-colored artifact', () => {
+    const white = getPinline([ColorType.White], true, artStyle);
+    const blue = getPinline([ColorType.Blue], true, artStyle);
+    expect(white).not.toBe('');
+    expect(blue).not.toBe('');
+    expect(white).not.toBe(blue);
+  });
+
+  it('uses a variant-specific single-color pinline (differs from regular and the other variant)', () => {
+    const variant = getPinline([ColorType.White], true, artStyle);
+    const regular = getPinline([ColorType.White], true);
+    expect(variant).not.toBe(regular);
+
+    const extended = getPinline([ColorType.White], true, CardArtStyles.Extended);
+    const borderless = getPinline([ColorType.White], true, CardArtStyles.Borderless);
+    expect(extended).not.toBe(borderless);
   });
 
   it('renders no pinline on a 3+ color artifact', () => {

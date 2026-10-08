@@ -70,11 +70,13 @@ describe('TemplatingCardRender - borderless cards get no title/type/rules parts'
     expect(getImageByPartClass('pinline')?.getAttribute('src')).toContain('wu');
   });
 
-  it('borderless artifact: no parts', () => {
+  it('borderless single-color artifact: no parts, but colored pinline present', () => {
     renderBorderlessCard(CardMainType.Artifact, '{1}{W}', ['Some rules text.']);
 
     expect(getImageByPartClass('titlePart')).toBeUndefined();
     expect(getImageByPartClass('typePart')).toBeUndefined();
     expect(getImageByPartClass('rulesPart')).toBeUndefined();
+    // Single-color artifacts carry the variant's colored single-color pinline.
+    expect(getImageByPartClass('pinline')?.getAttribute('src')).toContain('borderless/w.png');
   });
 });
