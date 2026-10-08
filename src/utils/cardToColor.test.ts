@@ -1,7 +1,11 @@
 import { describe, it, expect } from 'vitest';
 
-import { CardMainType, ColorType } from '../interfaces/enums';
+import { CardType, ColorType } from '../interfaces/enums';
 import { getColor, default as cardToColor } from './cardToColor';
+import CardFaceInterface from '../interfaces/CardFaceInterface';
+
+const face = (over: Partial<CardFaceInterface>): CardFaceInterface =>
+  ({ name: '', cardText: [], cardTypes: [], ...over }) as CardFaceInterface;
 
 describe('getColor - tokenColors override', () => {
   it('uses tokenColors directly instead of the mana cost', () => {
@@ -38,29 +42,36 @@ describe('getColor - tokenColors override', () => {
 describe('cardToColor - tokenColors override', () => {
   it('uses tokenColors for tokens', () => {
     const result = cardToColor(
-      CardMainType.CreatureToken,
+      face({
+        cardTypes: [CardType.Token, CardType.Creature],
+        tokenColors: [ColorType.Black, ColorType.Green],
+      }),
       '',
-      [],
-      [ColorType.Black, ColorType.Green],
     );
     expect(result.color).toBe(ColorType.Gold);
     expect(result.allColors).toEqual([ColorType.Black, ColorType.Green]);
   });
 
   it('treats tokens without tokenColors as colorless', () => {
-    const result = cardToColor(CardMainType.CreatureToken, '{2}{U}', [], undefined);
+    const result = cardToColor(face({ cardTypes: [CardType.Token, CardType.Creature] }), '{2}{U}');
     expect(result.color).toBe(ColorType.Colorless);
     expect(result.allColors).toEqual([]);
   });
 
   it('CONTROL: regular cards are unaffected by the tokenColors param', () => {
-    const result = cardToColor(CardMainType.Creature, '{2}{U}', [], [ColorType.Green]);
+    const result = cardToColor(
+      face({ cardTypes: [CardType.Creature], tokenColors: [ColorType.Green] }),
+      '{2}{U}',
+    );
     expect(result.color).toBe(ColorType.Blue);
     expect(result.allColors).toEqual([ColorType.Blue]);
   });
 
   it('lands still derive colors from rules text', () => {
-    const result = cardToColor(CardMainType.Land, '', ['{T}: Add {W}.'], undefined);
+    const result = cardToColor(
+      face({ cardTypes: [CardType.Land], cardText: ['{T}: Add {W}.'] }),
+      '',
+    );
     expect(result.color).toBe(ColorType.White);
   });
 });

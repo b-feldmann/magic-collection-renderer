@@ -1,4 +1,5 @@
-import { BasicLandType, CardMainType, ColorType } from '../interfaces/enums';
+import { BasicLandType, CardType, ColorType } from '../interfaces/enums';
+import CardFaceInterface from '../interfaces/CardFaceInterface';
 import getLandColor, { getSingleColor } from './getLandColor';
 
 // Re-exported for backwards compatibility: a land's colour identity is derived
@@ -143,16 +144,18 @@ export const getColor = (
 };
 
 const cardToColor = (
-  cardMainType: CardMainType,
+  face: CardFaceInterface,
   manaCost?: string,
-  cardText: string[] = [],
-  tokenColors?: string[],
 ): { color: ColorType; allColors: ColorType[] } => {
   let color: ColorType = ColorType.Colorless;
   const allColors: ColorType[] = [];
 
-  const isToken =
-    cardMainType === CardMainType.CreatureToken || cardMainType === CardMainType.ArtifactToken;
+  const cardText = face.cardText ?? [];
+  const tokenColors = face.tokenColors;
+  const types = Array.isArray(face.cardTypes) ? face.cardTypes : [];
+
+  // Non-land tokens take their colors from the explicit tokenColors selection.
+  const isToken = types.includes(CardType.Token) && !types.includes(CardType.Land);
 
   // Tokens take their colors from the explicit tokenColors selection instead
   // of the mana cost; a token without a selection is colorless.
@@ -169,7 +172,7 @@ const cardToColor = (
 
   // Lands usually have no mana cost, so their colour identity is derived from
   // the mana symbols in their rules text instead.
-  if (cardMainType === CardMainType.Land) {
+  if (types.includes(CardType.Land)) {
     const identity = getLandColor(cardText);
     if (identity.length === 1) return { color: identity[0], allColors: identity };
     if (identity.length >= 2) return { color: ColorType.Gold, allColors: identity };
