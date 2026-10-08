@@ -5,15 +5,22 @@
 
 ## Goal
 
-Add an **Adventure** card type. Adventure is not a standalone layout with a
-second spell half (as in real Magic); in this app it is one card type among
-others. To support it cleanly — and to allow a card to be, e.g., an Adventure
-*and* a Creature, or an Artifact *and* a Creature — we refactor the card's type
-model from a single flattened `CardMainType` to a **list of atomic card
-types** plus **supertype/modifier flags**.
+Add an **Adventure** card type. In this app Adventure is one card type among
+others (it goes in the card's type list), and it also selects a dedicated
+**Adventure layout** — a per-color adventure mainframe, pinline, and a
+left-hand rules box — whose frame assets are already generated under
+`mainframes/adventure/`, `parts/adventurePinline/`, `parts/adventureRulesLeft/`
+and `crown/adventure/`.
 
-A card flagged as (legendary) Adventure renders the adventure crown style whose
-images were already generated under `crown/adventure/`.
+To support Adventure cleanly — and to allow a card to be, e.g., an Adventure
+*and* a Creature, or an Artifact *and* a Creature — we refactor the card's type
+model from a single flattened `CardMainType` to a **list of atomic card types**
+plus **supertype/modifier flags**.
+
+**Scope note (decorative layout first):** this change wires the Adventure
+layout *visually* only. The left rules box is rendered empty/placeholder — there
+is **no** adventure-half content (second name/cost/type/text) in this iteration.
+Structured half-content fields are deferred to a follow-up.
 
 ## Background / current model
 
@@ -138,6 +145,34 @@ signature. `cardSubTypes`, `vehicle`, `legendary`, `basicLandType` are unchanged
   where extra subtypes still include the injected `Vehicle` (when
   `vehicle && isArtifact`) and `cardSubTypes`.
 
+### Adventure layout (decorative)
+
+When `isAdventure`, the card renders the Adventure frame set instead of the
+normal color mainframe. The adventure frame takes precedence over the plain
+`getColorMainframe` branch, but **not** over the existing special layouts
+(BasicLand / Planeswalker early returns, and the Invocation/Invention/Borderless
+/Extended/Token/Land art-style branches still win — an Adventure in one of those
+art styles keeps that art style's frame). Concretely, in the mainframe `if/else`
+chain Adventure slots in as a new `else if (isAdventure)` branch *before* the
+final `else → getColorMainframe` fallback.
+
+Frame pieces, all keyed by the card's resolved color (single-color and
+two-color combos already exist on disk):
+
+- **Mainframe:** `getAdventureMainframe(color)` → `mainframes/adventure/<color>.png`.
+- **Pinline:** `getAdventurePinline(colors)` → `parts/adventurePinline/<combo>.png`,
+  used in place of the normal `getPinline` when `isAdventure`.
+- **Left rules box:** `getAdventureRulesLeft(colors)` →
+  `parts/adventureRulesLeft/<combo>.png`, rendered as an extra overlay image
+  (new element + CSS class in `TemplatingCardRender.module.*`). **No text is
+  rendered into it in this iteration** — it is purely decorative.
+
+`assetLoader.tsx` imports these three asset groups (single + combo, full-res +
+`Thumb`) mirroring the existing mainframe/pinline/rulespart import blocks, and
+exposes the three getters above. `assetLoader.test.ts` gets cases asserting each
+getter returns a color-appropriate asset and that combos are order-independent
+(e.g. `wu === uw`).
+
 ### Adventure crown
 
 Crowns still render **only when `legendary && !isInvention`** (unchanged
@@ -146,9 +181,9 @@ adventure crown style instead of the base style.
 
 - `assetLoader.tsx`: import the `crown/adventure/*.png` (+ two-color combo)
   images mirroring the existing `nickname` / `floating` imports.
-- `getCrown(...)`: add an adventure style selector (precedence vs
-  nickname/floating to be settled during implementation; default: adventure
-  wins when present) returning the adventure crown assets.
+- `getCrown(...)`: add an adventure style selector returning the adventure crown
+  assets. Precedence when a legendary card is also nickname/adventure:
+  **adventure wins** (open point 2).
 - `assetLoader.test.ts`: add a case asserting the adventure style differs from
   base/nickname/floating for the same color pair.
 
@@ -189,7 +224,8 @@ adventure crown style instead of the base style.
   `formatTypeLine` (ordering, legendary/basic/token prefixes, subtypes).
 - Update existing `CardEditor` and `TemplatingCardRender` tests that reference
   `cardMainType` to the new shape.
-- Update `assetLoader.test.ts` for the adventure crown style.
+- Update `assetLoader.test.ts` for the adventure crown style and the three new
+  adventure frame getters.
 
 ## Files touched
 
@@ -200,8 +236,12 @@ adventure crown style instead of the base style.
 - `src/actions/cardActions.ts` — normalize on fetch; `EMPTY_CARD` default;
   derive legacy `cardMainType` on save.
 - `src/components/TemplatingCardRender/TemplatingCardRender.tsx`,
-  `InvocationCardRender.tsx`, `PlaneswalkerCardRender.tsx`.
-- `src/components/TemplatingCardRender/assetLoader.tsx` (+ `assetLoader.test.ts`).
+  `InvocationCardRender.tsx`, `PlaneswalkerCardRender.tsx` — type-set booleans,
+  Adventure mainframe/pinline/left-box branch, adventure crown.
+- `src/components/TemplatingCardRender/assetLoader.tsx` (+ `assetLoader.test.ts`)
+  — adventure mainframe/pinline/rulesLeft/crown imports + getters.
+- `src/components/TemplatingCardRender/TemplatingCardRender.module.*` — CSS class
+  for the decorative adventure left-rules-box overlay.
 - `src/utils/cardToColor.ts`, `src/utils/sortAccessors.ts`.
 - `src/components/CardEditor/CardEditor.tsx`, `EditField.tsx`.
 - `src/components/CollectionFilterControls/CollectionFilterControls.tsx`,
@@ -220,7 +260,10 @@ adventure crown style instead of the base style.
 
 ## Non-goals
 
-- No separate "adventure spell half" data (name/cost/text for a second half).
+- **No adventure-half content this iteration.** The `adventureRulesLeft` box is
+  decorative/empty; no second name/cost/type/text fields are added. Structured
+  half-content is a deferred follow-up.
 - No general supertype system beyond the `token` / `basic` / `legendary` /
   `vehicle` flags needed here (Snow etc. out of scope).
 - No one-time MongoDB migration (handled by backward-compatible read).
+- Unrelated in-progress work in the tree (e.g. saga frames) is out of scope.
