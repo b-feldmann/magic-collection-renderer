@@ -87,3 +87,21 @@ export const deriveLegacyMainType = (face: CardFaceInterface): CardMainType => {
   if (has(CardType.Emblem)) return CardMainType.Emblem;
   return CardMainType.Creature;
 };
+
+export const formatTypeLine = (face: CardFaceInterface): string => {
+  const types = Array.isArray(face.cardTypes) ? face.cardTypes : [];
+  const supertypes = [
+    face.legendary ? 'Legendary' : '',
+    face.basic ? 'Basic' : '',
+    face.token ? 'Token' : '',
+  ].filter(Boolean);
+
+  const left = [...supertypes, ...types].join(' ');
+
+  const isArtifact = types.includes(CardType.Artifact);
+  const subtypes = [face.vehicle && isArtifact ? 'Vehicle' : '', face.cardSubTypes]
+    .filter(Boolean)
+    .join(' ');
+
+  return subtypes ? `${left} – ${subtypes}` : left;
+};

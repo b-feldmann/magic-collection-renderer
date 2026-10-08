@@ -4,6 +4,7 @@ import {
   normalizeCardFace,
   deriveLegacyMainType,
   hasType,
+  formatTypeLine,
 } from './cardTypes';
 import { CardType, CardMainType } from '../interfaces/enums';
 import CardFaceInterface from '../interfaces/CardFaceInterface';
@@ -104,5 +105,34 @@ describe('hasType', () => {
     const f = face({ cardTypes: [CardType.Artifact, CardType.Creature] });
     expect(hasType(f, CardType.Artifact)).toBe(true);
     expect(hasType(f, CardType.Land)).toBe(false);
+  });
+});
+
+describe('formatTypeLine', () => {
+  it('joins multiple types in order', () => {
+    expect(formatTypeLine(face({ cardTypes: [CardType.Enchantment, CardType.Creature] }))).toBe(
+      'Enchantment Creature',
+    );
+  });
+
+  it('prefixes legendary, basic and token in MTG order', () => {
+    expect(formatTypeLine(face({ cardTypes: [CardType.Land], basic: true, legendary: true }))).toBe(
+      'Legendary Basic Land',
+    );
+    expect(formatTypeLine(face({ cardTypes: [CardType.Creature], token: true }))).toBe(
+      'Token Creature',
+    );
+  });
+
+  it('appends subtypes after an en dash', () => {
+    expect(
+      formatTypeLine(face({ cardTypes: [CardType.Creature], cardSubTypes: 'Elf Warrior' })),
+    ).toBe('Creature – Elf Warrior');
+  });
+
+  it('injects Vehicle for artifact vehicles', () => {
+    expect(formatTypeLine(face({ cardTypes: [CardType.Artifact], vehicle: true }))).toBe(
+      'Artifact – Vehicle',
+    );
   });
 });
