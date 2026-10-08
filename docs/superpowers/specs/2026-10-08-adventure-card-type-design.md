@@ -60,19 +60,19 @@ Atomic MTG card types only:
 
 ```
 Creature, Instant, Sorcery, Enchantment, Artifact,
-Land, Planeswalker, Emblem, Adventure
+Land, Planeswalker, Emblem, Token, BasicLand, Adventure
 ```
 
 String values match the existing single-type strings (`'Creature'`,
-`'Land'`, …) so legacy data maps directly. `Adventure = 'Adventure'` is new.
+`'Land'`, `Token = 'Token'`, `BasicLand = 'Basic Land'`, …) so legacy data
+maps directly. `Adventure = 'Adventure'` is new. **Token and BasicLand are
+themselves card types** (a token is `[Token, <base type>]`), not flags.
 
-### Supertype / modifier flags on `CardFaceInterface`
+### Flags on `CardFaceInterface`
 
-Join the existing `legendary?` / `vehicle?`:
-
-- `token?: boolean` — replaces `Token Creature|Artifact|Land`
-- `basic?: boolean` — replaces `Basic Land` (works together with the existing
-  `basicLandType`)
+Only `legendary?` / `vehicle?` remain boolean flags (unchanged). Token-ness
+and basic-ness are expressed as `CardType.Token` / `CardType.BasicLand`
+members in `cardTypes`.
 
 ### `CardFaceInterface` changes
 
@@ -80,9 +80,7 @@ Join the existing `legendary?` / `vehicle?`:
 // before
 cardMainType: CardMainType;
 // after
-cardTypes: CardType[];
-token?: boolean;
-basic?: boolean;
+cardTypes: CardType[];   // Token/BasicLand are members; no token/basic flags
 ```
 
 `CardType[]` satisfies the existing `[key: string]: … | string[]` index
@@ -90,32 +88,32 @@ signature. `cardSubTypes`, `vehicle`, `legendary`, `basicLandType` are unchanged
 
 ### Mapping (old → new)
 
-| Legacy `cardMainType` | `cardTypes`            | flags           |
-|-----------------------|------------------------|-----------------|
-| Creature              | [Creature]             | —               |
-| Instant               | [Instant]              | —               |
-| Sorcery               | [Sorcery]              | —               |
-| Enchantment           | [Enchantment]          | —               |
-| Enchantment Creature  | [Enchantment, Creature]| —               |
-| Artifact              | [Artifact]             | —               |
-| Artifact Creature     | [Artifact, Creature]   | —               |
-| Token Creature        | [Creature]             | token           |
-| Token Artifact        | [Artifact]             | token           |
-| Token Land            | [Land]                 | token           |
-| Land                  | [Land]                 | —               |
-| Basic Land            | [Land]                 | basic           |
-| Planeswalker          | [Planeswalker]         | —               |
-| Emblem                | [Emblem]               | —               |
+| Legacy `cardMainType` | `cardTypes`              |
+|-----------------------|--------------------------|
+| Creature              | [Creature]               |
+| Instant               | [Instant]                |
+| Sorcery               | [Sorcery]                |
+| Enchantment           | [Enchantment]            |
+| Enchantment Creature  | [Enchantment, Creature]  |
+| Artifact              | [Artifact]               |
+| Artifact Creature     | [Artifact, Creature]     |
+| Token Creature        | [Token, Creature]        |
+| Token Artifact        | [Token, Artifact]        |
+| Token Land            | [Token, Land]            |
+| Land                  | [Land]                   |
+| Basic Land            | [BasicLand]              |
+| Planeswalker          | [Planeswalker]           |
+| Emblem                | [Emblem]                 |
 
 ## Backward-compatible read/write
 
 - **Read:** a pure helper `legacyMainTypeToTypes(main: string)` returns
-  `{ cardTypes: CardType[]; token?: boolean; basic?: boolean }`. A
+  `{ cardTypes: CardType[] }`. A
   `normalizeCardFace(face)` applies it whenever a face arrives from the API and
   has no `cardTypes` but a legacy `cardMainType`. Applied at the `cardActions`
   boundary (where cards are fetched) so the rest of the app only ever sees the
   new shape.
-- **Write:** the editor saves the new shape (`cardTypes` + flags). We also
+- **Write:** the editor saves the new shape (`cardTypes`). We also
   **derive and persist a legacy `cardMainType` string** (best-effort inverse of
   the table above) on save, so older app builds / external tooling keep working
   and rollback stays safe. The legacy string is advisory only; the new shape is
@@ -132,8 +130,8 @@ signature. `cardSubTypes`, `vehicle`, `legendary`, `basicLandType` are unchanged
   - `isLand = cardTypes.includes(Land)`
   - `isPlaneswalker = cardTypes.includes(Planeswalker)`
   - `isAdventure = cardTypes.includes(Adventure)`  ← new
-  - `isToken = !!token`
-  - `isBasicLand = !!basic && isLand`
+  - `isToken = cardTypes.includes(Token)`
+  - `isBasicLand = cardTypes.includes(BasicLand)`
   - So a `[Artifact, Creature]` card is both `isArtifact` and `isCreature`.
 - Early returns rekeyed: BasicLand path → `isBasicLand`; Planeswalker path →
   `isPlaneswalker`.
@@ -190,17 +188,17 @@ adventure crown style instead of the base style.
 ## Editor (`CardEditor.tsx`)
 
 - Replace the single `cardMainType` select with a **multi-select** bound to
-  `cardTypes` (options = all `CardType` values). Requires a `multiselect`
-  field type in `EditField.tsx` (antd `Select mode="multiple"`), or reuse an
-  existing multi-value control.
-- Add `token` and `basic` toggles (`basic` only meaningful when `Land` is in
-  `cardTypes`; drives the `basicLandType` sub-form).
+  `cardTypes` (options = all `CardType` values, which now include `Token` and
+  `Basic Land`). `EditField.tsx` already supports a `'multi-select'` field type
+  (antd `Select mode="multiple"`), used for token colors — reuse it. No separate
+  token/basic toggles.
 - Update field-visibility helpers (`isCreature`, `isArtifact`, `isVehicle`,
-  `isPlaneswalker`, `hasMana`, `isColoredToken`, `hasStats`) to read the array +
-  flags.
-- Update `isArtStyleAvailableForType` to take `cardTypes` (+ flags).
+  `isPlaneswalker`, `hasMana`, `isColoredToken`, `hasStats`) to read the array
+  (e.g. `isColoredToken = includes(Token) && !includes(Land)`).
+- Update `isArtStyleAvailableForType` to take `cardTypes` (BasicLand →
+  BasicLand art styles; Token → no showcase styles).
 - Update `saveValue` side effects (the `Basic Land` branch that seeds
-  `basicLandType` → trigger on `basic && Land`).
+  `basicLandType` → trigger on `includes(BasicLand)`).
 - Defaults → `cardTypes: [CardType.Creature]` in `EMPTY_CARD` (cardActions),
   `dummyCard`, `addBackFace`.
 
@@ -213,15 +211,16 @@ adventure crown style instead of the base style.
   enabled (open point — see below).
 - `CollectionStats`: columns per `CardType`; a card contributes to each of its
   types.
-- `cardToColor(...)`: change signature to accept the face (or `cardTypes` +
-  `token`); token color special-casing keys off the `token` flag, land color
-  off `cardTypes.includes(Land)`. Update call sites in `TemplatingCardRender`
+- `cardToColor(...)`: change signature to accept the face; token color
+  special-casing keys off `cardTypes.includes(Token)`, land color off
+  `cardTypes.includes(Land)`. Update call sites in `TemplatingCardRender`
   and `sortAccessors.ts`.
 
 ## Tests
 
 - New unit tests: `legacyMainTypeToTypes` (full mapping table) and
-  `formatTypeLine` (ordering, legendary/basic/token prefixes, subtypes).
+  `formatTypeLine` (ordering, legendary prefix, Token/BasicLand from the type
+  list, subtypes).
 - Update existing `CardEditor` and `TemplatingCardRender` tests that reference
   `cardMainType` to the new shape.
 - Update `assetLoader.test.ts` for the adventure crown style and the three new
@@ -229,8 +228,8 @@ adventure crown style instead of the base style.
 
 ## Files touched
 
-- `src/interfaces/enums.ts` — `CardType` (rename/replace `CardMainType`).
-- `src/interfaces/CardFaceInterface.ts` — `cardTypes`, `token`, `basic`.
+- `src/interfaces/enums.ts` — add `CardType` (keep legacy `CardMainType`).
+- `src/interfaces/CardFaceInterface.ts` — `cardTypes` (Token/BasicLand are members).
 - `src/utils/` — new `legacyMainTypeToTypes` + `formatTypeLine` helpers
   (+ a `normalizeCardFace`/`normalizeCard`).
 - `src/actions/cardActions.ts` — normalize on fetch; `EMPTY_CARD` default;
@@ -263,7 +262,8 @@ adventure crown style instead of the base style.
 - **No adventure-half content this iteration.** The `adventureRulesLeft` box is
   decorative/empty; no second name/cost/type/text fields are added. Structured
   half-content is a deferred follow-up.
-- No general supertype system beyond the `token` / `basic` / `legendary` /
-  `vehicle` flags needed here (Snow etc. out of scope).
+- No general supertype flag system beyond the existing `legendary` / `vehicle`
+  flags (Token/BasicLand are `CardType` members, not flags; Snow etc. out of
+  scope).
 - No one-time MongoDB migration (handled by backward-compatible read).
 - Unrelated in-progress work in the tree (e.g. saga frames) is out of scope.
