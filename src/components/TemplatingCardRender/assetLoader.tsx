@@ -643,6 +643,96 @@ import PlaneswalkerNicknamePlateBlackGreen from './images/mainframes/planeswalke
 import PlaneswalkerNicknamePlateRedWhite from './images/mainframes/planeswalker/nickname/planeswalkerNicknameFrameRW.png';
 import PlaneswalkerNicknamePlateGreenBlue from './images/mainframes/planeswalker/nickname/planeswalkerNicknameFrameGU.png';
 
+// --- Adventure mainframes (single color, full-res + Thumb) ---
+// regular/ holds w/u/b/r/g/m (+ l/a, unused by this getter); there is no
+// regular colorless frame, so the colorless default falls back to the
+// alternateArt colorless adventure frame, the only colorless frame on disk.
+import AdventureMainframeW from './images/mainframes/adventure/regular/w.png';
+import AdventureMainframeWLowRes from './images/mainframes/adventure/regular/wThumb.png';
+import AdventureMainframeU from './images/mainframes/adventure/regular/u.png';
+import AdventureMainframeULowRes from './images/mainframes/adventure/regular/uThumb.png';
+import AdventureMainframeB from './images/mainframes/adventure/regular/b.png';
+import AdventureMainframeBLowRes from './images/mainframes/adventure/regular/bThumb.png';
+import AdventureMainframeR from './images/mainframes/adventure/regular/r.png';
+import AdventureMainframeRLowRes from './images/mainframes/adventure/regular/rThumb.png';
+import AdventureMainframeG from './images/mainframes/adventure/regular/g.png';
+import AdventureMainframeGLowRes from './images/mainframes/adventure/regular/gThumb.png';
+import AdventureMainframeM from './images/mainframes/adventure/regular/m.png';
+import AdventureMainframeMLowRes from './images/mainframes/adventure/regular/mThumb.png';
+import AdventureMainframeC from './images/mainframes/adventure/alternateArt/c.png';
+import AdventureMainframeCLowRes from './images/mainframes/adventure/alternateArt/cThumb.png';
+
+// --- Adventure pinline (single + WUBRG two-color combos) ---
+import AdventurePinlineW from './images/parts/adventurePinline/w.png';
+import AdventurePinlineU from './images/parts/adventurePinline/u.png';
+import AdventurePinlineB from './images/parts/adventurePinline/b.png';
+import AdventurePinlineR from './images/parts/adventurePinline/r.png';
+import AdventurePinlineG from './images/parts/adventurePinline/g.png';
+import AdventurePinlineM from './images/parts/adventurePinline/m.png';
+import AdventurePinlineWu from './images/parts/adventurePinline/wu.png';
+import AdventurePinlineUb from './images/parts/adventurePinline/ub.png';
+import AdventurePinlineBr from './images/parts/adventurePinline/br.png';
+import AdventurePinlineRg from './images/parts/adventurePinline/rg.png';
+import AdventurePinlineGw from './images/parts/adventurePinline/gw.png';
+import AdventurePinlineWb from './images/parts/adventurePinline/wb.png';
+import AdventurePinlineUr from './images/parts/adventurePinline/ur.png';
+import AdventurePinlineBg from './images/parts/adventurePinline/bg.png';
+import AdventurePinlineRw from './images/parts/adventurePinline/rw.png';
+import AdventurePinlineGu from './images/parts/adventurePinline/gu.png';
+
+// --- Adventure rules-left (single + WUBRG two-color combos) ---
+import AdventureRulesLeftW from './images/parts/adventureRulesLeft/w.png';
+import AdventureRulesLeftU from './images/parts/adventureRulesLeft/u.png';
+import AdventureRulesLeftB from './images/parts/adventureRulesLeft/b.png';
+import AdventureRulesLeftR from './images/parts/adventureRulesLeft/r.png';
+import AdventureRulesLeftG from './images/parts/adventureRulesLeft/g.png';
+import AdventureRulesLeftM from './images/parts/adventureRulesLeft/m.png';
+import AdventureRulesLeftWu from './images/parts/adventureRulesLeft/wu.png';
+import AdventureRulesLeftUb from './images/parts/adventureRulesLeft/ub.png';
+import AdventureRulesLeftBr from './images/parts/adventureRulesLeft/br.png';
+import AdventureRulesLeftRg from './images/parts/adventureRulesLeft/rg.png';
+import AdventureRulesLeftGw from './images/parts/adventureRulesLeft/gw.png';
+import AdventureRulesLeftWb from './images/parts/adventureRulesLeft/wb.png';
+import AdventureRulesLeftUr from './images/parts/adventureRulesLeft/ur.png';
+import AdventureRulesLeftBg from './images/parts/adventureRulesLeft/bg.png';
+import AdventureRulesLeftRw from './images/parts/adventureRulesLeft/rw.png';
+import AdventureRulesLeftGu from './images/parts/adventureRulesLeft/gu.png';
+
+// --- Adventure crowns (single + WUBRG two-color combos, full-res + Thumb) ---
+// No colorless crown on disk; the colorless fallback uses the gold ('m') crown.
+import CrownAdventureW from './images/crown/adventure/w.png';
+import CrownAdventureWLowRes from './images/crown/adventure/wThumb.png';
+import CrownAdventureU from './images/crown/adventure/u.png';
+import CrownAdventureULowRes from './images/crown/adventure/uThumb.png';
+import CrownAdventureB from './images/crown/adventure/b.png';
+import CrownAdventureBLowRes from './images/crown/adventure/bThumb.png';
+import CrownAdventureR from './images/crown/adventure/r.png';
+import CrownAdventureRLowRes from './images/crown/adventure/rThumb.png';
+import CrownAdventureG from './images/crown/adventure/g.png';
+import CrownAdventureGLowRes from './images/crown/adventure/gThumb.png';
+import CrownAdventureM from './images/crown/adventure/m.png';
+import CrownAdventureMLowRes from './images/crown/adventure/mThumb.png';
+import CrownAdventureWu from './images/crown/adventure/wu.png';
+import CrownAdventureWuLowRes from './images/crown/adventure/wuThumb.png';
+import CrownAdventureUb from './images/crown/adventure/ub.png';
+import CrownAdventureUbLowRes from './images/crown/adventure/ubThumb.png';
+import CrownAdventureBr from './images/crown/adventure/br.png';
+import CrownAdventureBrLowRes from './images/crown/adventure/brThumb.png';
+import CrownAdventureRg from './images/crown/adventure/rg.png';
+import CrownAdventureRgLowRes from './images/crown/adventure/rgThumb.png';
+import CrownAdventureGw from './images/crown/adventure/gw.png';
+import CrownAdventureGwLowRes from './images/crown/adventure/gwThumb.png';
+import CrownAdventureWb from './images/crown/adventure/wb.png';
+import CrownAdventureWbLowRes from './images/crown/adventure/wbThumb.png';
+import CrownAdventureUr from './images/crown/adventure/ur.png';
+import CrownAdventureUrLowRes from './images/crown/adventure/urThumb.png';
+import CrownAdventureBg from './images/crown/adventure/bg.png';
+import CrownAdventureBgLowRes from './images/crown/adventure/bgThumb.png';
+import CrownAdventureRw from './images/crown/adventure/rw.png';
+import CrownAdventureRwLowRes from './images/crown/adventure/rwThumb.png';
+import CrownAdventureGu from './images/crown/adventure/gu.png';
+import CrownAdventureGuLowRes from './images/crown/adventure/guThumb.png';
+
 export interface ImageResData {
   highRes: string;
   lowRes?: string;
@@ -1022,6 +1112,102 @@ const CROWN_NICKNAME_COMBOS: Record<CrownComboKey, ImageResData> = {
   gu: { highRes: CrownGuNickname, lowRes: CrownGuNicknameLowRes },
 };
 
+// Maps an (unordered) adventure color set to its on-disk asset key. Reuses the
+// same single/two-color variant helpers the file uses for crowns and pinlines
+// (getSingleColorVariant / getTwoColorVariant) so the keys match the on-disk
+// combo filenames and are order-independent (wu === uw). 3+ colors and the gold
+// single-color case fold to the gold ('m') asset; an empty set yields ''.
+const getAdventureVariant = (colors: ColorType[]): PartVariant => {
+  if (colors.length === 0) return '';
+  if (colors.length === 1) return getSingleColorVariant(colors[0]);
+  if (colors.length === 2) return getTwoColorVariant(colors);
+  return 'm';
+};
+
+const ADVENTURE_PINLINE_BY_KEY: Partial<Record<PartVariant, string>> = {
+  w: AdventurePinlineW,
+  u: AdventurePinlineU,
+  b: AdventurePinlineB,
+  r: AdventurePinlineR,
+  g: AdventurePinlineG,
+  m: AdventurePinlineM,
+  wu: AdventurePinlineWu,
+  ub: AdventurePinlineUb,
+  br: AdventurePinlineBr,
+  rg: AdventurePinlineRg,
+  gw: AdventurePinlineGw,
+  wb: AdventurePinlineWb,
+  ur: AdventurePinlineUr,
+  bg: AdventurePinlineBg,
+  rw: AdventurePinlineRw,
+  gu: AdventurePinlineGu,
+};
+
+const ADVENTURE_RULES_LEFT_BY_KEY: Partial<Record<PartVariant, string>> = {
+  w: AdventureRulesLeftW,
+  u: AdventureRulesLeftU,
+  b: AdventureRulesLeftB,
+  r: AdventureRulesLeftR,
+  g: AdventureRulesLeftG,
+  m: AdventureRulesLeftM,
+  wu: AdventureRulesLeftWu,
+  ub: AdventureRulesLeftUb,
+  br: AdventureRulesLeftBr,
+  rg: AdventureRulesLeftRg,
+  gw: AdventureRulesLeftGw,
+  wb: AdventureRulesLeftWb,
+  ur: AdventureRulesLeftUr,
+  bg: AdventureRulesLeftBg,
+  rw: AdventureRulesLeftRw,
+  gu: AdventureRulesLeftGu,
+};
+
+const ADVENTURE_CROWN_BY_KEY: Partial<Record<PartVariant, ImageResData>> = {
+  w: { highRes: CrownAdventureW, lowRes: CrownAdventureWLowRes },
+  u: { highRes: CrownAdventureU, lowRes: CrownAdventureULowRes },
+  b: { highRes: CrownAdventureB, lowRes: CrownAdventureBLowRes },
+  r: { highRes: CrownAdventureR, lowRes: CrownAdventureRLowRes },
+  g: { highRes: CrownAdventureG, lowRes: CrownAdventureGLowRes },
+  m: { highRes: CrownAdventureM, lowRes: CrownAdventureMLowRes },
+  wu: { highRes: CrownAdventureWu, lowRes: CrownAdventureWuLowRes },
+  ub: { highRes: CrownAdventureUb, lowRes: CrownAdventureUbLowRes },
+  br: { highRes: CrownAdventureBr, lowRes: CrownAdventureBrLowRes },
+  rg: { highRes: CrownAdventureRg, lowRes: CrownAdventureRgLowRes },
+  gw: { highRes: CrownAdventureGw, lowRes: CrownAdventureGwLowRes },
+  wb: { highRes: CrownAdventureWb, lowRes: CrownAdventureWbLowRes },
+  ur: { highRes: CrownAdventureUr, lowRes: CrownAdventureUrLowRes },
+  bg: { highRes: CrownAdventureBg, lowRes: CrownAdventureBgLowRes },
+  rw: { highRes: CrownAdventureRw, lowRes: CrownAdventureRwLowRes },
+  gu: { highRes: CrownAdventureGu, lowRes: CrownAdventureGuLowRes },
+};
+
+// Single-color adventure mainframe. regular/ has no colorless frame, so the
+// default (colorless) folds to the alternateArt colorless adventure frame.
+export const getAdventureMainframe = (color: ColorType): ImageResData => {
+  switch (color) {
+    case ColorType.White:
+      return { highRes: AdventureMainframeW, lowRes: AdventureMainframeWLowRes };
+    case ColorType.Blue:
+      return { highRes: AdventureMainframeU, lowRes: AdventureMainframeULowRes };
+    case ColorType.Black:
+      return { highRes: AdventureMainframeB, lowRes: AdventureMainframeBLowRes };
+    case ColorType.Red:
+      return { highRes: AdventureMainframeR, lowRes: AdventureMainframeRLowRes };
+    case ColorType.Green:
+      return { highRes: AdventureMainframeG, lowRes: AdventureMainframeGLowRes };
+    case ColorType.Gold:
+      return { highRes: AdventureMainframeM, lowRes: AdventureMainframeMLowRes };
+    default:
+      return { highRes: AdventureMainframeC, lowRes: AdventureMainframeCLowRes };
+  }
+};
+
+export const getAdventurePinline = (colors: ColorType[]): string =>
+  ADVENTURE_PINLINE_BY_KEY[getAdventureVariant(colors)] ?? '';
+
+export const getAdventureRulesLeft = (colors: ColorType[]): string =>
+  ADVENTURE_RULES_LEFT_BY_KEY[getAdventureVariant(colors)] ?? '';
+
 // Selects the two-color combo crown for an (unordered) color pair, picking the
 // style that matches the per-color crown selection: nickname first, then
 // floating (full-art), otherwise the base crown.
@@ -1043,7 +1229,19 @@ export const getCrown = (
   isArtefact = false,
   isNickname = false,
   colors: ColorType[] = [],
+  isAdventure = false,
 ): ImageResData | string => {
+  // Adventure cards get a dedicated crown style that wins over the
+  // nickname/floating/land/artefact variants. No colorless adventure crown
+  // exists on disk, so the colorless case folds to the gold ('m') crown.
+  if (isAdventure) {
+    return (
+      ADVENTURE_CROWN_BY_KEY[getAdventureVariant(colors.length ? colors : [color])] ?? {
+        highRes: CrownAdventureM,
+        lowRes: CrownAdventureMLowRes,
+      }
+    );
+  }
   if (isLand && color === ColorType.Colorless) {
     if (isNickname) return { highRes: CrownLandNickname, lowRes: CrownLandNicknameLowRes };
     return isFullart

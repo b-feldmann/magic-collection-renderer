@@ -13,6 +13,9 @@ import {
   getLandTypePart,
   getLandRulesPart,
   getNicknameTitle,
+  getAdventureMainframe,
+  getAdventurePinline,
+  getAdventureRulesLeft,
 } from './assetLoader';
 import { ColorType, CardArtStyles } from '../../interfaces/enums';
 
@@ -490,5 +493,40 @@ describe('mainframe getters: colorless artifact uses the artefact frame', () => 
   it('regular: colorless artifact resolves to the artefact mainframe', () => {
     // The artefact frame must be returned for a colorless artifact.
     expect(getColorMainframe(ColorType.Colorless, false, true)).toBeTruthy();
+  });
+});
+
+describe('adventure frames', () => {
+  it('returns a color-specific adventure mainframe', () => {
+    const w = getAdventureMainframe(ColorType.White);
+    const u = getAdventureMainframe(ColorType.Blue);
+    expect(w.highRes).toBeTruthy();
+    expect(w.highRes).not.toBe(u.highRes);
+  });
+
+  it('returns combo-order-independent pinline and rules-left', () => {
+    expect(getAdventurePinline([ColorType.White, ColorType.Blue])).toBe(
+      getAdventurePinline([ColorType.Blue, ColorType.White]),
+    );
+    expect(getAdventurePinline([ColorType.White, ColorType.Blue])).toBeTruthy();
+    expect(getAdventureRulesLeft([ColorType.White, ColorType.Blue])).toBe(
+      getAdventureRulesLeft([ColorType.Blue, ColorType.White]),
+    );
+    expect(getAdventureRulesLeft([ColorType.White, ColorType.Blue])).toBeTruthy();
+  });
+
+  it('selects a distinct adventure crown style', () => {
+    const highResOf = (c: ReturnType<typeof getCrown>) => (typeof c === 'string' ? c : c.highRes);
+    const base = getCrown(ColorType.White, false, false, false, false, [ColorType.White]);
+    const adventure = getCrown(
+      ColorType.White,
+      false,
+      false,
+      false,
+      false,
+      [ColorType.White],
+      true,
+    );
+    expect(highResOf(adventure)).not.toBe(highResOf(base));
   });
 });
