@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useLayoutEffect, useRef, useState } from 'react';
 
 import 'mana-font/css/mana.css';
 // @ts-ignore
@@ -67,6 +67,43 @@ const PlaneswalkerCardRender = (cardRender: PlaneswalkerCardRenderProps) => {
   const { containerWidth = CARD_WIDTH, artStyle } = cardRender;
 
   const { mechanics } = useContext<StoreType>(Store);
+
+  // The mana cost (rendered top-right) and the title share the same row, so a
+  // wider cost must leave the title less room. Measure the cost box and shrink
+  // the title's available width accordingly; TextResize then scales the title
+  // text down to fit. Falls back to the CSS width when there is no mana cost.
+  const costRef = useRef<HTMLDivElement>(null);
+  const titleRef = useRef<HTMLDivElement>(null);
+  const [titleWidth, setTitleWidth] = useState<number>();
+
+  useLayoutEffect(() => {
+    const titleEl = titleRef.current;
+    if (!titleEl) return undefined;
+
+    const GAP = 30; // design-space px gap between the title and the mana cost
+
+    const compute = () => {
+      const costEl = costRef.current;
+      if (!costEl) {
+        setTitleWidth(undefined);
+        return;
+      }
+      // Both elements are absolutely positioned inside the unscaled 1500px card
+      // frame, so offsetLeft/offsetWidth are in the same design coordinate space
+      // regardless of the card's render scale.
+      const available = costEl.offsetLeft - titleEl.offsetLeft - GAP;
+      setTitleWidth(Math.max(0, available));
+    };
+
+    compute();
+
+    const costEl = costRef.current;
+    if (!costEl) return undefined;
+    // Recompute when the cost box reflows (e.g. once the mana font loads).
+    const observer = new ResizeObserver(() => compute());
+    observer.observe(costEl);
+    return () => observer.disconnect();
+  }, [manaCost, backFace]);
 
   const { nickname } = cardRender;
   const isNickname = nickname != null && nickname.length > 0;
@@ -145,9 +182,21 @@ const PlaneswalkerCardRender = (cardRender: PlaneswalkerCardRenderProps) => {
             </div>
           </div>
 
-          {!backFace && <div className={styles.cost}>{injectManaIcons(orderedCost, true)}</div>}
+          {!backFace && (
+            <div ref={costRef} className={styles.cost}>
+              {injectManaIcons(orderedCost, true)}
+            </div>
+          )}
 
-          <div className={styles.title}>{name}</div>
+          <div
+            ref={titleRef}
+            className={styles.title}
+            style={titleWidth !== undefined ? { width: `${titleWidth}px` } : undefined}
+          >
+            <TextResize defaultFontSize={75} maxFontSize={75} minFontSize={40}>
+              {name}
+            </TextResize>
+          </div>
           {isNickname && nicknamePlate ? (
             <div className={`${styles.nicknameText} ${styles.nicknameText}`}>{nickname}</div>
           ) : null}

@@ -1,6 +1,6 @@
 // may find images here https://github.com/Investigamer/cardconjurer/tree/master/img/frames
 
-import React, { ReactElement, useContext } from 'react';
+import React, { ReactElement, useContext, useLayoutEffect, useRef, useState } from 'react';
 
 import 'mana-font/css/mana.css';
 // @ts-ignore
@@ -94,6 +94,43 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
   const { containerWidth = CARD_WIDTH, artStyle, coverFit } = cardRenderProps;
 
   const { mechanics } = useContext<StoreType>(Store);
+
+  // The mana cost (rendered top-right) and the title share the same row, so a
+  // wider cost must leave the title less room. Measure the cost box and shrink
+  // the title's available width accordingly; TextResize then scales the title
+  // text down to fit. Falls back to the CSS width when there is no mana cost.
+  const costRef = useRef<HTMLDivElement>(null);
+  const titleRef = useRef<HTMLDivElement>(null);
+  const [titleWidth, setTitleWidth] = useState<number>();
+
+  useLayoutEffect(() => {
+    const titleEl = titleRef.current;
+    if (!titleEl) return undefined;
+
+    const GAP = 30; // design-space px gap between the title and the mana cost
+
+    const compute = () => {
+      const costEl = costRef.current;
+      if (!costEl) {
+        setTitleWidth(undefined);
+        return;
+      }
+      // Both elements are absolutely positioned inside the unscaled 1500px card
+      // frame, so offsetLeft/offsetWidth are in the same design coordinate space
+      // regardless of the card's render scale.
+      const available = costEl.offsetLeft - titleEl.offsetLeft - GAP;
+      setTitleWidth(Math.max(0, available));
+    };
+
+    compute();
+
+    const costEl = costRef.current;
+    if (!costEl) return undefined;
+    // Recompute when the cost box reflows (e.g. once the mana font loads).
+    const observer = new ResizeObserver(() => compute());
+    observer.observe(costEl);
+    return () => observer.disconnect();
+  }, [manaCost, backFace, cardMainType]);
 
   const stripCoverValue = (value?: string) => {
     if (!value) return '';
@@ -377,12 +414,20 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
             cardRenderProps.cardMainType !== CardMainType.TokenLand &&
             !isToken &&
             !backFace && (
-              <div className={`${styles.cost} ${isToken ? styles.tokenCost : ''}`}>
+              <div ref={costRef} className={`${styles.cost} ${isToken ? styles.tokenCost : ''}`}>
                 {injectManaIcons(orderedCost, true)}
               </div>
             )}
 
-          <div className={`${styles.title} ${isToken ? styles.tokenTitle : ''}`}>{name}</div>
+          <div
+            ref={titleRef}
+            className={`${styles.title} ${isToken ? styles.tokenTitle : ''}`}
+            style={titleWidth !== undefined ? { width: `${titleWidth}px` } : undefined}
+          >
+            <TextResize defaultFontSize={75} maxFontSize={75} minFontSize={40}>
+              {name}
+            </TextResize>
+          </div>
           {isNickname && <div className={styles.nicknameText}>{nickname}</div>}
           <div className={`${styles.type} ${isToken ? styles.tokenType : ''}`}>
             {legendary ? 'Legendary ' : ''}

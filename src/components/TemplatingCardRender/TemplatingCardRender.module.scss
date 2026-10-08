@@ -117,8 +117,21 @@
     font-family: 'Beleren Bold', sans-serif;
     position: absolute;
     font-size: 2.25em;
-    top: 101px;
+    top: 111px;
     left: calc(1500px / 746 * 65);
+    // Bound the title so TextResize can shrink long names before they collide
+    // with the mana cost on the right. Keep it single-line (nowrap).
+    width: 1150px;
+    height: 100px;
+    white-space: nowrap;
+
+    // Vertically center the title text within the bounded box. The TextResize
+    // wrapper is the only direct child; a nowrap line still overflows (never
+    // shrinks below min-content), so horizontal overflow detection is intact.
+    & > div {
+      display: flex;
+      align-items: center;
+    }
   }
 
   .nicknameText {
@@ -333,7 +346,7 @@
 
 .planeswalker {
   .title {
-    top: 74px;
+    top: 82px;
     color: black !important;
   }
 

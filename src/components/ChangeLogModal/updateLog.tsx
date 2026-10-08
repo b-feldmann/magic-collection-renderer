@@ -424,6 +424,10 @@ updateLog.push({
       type: ChangeLogFeatureType.Fixed,
       feature: 'Artefacts use correct colored pinline in all Artstyles',
     },
+    {
+      type: ChangeLogFeatureType.Fixed,
+      feature: 'Reeeeeaaaaalllyyyy long card names are now supported',
+    },
   ],
 });
 //
