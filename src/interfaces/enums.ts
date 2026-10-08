@@ -26,6 +26,20 @@ export enum CardMainType {
   Emblem = 'Emblem',
 }
 
+// Atomic card types. A face holds a list of these (see CardFaceInterface.cardTypes).
+// Token/Basic are modelled as flags on the face, not as members here.
+export enum CardType {
+  Creature = 'Creature',
+  Instant = 'Instant',
+  Sorcery = 'Sorcery',
+  Enchantment = 'Enchantment',
+  Artifact = 'Artifact',
+  Land = 'Land',
+  Planeswalker = 'Planeswalker',
+  Emblem = 'Emblem',
+  Adventure = 'Adventure',
+}
+
 export enum BasicLandType {
   Plains = 'Plains',
   Island = 'Island',
