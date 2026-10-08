@@ -5,6 +5,7 @@ import AntIcon from '../AntIcon/AntIcon';
 
 import LogRocket from 'logrocket';
 import CardInterface from '../../interfaces/CardInterface';
+import CardFaceInterface from '../../interfaces/CardFaceInterface';
 import styles from './BigCardRenderModal.module.scss';
 import { NonMemoCardRender as CardRender } from '../TemplatingCardRender/index';
 import { Store, StoreType } from '../../store';
@@ -41,8 +42,14 @@ const BigCardRenderModal = ({
 
   const annotations = annotationAccessor[card.uuid] || [];
 
-  const faces = [card.front];
-  if (card.back) faces.push(card.back);
+  // Mark the back face so card renderers suppress front-only chrome
+  // (e.g. the mana cost) on it, matching CardCollection's Cell.
+  const faces: CardFaceInterface[] = [card.front];
+  if (card.back)
+    faces.push({
+      ...card.back,
+      backFace: true,
+    });
 
   const { width, height } = useWindowDimensions();
   if (mobile)

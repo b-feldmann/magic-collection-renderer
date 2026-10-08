@@ -17,4 +17,5 @@ export default interface CardFaceInterface {
   cover?: string;
   coverFit?: CoverFit;
   tokenColors?: ColorType[];
+  backFace?: boolean;
 }

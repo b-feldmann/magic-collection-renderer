@@ -2,6 +2,7 @@ import React from 'react';
 import { Modal } from 'antd';
 
 import CardInterface from '../../interfaces/CardInterface';
+import CardFaceInterface from '../../interfaces/CardFaceInterface';
 import styles from './BigCardRenderModal.module.scss';
 import { NonMemoCardRender as CardRender } from '../TemplatingCardRender/index';
 import { CARD_WIDTH, CARD_HEIGHT } from '../../utils/constants';
@@ -25,8 +26,14 @@ const MobileBigCardRenderModal = ({
   width,
   height,
 }: MobileBigCardRenderModalProps) => {
-  const faces = [card.front];
-  if (card.back) faces.push(card.back);
+  // Mark the back face so card renderers suppress front-only chrome
+  // (e.g. the mana cost) on it, matching CardCollection's Cell.
+  const faces: CardFaceInterface[] = [card.front];
+  if (card.back)
+    faces.push({
+      ...card.back,
+      backFace: true,
+    });
 
   const portrait = height > width;
 

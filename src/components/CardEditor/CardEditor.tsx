@@ -265,22 +265,25 @@ const CardEditor: React.FC<CardEditorInterface> = ({
     getValue('cardMainType') === CardMainType.ArtifactCreature ||
     getValue('cardMainType') === CardMainType.CreatureToken ||
     getValue('cardMainType') === CardMainType.EnchantmentCreature;
+  const isArtifact = () =>
+    getValue('cardMainType') === CardMainType.Artifact ||
+    getValue('cardMainType') === CardMainType.ArtifactCreature;
+  const isVehicle = () => isArtifact() && !!getValue('vehicle');
   const isPlaneswalker = () => getValue('cardMainType') === CardMainType.Planeswalker;
-  const isArtifact = () => getValue('cardMainType') === CardMainType.Artifact;
   const hasMana = () =>
     getValue('cardMainType') !== CardMainType.ArtifactToken &&
     getValue('cardMainType') !== CardMainType.CreatureToken &&
     getValue('cardMainType') !== CardMainType.TokenLand &&
     getValue('cardMainType') !== CardMainType.Land &&
     getValue('cardMainType') !== CardMainType.Emblem;
+  const showManaCost = () => hasMana() && !editBack;
   // Tokens take their colors from the explicit Token Colors selection instead
   // of a mana cost (TokenLand keeps deriving colors from its rules text).
   const isColoredToken = () =>
     getValue('cardMainType') === CardMainType.CreatureToken ||
     getValue('cardMainType') === CardMainType.ArtifactToken;
 
-  const hasStats = () =>
-    isCreature() || isPlaneswalker() || (isArtifact() && !!getValue('vehicle'));
+  const hasStats = () => isCreature() || isPlaneswalker() || isVehicle();
 
   const hasNickname = () =>
     getValue('artStyle') !== CardArtStyles.Invention &&
@@ -312,14 +315,14 @@ const CardEditor: React.FC<CardEditorInterface> = ({
       })),
       width: 50,
     },
-    { key: 'legendary', type: 'bool', name: 'Legendary?', width: 100 },
+    { key: 'legendary', type: 'bool', name: 'Legendary?', width: isArtifact() ? 50 : 100 },
     {
       key: 'vehicle',
       type: 'bool',
       name: 'Vehicle?',
-      width: isArtifact() || getValue('cardMainType') === CardMainType.ArtifactCreature ? 100 : 0,
+      width: isArtifact() ? 50 : 0,
     },
-    { key: 'manaCost', type: 'input', name: 'Mana Cost', width: hasMana() ? 50 : 0 },
+    { key: 'manaCost', type: 'input', name: 'Mana Cost', width: showManaCost() ? 50 : 0 },
     {
       key: 'tokenColors',
       type: 'multi-select',
@@ -343,7 +346,9 @@ const CardEditor: React.FC<CardEditorInterface> = ({
         key: RarityType[type],
         value: RarityType[type],
       })),
-      width: hasMana() ? 50 : 100,
+      // The rarity is card-level and only editable on the front face; the
+      // card render still shows it on the back face.
+      width: editBack ? 0 : showManaCost() ? 50 : 100,
     },
     {
       key: 'cardMainType',

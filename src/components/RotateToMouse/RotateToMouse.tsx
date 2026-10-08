@@ -2,8 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 
 import styles from './RotateToMouse.module.scss';
 
-const MIN_ROTATE = -1.5;
-const MAX_ROTATE = 1.5;
+const MIN_ROTATE = -0.7;
+const MAX_ROTATE = 0.7;
 const HOVER_TRANSITION = 'transform 0.1s';
 const RESET_TRANSITION = 'transform 0.5s';
 
