@@ -96,7 +96,9 @@ const BLEND_RATIO = 0.07;
 
 /**
  * Carve a single color frame down to the mask shape: keep the frame pixel
- * wherever the mask is visible, transparent elsewhere.
+ * wherever the mask is visible, transparent elsewhere. The mask's alpha is
+ * carried into the result, multiplied with the frame's own alpha, so
+ * anti-aliased mask edges stay anti-aliased in the output.
  */
 function carveSingle(frame, mask) {
   const { width, height } = frame.bitmap;
@@ -111,7 +113,7 @@ function carveSingle(frame, mask) {
       outData[i] = frameData[i]; // R
       outData[i + 1] = frameData[i + 1]; // G
       outData[i + 2] = frameData[i + 2]; // B
-      outData[i + 3] = frameData[i + 3]; // A
+      outData[i + 3] = Math.round(frameData[i + 3] * (maskData[i + 3] / 255)); // A
     }
     // else: leave fully transparent (already 0 from blank image)
   }
@@ -147,7 +149,9 @@ function carveCombo(frame1, frame2, mask) {
       outData[i] = Math.round(d1[i] * (1 - t) + d2[i] * t); // R
       outData[i + 1] = Math.round(d1[i + 1] * (1 - t) + d2[i + 1] * t); // G
       outData[i + 2] = Math.round(d1[i + 2] * (1 - t) + d2[i + 2] * t); // B
-      outData[i + 3] = Math.round(d1[i + 3] * (1 - t) + d2[i + 3] * t); // A
+      outData[i + 3] = Math.round(
+        (d1[i + 3] * (1 - t) + d2[i + 3] * t) * (maskData[i + 3] / 255),
+      ); // A
     }
     // else: leave fully transparent (already 0 from blank image)
   }
@@ -263,6 +267,7 @@ async function run() {
     await generate(type, maskPath, frames, outputDir);
   }
   await generateVariantPinlines();
+  await generateAdventureParts();
   await generatePlaneswalkerPinlines();
   await generatePlaneswalkerNicknameCombos();
   await generateTokenParts();
@@ -452,6 +457,81 @@ async function generateVariantPinlines() {
     skipped.push(...comboResult.skipped);
 
     console.log(`\nDone. Wrote ${written} pinline/${variant.name} image(s) to ${outputDir}`);
+    if (skipped.length > 0) {
+      console.log(`Skipped ${skipped.length}:`);
+      for (const s of skipped) console.log(`  - ${s}`);
+    }
+  }
+}
+
+// Adventure frame parts: adventure cards have their own pinline and a
+// left-hand rules box, so both parts are carved from the adventure-specific
+// frames (`mainframes/adventure/<color>.png`) using the dedicated
+// `parts/adventurePinline.png` and `parts/adventureRulesLeft.png` masks. The
+// five WUBRG single colors and the gold (`m`) single are produced (gold for
+// multicolor adventures), along with the ten two-color combinations. Written
+// to `parts/adventurePinline/<color|combo>.png` and
+// `parts/adventureRulesLeft/<color|combo>.png`.
+const ADVENTURE_DIR = path.join(MAINFRAMES_DIR, 'adventure');
+const ADVENTURE_GOLD_COLOR = 'm';
+const ADVENTURE_SINGLE_COLORS = [...VARIANT_COLORS, ADVENTURE_GOLD_COLOR];
+const ADVENTURE_PART_TYPES = [
+  { type: 'adventurePinline', mask: 'adventurePinline.png' },
+  { type: 'adventureRulesLeft', mask: 'adventureRulesLeft.png' },
+];
+
+async function generateAdventureParts() {
+  for (const { type, mask: maskName } of ADVENTURE_PART_TYPES) {
+    const maskPath = path.join(PARTS_DIR, maskName);
+    if (!fs.existsSync(maskPath)) {
+      throw new Error(`Mask image not found: ${maskPath}`);
+    }
+    const mask = await Jimp.read(maskPath);
+    const { width: maskW, height: maskH } = mask.bitmap;
+
+    const frames = new Map();
+    for (const color of ADVENTURE_SINGLE_COLORS) {
+      const sourcePath = path.join(ADVENTURE_DIR, `${color}.png`);
+      if (fs.existsSync(sourcePath)) {
+        const frame = await Jimp.read(sourcePath);
+        if (!sameSize(frame, maskW, maskH)) {
+          frame.resize({ w: maskW, h: maskH });
+        }
+        frames.set(color, frame);
+      }
+    }
+
+    const outputDir = path.join(PARTS_DIR, type);
+    if (!fs.existsSync(outputDir)) {
+      fs.mkdirSync(outputDir, { recursive: true });
+    }
+
+    let written = 0;
+    const skipped = [];
+
+    // Single colors (WUBRG + gold).
+    for (const color of ADVENTURE_SINGLE_COLORS) {
+      const frame = frames.get(color);
+      if (!frame) {
+        skipped.push(`${color} (source missing)`);
+        continue;
+      }
+      if (!sameSize(frame, maskW, maskH)) {
+        skipped.push(`${color} (source size != mask ${maskW}x${maskH})`);
+        continue;
+      }
+      const out = carveSingle(frame, mask);
+      await out.write(path.join(outputDir, `${color}.png`));
+      written += 1;
+      console.log(`${type}  ✓ ${color}.png`);
+    }
+
+    // Two-color combinations.
+    const comboResult = await writeCombos(type, frames, mask, maskW, maskH, outputDir);
+    written += comboResult.written;
+    skipped.push(...comboResult.skipped);
+
+    console.log(`\nDone. Wrote ${written} ${type} image(s) to ${outputDir}`);
     if (skipped.length > 0) {
       console.log(`Skipped ${skipped.length}:`);
       for (const s of skipped) console.log(`  - ${s}`);
@@ -674,14 +754,15 @@ async function generateNicknameCombos() {
 // mask when carving (exactly like the nickname plates). Only the two-color
 // WUBRG combinations are produced; single colors, inner crowns and the
 // gold/land/colorless/artifact crowns are left untouched. This runs for the
-// base crowns and the `floating` and `nickname` crown styles.
+// base crowns and the `floating`, `nickname` and `adventure` crown styles.
 async function generateCrownCombos() {
-  // Base crown dir plus the floating/nickname style subdirectories. All use
-  // the same single-letter `<color>.png` / `<color>Thumb.png` naming.
+  // Base crown dir plus the floating/nickname/adventure style subdirectories.
+  // All use the same single-letter `<color>.png` / `<color>Thumb.png` naming.
   const crownDirs = [
     { label: 'crown', dir: CROWN_DIR },
     { label: 'crown/floating', dir: path.join(CROWN_DIR, 'floating') },
     { label: 'crown/nickname', dir: path.join(CROWN_DIR, 'nickname') },
+    { label: 'crown/adventure', dir: path.join(CROWN_DIR, 'adventure') },
   ];
 
   // Generate the full-res crowns (`w.png`) and the low-res thumbs

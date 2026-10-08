@@ -412,6 +412,21 @@ updateLog.push({
   ],
 });
 
+updateLog.push({
+  version: '2.2.1',
+  title: 'Hotfix',
+  content: [
+    {
+      type: ChangeLogFeatureType.Fixed,
+      feature: 'Back site of double-faced cards do not have a cost anymore',
+    },
+    {
+      type: ChangeLogFeatureType.Fixed,
+      feature: 'Artefacts use correct colored pinline in all Artstyles',
+    },
+  ],
+});
+//
 // updateLog.push({
 //   version: '1.1.3',
 //   title: 'New Card Type Update',
