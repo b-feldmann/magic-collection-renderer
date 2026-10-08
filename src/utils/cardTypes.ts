@@ -4,38 +4,29 @@ import CardInterface from '../interfaces/CardInterface';
 
 interface DecomposedType {
   cardTypes: CardType[];
-  token: boolean;
-  basic: boolean;
 }
 
-// Legacy CardMainType string -> new atomic cardTypes + token/basic flags.
+// Legacy CardMainType string -> new atomic cardTypes list. Token and BasicLand
+// are themselves CardType members (token combined with its base type).
 const LEGACY_MAP: Record<string, DecomposedType> = {
-  [CardMainType.Creature]: { cardTypes: [CardType.Creature], token: false, basic: false },
-  [CardMainType.Instant]: { cardTypes: [CardType.Instant], token: false, basic: false },
-  [CardMainType.Sorcery]: { cardTypes: [CardType.Sorcery], token: false, basic: false },
-  [CardMainType.Enchantment]: { cardTypes: [CardType.Enchantment], token: false, basic: false },
-  [CardMainType.EnchantmentCreature]: {
-    cardTypes: [CardType.Enchantment, CardType.Creature],
-    token: false,
-    basic: false,
-  },
-  [CardMainType.Artifact]: { cardTypes: [CardType.Artifact], token: false, basic: false },
-  [CardMainType.ArtifactCreature]: {
-    cardTypes: [CardType.Artifact, CardType.Creature],
-    token: false,
-    basic: false,
-  },
-  [CardMainType.CreatureToken]: { cardTypes: [CardType.Creature], token: true, basic: false },
-  [CardMainType.ArtifactToken]: { cardTypes: [CardType.Artifact], token: true, basic: false },
-  [CardMainType.TokenLand]: { cardTypes: [CardType.Land], token: true, basic: false },
-  [CardMainType.Land]: { cardTypes: [CardType.Land], token: false, basic: false },
-  [CardMainType.BasicLand]: { cardTypes: [CardType.Land], token: false, basic: true },
-  [CardMainType.Planeswalker]: { cardTypes: [CardType.Planeswalker], token: false, basic: false },
-  [CardMainType.Emblem]: { cardTypes: [CardType.Emblem], token: false, basic: false },
+  [CardMainType.Creature]: { cardTypes: [CardType.Creature] },
+  [CardMainType.Instant]: { cardTypes: [CardType.Instant] },
+  [CardMainType.Sorcery]: { cardTypes: [CardType.Sorcery] },
+  [CardMainType.Enchantment]: { cardTypes: [CardType.Enchantment] },
+  [CardMainType.EnchantmentCreature]: { cardTypes: [CardType.Enchantment, CardType.Creature] },
+  [CardMainType.Artifact]: { cardTypes: [CardType.Artifact] },
+  [CardMainType.ArtifactCreature]: { cardTypes: [CardType.Artifact, CardType.Creature] },
+  [CardMainType.CreatureToken]: { cardTypes: [CardType.Token, CardType.Creature] },
+  [CardMainType.ArtifactToken]: { cardTypes: [CardType.Token, CardType.Artifact] },
+  [CardMainType.TokenLand]: { cardTypes: [CardType.Token, CardType.Land] },
+  [CardMainType.Land]: { cardTypes: [CardType.Land] },
+  [CardMainType.BasicLand]: { cardTypes: [CardType.BasicLand] },
+  [CardMainType.Planeswalker]: { cardTypes: [CardType.Planeswalker] },
+  [CardMainType.Emblem]: { cardTypes: [CardType.Emblem] },
 };
 
 export const legacyMainTypeToTypes = (main: string): DecomposedType =>
-  LEGACY_MAP[main] ?? { cardTypes: [CardType.Creature], token: false, basic: false };
+  LEGACY_MAP[main] ?? { cardTypes: [CardType.Creature] };
 
 export const hasType = (face: CardFaceInterface, type: CardType): boolean =>
   Array.isArray(face.cardTypes) && face.cardTypes.includes(type);
@@ -48,12 +39,7 @@ export const normalizeCardFace = (face: CardFaceInterface): CardFaceInterface =>
   const decomposed = legacyMainTypeToTypes(
     typeof legacyMain === 'string' ? legacyMain : CardMainType.Creature,
   );
-  return {
-    ...face,
-    cardTypes: decomposed.cardTypes,
-    token: face.token ?? decomposed.token,
-    basic: face.basic ?? decomposed.basic,
-  };
+  return { ...face, cardTypes: decomposed.cardTypes };
 };
 
 export const normalizeCard = (card: CardInterface): CardInterface => ({
@@ -67,19 +53,19 @@ export const normalizeCard = (card: CardInterface): CardInterface => ({
 export const deriveLegacyMainType = (face: CardFaceInterface): CardMainType => {
   const types = Array.isArray(face.cardTypes) ? face.cardTypes : [];
   const has = (t: CardType) => types.includes(t);
-  if (has(CardType.Land)) {
-    if (face.basic) return CardMainType.BasicLand;
-    if (face.token) return CardMainType.TokenLand;
-    return CardMainType.Land;
+  if (has(CardType.BasicLand)) return CardMainType.BasicLand;
+  if (has(CardType.Token)) {
+    if (has(CardType.Land)) return CardMainType.TokenLand;
+    if (has(CardType.Artifact)) return CardMainType.ArtifactToken;
+    return CardMainType.CreatureToken;
   }
+  if (has(CardType.Land)) return CardMainType.Land;
   if (has(CardType.Creature)) {
-    if (face.token) return CardMainType.CreatureToken;
     if (has(CardType.Enchantment)) return CardMainType.EnchantmentCreature;
     if (has(CardType.Artifact)) return CardMainType.ArtifactCreature;
     return CardMainType.Creature;
   }
-  if (has(CardType.Artifact))
-    return face.token ? CardMainType.ArtifactToken : CardMainType.Artifact;
+  if (has(CardType.Artifact)) return CardMainType.Artifact;
   if (has(CardType.Enchantment)) return CardMainType.Enchantment;
   if (has(CardType.Planeswalker)) return CardMainType.Planeswalker;
   if (has(CardType.Instant)) return CardMainType.Instant;
@@ -90,13 +76,10 @@ export const deriveLegacyMainType = (face: CardFaceInterface): CardMainType => {
 
 export const formatTypeLine = (face: CardFaceInterface): string => {
   const types = Array.isArray(face.cardTypes) ? face.cardTypes : [];
-  const supertypes = [
-    face.legendary ? 'Legendary' : '',
-    face.basic ? 'Basic' : '',
-    face.token ? 'Token' : '',
-  ].filter(Boolean);
 
-  const left = [...supertypes, ...types].join(' ');
+  // Token and BasicLand are CardType members already in `types`; only
+  // legendary remains a boolean supertype to prefix.
+  const left = [face.legendary ? 'Legendary' : '', ...types].filter(Boolean).join(' ');
 
   const isArtifact = types.includes(CardType.Artifact);
   const subtypes = [face.vehicle && isArtifact ? 'Vehicle' : '', face.cardSubTypes]

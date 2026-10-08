@@ -7,8 +7,6 @@ export default interface CardFaceInterface {
   nickname?: string;
   legendary?: boolean;
   vehicle?: boolean;
-  token?: boolean;
-  basic?: boolean;
   cardTypes: CardType[];
   cardSubTypes?: string;
   basicLandType?: BasicLandType;

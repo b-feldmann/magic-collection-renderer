@@ -14,16 +14,14 @@ const face = (over: Partial<CardFaceInterface>): CardFaceInterface =>
 
 describe('legacyMainTypeToTypes', () => {
   it('maps simple types one-to-one', () => {
-    expect(legacyMainTypeToTypes('Creature')).toEqual({
-      cardTypes: [CardType.Creature],
-      token: false,
-      basic: false,
-    });
-    expect(legacyMainTypeToTypes('Land')).toEqual({
-      cardTypes: [CardType.Land],
-      token: false,
-      basic: false,
-    });
+    expect(legacyMainTypeToTypes('Creature')).toEqual({ cardTypes: [CardType.Creature] });
+    expect(legacyMainTypeToTypes('Land')).toEqual({ cardTypes: [CardType.Land] });
+    expect(legacyMainTypeToTypes('Instant')).toEqual({ cardTypes: [CardType.Instant] });
+    expect(legacyMainTypeToTypes('Sorcery')).toEqual({ cardTypes: [CardType.Sorcery] });
+    expect(legacyMainTypeToTypes('Enchantment')).toEqual({ cardTypes: [CardType.Enchantment] });
+    expect(legacyMainTypeToTypes('Artifact')).toEqual({ cardTypes: [CardType.Artifact] });
+    expect(legacyMainTypeToTypes('Planeswalker')).toEqual({ cardTypes: [CardType.Planeswalker] });
+    expect(legacyMainTypeToTypes('Emblem')).toEqual({ cardTypes: [CardType.Emblem] });
   });
 
   it('decomposes combined types', () => {
@@ -37,30 +35,20 @@ describe('legacyMainTypeToTypes', () => {
     ]);
   });
 
-  it('moves token-ness to the token flag', () => {
-    expect(legacyMainTypeToTypes('Token Creature')).toEqual({
-      cardTypes: [CardType.Creature],
-      token: true,
-      basic: false,
-    });
-    expect(legacyMainTypeToTypes('Token Artifact')).toEqual({
-      cardTypes: [CardType.Artifact],
-      token: true,
-      basic: false,
-    });
-    expect(legacyMainTypeToTypes('Token Land')).toEqual({
-      cardTypes: [CardType.Land],
-      token: true,
-      basic: false,
-    });
+  it('models token-ness as the Token type combined with the base type', () => {
+    expect(legacyMainTypeToTypes('Token Creature').cardTypes).toEqual([
+      CardType.Token,
+      CardType.Creature,
+    ]);
+    expect(legacyMainTypeToTypes('Token Artifact').cardTypes).toEqual([
+      CardType.Token,
+      CardType.Artifact,
+    ]);
+    expect(legacyMainTypeToTypes('Token Land').cardTypes).toEqual([CardType.Token, CardType.Land]);
   });
 
-  it('moves basic-ness to the basic flag', () => {
-    expect(legacyMainTypeToTypes('Basic Land')).toEqual({
-      cardTypes: [CardType.Land],
-      token: false,
-      basic: true,
-    });
+  it('models a basic land as the standalone BasicLand type', () => {
+    expect(legacyMainTypeToTypes('Basic Land').cardTypes).toEqual([CardType.BasicLand]);
   });
 
   it('falls back to Creature for unknown input', () => {
@@ -73,8 +61,7 @@ describe('normalizeCardFace', () => {
     const f = normalizeCardFace(
       face({ cardTypes: undefined as never, cardMainType: 'Token Land' }),
     );
-    expect(f.cardTypes).toEqual([CardType.Land]);
-    expect(f.token).toBe(true);
+    expect(f.cardTypes).toEqual([CardType.Token, CardType.Land]);
   });
 
   it('leaves an already-new face untouched', () => {
@@ -84,14 +71,23 @@ describe('normalizeCardFace', () => {
 });
 
 describe('deriveLegacyMainType', () => {
-  it('round-trips the combined and flagged shapes', () => {
+  it('round-trips the combined and token/basic shapes', () => {
     expect(
       deriveLegacyMainType(face({ cardTypes: [CardType.Enchantment, CardType.Creature] })),
     ).toBe(CardMainType.EnchantmentCreature);
-    expect(deriveLegacyMainType(face({ cardTypes: [CardType.Land], token: true }))).toBe(
+    expect(deriveLegacyMainType(face({ cardTypes: [CardType.Artifact, CardType.Creature] }))).toBe(
+      CardMainType.ArtifactCreature,
+    );
+    expect(deriveLegacyMainType(face({ cardTypes: [CardType.Token, CardType.Creature] }))).toBe(
+      CardMainType.CreatureToken,
+    );
+    expect(deriveLegacyMainType(face({ cardTypes: [CardType.Token, CardType.Artifact] }))).toBe(
+      CardMainType.ArtifactToken,
+    );
+    expect(deriveLegacyMainType(face({ cardTypes: [CardType.Token, CardType.Land] }))).toBe(
       CardMainType.TokenLand,
     );
-    expect(deriveLegacyMainType(face({ cardTypes: [CardType.Land], basic: true }))).toBe(
+    expect(deriveLegacyMainType(face({ cardTypes: [CardType.BasicLand] }))).toBe(
       CardMainType.BasicLand,
     );
     expect(deriveLegacyMainType(face({ cardTypes: [CardType.Creature] }))).toBe(
@@ -115,11 +111,11 @@ describe('formatTypeLine', () => {
     );
   });
 
-  it('prefixes legendary, basic and token in MTG order', () => {
-    expect(formatTypeLine(face({ cardTypes: [CardType.Land], basic: true, legendary: true }))).toBe(
+  it('prefixes legendary and prints Token/BasicLand from the type list', () => {
+    expect(formatTypeLine(face({ cardTypes: [CardType.BasicLand], legendary: true }))).toBe(
       'Legendary Basic Land',
     );
-    expect(formatTypeLine(face({ cardTypes: [CardType.Creature], token: true }))).toBe(
+    expect(formatTypeLine(face({ cardTypes: [CardType.Token, CardType.Creature] }))).toBe(
       'Token Creature',
     );
   });
