@@ -1,4 +1,4 @@
-import { BasicLandType, CardMainType, ColorType, CoverFit } from './enums';
+import { BasicLandType, CardType, ColorType, CoverFit } from './enums';
 
 export default interface CardFaceInterface {
   [key: string]: number | string | boolean | undefined | string[];
@@ -7,7 +7,9 @@ export default interface CardFaceInterface {
   nickname?: string;
   legendary?: boolean;
   vehicle?: boolean;
-  cardMainType: CardMainType;
+  token?: boolean;
+  basic?: boolean;
+  cardTypes: CardType[];
   cardSubTypes?: string;
   basicLandType?: BasicLandType;
   cardText: string[];
