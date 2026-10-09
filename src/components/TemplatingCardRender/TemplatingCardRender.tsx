@@ -250,6 +250,9 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
       ? getRulesPart(landColors, isArtifact, true)
       : getLandRulesPart(landColors)
     : getRulesPart(allColors, isArtifact, isToken);
+  if (isAdventure) {
+    rulesPart = '';
+  }
   if (artStyle === CardArtStyles.Borderless) {
     titlePart = '';
     typePart = '';
@@ -379,6 +382,13 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
             fallBackColor={artStyle !== CardArtStyles.Borderless ? hexColor : undefined}
           />
 
+          {titlePart ? <img className={styles.titlePart} src={titlePart} alt="" /> : null}
+          {typePart ? <img className={styles.typePart} src={typePart} alt="" /> : null}
+          {rulesPart ? <img className={styles.rulesPart} src={rulesPart} alt="" /> : null}
+          {adventureRulesLeft ? (
+            <img className={styles.adventureRulesLeft} src={adventureRulesLeft} alt="" />
+          ) : null}
+
           {pinline ? <img className={styles.pinline} src={pinline} alt="" /> : null}
           {isNickname && !crown && (
             <ImageLoader
@@ -391,15 +401,6 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
           {crown2}
           {crown}
           {crownInner}
-
-          {/*{overlay ? <img className={styles.overlay} src={overlay} alt="" /> : null}*/}
-
-          {titlePart ? <img className={styles.titlePart} src={titlePart} alt="" /> : null}
-          {typePart ? <img className={styles.typePart} src={typePart} alt="" /> : null}
-          {rulesPart ? <img className={styles.rulesPart} src={rulesPart} alt="" /> : null}
-          {adventureRulesLeft ? (
-            <img className={styles.adventureRulesLeft} src={adventureRulesLeft} alt="" />
-          ) : null}
 
           <ImageLoader
             src={getRarityIcon(rarity)}

@@ -844,7 +844,7 @@ export const getNicknameTitle = (
   if (colors && colors.length === 2) {
     return NICKNAME_TITLE_COMBOS[getTwoColorVariant(colors)];
   }
-  if (isArtefact) {
+  if (isArtefact && color === ColorType.Colorless) {
     return NicknameTitleA;
   }
 
@@ -1561,6 +1561,8 @@ export const getPinline = (
     if (colors.length === 2) return TOKEN_PINLINES[getTwoColorVariant(colors)];
     return '';
   }
+
+  if (artStyle === CardArtStyles.Invention) return '';
 
   const variantPinlines =
     artStyle === CardArtStyles.Extended

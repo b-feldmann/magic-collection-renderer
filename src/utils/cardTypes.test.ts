@@ -6,6 +6,7 @@ import {
   deriveLegacyMainType,
   hasType,
   formatTypeLine,
+  resolveExclusiveCardTypes,
 } from './cardTypes';
 import { CardType, CardMainType } from '../interfaces/enums';
 import CardFaceInterface from '../interfaces/CardFaceInterface';
@@ -168,5 +169,79 @@ describe('formatTypeLine', () => {
     expect(formatTypeLine(face({ cardTypes: [CardType.Artifact], vehicle: true }))).toBe(
       'Artifact – Vehicle',
     );
+  });
+});
+
+describe('resolveExclusiveCardTypes', () => {
+  it('strips a newly added Adventure when Omen already exists', () => {
+    expect(
+      resolveExclusiveCardTypes(
+        [CardType.Creature, CardType.Omen, CardType.Adventure],
+        [CardType.Creature, CardType.Omen],
+      ),
+    ).toEqual([CardType.Creature, CardType.Omen]);
+  });
+
+  it('strips a newly added Omen when Adventure already exists', () => {
+    expect(
+      resolveExclusiveCardTypes(
+        [CardType.Creature, CardType.Adventure, CardType.Omen],
+        [CardType.Creature, CardType.Adventure],
+      ),
+    ).toEqual([CardType.Creature, CardType.Adventure]);
+  });
+
+  it('strips newly added group members while the established one survives', () => {
+    expect(
+      resolveExclusiveCardTypes(
+        [CardType.Creature, CardType.Adventure, CardType.SplitCard],
+        [CardType.Creature, CardType.Adventure],
+      ),
+    ).toEqual([CardType.Creature, CardType.Adventure]);
+    expect(
+      resolveExclusiveCardTypes(
+        [CardType.Creature, CardType.Omen, CardType.Aftermath],
+        [CardType.Creature, CardType.Omen],
+      ),
+    ).toEqual([CardType.Creature, CardType.Omen]);
+    expect(
+      resolveExclusiveCardTypes(
+        [CardType.Creature, CardType.Aftermath, CardType.Planeswalker],
+        [CardType.Creature, CardType.Aftermath],
+      ),
+    ).toEqual([CardType.Creature, CardType.Aftermath]);
+  });
+
+  it('strips Token as a newcomer group member on an Adventure face', () => {
+    expect(
+      resolveExclusiveCardTypes(
+        [CardType.Token, CardType.Creature, CardType.Adventure, CardType.Planeswalker],
+        [CardType.Creature, CardType.Adventure],
+      ),
+    ).toEqual([CardType.Creature, CardType.Adventure]);
+  });
+
+  it('keeps the first-added type when several group members are added at once', () => {
+    expect(resolveExclusiveCardTypes([CardType.Omen, CardType.Adventure], [])).toEqual([
+      CardType.Omen,
+    ]);
+    expect(resolveExclusiveCardTypes([CardType.Omen, CardType.Aftermath], [])).toEqual([
+      CardType.Omen,
+    ]);
+  });
+
+  it('leaves non-conflicting lists untouched', () => {
+    expect(
+      resolveExclusiveCardTypes([CardType.Creature, CardType.Omen], [CardType.Creature]),
+    ).toEqual([CardType.Creature, CardType.Omen]);
+    expect(
+      resolveExclusiveCardTypes([CardType.Creature, CardType.Adventure], [CardType.Creature]),
+    ).toEqual([CardType.Creature, CardType.Adventure]);
+    expect(
+      resolveExclusiveCardTypes(
+        [CardType.Creature, CardType.Adventure, CardType.Instant],
+        [CardType.Creature],
+      ),
+    ).toEqual([CardType.Creature, CardType.Adventure, CardType.Instant]);
   });
 });

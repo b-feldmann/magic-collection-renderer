@@ -31,6 +31,31 @@ export const legacyMainTypeToTypes = (main: string): DecomposedType =>
 export const hasType = (face: CardFaceInterface, type: CardType): boolean =>
   Array.isArray(face.cardTypes) && face.cardTypes.includes(type);
 
+// Card types that can never share a face (at most one of them per card).
+// The editor disables the other members in the Card Types select and hides the
+// Invention art style; this guard backstops programmatic saves.
+export const MUTUALLY_EXCLUSIVE_CARD_TYPES = [
+  CardType.Adventure,
+  CardType.Omen,
+  CardType.SplitCard,
+  CardType.Aftermath,
+  CardType.Planeswalker,
+  CardType.Token,
+];
+
+// Keeps at most one member of MUTUALLY_EXCLUSIVE_CARD_TYPES: a member that
+// was already present in `previousTypes` survives, otherwise the first-listed
+// member in `types` wins.
+export const resolveExclusiveCardTypes = (
+  types: CardType[],
+  previousTypes: CardType[],
+): CardType[] => {
+  const present = types.filter(t => MUTUALLY_EXCLUSIVE_CARD_TYPES.includes(t));
+  if (present.length <= 1) return types;
+  const keep = present.find(t => previousTypes.includes(t)) ?? present[0];
+  return types.filter(t => !MUTUALLY_EXCLUSIVE_CARD_TYPES.includes(t) || t === keep);
+};
+
 // Ensure a face carries the new shape. If it already has a cardTypes array we
 // leave it alone; otherwise we derive it from the legacy cardMainType string.
 export const normalizeCardFace = (face: CardFaceInterface): CardFaceInterface => {

@@ -41,6 +41,9 @@ export enum CardType {
   Token = 'Token',
   BasicLand = 'Basic Land',
   Adventure = 'Adventure',
+  Omen = 'Omen',
+  SplitCard = 'Split Card',
+  Aftermath = 'Aftermath',
 }
 
 export enum BasicLandType {

@@ -157,10 +157,13 @@
   }
 
   .tokenTitle {
-    left: 0;
     text-align: center;
-    width: 1452px;
+    width: 1248px;
     color: white;
+
+    div {
+      justify-content: center;
+    }
   }
 
   .type {

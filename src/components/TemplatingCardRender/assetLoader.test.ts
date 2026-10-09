@@ -69,6 +69,14 @@ describe('getPinline', () => {
   it('renders no pinline on a 3+ color non-artifact card', () => {
     expect(getPinline([ColorType.White, ColorType.Blue, ColorType.Black], false)).toBe('');
   });
+
+  it('renders no pinline in the Invention art style', () => {
+    expect(getPinline([ColorType.White], true, CardArtStyles.Invention)).toBe('');
+    expect(getPinline([ColorType.White, ColorType.Blue], true, CardArtStyles.Invention)).toBe('');
+    expect(
+      getPinline([ColorType.White, ColorType.Blue, ColorType.Black], true, CardArtStyles.Invention),
+    ).toBe('');
+  });
 });
 
 describe('getCrown', () => {

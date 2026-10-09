@@ -17,6 +17,7 @@ import {
   RarityType,
 } from '../../interfaces/enums';
 import EditField from './EditField';
+import { MUTUALLY_EXCLUSIVE_CARD_TYPES, resolveExclusiveCardTypes } from '../../utils/cardTypes';
 
 import CardFaceInterface from '../../interfaces/CardFaceInterface';
 import { deleteCard, updateCard } from '../../actions/cardActions';
@@ -43,7 +44,14 @@ const isArtStyleAvailableForType = (artStyle: string, cardTypes: CardType[] = []
     return (Object.values(BasicLandArtStyles) as string[]).includes(artStyle);
   }
   if (artStyle === CardArtStyles.Invocation) return false;
-  if (artStyle === CardArtStyles.Invention) return cardTypes.includes(CardType.Artifact);
+  // Invention is artifact-only and unavailable for the mutually exclusive
+  // showcase types (Adventure/Omen/Split Card/Aftermath/Planeswalker).
+  if (artStyle === CardArtStyles.Invention) {
+    return (
+      cardTypes.includes(CardType.Artifact) &&
+      !MUTUALLY_EXCLUSIVE_CARD_TYPES.some(t => cardTypes.includes(t))
+    );
+  }
   if (artStyle !== CardArtStyles.Regular) {
     if (cardTypes.includes(CardType.Token)) return false;
     // Planeswalkers only support the Borderless showcase frames, not the other
@@ -91,6 +99,7 @@ interface InputConfigInterface {
     | 'bool';
   name: string;
   data?: { key: string; value: string }[];
+  disabledKeys?: string[];
   width?: number;
 }
 
@@ -112,7 +121,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
 
   const { dispatch, user, mechanics, currentUser } = useContext<StoreType>(Store);
 
-  const canDeleteCard = currentUser.name === BJENNWARE;
+  const canDeleteCard = currentUser.name === BJENNWARE || card.creator.uuid === currentUser.uuid;
 
   const getCurrentFace = (currentCard: CardInterface): CardFaceInterface => {
     if (currentCard.back && editBack) return currentCard.back;
@@ -147,7 +156,8 @@ const CardEditor: React.FC<CardEditorInterface> = ({
     }
 
     if (key === 'cardTypes') {
-      const nextTypes: CardType[] = value || [];
+      const previousTypes: CardType[] = getCurrentFace(tmpCard).cardTypes || [];
+      const nextTypes: CardType[] = resolveExclusiveCardTypes(value || [], previousTypes);
 
       if (nextTypes.includes(CardType.BasicLand)) {
         const bl = getValue('basicLandType');
@@ -277,6 +287,21 @@ const CardEditor: React.FC<CardEditorInterface> = ({
     getValue('artStyle') !== CardArtStyles.Invention &&
     getValue('artStyle') !== CardArtStyles.Invocation;
 
+  // With one member of the exclusive group selected, the other members become
+  // unselectable in the Card Types multi-select.
+  const exclusiveDisabledKeys = types().some(t =>
+    MUTUALLY_EXCLUSIVE_CARD_TYPES.includes(t as CardType),
+  )
+    ? MUTUALLY_EXCLUSIVE_CARD_TYPES.filter(t => !types().includes(t as CardType))
+    : [];
+
+  const cardTypeOptions = (Object.keys(CardType) as (keyof typeof CardType)[])
+    .map(type => ({
+      key: CardType[type],
+      value: CardType[type],
+    }))
+    .sort((a, b) => a.value.localeCompare(b.value));
+
   let inputConfig: InputConfigInterface[] = [
     {
       key: 'artStyle',
@@ -344,13 +369,11 @@ const CardEditor: React.FC<CardEditorInterface> = ({
       key: 'cardTypes',
       type: 'multi-select',
       name: 'Card Types',
-      data: (Object.keys(CardType) as (keyof typeof CardType)[]).map(type => ({
-        key: CardType[type],
-        value: CardType[type],
-      })),
+      data: cardTypeOptions,
+      disabledKeys: exclusiveDisabledKeys,
       width: 100,
     },
-    { key: 'cardSubTypes', type: 'input', name: 'Card Sub Types', width: 50 },
+    { key: 'cardSubTypes', type: 'input', name: 'Card Sub Types', width: 100 },
     {
       key: 'cardText',
       type: isPlaneswalker() ? 'split-list' : 'text-list',
@@ -409,10 +432,8 @@ const CardEditor: React.FC<CardEditorInterface> = ({
         key: 'cardTypes',
         type: 'multi-select',
         name: 'Card Types',
-        data: (Object.keys(CardType) as (keyof typeof CardType)[]).map(type => ({
-          key: CardType[type],
-          value: CardType[type],
-        })),
+        data: cardTypeOptions,
+        disabledKeys: exclusiveDisabledKeys,
         width: 100,
       },
       {
@@ -515,6 +536,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
                 fieldKey={config.key}
                 type={config.type}
                 data={config.data}
+                disabledKeys={config.disabledKeys}
                 name={config.name}
                 saveValue={saveValue}
                 getValue={getValue}

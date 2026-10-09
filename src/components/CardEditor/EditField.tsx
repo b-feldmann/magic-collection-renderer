@@ -26,13 +26,14 @@ interface EditFieldInterface {
     | 'bool';
   name: string;
   data?: { key: string; value: string }[];
+  disabledKeys?: string[];
   getValue: (key: string) => any;
   saveValue: (key: string, value: any) => void;
   mechanics?: MechanicInterface[];
 }
 
 const EditField = (props: EditFieldInterface) => {
-  const { type, fieldKey, name, data, getValue, saveValue, mechanics } = props;
+  const { type, fieldKey, name, data, disabledKeys, getValue, saveValue, mechanics } = props;
 
   const renderAddMechanic = () => {
     if (!mechanics || mechanics.length === 0) return null;
@@ -215,6 +216,7 @@ const EditField = (props: EditFieldInterface) => {
             key: `${fieldKey} + ${d.key}`,
             value: d.key,
             label: d.value,
+            disabled: disabledKeys?.includes(d.key),
           }))}
         />
       </span>
