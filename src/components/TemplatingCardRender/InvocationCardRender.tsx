@@ -6,9 +6,10 @@ import { Mana } from '../Mana/Mana';
 
 import TextResize from '../TextResize/TextResize';
 
-import { CardMainType, CoverFit, RarityType } from '../../interfaces/enums';
+import { CardType, CoverFit, RarityType } from '../../interfaces/enums';
 import { Store, StoreType } from '../../store';
 import { getColor } from '../../utils/cardToColor';
+import { formatTypeLine } from '../../utils/cardTypes';
 
 import styles from './TemplatingCardRender.module.scss';
 import {
@@ -33,7 +34,7 @@ interface InvocationCardRenderProps {
   manaCost: string;
   legendary?: boolean;
   vehicle?: boolean;
-  cardMainType: CardMainType;
+  cardTypes: CardType[];
   cardSubTypes?: string;
   cardText: string[];
   cardStats?: string;
@@ -48,7 +49,7 @@ interface InvocationCardRenderProps {
 }
 
 const InvocationCardRender = (cardRender: InvocationCardRenderProps) => {
-  const { legendary, vehicle, cardMainType, cardSubTypes } = cardRender;
+  const { vehicle, cardTypes } = cardRender;
   const { name, manaCost, cardStats, cover, coverFit, creator } = cardRender;
   const { cardText, flavourText = '', flavourAuthor, cardID } = cardRender;
   const { backFace, collectionNumber, collectionSize } = cardRender;
@@ -64,12 +65,8 @@ const InvocationCardRender = (cardRender: InvocationCardRenderProps) => {
     return resizeFactor(width) * CARD_HEIGHT;
   };
 
-  const isCreature =
-    cardMainType === CardMainType.Creature ||
-    cardMainType === CardMainType.ArtifactCreature ||
-    cardMainType === CardMainType.CreatureToken;
-  const isArtifact =
-    cardMainType === CardMainType.Artifact || cardMainType === CardMainType.ArtifactCreature;
+  const isCreature = cardTypes.includes(CardType.Creature);
+  const isArtifact = cardTypes.includes(CardType.Artifact);
 
   const { color, orderedCost } = getColor(manaCost);
   const mainframe = getInvocationMainframe(color);
@@ -114,13 +111,7 @@ const InvocationCardRender = (cardRender: InvocationCardRenderProps) => {
           <ImageLoader src={getRarityIcon(RarityType.Common)} alt="" className={styles.rarity} />
 
           <div className={styles.title}>{name}</div>
-          <div className={styles.type}>
-            {legendary ? 'Legendary ' : ''}
-            {cardMainType}
-            {[vehicle && isArtifact ? 'Vehicle' : '', cardSubTypes].filter(Boolean).join(' ')
-              ? ` – ${[vehicle && isArtifact ? 'Vehicle' : '', cardSubTypes].filter(Boolean).join(' ')}`
-              : ''}
-          </div>
+          <div className={styles.type}>{formatTypeLine(cardRender)}</div>
 
           <div className={styles.text}>
             <TextResize

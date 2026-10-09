@@ -9,12 +9,13 @@ import TextResize from '../TextResize/TextResize';
 import {
   BasicLandArtStyles,
   CardArtStyles,
-  CardMainType,
+  CardType,
   CoverFit,
   RarityType,
 } from '../../interfaces/enums';
 import { Store, StoreType } from '../../store';
 import { getColor } from '../../utils/cardToColor';
+import { formatTypeLine } from '../../utils/cardTypes';
 
 import styles from './TemplatingCardRender.module.scss';
 import planeswalkerStyles from './Planeswalker.module.scss';
@@ -45,7 +46,7 @@ interface PlaneswalkerCardRenderProps {
   manaCost: string;
   legendary?: boolean;
   nickname?: string;
-  cardMainType: CardMainType;
+  cardTypes: CardType[];
   cardSubTypes?: string;
   cardText: string[];
   cardStats?: string;
@@ -60,7 +61,6 @@ interface PlaneswalkerCardRenderProps {
 }
 
 const PlaneswalkerCardRender = (cardRender: PlaneswalkerCardRenderProps) => {
-  const { legendary, cardMainType, cardSubTypes } = cardRender;
   const { name, manaCost, cardStats, cover, coverFit, creator } = cardRender;
   const { cardText, cardID } = cardRender;
   const { backFace, collectionNumber, collectionSize, rarity } = cardRender;
@@ -201,11 +201,7 @@ const PlaneswalkerCardRender = (cardRender: PlaneswalkerCardRenderProps) => {
             <div className={`${styles.nicknameText} ${styles.nicknameText}`}>{nickname}</div>
           ) : null}
 
-          <div className={styles.type}>
-            {legendary ? 'Legendary ' : ''}
-            {cardMainType}
-            {cardSubTypes ? ` – ${cardSubTypes}` : ''}
-          </div>
+          <div className={styles.type}>{formatTypeLine(cardRender)}</div>
 
           <div>
             {cardText.map((val, i) => {
