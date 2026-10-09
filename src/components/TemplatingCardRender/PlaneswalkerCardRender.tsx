@@ -16,6 +16,7 @@ import {
 import { Store, StoreType } from '../../store';
 import { getColor } from '../../utils/cardToColor';
 import { formatTypeLine } from '../../utils/cardTypes';
+import CardFaceInterface from '../../interfaces/CardFaceInterface';
 
 import styles from './TemplatingCardRender.module.scss';
 import planeswalkerStyles from './Planeswalker.module.scss';
@@ -201,7 +202,9 @@ const PlaneswalkerCardRender = (cardRender: PlaneswalkerCardRenderProps) => {
             <div className={`${styles.nicknameText} ${styles.nicknameText}`}>{nickname}</div>
           ) : null}
 
-          <div className={styles.type}>{formatTypeLine(cardRender)}</div>
+          <div className={styles.type}>
+            {formatTypeLine(cardRender as unknown as CardFaceInterface)}
+          </div>
 
           <div>
             {cardText.map((val, i) => {

@@ -5,7 +5,7 @@ import '@testing-library/jest-dom/vitest';
 
 import CardEditor from './CardEditor';
 import { Store, StoreType } from '../../store';
-import { CardMainType, CardState, ColorType, RarityType } from '../../interfaces/enums';
+import { CardType, CardState, ColorType, RarityType } from '../../interfaces/enums';
 import { UNKNOWN_CREATOR } from '../../utils/constants';
 import type CardInterface from '../../interfaces/CardInterface';
 
@@ -50,14 +50,14 @@ const mockStoreValue: StoreType = {
   dispatch: () => {},
 };
 
-const makeCard = (cardMainType: CardMainType, tokenColors?: ColorType[]): CardInterface => ({
+const makeCard = (cardTypes: CardType[], tokenColors?: ColorType[]): CardInterface => ({
   name: '',
   uuid: 'card-1',
   manaCost: '',
   rarity: RarityType.Common,
   front: {
     name: 'Test',
-    cardMainType,
+    cardTypes,
     cardText: [],
     ...(tokenColors ? { tokenColors } : {}),
   },
@@ -76,7 +76,7 @@ describe('CardEditor - token colors', () => {
   it('shows the Token Colors multi-select for a creature token', () => {
     render(
       <Store.Provider value={mockStoreValue}>
-        <CardEditor card={makeCard(CardMainType.CreatureToken)} saveTmpCard={() => {}} />
+        <CardEditor card={makeCard([CardType.Token, CardType.Creature])} saveTmpCard={() => {}} />
       </Store.Provider>,
     );
 
@@ -86,7 +86,7 @@ describe('CardEditor - token colors', () => {
   it('CONTROL: hides the Token Colors select for a regular creature', () => {
     render(
       <Store.Provider value={mockStoreValue}>
-        <CardEditor card={makeCard(CardMainType.Creature)} saveTmpCard={() => {}} />
+        <CardEditor card={makeCard([CardType.Creature])} saveTmpCard={() => {}} />
       </Store.Provider>,
     );
 
@@ -97,7 +97,10 @@ describe('CardEditor - token colors', () => {
     const saveTmpCard = vi.fn();
     render(
       <Store.Provider value={mockStoreValue}>
-        <CardEditor card={makeCard(CardMainType.CreatureToken)} saveTmpCard={saveTmpCard} />
+        <CardEditor
+          card={makeCard([CardType.Token, CardType.Creature])}
+          saveTmpCard={saveTmpCard}
+        />
       </Store.Provider>,
     );
 

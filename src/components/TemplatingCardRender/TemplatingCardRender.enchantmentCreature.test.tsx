@@ -5,7 +5,7 @@ import '@testing-library/jest-dom/vitest';
 
 import TemplatingCardRender from './TemplatingCardRender';
 import { Store, StoreType } from '../../store';
-import { CardMainType, RarityType } from '../../interfaces/enums';
+import { CardType, RarityType } from '../../interfaces/enums';
 import { UNKNOWN_CREATOR } from '../../utils/constants';
 
 // jsdom polyfills required by TextResize.
@@ -28,7 +28,7 @@ const mockStoreValue: StoreType = {
   dispatch: () => {},
 };
 
-const renderCard = (cardMainType: CardMainType) =>
+const renderCard = (cardTypes: CardType[]) =>
   render(
     <Store.Provider value={mockStoreValue}>
       <TemplatingCardRender
@@ -36,7 +36,7 @@ const renderCard = (cardMainType: CardMainType) =>
         rarity={RarityType.Common}
         cardID="test-card"
         manaCost="{1}{W}"
-        cardMainType={cardMainType}
+        cardTypes={cardTypes}
         cardSubTypes="Human"
         cardText={['Some rules text.']}
         cardStats="2/2"
@@ -48,7 +48,7 @@ const renderCard = (cardMainType: CardMainType) =>
 
 describe('TemplatingCardRender - Enchantment Creature main type', () => {
   it('renders the type line as "Enchantment Creature"', () => {
-    renderCard(CardMainType.EnchantmentCreature);
+    renderCard([CardType.Enchantment, CardType.Creature]);
 
     // The type line is composed of several text nodes (legendary prefix,
     // main type, sub types), so match on the combined text.
@@ -56,13 +56,13 @@ describe('TemplatingCardRender - Enchantment Creature main type', () => {
   });
 
   it('renders power/toughness stats like other creature types', () => {
-    renderCard(CardMainType.EnchantmentCreature);
+    renderCard([CardType.Enchantment, CardType.Creature]);
 
     expect(screen.getByText('2/2')).toBeInTheDocument();
   });
 
   it('CONTROL: a plain Enchantment does not show power/toughness', () => {
-    renderCard(CardMainType.Enchantment);
+    renderCard([CardType.Enchantment]);
 
     expect(screen.queryByText('2/2')).not.toBeInTheDocument();
   });

@@ -5,7 +5,7 @@ import '@testing-library/jest-dom/vitest';
 
 import TemplatingCardRender from './TemplatingCardRender';
 import { Store, StoreType } from '../../store';
-import { CardMainType, RarityType } from '../../interfaces/enums';
+import { CardType, RarityType } from '../../interfaces/enums';
 import { UNKNOWN_CREATOR } from '../../utils/constants';
 
 // jsdom polyfills required by TextResize.
@@ -28,7 +28,7 @@ const mockStoreValue: StoreType = {
   dispatch: () => {},
 };
 
-const renderCard = (cardMainType: CardMainType, cardText: string[]) =>
+const renderCard = (cardTypes: CardType[], cardText: string[]) =>
   render(
     <Store.Provider value={mockStoreValue}>
       <TemplatingCardRender
@@ -36,7 +36,7 @@ const renderCard = (cardMainType: CardMainType, cardText: string[]) =>
         rarity={RarityType.Common}
         cardID="test-land"
         manaCost=""
-        cardMainType={cardMainType}
+        cardTypes={cardTypes}
         cardSubTypes=""
         cardText={cardText}
         collectionNumber={1}
@@ -45,7 +45,7 @@ const renderCard = (cardMainType: CardMainType, cardText: string[]) =>
     </Store.Provider>,
   );
 
-const renderLand = (cardText: string[]) => renderCard(CardMainType.Land, cardText);
+const renderLand = (cardText: string[]) => renderCard([CardType.Land], cardText);
 
 const getPinlineImage = () => {
   const images = Array.from(document.querySelectorAll('img'));
@@ -82,7 +82,7 @@ describe('TemplatingCardRender - land pinlines (colors from card text)', () => {
 
 describe('TemplatingCardRender - token land frame parts', () => {
   it('a two-color token land shows the token land type part and the token rules part', () => {
-    renderCard(CardMainType.TokenLand, ['{T}: Add {W} or {U}.']);
+    renderCard([CardType.Token, CardType.Land], ['{T}: Add {W} or {U}.']);
 
     const typePart = Array.from(document.querySelectorAll('img')).find(img =>
       img.className.includes('typePart'),
@@ -95,7 +95,7 @@ describe('TemplatingCardRender - token land frame parts', () => {
   });
 
   it('a colorless token land still shows the token land type part', () => {
-    renderCard(CardMainType.TokenLand, ['{T}: Add {C}.']);
+    renderCard([CardType.Token, CardType.Land], ['{T}: Add {C}.']);
 
     const typePart = Array.from(document.querySelectorAll('img')).find(img =>
       img.className.includes('typePart'),
@@ -104,7 +104,7 @@ describe('TemplatingCardRender - token land frame parts', () => {
   });
 
   it('a two-color regular land shows the regular rules part, not the token one', () => {
-    renderCard(CardMainType.Land, ['{T}: Add {W} or {U}.']);
+    renderCard([CardType.Land], ['{T}: Add {W} or {U}.']);
 
     const rulesPart = Array.from(document.querySelectorAll('img')).find(img =>
       img.className.includes('rulesPart'),

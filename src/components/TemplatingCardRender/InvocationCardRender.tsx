@@ -10,6 +10,7 @@ import { CardType, CoverFit, RarityType } from '../../interfaces/enums';
 import { Store, StoreType } from '../../store';
 import { getColor } from '../../utils/cardToColor';
 import { formatTypeLine } from '../../utils/cardTypes';
+import CardFaceInterface from '../../interfaces/CardFaceInterface';
 
 import styles from './TemplatingCardRender.module.scss';
 import {
@@ -111,7 +112,9 @@ const InvocationCardRender = (cardRender: InvocationCardRenderProps) => {
           <ImageLoader src={getRarityIcon(RarityType.Common)} alt="" className={styles.rarity} />
 
           <div className={styles.title}>{name}</div>
-          <div className={styles.type}>{formatTypeLine(cardRender)}</div>
+          <div className={styles.type}>
+            {formatTypeLine(cardRender as unknown as CardFaceInterface)}
+          </div>
 
           <div className={styles.text}>
             <TextResize

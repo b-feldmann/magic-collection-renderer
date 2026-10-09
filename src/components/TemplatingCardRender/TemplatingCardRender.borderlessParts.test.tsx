@@ -5,7 +5,7 @@ import '@testing-library/jest-dom/vitest';
 
 import TemplatingCardRender from './TemplatingCardRender';
 import { Store, StoreType } from '../../store';
-import { CardArtStyles, CardMainType, RarityType } from '../../interfaces/enums';
+import { CardArtStyles, CardType, RarityType } from '../../interfaces/enums';
 import { UNKNOWN_CREATOR } from '../../utils/constants';
 
 // jsdom polyfills required by TextResize.
@@ -28,7 +28,7 @@ const mockStoreValue: StoreType = {
   dispatch: () => {},
 };
 
-const renderBorderlessCard = (cardMainType: CardMainType, manaCost: string, cardText: string[]) =>
+const renderBorderlessCard = (cardTypes: CardType[], manaCost: string, cardText: string[]) =>
   render(
     <Store.Provider value={mockStoreValue}>
       <TemplatingCardRender
@@ -36,7 +36,7 @@ const renderBorderlessCard = (cardMainType: CardMainType, manaCost: string, card
         rarity={RarityType.Common}
         cardID="test-card"
         manaCost={manaCost}
-        cardMainType={cardMainType}
+        cardTypes={cardTypes}
         cardSubTypes=""
         cardText={cardText}
         artStyle={CardArtStyles.Borderless}
@@ -53,7 +53,7 @@ const getImageByPartClass = (partClass: string) => {
 
 describe('TemplatingCardRender - borderless cards get no title/type/rules parts', () => {
   it('borderless two-color land: no parts, but pinline still present', () => {
-    renderBorderlessCard(CardMainType.Land, '', ['{T}: Add {W} or {U}.']);
+    renderBorderlessCard([CardType.Land], '', ['{T}: Add {W} or {U}.']);
 
     expect(getImageByPartClass('titlePart')).toBeUndefined();
     expect(getImageByPartClass('typePart')).toBeUndefined();
@@ -62,7 +62,7 @@ describe('TemplatingCardRender - borderless cards get no title/type/rules parts'
   });
 
   it('borderless two-color non-artifact: no parts, but pinline still present', () => {
-    renderBorderlessCard(CardMainType.Creature, '{W}{U}', ['Some rules text.']);
+    renderBorderlessCard([CardType.Creature], '{W}{U}', ['Some rules text.']);
 
     expect(getImageByPartClass('titlePart')).toBeUndefined();
     expect(getImageByPartClass('typePart')).toBeUndefined();
@@ -71,7 +71,7 @@ describe('TemplatingCardRender - borderless cards get no title/type/rules parts'
   });
 
   it('borderless single-color artifact: no parts, but colored pinline present', () => {
-    renderBorderlessCard(CardMainType.Artifact, '{1}{W}', ['Some rules text.']);
+    renderBorderlessCard([CardType.Artifact], '{1}{W}', ['Some rules text.']);
 
     expect(getImageByPartClass('titlePart')).toBeUndefined();
     expect(getImageByPartClass('typePart')).toBeUndefined();

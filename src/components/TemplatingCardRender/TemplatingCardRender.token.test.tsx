@@ -5,7 +5,7 @@ import '@testing-library/jest-dom/vitest';
 
 import TemplatingCardRender from './TemplatingCardRender';
 import { Store, StoreType } from '../../store';
-import { CardMainType, ColorType, RarityType } from '../../interfaces/enums';
+import { CardType, ColorType, RarityType } from '../../interfaces/enums';
 import { UNKNOWN_CREATOR } from '../../utils/constants';
 
 // jsdom polyfills required by TextResize.
@@ -36,7 +36,7 @@ const renderToken = (tokenColors?: ColorType[], manaCost = '') =>
         rarity={RarityType.Common}
         cardID="test-token"
         manaCost={manaCost}
-        cardMainType={CardMainType.CreatureToken}
+        cardTypes={[CardType.Token, CardType.Creature]}
         cardSubTypes=""
         cardText={[]}
         tokenColors={tokenColors}

@@ -5,7 +5,7 @@ import '@testing-library/jest-dom/vitest';
 
 import CardEditor from './CardEditor';
 import { Store, StoreType } from '../../store';
-import { CardMainType, CardState, RarityType } from '../../interfaces/enums';
+import { CardType, CardState, RarityType } from '../../interfaces/enums';
 import { UNKNOWN_CREATOR } from '../../utils/constants';
 import type CardInterface from '../../interfaces/CardInterface';
 
@@ -47,14 +47,14 @@ const mockStoreValue: StoreType = {
   dispatch: () => {},
 };
 
-const makeCard = (cardMainType: CardMainType): CardInterface => ({
+const makeCard = (cardTypes: CardType[]): CardInterface => ({
   name: '',
   uuid: 'card-1',
   manaCost: '{1}{W}',
   rarity: RarityType.Common,
   front: {
     name: 'Test',
-    cardMainType,
+    cardTypes,
     cardText: [],
   },
   creator: UNKNOWN_CREATOR,
@@ -72,7 +72,10 @@ describe('CardEditor - Enchantment Creature main type', () => {
   it('shows the Power/Toughness input like other creature types', () => {
     render(
       <Store.Provider value={mockStoreValue}>
-        <CardEditor card={makeCard(CardMainType.EnchantmentCreature)} saveTmpCard={() => {}} />
+        <CardEditor
+          card={makeCard([CardType.Enchantment, CardType.Creature])}
+          saveTmpCard={() => {}}
+        />
       </Store.Provider>,
     );
 
@@ -83,7 +86,7 @@ describe('CardEditor - Enchantment Creature main type', () => {
   it('CONTROL: a plain Enchantment hides the Power/Toughness input', () => {
     render(
       <Store.Provider value={mockStoreValue}>
-        <CardEditor card={makeCard(CardMainType.Enchantment)} saveTmpCard={() => {}} />
+        <CardEditor card={makeCard([CardType.Enchantment])} saveTmpCard={() => {}} />
       </Store.Provider>,
     );
 

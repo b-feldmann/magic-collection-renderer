@@ -5,7 +5,7 @@ import '@testing-library/jest-dom/vitest';
 
 import TemplatingCardRender from './TemplatingCardRender';
 import { Store, StoreType } from '../../store';
-import { CardMainType, RarityType } from '../../interfaces/enums';
+import { CardType, RarityType } from '../../interfaces/enums';
 import { UNKNOWN_CREATOR } from '../../utils/constants';
 
 // jsdom polyfills required by TextResize.
@@ -28,7 +28,7 @@ const mockStoreValue: StoreType = {
   dispatch: () => {},
 };
 
-const renderCard = (cardMainType: CardMainType, vehicle: boolean) =>
+const renderCard = (cardTypes: CardType[], vehicle: boolean) =>
   render(
     <Store.Provider value={mockStoreValue}>
       <TemplatingCardRender
@@ -37,7 +37,7 @@ const renderCard = (cardMainType: CardMainType, vehicle: boolean) =>
         cardID="test-vehicle"
         manaCost="{2}"
         vehicle={vehicle}
-        cardMainType={cardMainType}
+        cardTypes={cardTypes}
         cardSubTypes="Copter"
         cardText={['Some rules text.']}
         cardStats="3/2"
@@ -49,19 +49,19 @@ const renderCard = (cardMainType: CardMainType, vehicle: boolean) =>
 
 describe('TemplatingCardRender - Vehicle (artifact + vehicle flag)', () => {
   it('renders power/toughness stats for an artifact vehicle', () => {
-    renderCard(CardMainType.Artifact, true);
+    renderCard([CardType.Artifact], true);
 
     expect(screen.getByText('3/2')).toBeInTheDocument();
   });
 
   it('renders the type line as "Artifact – Vehicle"', () => {
-    renderCard(CardMainType.Artifact, true);
+    renderCard([CardType.Artifact], true);
 
     expect(screen.getByText(/Vehicle/)).toBeInTheDocument();
   });
 
   it('CONTROL: a plain Artifact without the vehicle flag does not show power/toughness', () => {
-    renderCard(CardMainType.Artifact, false);
+    renderCard([CardType.Artifact], false);
 
     expect(screen.queryByText('3/2')).not.toBeInTheDocument();
   });

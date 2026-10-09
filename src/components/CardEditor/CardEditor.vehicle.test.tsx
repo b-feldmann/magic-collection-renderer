@@ -5,7 +5,7 @@ import '@testing-library/jest-dom/vitest';
 
 import CardEditor from './CardEditor';
 import { Store, StoreType } from '../../store';
-import { CardMainType, CardState, RarityType } from '../../interfaces/enums';
+import { CardType, CardState, RarityType } from '../../interfaces/enums';
 import { UNKNOWN_CREATOR } from '../../utils/constants';
 import type CardInterface from '../../interfaces/CardInterface';
 
@@ -47,14 +47,14 @@ const mockStoreValue: StoreType = {
   dispatch: () => {},
 };
 
-const makeCard = (cardMainType: CardMainType, vehicle?: boolean): CardInterface => ({
+const makeCard = (cardTypes: CardType[], vehicle?: boolean): CardInterface => ({
   name: '',
   uuid: 'card-1',
   manaCost: '{2}',
   rarity: RarityType.Common,
   front: {
     name: 'Test',
-    cardMainType,
+    cardTypes,
     cardText: [],
     vehicle,
   },
@@ -73,7 +73,7 @@ describe('CardEditor - Vehicle (artifact + vehicle flag)', () => {
   it('shows the Power/Toughness input for an artifact vehicle', () => {
     render(
       <Store.Provider value={mockStoreValue}>
-        <CardEditor card={makeCard(CardMainType.Artifact, true)} saveTmpCard={() => {}} />
+        <CardEditor card={makeCard([CardType.Artifact], true)} saveTmpCard={() => {}} />
       </Store.Provider>,
     );
 
@@ -84,7 +84,10 @@ describe('CardEditor - Vehicle (artifact + vehicle flag)', () => {
   it('shows the Vehicle checkbox for an artifact creature', () => {
     render(
       <Store.Provider value={mockStoreValue}>
-        <CardEditor card={makeCard(CardMainType.ArtifactCreature)} saveTmpCard={() => {}} />
+        <CardEditor
+          card={makeCard([CardType.Artifact, CardType.Creature])}
+          saveTmpCard={() => {}}
+        />
       </Store.Provider>,
     );
 
@@ -94,7 +97,7 @@ describe('CardEditor - Vehicle (artifact + vehicle flag)', () => {
   it('CONTROL: a plain Artifact hides the Power/Toughness input', () => {
     render(
       <Store.Provider value={mockStoreValue}>
-        <CardEditor card={makeCard(CardMainType.Artifact, false)} saveTmpCard={() => {}} />
+        <CardEditor card={makeCard([CardType.Artifact], false)} saveTmpCard={() => {}} />
       </Store.Provider>,
     );
 
@@ -105,7 +108,7 @@ describe('CardEditor - Vehicle (artifact + vehicle flag)', () => {
   it('CONTROL: a Creature hides the Vehicle checkbox', () => {
     render(
       <Store.Provider value={mockStoreValue}>
-        <CardEditor card={makeCard(CardMainType.Creature)} saveTmpCard={() => {}} />
+        <CardEditor card={makeCard([CardType.Creature])} saveTmpCard={() => {}} />
       </Store.Provider>,
     );
 

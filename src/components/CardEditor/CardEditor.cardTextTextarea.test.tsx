@@ -6,7 +6,7 @@ import CardEditor from './CardEditor';
 import CardInterface from '../../interfaces/CardInterface';
 import { Store, StoreType } from '../../store';
 import { updateCard } from '../../actions/cardActions';
-import { CardMainType, CardState, RarityType } from '../../interfaces/enums';
+import { CardType, CardState, RarityType } from '../../interfaces/enums';
 import { EDIT_SAVE_OFFSET, EDIT_TIME_OFFSET, UNKNOWN_CREATOR } from '../../utils/constants';
 
 vi.mock('../../actions/cardActions', () => ({
@@ -45,7 +45,7 @@ const makeCard = (overrides?: Partial<CardInterface['front']>): CardInterface =>
   rarity: RarityType.Common,
   front: {
     name: '',
-    cardMainType: CardMainType.Creature,
+    cardTypes: [CardType.Creature],
     cardText: [],
     ...overrides,
   },
@@ -141,7 +141,7 @@ describe('CardEditor - card text textarea for non-planeswalker', () => {
   });
 
   it('keeps the per-instruction list UI for planeswalkers', () => {
-    renderEditor(makeCard({ cardMainType: CardMainType.Planeswalker, cardText: ['+1: Buff.'] }));
+    renderEditor(makeCard({ cardTypes: [CardType.Planeswalker], cardText: ['+1: Buff.'] }));
 
     const label = screen.getByText('Card Text');
     const splitList = label.closest('span')!;

@@ -31,7 +31,7 @@ vi.mock('../utils/accessService', () => ({
 import axios from 'axios';
 import { updateCard } from './cardActions';
 import CardInterface from '../interfaces/CardInterface';
-import { CardMainType, CardState, RarityType } from '../interfaces/enums';
+import { CardType, CardState, RarityType } from '../interfaces/enums';
 import { UNKNOWN_CREATOR } from '../utils/constants';
 
 const makeCard = (uuid: string): CardInterface => ({
@@ -39,7 +39,7 @@ const makeCard = (uuid: string): CardInterface => ({
   uuid,
   manaCost: '',
   rarity: RarityType.Common,
-  front: { name: 'Test', cardMainType: CardMainType.Creature, cardText: [] },
+  front: { name: 'Test', cardTypes: [CardType.Creature], cardText: [] },
   creator: UNKNOWN_CREATOR,
   meta: {
     comment: '',

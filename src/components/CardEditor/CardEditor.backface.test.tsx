@@ -6,7 +6,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import CardEditor from './CardEditor';
 import CardInterface from '../../interfaces/CardInterface';
 import { Store, StoreType } from '../../store';
-import { CardMainType, CardState, RarityType } from '../../interfaces/enums';
+import { CardType, CardState, RarityType } from '../../interfaces/enums';
 import { UNKNOWN_CREATOR, EDIT_SAVE_OFFSET } from '../../utils/constants';
 import { updateCard } from '../../actions/cardActions';
 
@@ -46,7 +46,7 @@ const makeCard = (uuid: string): CardInterface => ({
   rarity: RarityType.Common,
   front: {
     name: '',
-    cardMainType: CardMainType.Creature,
+    cardTypes: [CardType.Creature],
     cardText: [],
   },
   creator: UNKNOWN_CREATOR,
