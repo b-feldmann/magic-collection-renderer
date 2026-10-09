@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Checkbox, Input, Row, Slider } from 'antd';
-import { CardMainType, ColorType, mapEnum, RarityType } from '../../interfaces/enums';
+import { CardType, ColorType, mapEnum, RarityType } from '../../interfaces/enums';
 
 import styles from './styles.module.scss';
 import CardInterface from '../../interfaces/CardInterface';
@@ -45,7 +45,7 @@ const CollectionFilterControls = ({
   };
 
   const [shownCardTypes, setShownCardTypes] = useState<CheckBoxGroupInterface>(() =>
-    createEnumInitState(Object.values(CardMainType)),
+    createEnumInitState(Object.values(CardType)),
   );
   const [shownColors, setShownColors] = useState<CheckBoxGroupInterface>(() =>
     createEnumInitState(Object.values(ColorType)),
@@ -99,7 +99,7 @@ const CollectionFilterControls = ({
   // than iterating the entire collection on every render.
   const cardCountStats: CardCountStats = useMemo(() => {
     const stats: CardCountStats = {};
-    Object.values(CardMainType).forEach(key => {
+    Object.values(CardType).forEach(key => {
       stats[key] = 0;
     });
     Object.values(RarityType).forEach(key => {
@@ -109,15 +109,10 @@ const CollectionFilterControls = ({
       stats[key] = 0;
     });
     collection.forEach(card => {
-      stats[
-        cardToColor(
-          card.front.cardMainType,
-          card.manaCost,
-          card.front.cardText,
-          card.front.tokenColors,
-        ).color
-      ] += 1;
-      stats[card.front.cardMainType] += 1;
+      stats[cardToColor(card.front, card.manaCost).color] += 1;
+      card.front.cardTypes.forEach(t => {
+        stats[t] += 1;
+      });
       stats[card.rarity] += 1;
     });
     return stats;
@@ -199,7 +194,7 @@ const CollectionFilterControls = ({
           <div>
             <div className={styles.controlItem}>
               <h4>Shown Card Types</h4>
-              {mapEnum(CardMainType, (key: string) =>
+              {mapEnum(CardType, (key: string) =>
                 cardCountStats[key] === 0 ? null : (
                   <Checkbox
                     key={`collection-filter-controls-checkbox-cardmaintype-${key}`}

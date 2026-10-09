@@ -2,13 +2,13 @@ import React from 'react';
 import { Button, Popover, Table } from 'antd';
 import CardInterface from '../../interfaces/CardInterface';
 import cardToColor from '../../utils/cardToColor';
-import { CardMainType } from '../../interfaces/enums';
+import { CardType } from '../../interfaces/enums';
 
 import styles from './collectionStats.module.scss';
 
 const CollectionStats = ({ collection }: { collection: CardInterface[] }) => {
   const cardTypes = {};
-  Object.values(CardMainType).forEach(key => {
+  Object.values(CardType).forEach(key => {
     // @ts-ignore
     cardTypes[key] = 0;
   });
@@ -25,16 +25,13 @@ const CollectionStats = ({ collection }: { collection: CardInterface[] }) => {
   };
 
   collection.forEach(card => {
-    const { color } = cardToColor(
-      card.front.cardMainType,
-      card.manaCost,
-      card.front.cardText,
-      card.front.tokenColors,
-    );
+    const { color } = cardToColor(card.front, card.manaCost);
     // @ts-ignore
     stats[color][card.rarity] += 1;
-    // @ts-ignore
-    stats[color][card.front.cardMainType] += 1;
+    card.front.cardTypes.forEach(t => {
+      // @ts-ignore
+      stats[color][t] += 1;
+    });
     // @ts-ignore
     stats[color].Count += 1;
   });
@@ -57,7 +54,7 @@ const CollectionStats = ({ collection }: { collection: CardInterface[] }) => {
   addColumn('Uncommon');
   addColumn('Rare');
   addColumn('Mythic Rare');
-  Object.values(CardMainType).forEach(key => addColumn(key));
+  Object.values(CardType).forEach(key => addColumn(key));
 
   const content = <Table size="small" dataSource={data} columns={columns} />;
 

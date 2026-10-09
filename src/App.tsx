@@ -141,12 +141,9 @@ const App: React.FC = () => {
       sortCardsBy(mergedCollection, sortList).filter(
         o =>
           o.name.toLowerCase().includes(deferredNameFilter.toLowerCase()) &&
-          collectionFilter.colors[
-            cardToColor(o.front.cardMainType, o.manaCost, o.front.cardText, o.front.tokenColors)
-              .color
-          ] &&
+          collectionFilter.colors[cardToColor(o.front, o.manaCost).color] &&
           collectionFilter.rarity[o.rarity] &&
-          collectionFilter.types[o.front.cardMainType] &&
+          o.front.cardTypes.some(t => collectionFilter.types[t]) &&
           collectionFilter.creators[o.creator.uuid] !== false,
       ),
     [mergedCollection, sortList, deferredNameFilter, collectionFilter],
