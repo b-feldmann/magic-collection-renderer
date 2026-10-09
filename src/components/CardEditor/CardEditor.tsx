@@ -10,7 +10,7 @@ import {
   BasicLandArtStyles,
   BasicLandType,
   CardArtStyles,
-  CardMainType,
+  CardType,
   CardState,
   ColorType,
   CoverFit,
@@ -35,30 +35,20 @@ interface CardEditorInterface {
 
 const NO_CARD = '-1';
 
-// Single source of truth for which art styles may be selected for a given
-// card main type. Used both to build the Art Style radio options and to decide
-// whether the current art style can be kept when the main type changes.
-const isArtStyleAvailableForType = (artStyle: string, cardMainType: CardMainType): boolean => {
-  if (cardMainType === CardMainType.BasicLand) {
+// Single source of truth for which art styles may be selected for a given set
+// of card types. Used both to build the Art Style radio options and to decide
+// whether the current art style can be kept when the card types change.
+const isArtStyleAvailableForType = (artStyle: string, cardTypes: CardType[] = []): boolean => {
+  if (cardTypes.includes(CardType.BasicLand)) {
     return (Object.values(BasicLandArtStyles) as string[]).includes(artStyle);
   }
-  if (artStyle === CardArtStyles.Invocation) {
-    return false;
-  }
-  if (artStyle === CardArtStyles.Invention) {
-    return cardMainType === CardMainType.Artifact || cardMainType === CardMainType.ArtifactCreature;
-  }
+  if (artStyle === CardArtStyles.Invocation) return false;
+  if (artStyle === CardArtStyles.Invention) return cardTypes.includes(CardType.Artifact);
   if (artStyle !== CardArtStyles.Regular) {
-    const isToken =
-      cardMainType === CardMainType.CreatureToken ||
-      cardMainType === CardMainType.ArtifactToken ||
-      cardMainType === CardMainType.TokenLand;
-    if (isToken) return false;
+    if (cardTypes.includes(CardType.Token)) return false;
     // Planeswalkers only support the Borderless showcase frames, not the other
     // non-regular art styles.
-    if (cardMainType === CardMainType.Planeswalker) {
-      return artStyle === CardArtStyles.Borderless;
-    }
+    if (cardTypes.includes(CardType.Planeswalker)) return artStyle === CardArtStyles.Borderless;
     return true;
   }
   return true;
@@ -71,7 +61,7 @@ const dummyCard: CardInterface = {
   rarity: RarityType.Common,
   front: {
     name: '',
-    cardMainType: CardMainType.Creature,
+    cardTypes: [CardType.Creature],
     cardText: [],
   },
   creator: UNKNOWN_CREATOR,
@@ -156,25 +146,32 @@ const CardEditor: React.FC<CardEditorInterface> = ({
       getCurrentFace(newTmpCard)[key] = value;
     }
 
-    if (key === 'cardMainType') {
-      if (value === CardMainType.BasicLand) {
+    if (key === 'cardTypes') {
+      const nextTypes: CardType[] = value || [];
+
+      if (nextTypes.includes(CardType.BasicLand)) {
+        const bl = getValue('basicLandType');
         if (
-          getValue('basicLandType') !== BasicLandType.Plains &&
-          getValue('basicLandType') !== BasicLandType.Island &&
-          getValue('basicLandType') !== BasicLandType.Swamp &&
-          getValue('basicLandType') !== BasicLandType.Mountain &&
-          getValue('basicLandType') !== BasicLandType.Forest
+          ![
+            BasicLandType.Plains,
+            BasicLandType.Island,
+            BasicLandType.Swamp,
+            BasicLandType.Mountain,
+            BasicLandType.Forest,
+          ].includes(bl)
         ) {
           saveValue('basicLandType', BasicLandType.Plains);
         }
       }
 
-      // Keep the current art style if it is still available for the new
-      // main type; otherwise fall back to that type's Regular style.
-      if (!isArtStyleAvailableForType(getValue('artStyle'), value)) {
+      // Keep the current art style if it is still available for the new set of
+      // card types; otherwise fall back to that type's Regular style.
+      if (!isArtStyleAvailableForType(getValue('artStyle'), nextTypes)) {
         saveValue(
           'artStyle',
-          value === CardMainType.BasicLand ? BasicLandArtStyles.Regular : CardArtStyles.Regular,
+          nextTypes.includes(CardType.BasicLand)
+            ? BasicLandArtStyles.Regular
+            : CardArtStyles.Regular,
         );
       }
     }
@@ -260,28 +257,19 @@ const CardEditor: React.FC<CardEditorInterface> = ({
     [],
   );
 
-  const isCreature = () =>
-    getValue('cardMainType') === CardMainType.Creature ||
-    getValue('cardMainType') === CardMainType.ArtifactCreature ||
-    getValue('cardMainType') === CardMainType.CreatureToken ||
-    getValue('cardMainType') === CardMainType.EnchantmentCreature;
-  const isArtifact = () =>
-    getValue('cardMainType') === CardMainType.Artifact ||
-    getValue('cardMainType') === CardMainType.ArtifactCreature;
+  const types = (): string[] => getValue('cardTypes') || [];
+  const isCreature = () => types().includes(CardType.Creature);
+  const isArtifact = () => types().includes(CardType.Artifact);
   const isVehicle = () => isArtifact() && !!getValue('vehicle');
-  const isPlaneswalker = () => getValue('cardMainType') === CardMainType.Planeswalker;
+  const isPlaneswalker = () => types().includes(CardType.Planeswalker);
+  const isLand = () => types().includes(CardType.Land) || types().includes(CardType.BasicLand);
   const hasMana = () =>
-    getValue('cardMainType') !== CardMainType.ArtifactToken &&
-    getValue('cardMainType') !== CardMainType.CreatureToken &&
-    getValue('cardMainType') !== CardMainType.TokenLand &&
-    getValue('cardMainType') !== CardMainType.Land &&
-    getValue('cardMainType') !== CardMainType.Emblem;
+    !types().includes(CardType.Token) && !isLand() && !types().includes(CardType.Emblem);
   const showManaCost = () => hasMana() && !editBack;
   // Tokens take their colors from the explicit Token Colors selection instead
-  // of a mana cost (TokenLand keeps deriving colors from its rules text).
-  const isColoredToken = () =>
-    getValue('cardMainType') === CardMainType.CreatureToken ||
-    getValue('cardMainType') === CardMainType.ArtifactToken;
+  // of a mana cost (a Token that is also a Land keeps deriving colors from its
+  // rules text).
+  const isColoredToken = () => types().includes(CardType.Token) && !types().includes(CardType.Land);
 
   const hasStats = () => isCreature() || isPlaneswalker() || isVehicle();
 
@@ -295,7 +283,9 @@ const CardEditor: React.FC<CardEditorInterface> = ({
       type: 'radio',
       name: 'Art Style',
       data: (Object.keys(CardArtStyles) as (keyof typeof CardArtStyles)[])
-        .filter(style => isArtStyleAvailableForType(CardArtStyles[style], getValue('cardMainType')))
+        .filter(style =>
+          isArtStyleAvailableForType(CardArtStyles[style], getValue('cardTypes') || []),
+        )
         .map(type => ({
           key: CardArtStyles[type],
           value: CardArtStyles[type],
@@ -351,14 +341,14 @@ const CardEditor: React.FC<CardEditorInterface> = ({
       width: editBack ? 0 : showManaCost() ? 50 : 100,
     },
     {
-      key: 'cardMainType',
-      type: 'select',
-      name: 'Card Type',
-      data: (Object.keys(CardMainType) as (keyof typeof CardMainType)[]).map(type => ({
-        key: CardMainType[type],
-        value: CardMainType[type],
+      key: 'cardTypes',
+      type: 'multi-select',
+      name: 'Card Types',
+      data: (Object.keys(CardType) as (keyof typeof CardType)[]).map(type => ({
+        key: CardType[type],
+        value: CardType[type],
       })),
-      width: 50,
+      width: 100,
     },
     { key: 'cardSubTypes', type: 'input', name: 'Card Sub Types', width: 50 },
     {
@@ -390,7 +380,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
     // { key: 'comment', type: 'area', name: 'Comment' },
   ];
 
-  if (getValue('cardMainType') === CardMainType.BasicLand) {
+  if ((getValue('cardTypes') || []).includes(CardType.BasicLand)) {
     inputConfig = [
       {
         key: 'artStyle',
@@ -416,12 +406,12 @@ const CardEditor: React.FC<CardEditorInterface> = ({
         width: 50,
       },
       {
-        key: 'cardMainType',
-        type: 'select',
-        name: 'Card Type',
-        data: (Object.keys(CardMainType) as (keyof typeof CardMainType)[]).map(type => ({
-          key: CardMainType[type],
-          value: CardMainType[type],
+        key: 'cardTypes',
+        type: 'multi-select',
+        name: 'Card Types',
+        data: (Object.keys(CardType) as (keyof typeof CardType)[]).map(type => ({
+          key: CardType[type],
+          value: CardType[type],
         })),
         width: 100,
       },
@@ -458,7 +448,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
     newTmpCard.back = {
       name: '',
       cardText: [],
-      cardMainType: CardMainType.Creature,
+      cardTypes: [CardType.Creature],
       manaCost: '',
     };
 
