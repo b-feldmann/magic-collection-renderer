@@ -1,6 +1,6 @@
 import { BasicLandType, CardType, ColorType } from '../interfaces/enums';
 import CardFaceInterface from '../interfaces/CardFaceInterface';
-import getLandColor, { getSingleColor } from './getLandColor';
+import getLandColor, { getHybridColors, getSingleColor } from './getLandColor';
 
 // Re-exported for backwards compatibility: a land's colour identity is derived
 // from its mana cost and rules text. See ./getLandColor.
@@ -130,8 +130,26 @@ export const getColor = (
     }
   };
 
+  // Hybrid symbols (e.g. "{rb}") count for both of their colours, but the
+  // token itself only occupies one slot in the ordered cost (see colorDict.rest).
+  const registerColor = (type: ColorType) => {
+    if (parsedColor === type || type === ColorType.Colorless) return;
+    if (parsedColor === ColorType.Colorless) parsedColor = type;
+    else parsedColor = ColorType.Gold;
+
+    if (!allColors.includes(type)) {
+      allColors.push(type);
+    }
+  };
+
   const array = manaCost.split(/\}\{|\{|\}/);
   array.forEach((cost: string) => {
+    const hybridColors = getHybridColors(cost);
+    if (hybridColors) {
+      colorDict.rest.push(cost);
+      hybridColors.forEach(registerColor);
+      return;
+    }
     addColor(getSingleColor(cost), cost);
   });
 
@@ -186,12 +204,22 @@ const cardToColor = (
     if (color === ColorType.Colorless) color = type;
     else color = ColorType.Gold;
 
-    allColors.push(type);
+    if (!allColors.includes(type)) {
+      allColors.push(type);
+    }
   };
 
   const array = manaCost.split(/{(.)}|{(..)}/);
   array.forEach((cost: string) => {
     if (!cost || cost === '') return;
+
+    // Hybrid costs (e.g. "{rb}") count for both of their colours.
+    const hybridColors = getHybridColors(cost);
+    if (hybridColors) {
+      hybridColors.forEach(setColor);
+      return;
+    }
+
     switch (cost) {
       case 'w':
       case 'W':

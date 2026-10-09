@@ -642,8 +642,8 @@ Record the exact filenames (single color `w/u/b/r/g/m/c/l/a` + `*Thumb`, and two
 At the top of `assetLoader.tsx`, add import groups for the adventure mainframes (single color, full-res + Thumb), adventure pinline (single + combos), adventure rules-left (single + combos), and adventure crowns (single + combos), following the exact naming style already used for `crown/nickname/*` and `mainframes/*`. Example shape (adapt names/paths to Step 1 findings):
 
 ```tsx
-import AdventureMainframeW from './images/mainframes/adventure/regular/w.png';
-import AdventureMainframeWLowRes from './images/mainframes/adventure/regular/wThumb.png';
+import AdventureMainframeW from './images/mainframes/adventureEld/regular/w.png';
+import AdventureMainframeWLowRes from './images/mainframes/adventureEld/regular/wThumb.png';
 // … u, b, r, g, m (gold), c (colorless), l (land), a (artifact) as present …
 
 import AdventurePinlineW from './images/parts/adventurePinline/w.png';
@@ -654,8 +654,8 @@ import AdventureRulesLeftW from './images/parts/adventureRulesLeft/w.png';
 import AdventureRulesLeftWu from './images/parts/adventureRulesLeft/wu.png';
 // … all single colors + combos …
 
-import CrownAdventureW from './images/crown/adventure/w.png';
-import CrownAdventureWLowRes from './images/crown/adventure/wThumb.png';
+import CrownAdventureW from './images/crown/adventureEld/w.png';
+import CrownAdventureWLowRes from './images/crown/adventureEld/wThumb.png';
 // … u, b, r, g, m, l, a + combos (wu, ub, …) …
 ```
 
@@ -670,8 +670,8 @@ import {
 } from './assetLoader';
 import { ColorType } from '../../interfaces/enums';
 
-describe('adventure frames', () => {
-  it('returns a color-specific adventure mainframe', () => {
+describe('adventureEld frames', () => {
+  it('returns a color-specific adventureEld mainframe', () => {
     const w = getAdventureMainframe(ColorType.White);
     const u = getAdventureMainframe(ColorType.Blue);
     expect(w.highRes).toBeTruthy();
@@ -687,7 +687,7 @@ describe('adventure frames', () => {
     );
   });
 
-  it('selects a distinct adventure crown style', () => {
+  it('selects a distinct adventureEld crown style', () => {
     const highResOf = (c: ReturnType<typeof getCrown>) =>
       typeof c === 'string' ? c : c.highRes;
     const base = getCrown(ColorType.White, false, false, false, false, [ColorType.White]);

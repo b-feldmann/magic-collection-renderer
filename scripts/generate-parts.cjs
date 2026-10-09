@@ -126,7 +126,7 @@ function carveSingle(frame, mask) {
  * threshold), averaged over every visible pixel. Falls back to the geometric
  * centre when the mask has no visible pixels. Used as the blend midpoint so
  * the two-color gradient stays centred inside irregular mask shapes (e.g. the
- * left-hand adventure rules box).
+ * left-hand adventureEld rules box).
  */
 function visiblePixelCentroidX(mask) {
   const { width, data } = mask.bitmap;
@@ -490,18 +490,18 @@ async function generateVariantPinlines() {
   }
 }
 
-// Adventure frame parts: adventure cards have a pinline and a rules box on
+// Adventure frame parts: adventureEld cards have a pinline and a rules box on
 // each side of the textbox. Regular-style parts are carved from the
-// adventure frames (`mainframes/adventure/regular/<color>.png`) using the
+// adventureEld frames (`mainframes/adventureEld/regular/<color>.png`) using the
 // dedicated `parts/adventurePinline.svg` (rasterized via @resvg/resvg-js),
 // `parts/adventureRulesLeft.png` and `parts/adventureRulesRight.png` masks.
 // Alternate-art parts are carved from
-// `mainframes/adventure/alternateArt/<color>.png` using the dedicated
+// `mainframes/adventureEld/alternateArt/<color>.png` using the dedicated
 // `parts/adventureAlternatePinline.png` and `parts/adventureAlternateRulesLeft.png`
 // masks. The five WUBRG single colors and the gold (`m`) single are produced
 // (gold for multicolor adventures), along with the ten two-color combinations.
 // Written to `parts/<type>/<color|combo>.png`.
-const ADVENTURE_DIR = path.join(MAINFRAMES_DIR, 'adventure');
+const ADVENTURE_DIR = path.join(MAINFRAMES_DIR, 'adventureEld');
 const ADVENTURE_GOLD_COLOR = 'm';
 const ADVENTURE_SINGLE_COLORS = [...VARIANT_COLORS, ADVENTURE_GOLD_COLOR];
 const ADVENTURE_PART_TYPES = [
@@ -582,7 +582,7 @@ async function generateAdventureParts() {
       console.log(`${type}  ✓ ${color}.png`);
     }
 
-    // Two-color combinations. The adventure rules boxes sit off the image
+    // Two-color combinations. The adventureEld rules boxes sit off the image
     // centre (left and right), so the two colors are mixed around the centroid
     // of the mask's visible pixels instead of the geometric image centre.
     const blendCenterX = /Rules/.test(type) ? visiblePixelCentroidX(mask) : undefined;
@@ -821,15 +821,14 @@ async function generateNicknameCombos() {
 // mask when carving (exactly like the nickname plates). Only the two-color
 // WUBRG combinations are produced; single colors, inner crowns and the
 // gold/land/colorless/artifact crowns are left untouched. This runs for the
-// base crowns and the `floating`, `nickname` and `adventure` crown styles.
+// base crowns and the `floating` and `nickname` crown styles.
 async function generateCrownCombos() {
-  // Base crown dir plus the floating/nickname/adventure style subdirectories.
+  // Base crown dir plus the floating/nickname style subdirectories.
   // All use the same single-letter `<color>.png` / `<color>Thumb.png` naming.
   const crownDirs = [
     { label: 'crown', dir: CROWN_DIR },
     { label: 'crown/floating', dir: path.join(CROWN_DIR, 'floating') },
     { label: 'crown/nickname', dir: path.join(CROWN_DIR, 'nickname') },
-    { label: 'crown/adventure', dir: path.join(CROWN_DIR, 'adventure') },
   ];
 
   // Generate the full-res crowns (`w.png`) and the low-res thumbs

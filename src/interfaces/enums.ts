@@ -46,6 +46,14 @@ export enum CardType {
   Aftermath = 'Aftermath',
 }
 
+// The spell half of an Adventure card. Adventures are always an Instant or a
+// Sorcery (plus the "Adventure" marker on the face's cardTypes), so this is a
+// dedicated two-value enum rather than reusing the full CardType list.
+export enum AdventureType {
+  Instant = 'Instant',
+  Sorcery = 'Sorcery',
+}
+
 export enum BasicLandType {
   Plains = 'Plains',
   Island = 'Island',
@@ -102,6 +110,7 @@ export enum CardArtStyles {
   Borderless = 'Borderless',
   Invocation = 'Invocation',
   Invention = 'Invention',
+  EldAlternateArt = 'ELD Alternate Art',
 }
 
 export enum SplitArtStyles {

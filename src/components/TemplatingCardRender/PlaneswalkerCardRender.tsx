@@ -203,7 +203,9 @@ const PlaneswalkerCardRender = (cardRender: PlaneswalkerCardRenderProps) => {
           ) : null}
 
           <div className={styles.type}>
-            {formatTypeLine(cardRender as unknown as CardFaceInterface)}
+            <TextResize defaultFontSize={67} maxFontSize={67} minFontSize={38}>
+              {formatTypeLine(cardRender as unknown as CardFaceInterface)}
+            </TextResize>
           </div>
 
           <div>

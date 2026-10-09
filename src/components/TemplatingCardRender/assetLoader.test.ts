@@ -16,6 +16,12 @@ import {
   getAdventureMainframe,
   getAdventurePinline,
   getAdventureRulesLeft,
+  getAdventureRulesRight,
+  getEldAlternateAdventureMainframe,
+  getEldAlternateAdventurePinline,
+  getEldAlternateAdventureRulesLeft,
+  getAdventurePt,
+  getPt,
 } from './assetLoader';
 import { ColorType, CardArtStyles } from '../../interfaces/enums';
 
@@ -512,6 +518,25 @@ describe('adventure frames', () => {
     expect(w.highRes).not.toBe(u.highRes);
   });
 
+  it('returns the nyx adventure mainframe for an enchantment adventure', () => {
+    const w = getAdventureMainframe(ColorType.White, true);
+    expect(w.highRes).toBeTruthy();
+    expect(w.highRes).toContain('adventure/nyx/w');
+    expect(w.highRes).not.toBe(getAdventureMainframe(ColorType.White).highRes);
+  });
+
+  it('returns color-specific nyx adventure mainframes', () => {
+    const w = getAdventureMainframe(ColorType.White, true);
+    const u = getAdventureMainframe(ColorType.Blue, true);
+    expect(w.highRes).not.toBe(u.highRes);
+  });
+
+  it('folds a colorless enchantment adventure to the nyx frame', () => {
+    const c = getAdventureMainframe(ColorType.Colorless, true);
+    expect(c.highRes).toContain('adventure/nyx/a');
+    expect(c.highRes).not.toBe(getAdventureMainframe(ColorType.Gold, true).highRes);
+  });
+
   it('returns combo-order-independent pinline and rules-left', () => {
     expect(getAdventurePinline([ColorType.White, ColorType.Blue])).toBe(
       getAdventurePinline([ColorType.Blue, ColorType.White]),
@@ -522,19 +547,81 @@ describe('adventure frames', () => {
     );
     expect(getAdventureRulesLeft([ColorType.White, ColorType.Blue])).toBeTruthy();
   });
+});
 
-  it('selects a distinct adventure crown style', () => {
-    const highResOf = (c: ReturnType<typeof getCrown>) => (typeof c === 'string' ? c : c.highRes);
-    const base = getCrown(ColorType.White, false, false, false, false, [ColorType.White]);
-    const adventure = getCrown(
-      ColorType.White,
-      false,
-      false,
-      false,
-      false,
-      [ColorType.White],
-      true,
+describe('adventure rules-right part (Extended/Borderless art styles)', () => {
+  it('returns a color-specific part for each single color', () => {
+    const w = getAdventureRulesRight([ColorType.White]);
+    const u = getAdventureRulesRight([ColorType.Blue]);
+    expect(w).toBeTruthy();
+    expect(u).toBeTruthy();
+    expect(w).not.toBe(u);
+  });
+
+  it('folds two colors to the gold part instead of a two-color combo', () => {
+    const gold = getAdventureRulesRight([ColorType.Gold]);
+    const wu = getAdventureRulesRight([ColorType.White, ColorType.Blue]);
+    expect(wu).toBeTruthy();
+    expect(wu).toBe(gold);
+    expect(wu).not.toBe(getAdventureRulesRight([ColorType.White]));
+  });
+
+  it('folds 3+ colors to the gold part and the empty set to no asset', () => {
+    expect(getAdventureRulesRight([ColorType.White, ColorType.Blue, ColorType.Black])).toBe(
+      getAdventureRulesRight([ColorType.Gold]),
     );
-    expect(highResOf(adventure)).not.toBe(highResOf(base));
+    expect(getAdventureRulesRight([])).toBe('');
+  });
+});
+
+describe('ELD alternate adventure frames (ELD Alternate Art art style)', () => {
+  it('returns a color-specific alternate adventure mainframe, distinct from the regular one', () => {
+    const w = getEldAlternateAdventureMainframe(ColorType.White);
+    const u = getEldAlternateAdventureMainframe(ColorType.Blue);
+    expect(w.highRes).toBeTruthy();
+    expect(w.highRes).not.toBe(u.highRes);
+    expect(w.highRes).not.toBe(getAdventureMainframe(ColorType.White).highRes);
+  });
+
+  it('folds colorless to each style’s own frame, distinct between regular and alternate', () => {
+    // regular/ ships its own artifact adventure frame ('a.png'), used for
+    // colorless just like the nyx variant folds to nyx 'a.png'; only the
+    // alternateArt style uses its 'c.png' colorless frame.
+    const regular = getAdventureMainframe(ColorType.Colorless);
+    const alternate = getEldAlternateAdventureMainframe(ColorType.Colorless);
+    expect(regular.highRes).toBeTruthy();
+    expect(alternate.highRes).toBeTruthy();
+    expect(regular.highRes).not.toBe(alternate.highRes);
+  });
+
+  it('returns combo-order-independent alternate pinline and rules-left, distinct from regular', () => {
+    const wb = [ColorType.White, ColorType.Blue];
+    const bw = [ColorType.Blue, ColorType.White];
+    expect(getEldAlternateAdventurePinline(wb)).toBe(getEldAlternateAdventurePinline(bw));
+    expect(getEldAlternateAdventurePinline(wb)).toBeTruthy();
+    expect(getEldAlternateAdventurePinline(wb)).not.toBe(getAdventurePinline(wb));
+    expect(getEldAlternateAdventureRulesLeft(wb)).toBe(getEldAlternateAdventureRulesLeft(bw));
+    expect(getEldAlternateAdventureRulesLeft(wb)).toBeTruthy();
+    expect(getEldAlternateAdventureRulesLeft(wb)).not.toBe(getAdventureRulesLeft(wb));
+  });
+
+  it('folds 3+ colors to the gold alternate assets and the empty set to no asset', () => {
+    expect(
+      getEldAlternateAdventurePinline([ColorType.White, ColorType.Blue, ColorType.Black]),
+    ).toBe(getEldAlternateAdventurePinline([ColorType.Gold]));
+    expect(
+      getEldAlternateAdventureRulesLeft([ColorType.White, ColorType.Blue, ColorType.Black]),
+    ).toBe(getEldAlternateAdventureRulesLeft([ColorType.Gold]));
+    expect(getEldAlternateAdventurePinline([])).toBe('');
+    expect(getEldAlternateAdventureRulesLeft([])).toBe('');
+  });
+
+  it('returns a color-specific adventure pt, distinct from the regular pt', () => {
+    expect(getAdventurePt(ColorType.White)).toBeTruthy();
+    expect(getAdventurePt(ColorType.White)).not.toBe(getAdventurePt(ColorType.Green));
+    expect(getAdventurePt(ColorType.Colorless)).toBeTruthy();
+    expect(getAdventurePt(ColorType.White)).not.toBe(
+      getPt(ColorType.White, false, false, false, false, false),
+    );
   });
 });

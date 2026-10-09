@@ -1,4 +1,4 @@
-import { BasicLandType, CardType, ColorType, CoverFit } from './enums';
+import { AdventureType, BasicLandType, CardType, ColorType, CoverFit } from './enums';
 
 export default interface CardFaceInterface {
   [key: string]: number | string | boolean | undefined | string[];
@@ -18,4 +18,9 @@ export default interface CardFaceInterface {
   coverFit?: CoverFit;
   tokenColors?: ColorType[];
   backFace?: boolean;
+  // The spell half of an Adventure card (the small left box on the frame).
+  adventureName?: string;
+  adventureCost?: string;
+  adventureText?: string[];
+  adventureType?: AdventureType;
 }

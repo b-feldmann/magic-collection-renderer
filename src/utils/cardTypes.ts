@@ -1,4 +1,4 @@
-import { CardType, CardMainType } from '../interfaces/enums';
+import { CardMainType, CardType } from '../interfaces/enums';
 import CardFaceInterface from '../interfaces/CardFaceInterface';
 import CardInterface from '../interfaces/CardInterface';
 
@@ -100,7 +100,9 @@ export const deriveLegacyMainType = (face: CardFaceInterface): CardMainType => {
 };
 
 export const formatTypeLine = (face: CardFaceInterface): string => {
-  const types = Array.isArray(face.cardTypes) ? face.cardTypes : [];
+  const types = Array.isArray(face.cardTypes)
+    ? face.cardTypes.filter(cardType => cardType !== CardType.Adventure)
+    : [];
 
   // Token and BasicLand are CardType members already in `types`; only
   // legendary remains a boolean supertype to prefix.

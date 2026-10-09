@@ -87,3 +87,54 @@ describe('cardToColor - tokenColors override', () => {
     expect(result.color).not.toBe(ColorType.Colorless);
   });
 });
+
+describe('cardToColor - hybrid mana costs', () => {
+  it('counts a hybrid pip as both of its colours', () => {
+    const result = cardToColor(face({ cardTypes: [CardType.Creature] }), '{2}{rb}');
+    expect(result.color).toBe(ColorType.Gold);
+    expect(result.allColors).toEqual([ColorType.Red, ColorType.Black]);
+  });
+
+  it('is case-insensitive and order-insensitive for hybrid pips', () => {
+    expect(cardToColor(face({ cardTypes: [CardType.Creature] }), '{wu}').allColors).toEqual([
+      ColorType.White,
+      ColorType.Blue,
+    ]);
+    expect(cardToColor(face({ cardTypes: [CardType.Creature] }), '{GW}').allColors).toEqual([
+      ColorType.Green,
+      ColorType.White,
+    ]);
+  });
+
+  it('two colours in one hybrid pip resolve to Gold', () => {
+    const result = cardToColor(face({ cardTypes: [CardType.Creature] }), '{3}{rb}');
+    expect(result.color).toBe(ColorType.Gold);
+  });
+
+  it('repeated hybrid colours do not duplicate allColors', () => {
+    const result = cardToColor(face({ cardTypes: [CardType.Creature] }), '{rb}{r}');
+    expect(result.allColors).toEqual([ColorType.Red, ColorType.Black]);
+  });
+});
+
+describe('getColor - hybrid mana costs', () => {
+  it('registers both colours of a hybrid pip and keeps the token in the ordered cost', () => {
+    const result = getColor('{2}{rb}');
+    expect(result.color).toBe(ColorType.Gold);
+    expect(result.allColors).toEqual([ColorType.Red, ColorType.Black]);
+    expect(result.orderedCost).toBe('{2}{rb}');
+  });
+
+  it('land colour identity includes hybrid pips from rules text', () => {
+    const result = cardToColor(
+      face({ cardTypes: [CardType.Land], cardText: ['{T}: Add {r} or {b}.', '{T}: Add {gw}.'] }),
+    );
+    expect(result.color).toBe(ColorType.Gold);
+    expect(result.allColors).toEqual([
+      ColorType.Red,
+      ColorType.Black,
+      ColorType.Green,
+      ColorType.White,
+    ]);
+  });
+});

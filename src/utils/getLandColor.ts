@@ -1,6 +1,20 @@
 import { ColorType } from '../interfaces/enums';
 
 /**
+ * Maps a two-letter hybrid mana token (e.g. "rb", "GW") to its two ColorTypes.
+ * Returns null if the token is not a pure two-colour hybrid
+ * (a hybrid must have exactly two distinct colour letters, no phyrexian part).
+ */
+export const getHybridColors = (cost: string): ColorType[] | null => {
+  if (!cost || cost.length !== 2) return null;
+  const first = getSingleColor(cost[0]);
+  const second = getSingleColor(cost[1]);
+  if (first === ColorType.Colorless || second === ColorType.Colorless) return null;
+  if (first === second) return null;
+  return [first, second];
+};
+
+/**
  * Maps a single mana token (e.g. "W", "pG", "UP") to its ColorType.
  * Anything that is not a coloured pip (generic/hybrid-with-phyrexian aside)
  * resolves to Colorless.
@@ -96,6 +110,11 @@ const getLandColor = (cardText: string[] = []): ColorType[] => {
 
     const lineSplit = line.split(/\}\{|\{|\}/);
     lineSplit.forEach((cost: string) => {
+      const hybridColors = getHybridColors(cost);
+      if (hybridColors) {
+        hybridColors.forEach(addColor);
+        return;
+      }
       addColor(getSingleColor(cost));
     });
   });
