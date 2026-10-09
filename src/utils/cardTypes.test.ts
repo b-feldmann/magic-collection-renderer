@@ -2,12 +2,14 @@ import { describe, it, expect } from 'vitest';
 import {
   legacyMainTypeToTypes,
   normalizeCardFace,
+  normalizeCard,
   deriveLegacyMainType,
   hasType,
   formatTypeLine,
 } from './cardTypes';
 import { CardType, CardMainType } from '../interfaces/enums';
 import CardFaceInterface from '../interfaces/CardFaceInterface';
+import CardInterface from '../interfaces/CardInterface';
 
 const face = (over: Partial<CardFaceInterface>): CardFaceInterface =>
   ({ name: '', cardText: [], cardTypes: [], ...over }) as CardFaceInterface;
@@ -70,6 +72,32 @@ describe('normalizeCardFace', () => {
   });
 });
 
+describe('normalizeCard', () => {
+  it('fills cardTypes on BOTH front and back from legacy cardMainType', () => {
+    const card = {
+      name: 'Legacy Card',
+      front: face({ cardTypes: undefined as never, cardMainType: 'Enchantment Creature' }),
+      back: face({ cardTypes: undefined as never, cardMainType: 'Token Land' }),
+    } as unknown as CardInterface;
+
+    const normalized = normalizeCard(card);
+    expect(normalized.front.cardTypes).toEqual([CardType.Enchantment, CardType.Creature]);
+    expect(normalized.back?.cardTypes).toEqual([CardType.Token, CardType.Land]);
+  });
+
+  it('leaves a card without a back untouched on the missing face', () => {
+    const card = {
+      name: 'Single Face',
+      front: face({ cardTypes: undefined as never, cardMainType: 'Instant' }),
+      back: undefined,
+    } as unknown as CardInterface;
+
+    const normalized = normalizeCard(card);
+    expect(normalized.front.cardTypes).toEqual([CardType.Instant]);
+    expect(normalized.back).toBeUndefined();
+  });
+});
+
 describe('deriveLegacyMainType', () => {
   it('round-trips the combined and token/basic shapes', () => {
     expect(
@@ -91,6 +119,16 @@ describe('deriveLegacyMainType', () => {
       CardMainType.BasicLand,
     );
     expect(deriveLegacyMainType(face({ cardTypes: [CardType.Creature] }))).toBe(
+      CardMainType.Creature,
+    );
+  });
+
+  it('degrades an Adventure-only face to Creature (no legacy equivalent)', () => {
+    // Adventure has no legacy CardMainType, so deriveLegacyMainType falls
+    // through every branch to the final Creature fallback. This documents the
+    // intended "sensible degradation" so a future branch-reorder can't silently
+    // change the saved legacy type for Adventure cards.
+    expect(deriveLegacyMainType(face({ cardTypes: [CardType.Adventure] }))).toBe(
       CardMainType.Creature,
     );
   });

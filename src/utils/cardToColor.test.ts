@@ -74,4 +74,16 @@ describe('cardToColor - tokenColors override', () => {
     );
     expect(result.color).toBe(ColorType.White);
   });
+
+  it('a token land derives its color from rules text, not the token branch', () => {
+    // A [Token, Land] face is NOT treated as a color-token (the token branch
+    // requires Token AND NOT Land); it falls through to the Land branch and
+    // takes its color from the mana symbols in its rules text. This pins the
+    // intended token-land color behavior the cardTypes refactor introduced.
+    const result = cardToColor(
+      face({ cardTypes: [CardType.Token, CardType.Land], cardText: ['{T}: Add {G}.'] }),
+    );
+    expect(result.color).toBe(ColorType.Green);
+    expect(result.color).not.toBe(ColorType.Colorless);
+  });
 });
