@@ -9,6 +9,7 @@ import { Mana } from '../Mana/Mana';
 import TextResize from '../TextResize/TextResize';
 
 import {
+  AdventureType,
   BasicLandArtStyles,
   BasicLandType,
   CardArtStyles,
@@ -28,6 +29,11 @@ import {
   getAdventureMainframe,
   getAdventurePinline,
   getAdventureRulesLeft,
+  getAdventureRulesRight,
+  getEldAlternateAdventureMainframe,
+  getEldAlternateAdventurePinline,
+  getEldAlternateAdventureRulesLeft,
+  getAdventurePt,
   getBlack,
   getBorderlessMainframe,
   getColorMainframe,
@@ -81,6 +87,11 @@ interface TemplatingCardRenderProps {
   cardStats?: string;
   tokenColors?: ColorType[];
   flavourText?: string;
+  // The spell half of an Adventure card (rendered into the left box).
+  adventureName?: string;
+  adventureCost?: string;
+  adventureText?: string[];
+  adventureType?: AdventureType;
   flavourAuthor?: string;
   cover?: string;
   coverFit?: CoverFit;
@@ -94,6 +105,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
   const { legendary, vehicle, nickname, cardTypes, basicLandType, rarity } = cardRenderProps;
   const { name, manaCost, cardStats, cover, creator } = cardRenderProps;
   const { cardText, flavourText = '', flavourAuthor, cardID } = cardRenderProps;
+  const { adventureName, adventureCost, adventureText, adventureType } = cardRenderProps;
   const { backFace, collectionNumber, collectionSize } = cardRenderProps;
   const { containerWidth = CARD_WIDTH, artStyle, coverFit } = cardRenderProps;
 
@@ -153,6 +165,10 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
   const isArtifact = cardTypes.includes(CardType.Artifact);
   const isCreature = cardTypes.includes(CardType.Creature);
   const isAdventure = cardTypes.includes(CardType.Adventure);
+  // The Alternate Art art style is an adventure-specific showcase: it swaps
+  // every adventure asset (frame, pinline, rules-left, pt) for its alternate
+  // variant set.
+  const isAlternateArt = isAdventure && artStyle === CardArtStyles.EldAlternateArt;
   const isToken = cardTypes.includes(CardType.Token);
   const isInvention = artStyle === CardArtStyles.Invention;
 
@@ -211,6 +227,11 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
   const tokenFaceColors = isToken ? cardRenderProps.tokenColors : undefined;
   let { color } = getColor(isToken ? '' : manaCost, tokenFaceColors);
   const { allColors, orderedCost, hexColor } = getColor(isToken ? '' : manaCost, tokenFaceColors);
+  // The adventure's left rules box belongs to the adventure spell, so its color
+  // derives from the adventureCost when set; the pinline (which spans the whole
+  // frame), right box, and mainframe keep using the card's own manaCost.
+  const adventureColors =
+    isAdventure && adventureCost ? getColor(adventureCost).allColors : undefined;
   let landColors: ColorType[] = [];
   if (isLand) {
     landColors = getLandColor(cardText);
@@ -231,12 +252,20 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
     artStyle === CardArtStyles.Borderless,
     isLand,
   );
-  const pinline = isAdventure
-    ? getAdventurePinline(isLand ? landColors : allColors)
-    : getPinline(isLand ? landColors : allColors, isArtifact, artStyle, isToken);
-  const adventureRulesLeft = isAdventure
-    ? getAdventureRulesLeft(isLand ? landColors : allColors)
-    : '';
+  const pinline = isAlternateArt
+    ? getEldAlternateAdventurePinline(isLand ? landColors : allColors)
+    : isAdventure
+      ? getAdventurePinline(isLand ? landColors : allColors)
+      : getPinline(isLand ? landColors : allColors, isArtifact, artStyle, isToken);
+  const adventureRulesLeft = isAlternateArt
+    ? getEldAlternateAdventureRulesLeft(isLand ? landColors : (adventureColors ?? allColors))
+    : isAdventure
+      ? getAdventureRulesLeft(isLand ? landColors : (adventureColors ?? allColors))
+      : '';
+  const adventureRulesRight =
+    isAdventure && (artStyle === CardArtStyles.Extended || artStyle === CardArtStyles.Borderless)
+      ? getAdventureRulesRight(isLand ? landColors : allColors)
+      : '';
   let titlePart = isLand
     ? getLandTitlePart(landColors)
     : getTitlePart(allColors, isArtifact, isToken);
@@ -259,7 +288,10 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
     rulesPart = '';
   }
 
-  if (artStyle === CardArtStyles.Extended) {
+  if (isAlternateArt) {
+    mainframe = getEldAlternateAdventureMainframe(color);
+    pt = getAdventurePt(color);
+  } else if (artStyle === CardArtStyles.Extended) {
     mainframe = getExtendedMainframe(color, isLand, isArtifact, vehicle, isEnchantment);
   } else if (artStyle === CardArtStyles.Borderless) {
     mainframe = getBorderlessMainframe(color, isLand, isArtifact, isNickname);
@@ -271,7 +303,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
   } else if (isLand) {
     mainframe = getLandMainframe(color, artStyle);
   } else if (isAdventure) {
-    mainframe = getAdventureMainframe(color);
+    mainframe = getAdventureMainframe(color, isEnchantment);
   } else {
     mainframe = getColorMainframe(color, isEnchantment, isArtifact, vehicle);
   }
@@ -282,7 +314,9 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
   let crown: ReactElement | null = null;
   let crown2: ReactElement | null = null;
   let crownInner: ReactElement | null = null;
-  if (legendary && !isInvention) {
+  // The Alternate Art adventure style shows no crown at all: no regular
+  // crown, no Nyx inner crown and no crown backing plate.
+  if (legendary && !isInvention && !isAlternateArt) {
     const isFullArt =
       artStyle == CardArtStyles.Borderless || artStyle == CardArtStyles.Extended || isToken;
     const crownImagePath = getCrown(
@@ -292,7 +326,6 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
       isArtifact,
       isNickname,
       isLand ? landColors : allColors,
-      isAdventure,
     );
     crown = (
       <ImageLoader
@@ -356,6 +389,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
           className={`
             ${styles.cardRender} 
             ${artStyle === CardArtStyles.Borderless && styles.borderless}
+            ${artStyle === CardArtStyles.EldAlternateArt && styles.eldAlternateArt}
             ${color === ColorType.Gold && styles.gold}
             ${isToken && styles.token}
             ${isInvention && styles.invention}
@@ -385,11 +419,49 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
           {titlePart ? <img className={styles.titlePart} src={titlePart} alt="" /> : null}
           {typePart ? <img className={styles.typePart} src={typePart} alt="" /> : null}
           {rulesPart ? <img className={styles.rulesPart} src={rulesPart} alt="" /> : null}
+
+          {pinline ? <img className={styles.pinline} src={pinline} alt="" /> : null}
+
           {adventureRulesLeft ? (
             <img className={styles.adventureRulesLeft} src={adventureRulesLeft} alt="" />
           ) : null}
+          {adventureRulesRight ? (
+            <img className={styles.adventureRulesRight} src={adventureRulesRight} alt="" />
+          ) : null}
 
-          {pinline ? <img className={styles.pinline} src={pinline} alt="" /> : null}
+          {/* The adventure spell renders into the frame's left box (see the
+              SCSS for the measured coordinates); each part only appears when
+              its data is set. */}
+          {isAdventure && adventureName ? (
+            <div className={styles.adventureName}>{adventureName}</div>
+          ) : null}
+          {isAdventure && adventureCost ? (
+            <div className={styles.adventureCost}>
+              {injectManaIcons(getColor(adventureCost).orderedCost, true)}
+            </div>
+          ) : null}
+          {isAdventure && adventureType ? (
+            <div className={styles.adventureTypeLine}>{`${adventureType} – Adventure`}</div>
+          ) : null}
+          {isAdventure && adventureText && adventureText.length > 0 ? (
+            <div className={styles.adventureText}>
+              <TextResize
+                defaultFontSize={42}
+                maxFontSize={50}
+                minFontSize={28}
+                className={styles.textWrap}
+              >
+                <div>
+                  {adventureText.map((val, i) => (
+                    <p key={`adventure-text-${cardID}-${i}`}>
+                      {injectForText(val, name, mechanics)}
+                    </p>
+                  ))}
+                </div>
+              </TextResize>
+            </div>
+          ) : null}
+
           {isNickname && !crown && (
             <ImageLoader
               src={getNicknameTitle(color, isArtifact, isLand, isLand ? landColors : allColors)}
@@ -434,13 +506,19 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
           </div>
           {isNickname && <div className={styles.nicknameText}>{nickname}</div>}
           <div className={`${styles.type} ${isToken ? styles.tokenType : ''}`}>
-            {formatTypeLine(cardRenderProps as unknown as CardFaceInterface)}
+            <TextResize defaultFontSize={67} maxFontSize={67} minFontSize={38}>
+              {formatTypeLine(cardRenderProps as unknown as CardFaceInterface)}
+            </TextResize>
           </div>
 
-          <div className={`${styles.text} ${isToken ? styles.tokenText : ''}`}>
+          <div
+            className={`${styles.text} ${isToken ? styles.tokenText : ''} ${
+              isAdventure ? styles.adventureRightText : ''
+            }`}
+          >
             <TextResize
               defaultFontSize={42}
-              maxFontSize={56}
+              maxFontSize={isAdventure ? 50 : 56}
               minFontSize={38}
               className={styles.textWrap}
             >

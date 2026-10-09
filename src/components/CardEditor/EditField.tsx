@@ -1,4 +1,4 @@
-import { Button, Checkbox, Input, Listy, Radio, Select, Space, Upload } from 'antd';
+import { Button, Checkbox, Divider, Input, Listy, Radio, Select, Space, Upload } from 'antd';
 
 import AntIcon from '../AntIcon/AntIcon';
 import React from 'react';
@@ -23,17 +23,30 @@ interface EditFieldInterface {
     | 'list'
     | 'split-list'
     | 'text-list'
-    | 'bool';
+    | 'bool'
+    | 'divider';
   name: string;
   data?: { key: string; value: string }[];
   disabledKeys?: string[];
+  // Set to false to omit the "Add Mechanic" select from list footers.
+  allowMechanics?: boolean;
   getValue: (key: string) => any;
   saveValue: (key: string, value: any) => void;
   mechanics?: MechanicInterface[];
 }
 
 const EditField = (props: EditFieldInterface) => {
-  const { type, fieldKey, name, data, disabledKeys, getValue, saveValue, mechanics } = props;
+  const {
+    type,
+    fieldKey,
+    name,
+    data,
+    disabledKeys,
+    allowMechanics = true,
+    getValue,
+    saveValue,
+    mechanics,
+  } = props;
 
   const renderAddMechanic = () => {
     if (!mechanics || mechanics.length === 0) return null;
@@ -62,6 +75,28 @@ const EditField = (props: EditFieldInterface) => {
       />
     );
   };
+
+  // A purely presentational section header inside the field list (e.g. the
+  // Adventure section). The title is rendered bigger and bold so it reads as
+  // a section header rather than a field label.
+  if (type === 'divider') {
+    return (
+      <span>
+        <Divider
+          titlePlacement="start"
+          plain
+          // orientationMargin 0 collapses the start rail so the title sits
+          // flush with the field's left edge instead of the default 5% indent.
+          orientationMargin={0}
+          styles={{
+            content: { fontSize: 18, fontWeight: 'bold', marginTop: 4, marginBottom: -20 },
+          }}
+        >
+          {name}
+        </Divider>
+      </span>
+    );
+  }
 
   if (type === 'input') {
     return (
@@ -337,7 +372,7 @@ const EditField = (props: EditFieldInterface) => {
                 >
                   Add Instruction
                 </Button>
-                {renderAddMechanic()}
+                {allowMechanics && renderAddMechanic()}
               </Space.Compact>
             </div>
           </div>
@@ -361,9 +396,11 @@ const EditField = (props: EditFieldInterface) => {
           onChange={e => saveValue(fieldKey, e.target.value.split('\n'))}
           autoSize
         />
-        <div className={styles.listFooter}>
-          <div className={styles.centerParent}>{renderAddMechanic()}</div>
-        </div>
+        {allowMechanics ? (
+          <div className={styles.listFooter}>
+            <div className={styles.centerParent}>{renderAddMechanic()}</div>
+          </div>
+        ) : null}
       </span>
     );
   }

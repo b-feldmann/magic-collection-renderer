@@ -124,6 +124,15 @@
     pointer-events: none;
   }
 
+  .adventureRulesRight {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1500px;
+    height: 2100px;
+    pointer-events: none;
+  }
+
   .title {
     font-family: 'Beleren Bold', sans-serif;
     position: absolute;
@@ -172,6 +181,20 @@
     font-size: 2em;
     top: 1190px;
     left: calc(1500px / 746 * 65);
+    // Bound the type line so TextResize can shrink long type lines before
+    // they collide with the rarity icon on the right. Keep it single-line.
+    width: 1150px;
+    height: 100px;
+    white-space: nowrap;
+
+    // Vertically center the type text within the bounded box, mirroring the
+    // title. The TextResize wrapper is the only direct child; the BasicLand
+    // and Invocation renders put plain text here, so this never applies to
+    // them.
+    & > div {
+      display: flex;
+      align-items: center;
+    }
   }
 
   .tokenType {
@@ -255,6 +278,75 @@
   .tokenText {
     top: 1560px;
     height: 360px;
+  }
+
+  // --- Adventure spell box ---
+  // The frame's left adventure box (measured from the adventureRulesLeft
+  // overlay) spans x 91-743, y 1321-1937 in the 1500x2100 design space; the
+  // creature's text moves to the right box (x 760-1499, y 1350-1937).
+  .adventureName {
+    font-family: 'Beleren Bold', sans-serif;
+    position: absolute;
+    font-size: 1.6em;
+    top: 1326px;
+    left: 126px;
+    width: 470px;
+    height: 75px;
+    white-space: nowrap;
+    overflow: hidden;
+    color: white;
+  }
+
+  .adventureCost {
+    position: absolute;
+    font-size: 1.6em;
+    top: 1320px;
+    // right edge of the left box is x 743 (1500px - 757px), inset ~15px
+    right: 772px;
+    text-align: right;
+  }
+
+  .adventureCost > * {
+    margin-left: 12.5px;
+  }
+
+  .adventureTypeLine {
+    font-family: 'Beleren Bold', sans-serif;
+    position: absolute;
+    font-size: 1.6em;
+    top: 1420px;
+    left: 126px;
+    color: white;
+  }
+
+  .adventureText {
+    font-family: 'MPlantin', sans-serif;
+    position: absolute;
+    font-size: 1.25em;
+    top: 1510px;
+    height: 420px;
+    left: 126px;
+    width: 604px;
+
+    p {
+      margin-top: 20px;
+      margin-bottom: 20px;
+    }
+
+    i {
+      margin-top: -12.5px;
+      font-size: 0.8em;
+    }
+  }
+
+  // Constrain the creature's rules text (and flavour) to the frame's right
+  // box while the adventure spell occupies the left one. Must sit after
+  // .text to win at equal specificity.
+  .adventureRightText {
+    left: 790px;
+    width: 616px;
+    top: 1330px;
+    height: 556px;
   }
 
   .flavourSeparator {
@@ -431,6 +523,45 @@
 
   .stats {
     color: white;
+  }
+}
+
+.eldAlternateArt {
+  .crown {
+  }
+
+  .cover {
+    top: 60px;
+    left: 0 !important;
+    width: 1500px !important;
+    height: 1156px;
+  }
+
+  .title {
+    left: 214px;
+  }
+
+  .rarity {
+    right: 122px;
+  }
+
+  .type {
+    text-align: center;
+    left: 320px;
+    width: 876px;
+
+    // The base .type flex centering shrink-wraps the text into a flex item at
+    // the start of the line; keep the alternate-art type line horizontally
+    // centered (same fix as .tokenTitle).
+    div {
+      justify-content: center;
+    }
+  }
+
+  .pt {
+    bottom: 94px;
+    right: 76px;
+    width: 320px;
   }
 }
 

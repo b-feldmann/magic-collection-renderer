@@ -430,6 +430,22 @@ updateLog.push({
     },
   ],
 });
+
+updateLog.push({
+  version: '3.0.0',
+  title: 'Card Type Redesign',
+  content: [
+    {
+      type: ChangeLogFeatureType.Changed,
+      feature:
+        'You can now choose from a list of multiple card types to enable a lot of card combinations',
+    },
+    {
+      type: ChangeLogFeatureType.Added,
+      feature: 'Adventures (inclusive alternate art)',
+    },
+  ],
+});
 //
 // updateLog.push({
 //   version: '1.1.3',

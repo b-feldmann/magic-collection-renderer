@@ -101,15 +101,21 @@ const typeOption = (label: string): HTMLElement => {
 
 const DISABLED_CLASS = 'ant-select-item-option-disabled';
 
-describe('CardEditor - Omen card type', () => {
-  it('lists Omen among the card type options', () => {
+const optionTitles = (): string[] =>
+  Array.from(document.querySelectorAll('.ant-select-dropdown .ant-select-item-option')).map(
+    el => el.getAttribute('title') as string,
+  );
+
+describe('CardEditor - hidden card types', () => {
+  it('does not list Omen, Split Card or Aftermath among the card type options', () => {
     renderEditor(makeCard([CardType.Creature]));
 
     openTypeSelect();
 
-    expect(typeOption(CardType.Omen)).toBeInTheDocument();
-    expect(typeOption('Split Card')).toBeInTheDocument();
-    expect(typeOption(CardType.Aftermath)).toBeInTheDocument();
+    const titles = optionTitles();
+    expect(titles).not.toContain(CardType.Omen);
+    expect(titles).not.toContain('Split Card');
+    expect(titles).not.toContain(CardType.Aftermath);
   });
 
   it('disables group alternatives while Adventure is selected', () => {
@@ -117,37 +123,8 @@ describe('CardEditor - Omen card type', () => {
 
     openTypeSelect();
 
-    for (const label of [CardType.Omen, 'Split Card', CardType.Aftermath, CardType.Planeswalker]) {
-      expect(typeOption(label)).toHaveClass(DISABLED_CLASS);
-    }
+    expect(typeOption(CardType.Planeswalker)).toHaveClass(DISABLED_CLASS);
     expect(typeOption(CardType.Adventure)).not.toHaveClass(DISABLED_CLASS);
-  });
-
-  it('disables group alternatives while Omen is selected', () => {
-    renderEditor(makeCard([CardType.Creature, CardType.Omen]));
-
-    openTypeSelect();
-
-    for (const label of [
-      CardType.Adventure,
-      'Split Card',
-      CardType.Aftermath,
-      CardType.Planeswalker,
-    ]) {
-      expect(typeOption(label)).toHaveClass(DISABLED_CLASS);
-    }
-    expect(typeOption(CardType.Omen)).not.toHaveClass(DISABLED_CLASS);
-  });
-
-  it('disables group alternatives while Aftermath is selected', () => {
-    renderEditor(makeCard([CardType.Creature, CardType.Aftermath]));
-
-    openTypeSelect();
-
-    for (const label of [CardType.Adventure, CardType.Omen, 'Split Card', CardType.Planeswalker]) {
-      expect(typeOption(label)).toHaveClass(DISABLED_CLASS);
-    }
-    expect(typeOption(CardType.Aftermath)).not.toHaveClass(DISABLED_CLASS);
   });
 
   it('disables nothing but the group members while Planeswalker is selected', () => {
@@ -155,9 +132,7 @@ describe('CardEditor - Omen card type', () => {
 
     openTypeSelect();
 
-    for (const label of [CardType.Adventure, CardType.Omen, 'Split Card', CardType.Aftermath]) {
-      expect(typeOption(label)).toHaveClass(DISABLED_CLASS);
-    }
+    expect(typeOption(CardType.Adventure)).toHaveClass(DISABLED_CLASS);
     expect(typeOption(CardType.Creature)).not.toHaveClass(DISABLED_CLASS);
   });
 
@@ -166,15 +141,8 @@ describe('CardEditor - Omen card type', () => {
 
     openTypeSelect();
 
-    for (const label of [
-      CardType.Adventure,
-      CardType.Omen,
-      'Split Card',
-      CardType.Aftermath,
-      CardType.Planeswalker,
-    ]) {
-      expect(typeOption(label)).toHaveClass(DISABLED_CLASS);
-    }
+    expect(typeOption(CardType.Adventure)).toHaveClass(DISABLED_CLASS);
+    expect(typeOption(CardType.Planeswalker)).toHaveClass(DISABLED_CLASS);
     expect(typeOption(CardType.Token)).not.toHaveClass(DISABLED_CLASS);
     expect(typeOption(CardType.Creature)).not.toHaveClass(DISABLED_CLASS);
   });

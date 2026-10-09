@@ -7,6 +7,7 @@ import CardInterface from '../../interfaces/CardInterface';
 
 import styles from './styles.module.scss';
 import {
+  AdventureType,
   BasicLandArtStyles,
   BasicLandType,
   CardArtStyles,
@@ -36,6 +37,14 @@ interface CardEditorInterface {
 
 const NO_CARD = '-1';
 
+// The set-themed Alternate Art showcases (ELD, more to come) are
+// adventure-only.
+const ALTERNATE_ART_STYLES: string[] = [CardArtStyles.EldAlternateArt];
+
+// Card types that exist in the data model but must not be offered in the
+// Card Types multi-select.
+const HIDDEN_CARD_TYPES = new Set([CardType.Omen, CardType.Aftermath, CardType.SplitCard]);
+
 // Single source of truth for which art styles may be selected for a given set
 // of card types. Used both to build the Art Style radio options and to decide
 // whether the current art style can be kept when the card types change.
@@ -57,10 +66,36 @@ const isArtStyleAvailableForType = (artStyle: string, cardTypes: CardType[] = []
     // Planeswalkers only support the Borderless showcase frames, not the other
     // non-regular art styles.
     if (cardTypes.includes(CardType.Planeswalker)) return artStyle === CardArtStyles.Borderless;
-    return true;
+    // The Alternate Art showcases are adventure-only.
+    if (ALTERNATE_ART_STYLES.includes(artStyle)) return cardTypes.includes(CardType.Adventure);
+    // For now, adventures support no other non-regular art styles: Extended
+    // and Borderless are disabled for them.
+    return !cardTypes.includes(CardType.Adventure);
   }
   return true;
 };
+
+// The Adventure section configures the spell half of an Adventure card. It
+// is spliced into the field list only when the current face is an Adventure
+// (rendering it hidden would duplicate generic queries like the "Add
+// Mechanic" placeholder of the text-list footer).
+const adventureSectionConfig: InputConfigInterface[] = [
+  { key: 'adventureSection', type: 'divider', name: 'Adventure', width: 100 },
+  { key: 'adventureName', type: 'input', name: 'Name', width: 50 },
+  { key: 'adventureCost', type: 'input', name: 'Cost', width: 50 },
+  {
+    key: 'adventureType',
+    type: 'select',
+    name: 'Type',
+    // An adventure is only ever an Instant or a Sorcery.
+    data: (Object.keys(AdventureType) as (keyof typeof AdventureType)[]).map(type => ({
+      key: AdventureType[type],
+      value: AdventureType[type],
+    })),
+    width: 100,
+  },
+  { key: 'adventureText', type: 'text-list', name: 'Text', width: 100, allowMechanics: false },
+];
 
 const dummyCard: CardInterface = {
   name: '',
@@ -96,10 +131,13 @@ interface InputConfigInterface {
     | 'list'
     | 'split-list'
     | 'text-list'
-    | 'bool';
+    | 'bool'
+    | 'divider';
   name: string;
   data?: { key: string; value: string }[];
   disabledKeys?: string[];
+  // Passed through to EditField; false omits the "Add Mechanic" select.
+  allowMechanics?: boolean;
   width?: number;
 }
 
@@ -174,15 +212,43 @@ const CardEditor: React.FC<CardEditorInterface> = ({
         }
       }
 
-      // Keep the current art style if it is still available for the new set of
-      // card types; otherwise fall back to that type's Regular style.
+      // An adventure's spell half must be an Instant or a Sorcery; default
+      // to Instant when the Adventure type is added without one (mirrors the
+      // basicLandType defaulting above).
+      if (nextTypes.includes(CardType.Adventure)) {
+        const at = getValue('adventureType');
+        if (at !== AdventureType.Instant && at !== AdventureType.Sorcery) {
+          saveValue('adventureType', AdventureType.Instant);
+        }
+      }
+
+      // Automatic art style switch when the current style is no longer
+      // available for the new set of card types: adding Adventure replaces
+      // the generic showcases (Borderless/Extended) with the ELD alternate
+      // style; removing Adventure falls back from the alternate showcases to
+      // Extended; anything else falls back to that type's Regular style.
       if (!isArtStyleAvailableForType(getValue('artStyle'), nextTypes)) {
-        saveValue(
-          'artStyle',
-          nextTypes.includes(CardType.BasicLand)
-            ? BasicLandArtStyles.Regular
-            : CardArtStyles.Regular,
-        );
+        const currentArtStyle = getValue('artStyle');
+        if (
+          nextTypes.includes(CardType.Adventure) &&
+          (currentArtStyle === CardArtStyles.Borderless ||
+            currentArtStyle === CardArtStyles.Extended)
+        ) {
+          saveValue('artStyle', CardArtStyles.EldAlternateArt);
+        } else if (
+          !nextTypes.includes(CardType.Adventure) &&
+          ALTERNATE_ART_STYLES.includes(currentArtStyle) &&
+          isArtStyleAvailableForType(CardArtStyles.Extended, nextTypes)
+        ) {
+          saveValue('artStyle', CardArtStyles.Extended);
+        } else {
+          saveValue(
+            'artStyle',
+            nextTypes.includes(CardType.BasicLand)
+              ? BasicLandArtStyles.Regular
+              : CardArtStyles.Regular,
+          );
+        }
       }
     }
 
@@ -273,6 +339,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
   const isVehicle = () => isArtifact() && !!getValue('vehicle');
   const isPlaneswalker = () => types().includes(CardType.Planeswalker);
   const isLand = () => types().includes(CardType.Land) || types().includes(CardType.BasicLand);
+  const isAdventure = () => types().includes(CardType.Adventure);
   const hasMana = () =>
     !types().includes(CardType.Token) && !isLand() && !types().includes(CardType.Emblem);
   const showManaCost = () => hasMana() && !editBack;
@@ -296,6 +363,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
     : [];
 
   const cardTypeOptions = (Object.keys(CardType) as (keyof typeof CardType)[])
+    .filter(type => !HIDDEN_CARD_TYPES.has(CardType[type]))
     .map(type => ({
       key: CardType[type],
       value: CardType[type],
@@ -400,6 +468,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
       data: user.filter(u => u.name !== 'ADMIN').map(o => ({ key: o.uuid, value: o.name })),
       width: hasStats() ? 50 : 100,
     },
+    ...(isAdventure() ? adventureSectionConfig : []),
     // { key: 'comment', type: 'area', name: 'Comment' },
   ];
 
@@ -538,6 +607,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
                 data={config.data}
                 disabledKeys={config.disabledKeys}
                 name={config.name}
+                allowMechanics={config.allowMechanics}
                 saveValue={saveValue}
                 getValue={getValue}
                 mechanics={mechanics}

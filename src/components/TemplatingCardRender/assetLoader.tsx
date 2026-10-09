@@ -659,8 +659,22 @@ import AdventureMainframeG from './images/mainframes/adventure/regular/g.png';
 import AdventureMainframeGLowRes from './images/mainframes/adventure/regular/gThumb.png';
 import AdventureMainframeM from './images/mainframes/adventure/regular/m.png';
 import AdventureMainframeMLowRes from './images/mainframes/adventure/regular/mThumb.png';
-import AdventureMainframeC from './images/mainframes/adventure/alternateArt/c.png';
-import AdventureMainframeCLowRes from './images/mainframes/adventure/alternateArt/cThumb.png';
+import AdventureMainframeWNyx from './images/mainframes/adventure/nyx/w.png';
+import AdventureMainframeWNyxLowRes from './images/mainframes/adventure/nyx/wThumb.png';
+import AdventureMainframeUNyx from './images/mainframes/adventure/nyx/u.png';
+import AdventureMainframeUNyxLowRes from './images/mainframes/adventure/nyx/uThumb.png';
+import AdventureMainframeBNyx from './images/mainframes/adventure/nyx/b.png';
+import AdventureMainframeBNyxLowRes from './images/mainframes/adventure/nyx/bThumb.png';
+import AdventureMainframeRNyx from './images/mainframes/adventure/nyx/r.png';
+import AdventureMainframeRNyxLowRes from './images/mainframes/adventure/nyx/rThumb.png';
+import AdventureMainframeGNyx from './images/mainframes/adventure/nyx/g.png';
+import AdventureMainframeGNyxLowRes from './images/mainframes/adventure/nyx/gThumb.png';
+import AdventureMainframeMNyx from './images/mainframes/adventure/nyx/m.png';
+import AdventureMainframeMNyxLowRes from './images/mainframes/adventure/nyx/mThumb.png';
+import AdventureMainframeANyx from './images/mainframes/adventure/nyx/a.png';
+import AdventureMainframeANyxLowRes from './images/mainframes/adventure/nyx/aThumb.png';
+import AdventureMainframeC from './images/mainframes/adventure/regular/a.png';
+import AdventureMainframeCLowRes from './images/mainframes/adventure/regular/aThumb.png';
 
 // --- Adventure pinline (single + WUBRG two-color combos) ---
 import AdventurePinlineW from './images/parts/adventurePinline/w.png';
@@ -697,41 +711,73 @@ import AdventureRulesLeftUr from './images/parts/adventureRulesLeft/ur.png';
 import AdventureRulesLeftBg from './images/parts/adventureRulesLeft/bg.png';
 import AdventureRulesLeftRw from './images/parts/adventureRulesLeft/rw.png';
 import AdventureRulesLeftGu from './images/parts/adventureRulesLeft/gu.png';
+import AdventureRulesRightW from './images/parts/adventureRulesRight/w.png';
+import AdventureRulesRightU from './images/parts/adventureRulesRight/u.png';
+import AdventureRulesRightB from './images/parts/adventureRulesRight/b.png';
+import AdventureRulesRightR from './images/parts/adventureRulesRight/r.png';
+import AdventureRulesRightG from './images/parts/adventureRulesRight/g.png';
+import AdventureRulesRightM from './images/parts/adventureRulesRight/m.png';
 
-// --- Adventure crowns (single + WUBRG two-color combos, full-res + Thumb) ---
-// No colorless crown on disk; the colorless fallback uses the gold ('m') crown.
-import CrownAdventureW from './images/crown/adventure/w.png';
-import CrownAdventureWLowRes from './images/crown/adventure/wThumb.png';
-import CrownAdventureU from './images/crown/adventure/u.png';
-import CrownAdventureULowRes from './images/crown/adventure/uThumb.png';
-import CrownAdventureB from './images/crown/adventure/b.png';
-import CrownAdventureBLowRes from './images/crown/adventure/bThumb.png';
-import CrownAdventureR from './images/crown/adventure/r.png';
-import CrownAdventureRLowRes from './images/crown/adventure/rThumb.png';
-import CrownAdventureG from './images/crown/adventure/g.png';
-import CrownAdventureGLowRes from './images/crown/adventure/gThumb.png';
-import CrownAdventureM from './images/crown/adventure/m.png';
-import CrownAdventureMLowRes from './images/crown/adventure/mThumb.png';
-import CrownAdventureWu from './images/crown/adventure/wu.png';
-import CrownAdventureWuLowRes from './images/crown/adventure/wuThumb.png';
-import CrownAdventureUb from './images/crown/adventure/ub.png';
-import CrownAdventureUbLowRes from './images/crown/adventure/ubThumb.png';
-import CrownAdventureBr from './images/crown/adventure/br.png';
-import CrownAdventureBrLowRes from './images/crown/adventure/brThumb.png';
-import CrownAdventureRg from './images/crown/adventure/rg.png';
-import CrownAdventureRgLowRes from './images/crown/adventure/rgThumb.png';
-import CrownAdventureGw from './images/crown/adventure/gw.png';
-import CrownAdventureGwLowRes from './images/crown/adventure/gwThumb.png';
-import CrownAdventureWb from './images/crown/adventure/wb.png';
-import CrownAdventureWbLowRes from './images/crown/adventure/wbThumb.png';
-import CrownAdventureUr from './images/crown/adventure/ur.png';
-import CrownAdventureUrLowRes from './images/crown/adventure/urThumb.png';
-import CrownAdventureBg from './images/crown/adventure/bg.png';
-import CrownAdventureBgLowRes from './images/crown/adventure/bgThumb.png';
-import CrownAdventureRw from './images/crown/adventure/rw.png';
-import CrownAdventureRwLowRes from './images/crown/adventure/rwThumb.png';
-import CrownAdventureGu from './images/crown/adventure/gu.png';
-import CrownAdventureGuLowRes from './images/crown/adventure/guThumb.png';
+// --- ELD alternate-art adventure mainframes (ELD Alternate Art art style, full-res + Thumb) ---
+import EldAlternateAdventureMainframeW from './images/mainframes/adventure/alternateArt/w.png';
+import EldAlternateAdventureMainframeWLowRes from './images/mainframes/adventure/alternateArt/wThumb.png';
+import EldAlternateAdventureMainframeU from './images/mainframes/adventure/alternateArt/u.png';
+import EldAlternateAdventureMainframeULowRes from './images/mainframes/adventure/alternateArt/uThumb.png';
+import EldAlternateAdventureMainframeB from './images/mainframes/adventure/alternateArt/b.png';
+import EldAlternateAdventureMainframeBLowRes from './images/mainframes/adventure/alternateArt/bThumb.png';
+import EldAlternateAdventureMainframeR from './images/mainframes/adventure/alternateArt/r.png';
+import EldAlternateAdventureMainframeRLowRes from './images/mainframes/adventure/alternateArt/rThumb.png';
+import EldAlternateAdventureMainframeG from './images/mainframes/adventure/alternateArt/g.png';
+import EldAlternateAdventureMainframeGLowRes from './images/mainframes/adventure/alternateArt/gThumb.png';
+import EldAlternateAdventureMainframeM from './images/mainframes/adventure/alternateArt/m.png';
+import EldAlternateAdventureMainframeMLowRes from './images/mainframes/adventure/alternateArt/mThumb.png';
+import EldAlternateAdventureMainframeC from './images/mainframes/adventure/alternateArt/c.png';
+import EldAlternateAdventureMainframeCLowRes from './images/mainframes/adventure/alternateArt/cThumb.png';
+
+// --- ELD alternate-art adventure pinline (single + WUBRG two-color combos) ---
+import EldAlternateAdventurePinlineW from './images/parts/adventureAlternatePinline/w.png';
+import EldAlternateAdventurePinlineU from './images/parts/adventureAlternatePinline/u.png';
+import EldAlternateAdventurePinlineB from './images/parts/adventureAlternatePinline/b.png';
+import EldAlternateAdventurePinlineR from './images/parts/adventureAlternatePinline/r.png';
+import EldAlternateAdventurePinlineG from './images/parts/adventureAlternatePinline/g.png';
+import EldAlternateAdventurePinlineM from './images/parts/adventureAlternatePinline/m.png';
+import EldAlternateAdventurePinlineWu from './images/parts/adventureAlternatePinline/wu.png';
+import EldAlternateAdventurePinlineUb from './images/parts/adventureAlternatePinline/ub.png';
+import EldAlternateAdventurePinlineBr from './images/parts/adventureAlternatePinline/br.png';
+import EldAlternateAdventurePinlineRg from './images/parts/adventureAlternatePinline/rg.png';
+import EldAlternateAdventurePinlineGw from './images/parts/adventureAlternatePinline/gw.png';
+import EldAlternateAdventurePinlineWb from './images/parts/adventureAlternatePinline/wb.png';
+import EldAlternateAdventurePinlineUr from './images/parts/adventureAlternatePinline/ur.png';
+import EldAlternateAdventurePinlineBg from './images/parts/adventureAlternatePinline/bg.png';
+import EldAlternateAdventurePinlineRw from './images/parts/adventureAlternatePinline/rw.png';
+import EldAlternateAdventurePinlineGu from './images/parts/adventureAlternatePinline/gu.png';
+
+// --- ELD alternate-art adventure rules-left (single + WUBRG two-color combos) ---
+import EldAlternateAdventureRulesLeftW from './images/parts/adventureAlternateRulesLeft/w.png';
+import EldAlternateAdventureRulesLeftU from './images/parts/adventureAlternateRulesLeft/u.png';
+import EldAlternateAdventureRulesLeftB from './images/parts/adventureAlternateRulesLeft/b.png';
+import EldAlternateAdventureRulesLeftR from './images/parts/adventureAlternateRulesLeft/r.png';
+import EldAlternateAdventureRulesLeftG from './images/parts/adventureAlternateRulesLeft/g.png';
+import EldAlternateAdventureRulesLeftM from './images/parts/adventureAlternateRulesLeft/m.png';
+import EldAlternateAdventureRulesLeftWu from './images/parts/adventureAlternateRulesLeft/wu.png';
+import EldAlternateAdventureRulesLeftUb from './images/parts/adventureAlternateRulesLeft/ub.png';
+import EldAlternateAdventureRulesLeftBr from './images/parts/adventureAlternateRulesLeft/br.png';
+import EldAlternateAdventureRulesLeftRg from './images/parts/adventureAlternateRulesLeft/rg.png';
+import EldAlternateAdventureRulesLeftGw from './images/parts/adventureAlternateRulesLeft/gw.png';
+import EldAlternateAdventureRulesLeftWb from './images/parts/adventureAlternateRulesLeft/wb.png';
+import EldAlternateAdventureRulesLeftUr from './images/parts/adventureAlternateRulesLeft/ur.png';
+import EldAlternateAdventureRulesLeftBg from './images/parts/adventureAlternateRulesLeft/bg.png';
+import EldAlternateAdventureRulesLeftRw from './images/parts/adventureAlternateRulesLeft/rw.png';
+import EldAlternateAdventureRulesLeftGu from './images/parts/adventureAlternateRulesLeft/gu.png';
+
+// --- Adventure power/toughness boxes (ELD Alternate Art art style, no Thumbs on disk) ---
+import AdventurePtW from './images/pt/adventureEld/wpt.png';
+import AdventurePtU from './images/pt/adventureEld/upt.png';
+import AdventurePtB from './images/pt/adventureEld/bpt.png';
+import AdventurePtR from './images/pt/adventureEld/rpt.png';
+import AdventurePtG from './images/pt/adventureEld/gpt.png';
+import AdventurePtM from './images/pt/adventureEld/mpt.png';
+import AdventurePtC from './images/pt/adventureEld/cpt.png';
 
 export interface ImageResData {
   highRes: string;
@@ -1162,28 +1208,29 @@ const ADVENTURE_RULES_LEFT_BY_KEY: Partial<Record<PartVariant, string>> = {
   gu: AdventureRulesLeftGu,
 };
 
-const ADVENTURE_CROWN_BY_KEY: Partial<Record<PartVariant, ImageResData>> = {
-  w: { highRes: CrownAdventureW, lowRes: CrownAdventureWLowRes },
-  u: { highRes: CrownAdventureU, lowRes: CrownAdventureULowRes },
-  b: { highRes: CrownAdventureB, lowRes: CrownAdventureBLowRes },
-  r: { highRes: CrownAdventureR, lowRes: CrownAdventureRLowRes },
-  g: { highRes: CrownAdventureG, lowRes: CrownAdventureGLowRes },
-  m: { highRes: CrownAdventureM, lowRes: CrownAdventureMLowRes },
-  wu: { highRes: CrownAdventureWu, lowRes: CrownAdventureWuLowRes },
-  ub: { highRes: CrownAdventureUb, lowRes: CrownAdventureUbLowRes },
-  br: { highRes: CrownAdventureBr, lowRes: CrownAdventureBrLowRes },
-  rg: { highRes: CrownAdventureRg, lowRes: CrownAdventureRgLowRes },
-  gw: { highRes: CrownAdventureGw, lowRes: CrownAdventureGwLowRes },
-  wb: { highRes: CrownAdventureWb, lowRes: CrownAdventureWbLowRes },
-  ur: { highRes: CrownAdventureUr, lowRes: CrownAdventureUrLowRes },
-  bg: { highRes: CrownAdventureBg, lowRes: CrownAdventureBgLowRes },
-  rw: { highRes: CrownAdventureRw, lowRes: CrownAdventureRwLowRes },
-  gu: { highRes: CrownAdventureGu, lowRes: CrownAdventureGuLowRes },
-};
-
 // Single-color adventure mainframe. regular/ has no colorless frame, so the
 // default (colorless) folds to the alternateArt colorless adventure frame.
-export const getAdventureMainframe = (color: ColorType): ImageResData => {
+// Enchantment adventures take the nyx adventure frames; colorless follows the
+// m15 nyx convention and folds to the nyx 'a' frame.
+export const getAdventureMainframe = (color: ColorType, isEnchantment = false): ImageResData => {
+  if (isEnchantment) {
+    switch (color) {
+      case ColorType.White:
+        return { highRes: AdventureMainframeWNyx, lowRes: AdventureMainframeWNyxLowRes };
+      case ColorType.Blue:
+        return { highRes: AdventureMainframeUNyx, lowRes: AdventureMainframeUNyxLowRes };
+      case ColorType.Black:
+        return { highRes: AdventureMainframeBNyx, lowRes: AdventureMainframeBNyxLowRes };
+      case ColorType.Red:
+        return { highRes: AdventureMainframeRNyx, lowRes: AdventureMainframeRNyxLowRes };
+      case ColorType.Green:
+        return { highRes: AdventureMainframeGNyx, lowRes: AdventureMainframeGNyxLowRes };
+      case ColorType.Gold:
+        return { highRes: AdventureMainframeMNyx, lowRes: AdventureMainframeMNyxLowRes };
+      default:
+        return { highRes: AdventureMainframeANyx, lowRes: AdventureMainframeANyxLowRes };
+    }
+  }
   switch (color) {
     case ColorType.White:
       return { highRes: AdventureMainframeW, lowRes: AdventureMainframeWLowRes };
@@ -1208,6 +1255,135 @@ export const getAdventurePinline = (colors: ColorType[]): string =>
 export const getAdventureRulesLeft = (colors: ColorType[]): string =>
   ADVENTURE_RULES_LEFT_BY_KEY[getAdventureVariant(colors)] ?? '';
 
+// Right rules box for adventures on the Extended / Borderless art styles.
+// Deliberately only the five single colors and the gold multicolor part: the
+// two-color combo assets on disk stay unused — a card with multiple colors
+// always takes the gold ('m') part.
+const ADVENTURE_RULES_RIGHT_BY_KEY: Partial<Record<PartVariant, string>> = {
+  w: AdventureRulesRightW,
+  u: AdventureRulesRightU,
+  b: AdventureRulesRightB,
+  r: AdventureRulesRightR,
+  g: AdventureRulesRightG,
+  m: AdventureRulesRightM,
+};
+
+export const getAdventureRulesRight = (colors: ColorType[]): string =>
+  colors.length === 0
+    ? ''
+    : colors.length === 1
+      ? (ADVENTURE_RULES_RIGHT_BY_KEY[getSingleColorVariant(colors[0])] ?? '')
+      : (ADVENTURE_RULES_RIGHT_BY_KEY.m ?? '');
+
+// ELD alternate-art adventure parts (ELD Alternate Art art style). alternateArt/
+// has all colors incl. the colorless frame, so the colorless default needs no
+// folding here.
+export const getEldAlternateAdventureMainframe = (color: ColorType): ImageResData => {
+  switch (color) {
+    case ColorType.White:
+      return {
+        highRes: EldAlternateAdventureMainframeW,
+        lowRes: EldAlternateAdventureMainframeWLowRes,
+      };
+    case ColorType.Blue:
+      return {
+        highRes: EldAlternateAdventureMainframeU,
+        lowRes: EldAlternateAdventureMainframeULowRes,
+      };
+    case ColorType.Black:
+      return {
+        highRes: EldAlternateAdventureMainframeB,
+        lowRes: EldAlternateAdventureMainframeBLowRes,
+      };
+    case ColorType.Red:
+      return {
+        highRes: EldAlternateAdventureMainframeR,
+        lowRes: EldAlternateAdventureMainframeRLowRes,
+      };
+    case ColorType.Green:
+      return {
+        highRes: EldAlternateAdventureMainframeG,
+        lowRes: EldAlternateAdventureMainframeGLowRes,
+      };
+    case ColorType.Gold:
+      return {
+        highRes: EldAlternateAdventureMainframeM,
+        lowRes: EldAlternateAdventureMainframeMLowRes,
+      };
+    default:
+      return {
+        highRes: EldAlternateAdventureMainframeC,
+        lowRes: EldAlternateAdventureMainframeCLowRes,
+      };
+  }
+};
+
+const ELD_ALTERNATE_ADVENTURE_PINLINE_BY_KEY: Partial<Record<PartVariant, string>> = {
+  w: EldAlternateAdventurePinlineW,
+  u: EldAlternateAdventurePinlineU,
+  b: EldAlternateAdventurePinlineB,
+  r: EldAlternateAdventurePinlineR,
+  g: EldAlternateAdventurePinlineG,
+  m: EldAlternateAdventurePinlineM,
+  wu: EldAlternateAdventurePinlineWu,
+  ub: EldAlternateAdventurePinlineUb,
+  br: EldAlternateAdventurePinlineBr,
+  rg: EldAlternateAdventurePinlineRg,
+  gw: EldAlternateAdventurePinlineGw,
+  wb: EldAlternateAdventurePinlineWb,
+  ur: EldAlternateAdventurePinlineUr,
+  bg: EldAlternateAdventurePinlineBg,
+  rw: EldAlternateAdventurePinlineRw,
+  gu: EldAlternateAdventurePinlineGu,
+};
+
+const ELD_ALTERNATE_ADVENTURE_RULES_LEFT_BY_KEY: Partial<Record<PartVariant, string>> = {
+  w: EldAlternateAdventureRulesLeftW,
+  u: EldAlternateAdventureRulesLeftU,
+  b: EldAlternateAdventureRulesLeftB,
+  r: EldAlternateAdventureRulesLeftR,
+  g: EldAlternateAdventureRulesLeftG,
+  m: EldAlternateAdventureRulesLeftM,
+  wu: EldAlternateAdventureRulesLeftWu,
+  ub: EldAlternateAdventureRulesLeftUb,
+  br: EldAlternateAdventureRulesLeftBr,
+  rg: EldAlternateAdventureRulesLeftRg,
+  gw: EldAlternateAdventureRulesLeftGw,
+  wb: EldAlternateAdventureRulesLeftWb,
+  ur: EldAlternateAdventureRulesLeftUr,
+  bg: EldAlternateAdventureRulesLeftBg,
+  rw: EldAlternateAdventureRulesLeftRw,
+  gu: EldAlternateAdventureRulesLeftGu,
+};
+
+export const getEldAlternateAdventurePinline = (colors: ColorType[]): string =>
+  ELD_ALTERNATE_ADVENTURE_PINLINE_BY_KEY[getAdventureVariant(colors)] ?? '';
+
+export const getEldAlternateAdventureRulesLeft = (colors: ColorType[]): string =>
+  ELD_ALTERNATE_ADVENTURE_RULES_LEFT_BY_KEY[getAdventureVariant(colors)] ?? '';
+
+// Adventure power/toughness box (ELD Alternate Art art style); used instead of
+// the regular getPt for ELD alternate-art adventures. pt/adventureEld/ has no
+// Thumbs.
+export const getAdventurePt = (color: ColorType): string => {
+  switch (color) {
+    case ColorType.White:
+      return AdventurePtW;
+    case ColorType.Blue:
+      return AdventurePtU;
+    case ColorType.Black:
+      return AdventurePtB;
+    case ColorType.Red:
+      return AdventurePtR;
+    case ColorType.Green:
+      return AdventurePtG;
+    case ColorType.Gold:
+      return AdventurePtM;
+    default:
+      return AdventurePtC;
+  }
+};
+
 // Selects the two-color combo crown for an (unordered) color pair, picking the
 // style that matches the per-color crown selection: nickname first, then
 // floating (full-art), otherwise the base crown.
@@ -1229,19 +1405,7 @@ export const getCrown = (
   isArtefact = false,
   isNickname = false,
   colors: ColorType[] = [],
-  isAdventure = false,
 ): ImageResData | string => {
-  // Adventure cards get a dedicated crown style that wins over the
-  // nickname/floating/land/artefact variants. No colorless adventure crown
-  // exists on disk, so the colorless case folds to the gold ('m') crown.
-  if (isAdventure) {
-    return (
-      ADVENTURE_CROWN_BY_KEY[getAdventureVariant(colors.length ? colors : [color])] ?? {
-        highRes: CrownAdventureM,
-        lowRes: CrownAdventureMLowRes,
-      }
-    );
-  }
   if (isLand && color === ColorType.Colorless) {
     if (isNickname) return { highRes: CrownLandNickname, lowRes: CrownLandNicknameLowRes };
     return isFullart
