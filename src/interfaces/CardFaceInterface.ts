@@ -1,4 +1,4 @@
-import { AdventureType, BasicLandType, CardType, ColorType, CoverFit } from './enums';
+import { AdventureType, BasicLandType, CardType, ColorType, CoverFit, OmenType } from './enums';
 
 export default interface CardFaceInterface {
   [key: string]: number | string | boolean | undefined | string[];
@@ -23,4 +23,9 @@ export default interface CardFaceInterface {
   adventureCost?: string;
   adventureText?: string[];
   adventureType?: AdventureType;
+  // The spell half of an Omen card (the small left box on the frame).
+  omenName?: string;
+  omenCost?: string;
+  omenText?: string[];
+  omenType?: OmenType;
 }

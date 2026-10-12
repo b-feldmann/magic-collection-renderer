@@ -170,6 +170,16 @@ describe('formatTypeLine', () => {
       'Artifact – Vehicle',
     );
   });
+
+  it('strips the Omen marker from the type line like Adventure', () => {
+    expect(formatTypeLine(face({ cardTypes: [CardType.Creature, CardType.Omen] }))).toBe(
+      'Creature',
+    );
+    // Pins the existing Adventure behavior next to it.
+    expect(formatTypeLine(face({ cardTypes: [CardType.Creature, CardType.Adventure] }))).toBe(
+      'Creature',
+    );
+  });
 });
 
 describe('resolveExclusiveCardTypes', () => {

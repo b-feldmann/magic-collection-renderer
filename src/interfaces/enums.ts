@@ -54,6 +54,14 @@ export enum AdventureType {
   Sorcery = 'Sorcery',
 }
 
+// The spell half of an Omen card. Omens are always an Instant or a Sorcery
+// (plus the "Omen" marker on the face's cardTypes), so this is a dedicated
+// two-value enum rather than reusing the full CardType list.
+export enum OmenType {
+  Instant = 'Instant',
+  Sorcery = 'Sorcery',
+}
+
 export enum BasicLandType {
   Plains = 'Plains',
   Island = 'Island',

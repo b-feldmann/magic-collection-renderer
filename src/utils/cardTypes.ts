@@ -101,7 +101,9 @@ export const deriveLegacyMainType = (face: CardFaceInterface): CardMainType => {
 
 export const formatTypeLine = (face: CardFaceInterface): string => {
   const types = Array.isArray(face.cardTypes)
-    ? face.cardTypes.filter(cardType => cardType !== CardType.Adventure)
+    ? face.cardTypes.filter(
+        cardType => cardType !== CardType.Adventure && cardType !== CardType.Omen,
+      )
     : [];
 
   // Token and BasicLand are CardType members already in `types`; only
