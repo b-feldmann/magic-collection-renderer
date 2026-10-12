@@ -21,6 +21,9 @@ import {
   getEldAlternateAdventurePinline,
   getEldAlternateAdventureRulesLeft,
   getAdventurePt,
+  getOmenMainframe,
+  getOmenPinline,
+  getOmenRulesLeft,
   getPt,
 } from './assetLoader';
 import { ColorType, CardArtStyles } from '../../interfaces/enums';
@@ -571,6 +574,58 @@ describe('adventure rules-right part (Extended/Borderless art styles)', () => {
       getAdventureRulesRight([ColorType.Gold]),
     );
     expect(getAdventureRulesRight([])).toBe('');
+  });
+});
+
+describe('omen frames', () => {
+  it('returns a color-specific omen mainframe', () => {
+    const w = getOmenMainframe(ColorType.White);
+    const u = getOmenMainframe(ColorType.Blue);
+    expect(w.highRes).toBeTruthy();
+    expect(w.highRes).toContain('omen/regular/w');
+    expect(w.highRes).not.toBe(u.highRes);
+  });
+
+  it('returns the nyx omen mainframe for an enchantment omen', () => {
+    const w = getOmenMainframe(ColorType.White, true);
+    expect(w.highRes).toBeTruthy();
+    expect(w.highRes).toContain('omen/nyx/w');
+    expect(w.highRes).not.toBe(getOmenMainframe(ColorType.White).highRes);
+  });
+
+  it('folds a colorless enchantment omen to the nyx frame', () => {
+    const c = getOmenMainframe(ColorType.Colorless, true);
+    expect(c.highRes).toContain('omen/nyx/a');
+    expect(c.highRes).not.toBe(getOmenMainframe(ColorType.Gold, true).highRes);
+  });
+
+  it('folds a colorless omen to the regular a frame', () => {
+    const c = getOmenMainframe(ColorType.Colorless);
+    expect(c.highRes).toBeTruthy();
+    expect(c.highRes).toContain('omen/regular/a');
+    expect(c.highRes).not.toBe(getOmenMainframe(ColorType.White).highRes);
+  });
+
+  it('returns combo-order-independent pinline and rules-left', () => {
+    expect(getOmenPinline([ColorType.White, ColorType.Blue])).toBe(
+      getOmenPinline([ColorType.Blue, ColorType.White]),
+    );
+    expect(getOmenPinline([ColorType.White, ColorType.Blue])).toBeTruthy();
+    expect(getOmenRulesLeft([ColorType.White, ColorType.Blue])).toBe(
+      getOmenRulesLeft([ColorType.Blue, ColorType.White]),
+    );
+    expect(getOmenRulesLeft([ColorType.White, ColorType.Blue])).toBeTruthy();
+  });
+
+  it('folds 3+ colors to the gold part and the empty set to no asset', () => {
+    expect(getOmenPinline([ColorType.White, ColorType.Blue, ColorType.Black])).toBe(
+      getOmenPinline([ColorType.Gold]),
+    );
+    expect(getOmenRulesLeft([ColorType.White, ColorType.Blue, ColorType.Black])).toBe(
+      getOmenRulesLeft([ColorType.Gold]),
+    );
+    expect(getOmenPinline([])).toBe('');
+    expect(getOmenRulesLeft([])).toBe('');
   });
 });
 

@@ -779,6 +779,76 @@ import AdventurePtG from './images/pt/adventureEld/gpt.png';
 import AdventurePtM from './images/pt/adventureEld/mpt.png';
 import AdventurePtC from './images/pt/adventureEld/cpt.png';
 
+// --- Omen mainframes (single color, full-res + Thumb) ---
+// regular/ also ships l/v frames (omen land/vehicle); they stay unused: a
+// Land+Omen face renders the land mainframe chain first, exactly like
+// adventures. There is no dedicated colorless frame, so the colorless default
+// folds to the artifact ('a') frame, mirroring the adventure convention.
+import OmenMainframeW from './images/mainframes/omen/regular/w.png';
+import OmenMainframeWLowRes from './images/mainframes/omen/regular/wThumb.png';
+import OmenMainframeU from './images/mainframes/omen/regular/u.png';
+import OmenMainframeULowRes from './images/mainframes/omen/regular/uThumb.png';
+import OmenMainframeB from './images/mainframes/omen/regular/b.png';
+import OmenMainframeBLowRes from './images/mainframes/omen/regular/bThumb.png';
+import OmenMainframeR from './images/mainframes/omen/regular/r.png';
+import OmenMainframeRLowRes from './images/mainframes/omen/regular/rThumb.png';
+import OmenMainframeG from './images/mainframes/omen/regular/g.png';
+import OmenMainframeGLowRes from './images/mainframes/omen/regular/gThumb.png';
+import OmenMainframeM from './images/mainframes/omen/regular/m.png';
+import OmenMainframeMLowRes from './images/mainframes/omen/regular/mThumb.png';
+import OmenMainframeA from './images/mainframes/omen/regular/a.png';
+import OmenMainframeALowRes from './images/mainframes/omen/regular/aThumb.png';
+import OmenMainframeWNyx from './images/mainframes/omen/nyx/w.png';
+import OmenMainframeWNyxLowRes from './images/mainframes/omen/nyx/wThumb.png';
+import OmenMainframeUNyx from './images/mainframes/omen/nyx/u.png';
+import OmenMainframeUNyxLowRes from './images/mainframes/omen/nyx/uThumb.png';
+import OmenMainframeBNyx from './images/mainframes/omen/nyx/b.png';
+import OmenMainframeBNyxLowRes from './images/mainframes/omen/nyx/bThumb.png';
+import OmenMainframeRNyx from './images/mainframes/omen/nyx/r.png';
+import OmenMainframeRNyxLowRes from './images/mainframes/omen/nyx/rThumb.png';
+import OmenMainframeGNyx from './images/mainframes/omen/nyx/g.png';
+import OmenMainframeGNyxLowRes from './images/mainframes/omen/nyx/gThumb.png';
+import OmenMainframeMNyx from './images/mainframes/omen/nyx/m.png';
+import OmenMainframeMNyxLowRes from './images/mainframes/omen/nyx/mThumb.png';
+import OmenMainframeANyx from './images/mainframes/omen/nyx/a.png';
+import OmenMainframeANyxLowRes from './images/mainframes/omen/nyx/aThumb.png';
+
+// --- Omen pinline (single + WUBRG two-color combos) ---
+import OmenPinlineW from './images/parts/omenPinline/w.png';
+import OmenPinlineU from './images/parts/omenPinline/u.png';
+import OmenPinlineB from './images/parts/omenPinline/b.png';
+import OmenPinlineR from './images/parts/omenPinline/r.png';
+import OmenPinlineG from './images/parts/omenPinline/g.png';
+import OmenPinlineM from './images/parts/omenPinline/m.png';
+import OmenPinlineWu from './images/parts/omenPinline/wu.png';
+import OmenPinlineUb from './images/parts/omenPinline/ub.png';
+import OmenPinlineBr from './images/parts/omenPinline/br.png';
+import OmenPinlineRg from './images/parts/omenPinline/rg.png';
+import OmenPinlineGw from './images/parts/omenPinline/gw.png';
+import OmenPinlineWb from './images/parts/omenPinline/wb.png';
+import OmenPinlineUr from './images/parts/omenPinline/ur.png';
+import OmenPinlineBg from './images/parts/omenPinline/bg.png';
+import OmenPinlineRw from './images/parts/omenPinline/rw.png';
+import OmenPinlineGu from './images/parts/omenPinline/gu.png';
+
+// --- Omen rules-left (single + WUBRG two-color combos) ---
+import OmenRulesLeftW from './images/parts/omenRulesLeft/w.png';
+import OmenRulesLeftU from './images/parts/omenRulesLeft/u.png';
+import OmenRulesLeftB from './images/parts/omenRulesLeft/b.png';
+import OmenRulesLeftR from './images/parts/omenRulesLeft/r.png';
+import OmenRulesLeftG from './images/parts/omenRulesLeft/g.png';
+import OmenRulesLeftM from './images/parts/omenRulesLeft/m.png';
+import OmenRulesLeftWu from './images/parts/omenRulesLeft/wu.png';
+import OmenRulesLeftUb from './images/parts/omenRulesLeft/ub.png';
+import OmenRulesLeftBr from './images/parts/omenRulesLeft/br.png';
+import OmenRulesLeftRg from './images/parts/omenRulesLeft/rg.png';
+import OmenRulesLeftGw from './images/parts/omenRulesLeft/gw.png';
+import OmenRulesLeftWb from './images/parts/omenRulesLeft/wb.png';
+import OmenRulesLeftUr from './images/parts/omenRulesLeft/ur.png';
+import OmenRulesLeftBg from './images/parts/omenRulesLeft/bg.png';
+import OmenRulesLeftRw from './images/parts/omenRulesLeft/rw.png';
+import OmenRulesLeftGu from './images/parts/omenRulesLeft/gu.png';
+
 export interface ImageResData {
   highRes: string;
   lowRes?: string;
@@ -1158,12 +1228,13 @@ const CROWN_NICKNAME_COMBOS: Record<CrownComboKey, ImageResData> = {
   gu: { highRes: CrownGuNickname, lowRes: CrownGuNicknameLowRes },
 };
 
-// Maps an (unordered) adventure color set to its on-disk asset key. Reuses the
-// same single/two-color variant helpers the file uses for crowns and pinlines
+// Maps an (unordered) spell-box color set (an adventure's or an omen's) to its
+// on-disk asset key. Shared by adventures and omens; reuses the same
+// single/two-color variant helpers the file uses for crowns and pinlines
 // (getSingleColorVariant / getTwoColorVariant) so the keys match the on-disk
 // combo filenames and are order-independent (wu === uw). 3+ colors and the gold
 // single-color case fold to the gold ('m') asset; an empty set yields ''.
-const getAdventureVariant = (colors: ColorType[]): PartVariant => {
+const getSpellBoxVariant = (colors: ColorType[]): PartVariant => {
   if (colors.length === 0) return '';
   if (colors.length === 1) return getSingleColorVariant(colors[0]);
   if (colors.length === 2) return getTwoColorVariant(colors);
@@ -1250,10 +1321,10 @@ export const getAdventureMainframe = (color: ColorType, isEnchantment = false): 
 };
 
 export const getAdventurePinline = (colors: ColorType[]): string =>
-  ADVENTURE_PINLINE_BY_KEY[getAdventureVariant(colors)] ?? '';
+  ADVENTURE_PINLINE_BY_KEY[getSpellBoxVariant(colors)] ?? '';
 
 export const getAdventureRulesLeft = (colors: ColorType[]): string =>
-  ADVENTURE_RULES_LEFT_BY_KEY[getAdventureVariant(colors)] ?? '';
+  ADVENTURE_RULES_LEFT_BY_KEY[getSpellBoxVariant(colors)] ?? '';
 
 // Right rules box for adventures on the Extended / Borderless art styles.
 // Deliberately only the five single colors and the gold multicolor part: the
@@ -1274,6 +1345,94 @@ export const getAdventureRulesRight = (colors: ColorType[]): string =>
     : colors.length === 1
       ? (ADVENTURE_RULES_RIGHT_BY_KEY[getSingleColorVariant(colors[0])] ?? '')
       : (ADVENTURE_RULES_RIGHT_BY_KEY.m ?? '');
+
+// --- Omen frame parts ---
+// Omen frames split their textbox into a left spell box and a right rules box
+// (like the adventure frames); the parts are carved from the omen regular
+// frames by scripts/generate-parts.cjs.
+const OMEN_PINLINE_BY_KEY: Partial<Record<PartVariant, string>> = {
+  w: OmenPinlineW,
+  u: OmenPinlineU,
+  b: OmenPinlineB,
+  r: OmenPinlineR,
+  g: OmenPinlineG,
+  m: OmenPinlineM,
+  wu: OmenPinlineWu,
+  ub: OmenPinlineUb,
+  br: OmenPinlineBr,
+  rg: OmenPinlineRg,
+  gw: OmenPinlineGw,
+  wb: OmenPinlineWb,
+  ur: OmenPinlineUr,
+  bg: OmenPinlineBg,
+  rw: OmenPinlineRw,
+  gu: OmenPinlineGu,
+};
+
+const OMEN_RULES_LEFT_BY_KEY: Partial<Record<PartVariant, string>> = {
+  w: OmenRulesLeftW,
+  u: OmenRulesLeftU,
+  b: OmenRulesLeftB,
+  r: OmenRulesLeftR,
+  g: OmenRulesLeftG,
+  m: OmenRulesLeftM,
+  wu: OmenRulesLeftWu,
+  ub: OmenRulesLeftUb,
+  br: OmenRulesLeftBr,
+  rg: OmenRulesLeftRg,
+  gw: OmenRulesLeftGw,
+  wb: OmenRulesLeftWb,
+  ur: OmenRulesLeftUr,
+  bg: OmenRulesLeftBg,
+  rw: OmenRulesLeftRw,
+  gu: OmenRulesLeftGu,
+};
+
+export const getOmenPinline = (colors: ColorType[]): string =>
+  OMEN_PINLINE_BY_KEY[getSpellBoxVariant(colors)] ?? '';
+
+export const getOmenRulesLeft = (colors: ColorType[]): string =>
+  OMEN_RULES_LEFT_BY_KEY[getSpellBoxVariant(colors)] ?? '';
+
+// Single-color omen mainframe. Like the adventure getter: regular/ has no
+// colorless frame, so the colorless default folds to the artifact ('a') frame.
+// Enchantment omens take the nyx omen frames.
+export const getOmenMainframe = (color: ColorType, isEnchantment = false): ImageResData => {
+  if (isEnchantment) {
+    switch (color) {
+      case ColorType.White:
+        return { highRes: OmenMainframeWNyx, lowRes: OmenMainframeWNyxLowRes };
+      case ColorType.Blue:
+        return { highRes: OmenMainframeUNyx, lowRes: OmenMainframeUNyxLowRes };
+      case ColorType.Black:
+        return { highRes: OmenMainframeBNyx, lowRes: OmenMainframeBNyxLowRes };
+      case ColorType.Red:
+        return { highRes: OmenMainframeRNyx, lowRes: OmenMainframeRNyxLowRes };
+      case ColorType.Green:
+        return { highRes: OmenMainframeGNyx, lowRes: OmenMainframeGNyxLowRes };
+      case ColorType.Gold:
+        return { highRes: OmenMainframeMNyx, lowRes: OmenMainframeMNyxLowRes };
+      default:
+        return { highRes: OmenMainframeANyx, lowRes: OmenMainframeANyxLowRes };
+    }
+  }
+  switch (color) {
+    case ColorType.White:
+      return { highRes: OmenMainframeW, lowRes: OmenMainframeWLowRes };
+    case ColorType.Blue:
+      return { highRes: OmenMainframeU, lowRes: OmenMainframeULowRes };
+    case ColorType.Black:
+      return { highRes: OmenMainframeB, lowRes: OmenMainframeBLowRes };
+    case ColorType.Red:
+      return { highRes: OmenMainframeR, lowRes: OmenMainframeRLowRes };
+    case ColorType.Green:
+      return { highRes: OmenMainframeG, lowRes: OmenMainframeGLowRes };
+    case ColorType.Gold:
+      return { highRes: OmenMainframeM, lowRes: OmenMainframeMLowRes };
+    default:
+      return { highRes: OmenMainframeA, lowRes: OmenMainframeALowRes };
+  }
+};
 
 // ELD alternate-art adventure parts (ELD Alternate Art art style). alternateArt/
 // has all colors incl. the colorless frame, so the colorless default needs no
@@ -1357,10 +1516,10 @@ const ELD_ALTERNATE_ADVENTURE_RULES_LEFT_BY_KEY: Partial<Record<PartVariant, str
 };
 
 export const getEldAlternateAdventurePinline = (colors: ColorType[]): string =>
-  ELD_ALTERNATE_ADVENTURE_PINLINE_BY_KEY[getAdventureVariant(colors)] ?? '';
+  ELD_ALTERNATE_ADVENTURE_PINLINE_BY_KEY[getSpellBoxVariant(colors)] ?? '';
 
 export const getEldAlternateAdventureRulesLeft = (colors: ColorType[]): string =>
-  ELD_ALTERNATE_ADVENTURE_RULES_LEFT_BY_KEY[getAdventureVariant(colors)] ?? '';
+  ELD_ALTERNATE_ADVENTURE_RULES_LEFT_BY_KEY[getSpellBoxVariant(colors)] ?? '';
 
 // Adventure power/toughness box (ELD Alternate Art art style); used instead of
 // the regular getPt for ELD alternate-art adventures. pt/adventureEld/ has no
