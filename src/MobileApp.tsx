@@ -1,7 +1,6 @@
 import React, { useContext, useDeferredValue, useEffect, useMemo, useState } from 'react';
 import { Badge, Button, Card, Col, Input, Modal, Result, Row, Select, Tabs } from 'antd';
 import sortBy from 'lodash/sortBy';
-import LogRocket from 'logrocket';
 
 import CardInterface from './interfaces/CardInterface';
 import AntIcon from './components/AntIcon/AntIcon';
@@ -100,7 +99,6 @@ const MobileApp: React.FC = () => {
   const getCardUndefined = (collection: CardInterface[], uuid: string) => cardByUuid.get(uuid);
 
   const viewCard = (id: string) => {
-    LogRocket.log(`View card ${getCard(filteredCollection, id).name}`);
     setCardViewId(id);
     setShowCardModal(true);
   };

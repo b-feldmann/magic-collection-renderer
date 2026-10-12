@@ -1,9 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('logrocket', () => ({
-  default: { log: vi.fn(), error: vi.fn(), identify: vi.fn() },
-}));
-
 vi.mock('axios', () => ({
   default: { get: vi.fn(), post: vi.fn(), put: vi.fn(), delete: vi.fn() },
 }));
@@ -15,12 +11,6 @@ vi.mock('./imageActions', () => ({
 
 vi.mock('../utils/staticAntd', () => ({
   staticAntd: { message: { success: vi.fn(), error: vi.fn() } },
-}));
-
-vi.mock('./errorLog', () => ({
-  captureError: vi.fn(),
-  ActionTag: { Card: 'card' },
-  RequestTag: { Update: 'update', Create: 'create', Get: 'get', Delete: 'delete' },
 }));
 
 vi.mock('../utils/accessService', () => ({

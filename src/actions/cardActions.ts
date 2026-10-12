@@ -2,7 +2,6 @@ import { v4 as uuidv4 } from 'uuid';
 import axios from 'axios';
 
 import dayjs from 'dayjs';
-import LogRocket from 'logrocket';
 import { Action, CardActionType } from '../reducer';
 import { CardType, CardState, RarityType } from '../interfaces/enums';
 
@@ -11,7 +10,6 @@ import { deriveLegacyMainType } from '../utils/cardTypes';
 import { getAccessToken, deleteAccessToken } from '../utils/accessService';
 import { UNKNOWN_CREATOR } from '../utils/constants';
 import UserInterface from '../interfaces/UserInterface';
-import { captureError, ActionTag, RequestTag } from './errorLog';
 import { createImage, getImage } from './imageActions';
 import { staticAntd } from '../utils/staticAntd';
 
@@ -39,7 +37,6 @@ export const EMPTY_CARD = (): CardInterface => ({
 });
 
 export const refreshCollection = (dispatch: (value: Action) => void) => {
-  LogRocket.log('Try to get all cards');
   dispatch({
     type: CardActionType.RefreshCollection,
   });
@@ -66,7 +63,6 @@ export const refreshCollection = (dispatch: (value: Action) => void) => {
         const { response } = error;
         if (response.status && response.status === 401) {
           deleteAccessToken();
-          LogRocket.error('Wrong access token! You are not authorized to use this service :(');
           staticAntd.message.error(
             'Wrong access token! You are not authorized to use this service :(',
             3,
@@ -75,13 +71,11 @@ export const refreshCollection = (dispatch: (value: Action) => void) => {
         }
       }
 
-      captureError(error, ActionTag.Card, RequestTag.Get, {});
       staticAntd.message.error("Could'nt load collection. Maybe you access token is wrong.");
     });
 };
 
 export const createCard = (dispatch: (value: Action) => void, creator: UserInterface) => {
-  LogRocket.log('Try to create a card', creator);
   const request = `${MIDDLEWARE_ENDPOINT}/cards`;
   const args = { accessKey: getAccessToken(), creator };
 
@@ -95,8 +89,7 @@ export const createCard = (dispatch: (value: Action) => void, creator: UserInter
         },
       });
     })
-    .catch(error => {
-      captureError(error, ActionTag.Card, RequestTag.Create, {});
+    .catch(_error => {
       staticAntd.message.error('Failed creating a new card :(');
     });
 };
@@ -105,12 +98,6 @@ export const updateCard = (
   dispatch: (value: Action) => void,
   updated: CardInterface,
 ): Promise<unknown> => {
-  const { name, uuid } = updated;
-  LogRocket.log('Try to update a card', {
-    name,
-    uuid,
-    updated,
-  });
   const request = `${MIDDLEWARE_ENDPOINT}/cards`;
   const parsed = { ...updated };
   // `_id`/`__v` are Mongo-internal fields that ride along on cards held in
@@ -165,14 +152,12 @@ export const updateCard = (
       });
     })
     .catch(error => {
-      captureError(error, ActionTag.Card, RequestTag.Update, {});
       staticAntd.message.error("Could'nt update the card");
       throw error;
     });
 };
 
 export const deleteCard = (dispatch: (value: Action) => void, uuid: string): Promise<unknown> => {
-  LogRocket.log('Try to delete a card', { uuid });
   const request = `${MIDDLEWARE_ENDPOINT}/cards/${uuid}`;
 
   return axios
@@ -184,7 +169,6 @@ export const deleteCard = (dispatch: (value: Action) => void, uuid: string): Pro
       });
     })
     .catch(error => {
-      captureError(error, ActionTag.Card, RequestTag.Delete, {});
       staticAntd.message.error("Could'nt delete the card");
       throw error;
     });

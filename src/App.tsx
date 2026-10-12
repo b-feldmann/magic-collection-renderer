@@ -5,7 +5,6 @@ import AntIcon from './components/AntIcon/AntIcon';
 
 import fileDownload from 'js-file-download';
 
-import LogRocket from 'logrocket';
 import CardInterface from './interfaces/CardInterface';
 import { CardState, SortByType } from './interfaces/enums';
 import CardCollection from './components/CardCollection/CardCollection';
@@ -205,7 +204,6 @@ const App: React.FC = () => {
   };
 
   const viewCard = (id: string) => {
-    LogRocket.log(`View card ${getCard(filteredCollection, id).name}`);
     setCardViewId(id);
     setShowCardModal(true);
   };

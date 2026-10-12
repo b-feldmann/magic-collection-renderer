@@ -1,12 +1,10 @@
 import axios from 'axios';
 
-import LogRocket from 'logrocket';
 import { Action, AnnotationActionType } from '../reducer';
 
 import { getAccessToken } from '../utils/accessService';
 import AnnotationInterface from '../interfaces/AnnotationInterface';
 import UserInterface from '../interfaces/UserInterface';
-import { captureError, ActionTag, RequestTag } from './errorLog';
 import { staticAntd } from '../utils/staticAntd';
 
 const MIDDLEWARE_ENDPOINT = import.meta.env.PROD
@@ -14,7 +12,6 @@ const MIDDLEWARE_ENDPOINT = import.meta.env.PROD
   : 'http://localhost:8080/annotations';
 
 export const getAnnotations = (dispatch: (value: Action) => void) => {
-  LogRocket.log('Try to get all annotations');
   const args = { params: { accessKey: getAccessToken() } };
   axios
     .get(MIDDLEWARE_ENDPOINT, args)
@@ -24,9 +21,7 @@ export const getAnnotations = (dispatch: (value: Action) => void) => {
         payload: { annotations: result.data.annotations },
       });
     })
-    .catch(error => {
-      captureError(error, ActionTag.Annotation, RequestTag.Get, {});
-    });
+    .catch(() => {});
 };
 
 export const createAnnotation = (
@@ -35,7 +30,6 @@ export const createAnnotation = (
   author: UserInterface,
   cardReference: string,
 ) => {
-  LogRocket.log('Try to create annotation', content, cardReference, author);
   const args = { accessKey: getAccessToken(), content, author: author.uuid, cardReference };
 
   axios
@@ -48,8 +42,7 @@ export const createAnnotation = (
         },
       });
     })
-    .catch(error => {
-      captureError(error, ActionTag.Annotation, RequestTag.Create, {});
+    .catch(_error => {
       staticAntd.message.error('Failed creating a new comment :(');
     });
 };
@@ -58,8 +51,6 @@ export const updateAnnotation = (
   dispatch: (value: Action) => void,
   updated: AnnotationInterface,
 ) => {
-  LogRocket.log('Try to update annotation', updated);
-
   axios
     .put(MIDDLEWARE_ENDPOINT, { mechanic: updated, accessKey: getAccessToken() })
     .then(result => {
@@ -70,8 +61,7 @@ export const updateAnnotation = (
         },
       });
     })
-    .catch(error => {
-      captureError(error, ActionTag.Annotation, RequestTag.Update, {});
+    .catch(_error => {
       staticAntd.message.error("Couldn't update comment");
     });
 };

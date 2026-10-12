@@ -1,18 +1,14 @@
 import axios from 'axios';
 
-import LogRocket from 'logrocket';
 import { Action, MechanicActionType } from '../reducer';
 
 import { getAccessToken } from '../utils/accessService';
 import MechanicInterface from '../interfaces/MechanicInterface';
-import { captureError, ActionTag, RequestTag } from './errorLog';
 import { staticAntd } from '../utils/staticAntd';
 
 const MIDDLEWARE_ENDPOINT = import.meta.env.PROD ? '' : 'http://localhost:8080';
 
 export const getMechanics = (dispatch: (value: Action) => void) => {
-  LogRocket.log('Try to get all mechanics');
-
   const request = `${MIDDLEWARE_ENDPOINT}/mechanics`;
   const args = { params: { accessKey: getAccessToken() } };
   axios
@@ -23,14 +19,10 @@ export const getMechanics = (dispatch: (value: Action) => void) => {
         payload: { mechanics: result.data.mechanics },
       });
     })
-    .catch(error => {
-      captureError(error, ActionTag.Mechanic, RequestTag.Get, {});
-    });
+    .catch(() => {});
 };
 
 export const createMechanic = (dispatch: (value: Action) => void) => {
-  LogRocket.log('Try to create mechanic');
-
   const request = `${MIDDLEWARE_ENDPOINT}/mechanics`;
   const args = { accessKey: getAccessToken() };
 
@@ -44,15 +36,12 @@ export const createMechanic = (dispatch: (value: Action) => void) => {
         },
       });
     })
-    .catch(error => {
+    .catch(_error => {
       staticAntd.message.error('Failed creating a new mechanic :(');
-      captureError(error, ActionTag.Mechanic, RequestTag.Create, {});
     });
 };
 
 export const updateMechanic = (dispatch: (value: Action) => void, updated: MechanicInterface) => {
-  LogRocket.log('Try to update mechanic', updated);
-
   const request = `${MIDDLEWARE_ENDPOINT}/mechanics`;
   const parsed = { ...updated };
   // `_id`/`__v` are Mongo-internal fields that ride along on mechanics held in
@@ -73,8 +62,7 @@ export const updateMechanic = (dispatch: (value: Action) => void, updated: Mecha
         },
       });
     })
-    .catch(error => {
-      captureError(error, ActionTag.Mechanic, RequestTag.Update, {});
+    .catch(_error => {
       staticAntd.message.error("Could'nt update mechanic");
     });
 };

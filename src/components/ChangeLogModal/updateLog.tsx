@@ -444,6 +444,10 @@ updateLog.push({
       type: ChangeLogFeatureType.Added,
       feature: 'Adventures (inclusive alternate art)',
     },
+    {
+      type: ChangeLogFeatureType.Added,
+      feature: 'Omen Cards',
+    },
   ],
 });
 //

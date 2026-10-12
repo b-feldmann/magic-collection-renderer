@@ -24,8 +24,6 @@
     "jspdf": "^1.5.3",
     "jszip": "^3.2.2",
     "lodash": "^4.17.21",
-    "logrocket": "^12.4.0",
-    "logrocket-react": "^7.0.1",
     "mana-font": "^1.4.1",
     "mtg-card-viewer": "^0.1.5",
     "pixi.js": "^5.1.0",

@@ -124,6 +124,15 @@
     pointer-events: none;
   }
 
+  .omenRulesLeft {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1500px;
+    height: 2100px;
+    pointer-events: none;
+  }
+
   .adventureRulesRight {
     position: absolute;
     top: 0;
@@ -284,7 +293,8 @@
   // The frame's left adventure box (measured from the adventureRulesLeft
   // overlay) spans x 91-743, y 1321-1937 in the 1500x2100 design space; the
   // creature's text moves to the right box (x 760-1499, y 1350-1937).
-  .adventureName {
+  .adventureName,
+  .omenName {
     font-family: 'Beleren Bold', sans-serif;
     position: absolute;
     font-size: 1.6em;
@@ -297,7 +307,12 @@
     color: white;
   }
 
-  .adventureCost {
+  .omenName {
+    top: 1327px;
+  }
+
+  .adventureCost,
+  .omenCost {
     position: absolute;
     font-size: 1.6em;
     top: 1320px;
@@ -306,11 +321,18 @@
     text-align: right;
   }
 
-  .adventureCost > * {
+  .omenCost {
+    font-size: 1.5em;
+    top: 1323px;
+  }
+
+  .adventureCost > *,
+  .omenCost > * {
     margin-left: 12.5px;
   }
 
-  .adventureTypeLine {
+  .adventureTypeLine,
+  .omenTypeLine {
     font-family: 'Beleren Bold', sans-serif;
     position: absolute;
     font-size: 1.6em;
@@ -319,7 +341,12 @@
     color: white;
   }
 
-  .adventureText {
+  .omenTypeLine {
+    top: 1428px;
+  }
+
+  .adventureText,
+  .omenText {
     font-family: 'MPlantin', sans-serif;
     position: absolute;
     font-size: 1.25em;
@@ -339,6 +366,11 @@
     }
   }
 
+  .omenText {
+    top: 1518px;
+    height: 412px;
+  }
+
   // Constrain the creature's rules text (and flavour) to the frame's right
   // box while the adventure spell occupies the left one. Must sit after
   // .text to win at equal specificity.
@@ -347,6 +379,13 @@
     width: 616px;
     top: 1330px;
     height: 556px;
+  }
+
+  .omenRightText {
+    left: 760px;
+    width: 630px;
+    top: 1320px;
+    height: 590px;
   }
 
   .flavourSeparator {

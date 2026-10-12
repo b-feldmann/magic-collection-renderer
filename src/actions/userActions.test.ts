@@ -1,9 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('logrocket', () => ({
-  default: { identify: vi.fn(), log: vi.fn() },
-}));
-
 vi.mock('axios', () => ({
   default: { get: vi.fn(), put: vi.fn() },
 }));

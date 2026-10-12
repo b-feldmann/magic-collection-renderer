@@ -76,11 +76,12 @@ describe('TemplatingCardRender - omen frame', () => {
   it('renders the omen left-box overlay', () => {
     renderOmen();
 
-    // The overlay is an `<img className={styles.adventureRulesLeft} .../>` whose
+    // The overlay is an `<img className={styles.omenRulesLeft} .../>` whose
     // src comes from getOmenRulesLeft: the omen left box shares the adventure
-    // frame geometry, so the adventure SCSS classes are reused. Its presence is
-    // omen-specific: a non-omen card never emits it.
-    const overlay = allImages().find(img => img.className.includes('adventureRulesLeft'));
+    // frame geometry, but the omen frame carries its own tuned class (the
+    // adventure SCSS classes are not reused). Its presence is omen-specific: a
+    // non-omen card never emits it.
+    const overlay = allImages().find(img => img.className.includes('omenRulesLeft'));
     expect(overlay).toBeInTheDocument();
     expect(overlay?.getAttribute('src')).toContain('omenRulesLeft');
   });
@@ -108,8 +109,7 @@ describe('TemplatingCardRender - omen frame', () => {
 });
 
 describe('TemplatingCardRender - omen left-box color derivation', () => {
-  const findLeftOverlay = () =>
-    allImages().find(img => img.className.includes('adventureRulesLeft'));
+  const findLeftOverlay = () => allImages().find(img => img.className.includes('omenRulesLeft'));
 
   it('derives the left box color from the omenCost, not the manaCost', () => {
     // Green creature ({1}{G}) with a blue omen ({2}{U}): the left box belongs
@@ -180,7 +180,7 @@ describe('TemplatingCardRender - omen spell box', () => {
 
     // The cost box holds the injected mana icons (ms-* elements).
     const costBox = Array.from(document.querySelectorAll('div')).find(d =>
-      d.className.includes('adventureCost'),
+      d.className.includes('omenCost'),
     );
     expect(costBox).toBeDefined();
     expect(costBox!.querySelectorAll('.ms').length).toBeGreaterThan(0);
@@ -210,7 +210,7 @@ describe('TemplatingCardRender - omen spell box', () => {
       omenText: ['Scry 2.'],
     });
 
-    for (const cls of ['adventureName', 'adventureCost', 'adventureTypeLine', 'adventureText']) {
+    for (const cls of ['omenName', 'omenCost', 'omenTypeLine', 'omenText']) {
       expect(
         Array.from(document.querySelectorAll('div')).find(d => d.className.includes(cls)),
       ).toBeUndefined();
@@ -221,12 +221,12 @@ describe('TemplatingCardRender - omen spell box', () => {
 
   it('constrains the creature text box to the right half of the frame', () => {
     // The creature's rules text must move out of the omen box into the right
-    // column; the constrained element carries the adventureRightText class
+    // column; the constrained element carries the omenRightText class
     // (the plain .text box spans the full card width).
     renderOmen({ cardText: ['Flash.'] });
 
     const constrained = Array.from(document.querySelectorAll('div')).find(d =>
-      d.className.includes('adventureRightText'),
+      d.className.includes('omenRightText'),
     );
     expect(constrained).toBeDefined();
     expect(screen.getByText('Flash.')).toBeInTheDocument();
@@ -236,9 +236,7 @@ describe('TemplatingCardRender - omen spell box', () => {
     renderOmen({ noOmen: true, cardText: ['Flash.'] });
 
     expect(
-      Array.from(document.querySelectorAll('div')).find(d =>
-        d.className.includes('adventureRightText'),
-      ),
+      Array.from(document.querySelectorAll('div')).find(d => d.className.includes('omenRightText')),
     ).toBeUndefined();
     expect(screen.getByText('Flash.')).toBeInTheDocument();
   });

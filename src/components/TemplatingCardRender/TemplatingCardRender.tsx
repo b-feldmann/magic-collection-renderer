@@ -448,7 +448,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
             <img className={styles.adventureRulesLeft} src={adventureRulesLeft} alt="" />
           ) : null}
           {omenRulesLeft ? (
-            <img className={styles.adventureRulesLeft} src={omenRulesLeft} alt="" />
+            <img className={styles.omenRulesLeft} src={omenRulesLeft} alt="" />
           ) : null}
           {adventureRulesRight ? (
             <img className={styles.adventureRulesRight} src={adventureRulesRight} alt="" />
@@ -491,17 +491,17 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
               shares the adventure frame geometry (their measured rules-left
               masks align), so the adventure SCSS classes are reused for the
               box positions; each part only appears when its data is set. */}
-          {isOmen && omenName ? <div className={styles.adventureName}>{omenName}</div> : null}
+          {isOmen && omenName ? <div className={styles.omenName}>{omenName}</div> : null}
           {isOmen && omenCost ? (
-            <div className={styles.adventureCost}>
+            <div className={styles.omenCost}>
               {injectManaIcons(getColor(omenCost).orderedCost, true)}
             </div>
           ) : null}
           {isOmen && omenType ? (
-            <div className={styles.adventureTypeLine}>{`${omenType} – Omen`}</div>
+            <div className={styles.omenTypeLine}>{`${omenType} – Omen`}</div>
           ) : null}
           {isOmen && omenText && omenText.length > 0 ? (
-            <div className={styles.adventureText}>
+            <div className={styles.omenText}>
               <TextResize
                 defaultFontSize={42}
                 maxFontSize={50}
@@ -568,8 +568,8 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
 
           <div
             className={`${styles.text} ${isToken ? styles.tokenText : ''} ${
-              isAdventure || isOmen ? styles.adventureRightText : ''
-            }`}
+              isAdventure ? styles.adventureRightText : ''
+            } ${isOmen ? styles.omenRightText : ''}`}
           >
             <TextResize
               defaultFontSize={42}
