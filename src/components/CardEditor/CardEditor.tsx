@@ -15,6 +15,7 @@ import {
   CardState,
   ColorType,
   CoverFit,
+  OmenType,
   RarityType,
 } from '../../interfaces/enums';
 import EditField from './EditField';
@@ -43,7 +44,7 @@ const ALTERNATE_ART_STYLES: string[] = [CardArtStyles.EldAlternateArt];
 
 // Card types that exist in the data model but must not be offered in the
 // Card Types multi-select.
-const HIDDEN_CARD_TYPES = new Set([CardType.Omen, CardType.Aftermath, CardType.SplitCard]);
+const HIDDEN_CARD_TYPES = new Set([CardType.Aftermath, CardType.SplitCard]);
 
 // Single source of truth for which art styles may be selected for a given set
 // of card types. Used both to build the Art Style radio options and to decide
@@ -68,9 +69,10 @@ const isArtStyleAvailableForType = (artStyle: string, cardTypes: CardType[] = []
     if (cardTypes.includes(CardType.Planeswalker)) return artStyle === CardArtStyles.Borderless;
     // The Alternate Art showcases are adventure-only.
     if (ALTERNATE_ART_STYLES.includes(artStyle)) return cardTypes.includes(CardType.Adventure);
-    // For now, adventures support no other non-regular art styles: Extended
-    // and Borderless are disabled for them.
-    return !cardTypes.includes(CardType.Adventure);
+    // For now, adventures and omens support no other non-regular art styles:
+    // Extended and Borderless are disabled for them (omens have no
+    // extended/borderless frames at all).
+    return !cardTypes.includes(CardType.Adventure) && !cardTypes.includes(CardType.Omen);
   }
   return true;
 };
@@ -95,6 +97,27 @@ const adventureSectionConfig: InputConfigInterface[] = [
     width: 100,
   },
   { key: 'adventureText', type: 'text-list', name: 'Text', width: 100, allowMechanics: false },
+];
+
+// The Omen section configures the spell half of an Omen card, mirroring the
+// Adventure section. It is spliced into the field list only when the current
+// face is an Omen.
+const omenSectionConfig: InputConfigInterface[] = [
+  { key: 'omenSection', type: 'divider', name: 'Omen', width: 100 },
+  { key: 'omenName', type: 'input', name: 'Name', width: 50 },
+  { key: 'omenCost', type: 'input', name: 'Cost', width: 50 },
+  {
+    key: 'omenType',
+    type: 'select',
+    name: 'Type',
+    // An omen is only ever an Instant or a Sorcery.
+    data: (Object.keys(OmenType) as (keyof typeof OmenType)[]).map(type => ({
+      key: OmenType[type],
+      value: OmenType[type],
+    })),
+    width: 100,
+  },
+  { key: 'omenText', type: 'text-list', name: 'Text', width: 100, allowMechanics: false },
 ];
 
 const dummyCard: CardInterface = {
@@ -222,6 +245,15 @@ const CardEditor: React.FC<CardEditorInterface> = ({
         }
       }
 
+      // An omen's spell half must be an Instant or a Sorcery too; default to
+      // Instant when the Omen type is added without one.
+      if (nextTypes.includes(CardType.Omen)) {
+        const ot = getValue('omenType');
+        if (ot !== OmenType.Instant && ot !== OmenType.Sorcery) {
+          saveValue('omenType', OmenType.Instant);
+        }
+      }
+
       // Automatic art style switch when the current style is no longer
       // available for the new set of card types: adding Adventure replaces
       // the generic showcases (Borderless/Extended) with the ELD alternate
@@ -340,6 +372,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
   const isPlaneswalker = () => types().includes(CardType.Planeswalker);
   const isLand = () => types().includes(CardType.Land) || types().includes(CardType.BasicLand);
   const isAdventure = () => types().includes(CardType.Adventure);
+  const isOmen = () => types().includes(CardType.Omen);
   const hasMana = () =>
     !types().includes(CardType.Token) && !isLand() && !types().includes(CardType.Emblem);
   const showManaCost = () => hasMana() && !editBack;
@@ -469,6 +502,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
       width: hasStats() ? 50 : 100,
     },
     ...(isAdventure() ? adventureSectionConfig : []),
+    ...(isOmen() ? omenSectionConfig : []),
     // { key: 'comment', type: 'area', name: 'Comment' },
   ];
 

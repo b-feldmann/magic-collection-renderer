@@ -1,13 +1,14 @@
 import React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 
 import CardEditor from './CardEditor';
 import { Store, StoreType } from '../../store';
-import { CardType, CardState, RarityType } from '../../interfaces/enums';
+import { CardArtStyles, CardType, CardState, OmenType, RarityType } from '../../interfaces/enums';
 import { UNKNOWN_CREATOR } from '../../utils/constants';
 import type CardInterface from '../../interfaces/CardInterface';
+import type MechanicInterface from '../../interfaces/MechanicInterface';
 
 vi.mock('../../actions/cardActions', () => ({
   updateCard: vi.fn(() => Promise.resolve({})),
@@ -40,14 +41,19 @@ if (!(globalThis as any).ResizeObserver) {
 
 const mockStoreValue: StoreType = {
   cards: [],
-  mechanics: [],
+  // A mechanic so the Card Text field renders its "Add Mechanic" select; the
+  // Omen Text footer must not add a second one (see the adventure tests).
+  mechanics: [{ uuid: 'mech-1', name: 'Lifelink', description: 'Heals you' } as MechanicInterface],
   annotationAccessor: {},
   user: [UNKNOWN_CREATOR],
   currentUser: UNKNOWN_CREATOR,
   dispatch: () => {},
 };
 
-const makeCard = (cardTypes: CardType[]): CardInterface => ({
+const makeCard = (
+  cardTypes: CardType[],
+  frontOverrides: Partial<CardInterface['front']> = {},
+): CardInterface => ({
   name: '',
   uuid: 'omen-card-1',
   manaCost: '{2}',
@@ -56,6 +62,7 @@ const makeCard = (cardTypes: CardType[]): CardInterface => ({
     name: 'Test',
     cardTypes,
     cardText: [],
+    ...frontOverrides,
   },
   creator: UNKNOWN_CREATOR,
   meta: {
@@ -68,10 +75,10 @@ const makeCard = (cardTypes: CardType[]): CardInterface => ({
   },
 });
 
-const renderEditor = (card: CardInterface) =>
+const renderEditor = (card: CardInterface, saveTmpCard = () => {}) =>
   render(
     <Store.Provider value={mockStoreValue}>
-      <CardEditor card={card} saveTmpCard={() => {}} />
+      <CardEditor card={card} saveTmpCard={saveTmpCard} />
     </Store.Provider>,
   );
 
@@ -107,13 +114,13 @@ const optionTitles = (): string[] =>
   );
 
 describe('CardEditor - hidden card types', () => {
-  it('does not list Omen, Split Card or Aftermath among the card type options', () => {
+  it('lists Omen among the card type options; Split Card and Aftermath stay hidden', () => {
     renderEditor(makeCard([CardType.Creature]));
 
     openTypeSelect();
 
     const titles = optionTitles();
-    expect(titles).not.toContain(CardType.Omen);
+    expect(titles).toContain(CardType.Omen);
     expect(titles).not.toContain('Split Card');
     expect(titles).not.toContain(CardType.Aftermath);
   });
@@ -157,5 +164,160 @@ describe('CardEditor - hidden card types', () => {
     renderEditor(makeCard([CardType.Artifact, CardType.Omen]));
 
     expect(screen.queryByText('Invention')).toBeNull();
+  });
+});
+
+// --- Omen section (mirrors the Adventure section tests) ---
+
+const omenDivider = (): HTMLElement | null => document.querySelector('.ant-divider');
+
+const fieldWrapper = (label: string): HTMLElement => {
+  const el = screen.getByText(label).closest('span') as HTMLElement;
+  expect(el).not.toBeNull();
+  return el;
+};
+
+const fieldInput = (label: string): HTMLInputElement =>
+  fieldWrapper(label).querySelector('input') as HTMLInputElement;
+
+// Selects the given option in the Omen Type single-select.
+const selectOmenType = async (label: string) => {
+  fireEvent.mouseDown(fieldWrapper('Type').querySelector('.ant-select') as HTMLElement);
+
+  await waitFor(() => {
+    expect(document.querySelectorAll('.ant-select-item-option').length).toBeGreaterThan(0);
+  });
+  const option = Array.from(document.querySelectorAll('.ant-select-item-option')).find(
+    o => o.textContent === label,
+  )!;
+  expect(option).toBeDefined();
+  fireEvent.click(option);
+};
+
+// Selects the given option in the Card Types multi-select via the shared
+// openTypeSelect / typeOption helpers above.
+const selectCardType = async (typeLabel: string) => {
+  openTypeSelect();
+  const option = typeOption(typeLabel);
+  fireEvent.click(option);
+};
+
+describe('CardEditor - Omen section', () => {
+  it('shows the Omen section with its four fields for an Omen card', () => {
+    renderEditor(makeCard([CardType.Creature, CardType.Omen]));
+
+    expect(omenDivider()).not.toBeNull();
+    expect(omenDivider()!.textContent).toBe('Omen');
+    expect(omenDivider()).toBeVisible();
+
+    for (const label of ['Name', 'Cost', 'Text', 'Type']) {
+      expect(screen.getByText(label)).toBeVisible();
+    }
+  });
+
+  it('CONTROL: renders no Omen section for a non-omen card', () => {
+    // The section is spliced out entirely (not merely hidden): a hidden
+    // text-list would still render a second "Add Mechanic" placeholder and
+    // break generic text queries.
+    renderEditor(makeCard([CardType.Creature]));
+
+    expect(omenDivider()).toBeNull();
+    for (const label of ['Name', 'Cost', 'Text', 'Type']) {
+      expect(screen.queryByText(label)).toBeNull();
+    }
+  });
+
+  it('offers no Add Mechanic select on the Omen Text field', () => {
+    // The store carries a mechanic (see mockStoreValue), so Card Text renders
+    // its "Add Mechanic" select; the Omen Text footer must not add a second
+    // one.
+    renderEditor(makeCard([CardType.Creature, CardType.Omen]));
+
+    expect(fieldWrapper('Card Text').querySelector('.ant-select')).not.toBeNull();
+    expect(fieldWrapper('Text').querySelector('.ant-select')).toBeNull();
+  });
+
+  it('offers exactly Instant and Sorcery as omen types', async () => {
+    renderEditor(makeCard([CardType.Creature, CardType.Omen], { omenType: OmenType.Instant }));
+
+    fireEvent.mouseDown(fieldWrapper('Type').querySelector('.ant-select') as HTMLElement);
+
+    await waitFor(() => {
+      expect(document.querySelectorAll('.ant-select-item-option').length).toBeGreaterThan(0);
+    });
+
+    const options = Array.from(document.querySelectorAll('.ant-select-item-option')).map(
+      o => o.textContent,
+    );
+    expect(options.sort()).toEqual([OmenType.Instant, OmenType.Sorcery]);
+  });
+
+  it('persists edits to the omen fields on the face', async () => {
+    const saveTmpCard = vi.fn();
+    renderEditor(
+      makeCard([CardType.Creature, CardType.Omen], { omenType: OmenType.Instant }),
+      saveTmpCard,
+    );
+
+    fireEvent.change(fieldInput('Name'), { target: { value: 'Dark Forecast' } });
+    fireEvent.change(fieldInput('Cost'), { target: { value: '{1}{U}' } });
+    const textarea = fieldWrapper('Text').querySelector('textarea')!;
+    fireEvent.change(textarea, { target: { value: 'Scry 2, then draw a card.' } });
+    await selectOmenType(OmenType.Sorcery);
+
+    // The debounced preview path (EDIT_TIME_OFFSET = 600ms) writes the card.
+    await new Promise(resolve => setTimeout(resolve, 700));
+
+    const saved = saveTmpCard.mock.calls
+      .map(call => call[0])
+      .reverse()
+      .find(c => c?.front?.omenName === 'Dark Forecast');
+    expect(saved?.front.omenName).toBe('Dark Forecast');
+    expect(saved?.front.omenCost).toBe('{1}{U}');
+    expect(saved?.front.omenText).toEqual(['Scry 2, then draw a card.']);
+    expect(saved?.front.omenType).toBe(OmenType.Sorcery);
+  });
+
+  it('adding the Omen card type defaults the omen type to Instant', async () => {
+    const saveTmpCard = vi.fn();
+    renderEditor(makeCard([CardType.Creature]), saveTmpCard);
+
+    await selectCardType('Omen');
+
+    await new Promise(resolve => setTimeout(resolve, 700));
+
+    const saved = saveTmpCard.mock.calls
+      .map(call => call[0])
+      .reverse()
+      .find(c => c?.front?.cardTypes?.includes(CardType.Omen));
+    expect(saved?.front.cardTypes).toContain(CardType.Omen);
+    expect(saved?.front.omenType).toBe(OmenType.Instant);
+  });
+
+  it('offers only the Regular art style for an Omen card', () => {
+    renderEditor(makeCard([CardType.Creature, CardType.Omen]));
+
+    expect(screen.getByText(CardArtStyles.Regular)).toBeInTheDocument();
+    expect(screen.queryByText(CardArtStyles.Extended)).toBeNull();
+    expect(screen.queryByText(CardArtStyles.Borderless)).toBeNull();
+    expect(screen.queryByText(CardArtStyles.EldAlternateArt)).toBeNull();
+    expect(screen.queryByText(CardArtStyles.Invention)).toBeNull();
+    expect(screen.queryByText(CardArtStyles.Invocation)).toBeNull();
+  });
+
+  it('adding the Omen type switches a chosen Extended style to Regular', async () => {
+    const saveTmpCard = vi.fn();
+    renderEditor(makeCard([CardType.Creature], { artStyle: CardArtStyles.Extended }), saveTmpCard);
+
+    await selectCardType('Omen');
+
+    await new Promise(resolve => setTimeout(resolve, 700));
+
+    const saved = saveTmpCard.mock.calls
+      .map(call => call[0])
+      .reverse()
+      .find(c => c?.front?.cardTypes?.includes(CardType.Omen));
+    expect(saved?.front.cardTypes).toContain(CardType.Omen);
+    expect(saved?.front.artStyle).toBe(CardArtStyles.Regular);
   });
 });
