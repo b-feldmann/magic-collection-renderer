@@ -16,6 +16,7 @@ import {
   CardType,
   ColorType,
   CoverFit,
+  OmenType,
   RarityType,
 } from '../../interfaces/enums';
 import { Store, StoreType } from '../../store';
@@ -34,6 +35,9 @@ import {
   getEldAlternateAdventurePinline,
   getEldAlternateAdventureRulesLeft,
   getAdventurePt,
+  getOmenMainframe,
+  getOmenPinline,
+  getOmenRulesLeft,
   getBlack,
   getBorderlessMainframe,
   getColorMainframe,
@@ -92,6 +96,12 @@ interface TemplatingCardRenderProps {
   adventureCost?: string;
   adventureText?: string[];
   adventureType?: AdventureType;
+  // The spell half of an Omen card (rendered into the left box, which shares
+  // the adventure frame geometry).
+  omenName?: string;
+  omenCost?: string;
+  omenText?: string[];
+  omenType?: OmenType;
   flavourAuthor?: string;
   cover?: string;
   coverFit?: CoverFit;
@@ -106,6 +116,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
   const { name, manaCost, cardStats, cover, creator } = cardRenderProps;
   const { cardText, flavourText = '', flavourAuthor, cardID } = cardRenderProps;
   const { adventureName, adventureCost, adventureText, adventureType } = cardRenderProps;
+  const { omenName, omenCost, omenText, omenType } = cardRenderProps;
   const { backFace, collectionNumber, collectionSize } = cardRenderProps;
   const { containerWidth = CARD_WIDTH, artStyle, coverFit } = cardRenderProps;
 
@@ -165,6 +176,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
   const isArtifact = cardTypes.includes(CardType.Artifact);
   const isCreature = cardTypes.includes(CardType.Creature);
   const isAdventure = cardTypes.includes(CardType.Adventure);
+  const isOmen = cardTypes.includes(CardType.Omen);
   // The Alternate Art art style is an adventure-specific showcase: it swaps
   // every adventure asset (frame, pinline, rules-left, pt) for its alternate
   // variant set.
@@ -232,6 +244,9 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
   // frame), right box, and mainframe keep using the card's own manaCost.
   const adventureColors =
     isAdventure && adventureCost ? getColor(adventureCost).allColors : undefined;
+  // The omen's left rules box belongs to the omen spell, so its color derives
+  // from the omenCost when set — exactly like the adventure's left box.
+  const omenColors = isOmen && omenCost ? getColor(omenCost).allColors : undefined;
   let landColors: ColorType[] = [];
   if (isLand) {
     landColors = getLandColor(cardText);
@@ -254,14 +269,19 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
   );
   const pinline = isAlternateArt
     ? getEldAlternateAdventurePinline(isLand ? landColors : allColors)
-    : isAdventure
-      ? getAdventurePinline(isLand ? landColors : allColors)
-      : getPinline(isLand ? landColors : allColors, isArtifact, artStyle, isToken);
+    : isOmen
+      ? getOmenPinline(isLand ? landColors : allColors)
+      : isAdventure
+        ? getAdventurePinline(isLand ? landColors : allColors)
+        : getPinline(isLand ? landColors : allColors, isArtifact, artStyle, isToken);
   const adventureRulesLeft = isAlternateArt
     ? getEldAlternateAdventureRulesLeft(isLand ? landColors : (adventureColors ?? allColors))
     : isAdventure
       ? getAdventureRulesLeft(isLand ? landColors : (adventureColors ?? allColors))
       : '';
+  const omenRulesLeft = isOmen
+    ? getOmenRulesLeft(isLand ? landColors : (omenColors ?? allColors))
+    : '';
   const adventureRulesRight =
     isAdventure && (artStyle === CardArtStyles.Extended || artStyle === CardArtStyles.Borderless)
       ? getAdventureRulesRight(isLand ? landColors : allColors)
@@ -279,7 +299,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
       ? getRulesPart(landColors, isArtifact, true)
       : getLandRulesPart(landColors)
     : getRulesPart(allColors, isArtifact, isToken);
-  if (isAdventure) {
+  if (isAdventure || isOmen) {
     rulesPart = '';
   }
   if (artStyle === CardArtStyles.Borderless) {
@@ -304,6 +324,8 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
     mainframe = getLandMainframe(color, artStyle);
   } else if (isAdventure) {
     mainframe = getAdventureMainframe(color, isEnchantment);
+  } else if (isOmen) {
+    mainframe = getOmenMainframe(color, isEnchantment);
   } else {
     mainframe = getColorMainframe(color, isEnchantment, isArtifact, vehicle);
   }
@@ -425,6 +447,9 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
           {adventureRulesLeft ? (
             <img className={styles.adventureRulesLeft} src={adventureRulesLeft} alt="" />
           ) : null}
+          {omenRulesLeft ? (
+            <img className={styles.adventureRulesLeft} src={omenRulesLeft} alt="" />
+          ) : null}
           {adventureRulesRight ? (
             <img className={styles.adventureRulesRight} src={adventureRulesRight} alt="" />
           ) : null}
@@ -456,6 +481,36 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
                     <p key={`adventure-text-${cardID}-${i}`}>
                       {injectForText(val, name, mechanics)}
                     </p>
+                  ))}
+                </div>
+              </TextResize>
+            </div>
+          ) : null}
+
+          {/* The omen spell renders into the frame's left box. The omen frame
+              shares the adventure frame geometry (their measured rules-left
+              masks align), so the adventure SCSS classes are reused for the
+              box positions; each part only appears when its data is set. */}
+          {isOmen && omenName ? <div className={styles.adventureName}>{omenName}</div> : null}
+          {isOmen && omenCost ? (
+            <div className={styles.adventureCost}>
+              {injectManaIcons(getColor(omenCost).orderedCost, true)}
+            </div>
+          ) : null}
+          {isOmen && omenType ? (
+            <div className={styles.adventureTypeLine}>{`${omenType} – Omen`}</div>
+          ) : null}
+          {isOmen && omenText && omenText.length > 0 ? (
+            <div className={styles.adventureText}>
+              <TextResize
+                defaultFontSize={42}
+                maxFontSize={50}
+                minFontSize={28}
+                className={styles.textWrap}
+              >
+                <div>
+                  {omenText.map((val, i) => (
+                    <p key={`omen-text-${cardID}-${i}`}>{injectForText(val, name, mechanics)}</p>
                   ))}
                 </div>
               </TextResize>
@@ -513,12 +568,12 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
 
           <div
             className={`${styles.text} ${isToken ? styles.tokenText : ''} ${
-              isAdventure ? styles.adventureRightText : ''
+              isAdventure || isOmen ? styles.adventureRightText : ''
             }`}
           >
             <TextResize
               defaultFontSize={42}
-              maxFontSize={isAdventure ? 50 : 56}
+              maxFontSize={isAdventure || isOmen ? 50 : 56}
               minFontSize={38}
               className={styles.textWrap}
             >
