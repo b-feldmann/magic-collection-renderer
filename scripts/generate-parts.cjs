@@ -51,6 +51,19 @@
  * `parts/tokenType/l.png`, so token lands keep a land-shaped type plate that
  * matches the token-land frame.
  *
+ * Omen frames (`mainframes/omen/regular/<color>.png`) split their textbox into
+ * a left spell box and a right rules box, like the adventure frames. Their
+ * pinline and left rules box are carved with the dedicated
+ * `parts/omenPinline.png` and `parts/omenRulesLeft.png` masks; the five WUBRG
+ * single colors and the gold (`m`) single are produced (gold for multicolor
+ * omens), along with the ten two-color combinations, written to
+ * `parts/omenPinline/<color|combo>.png` and `parts/omenRulesLeft/<color|combo>.png`.
+ *
+ * An optional CLI argument list runs only the named generators, e.g.
+ * `node scripts/generate-parts.cjs omen` (keys: m15, variants, adventure, omen,
+ * planeswalker, planeswalkerNickname, token, nickname, crown). Without
+ * arguments every generator runs, as before.
+ *
  * Run with: npm run generate:parts
  */
 
@@ -286,19 +299,31 @@ async function generate(type, maskPath, frames, outputDir) {
 }
 
 async function run() {
+  // Optional CLI filter: with arguments, only the named generators run so a
+  // new part family can be generated without rewriting the existing files.
+  const only = process.argv.slice(2);
+  const selected = name => only.length === 0 || only.includes(name);
+
   const frames = await loadFrames();
-  for (const type of PART_TYPES) {
-    const maskPath = path.join(PARTS_DIR, `${type}.png`);
-    const outputDir = path.join(PARTS_DIR, type);
-    await generate(type, maskPath, frames, outputDir);
+  if (selected('m15')) {
+    for (const type of PART_TYPES) {
+      const maskPath = path.join(PARTS_DIR, `${type}.png`);
+      const outputDir = path.join(PARTS_DIR, type);
+      await generate(type, maskPath, frames, outputDir);
+    }
   }
-  await generateVariantPinlines();
-  await generateAdventureParts();
-  await generatePlaneswalkerPinlines();
-  await generatePlaneswalkerNicknameCombos();
-  await generateTokenParts();
-  await generateNicknameCombos();
-  await generateCrownCombos();
+  if (selected('variants')) await generateVariantPinlines();
+  if (selected('adventure')) await generateAdventureParts();
+  if (selected('omen')) await generateOmenParts();
+  if (selected('planeswalker')) await generatePlaneswalkerPinlines();
+  if (selected('planeswalkerNickname')) await generatePlaneswalkerNicknameCombos();
+  if (selected('token')) await generateTokenParts();
+  if (selected('nickname')) await generateNicknameCombos();
+  if (selected('crown')) await generateCrownCombos();
+
+  if (only.length > 0) {
+    console.log(`\nRan only: ${only.join(', ')}`);
+  }
 }
 
 // Token pinline, type and rules parts: the token frames differ from the m15
@@ -585,6 +610,93 @@ async function generateAdventureParts() {
     // Two-color combinations. The adventureEld rules boxes sit off the image
     // centre (left and right), so the two colors are mixed around the centroid
     // of the mask's visible pixels instead of the geometric image centre.
+    const blendCenterX = /Rules/.test(type) ? visiblePixelCentroidX(mask) : undefined;
+    const comboResult = await writeCombos(
+      type,
+      frames,
+      mask,
+      maskW,
+      maskH,
+      outputDir,
+      blendCenterX,
+    );
+    written += comboResult.written;
+    skipped.push(...comboResult.skipped);
+
+    console.log(`\nDone. Wrote ${written} ${type} image(s) to ${outputDir}`);
+    if (skipped.length > 0) {
+      console.log(`Skipped ${skipped.length}:`);
+      for (const s of skipped) console.log(`  - ${s}`);
+    }
+  }
+}
+
+// Omen frame parts: omen frames split their textbox into a left spell box and
+// a right rules box (like the adventure frames). The parts are carved from the
+// omen frames (`mainframes/omen/regular/<color>.png`) using the dedicated
+// `parts/omenPinline.png` and `parts/omenRulesLeft.png` masks. The five WUBRG
+// single colors and the gold (`m`) single are produced (gold for multicolor
+// omens), along with the ten two-color combinations, written to
+// `parts/<type>/<color|combo>.png`. The land ('l') and vehicle ('v') omen
+// frames are not carved: a Land+Omen face renders the land mainframe chain
+// first, exactly like adventures.
+const OMEN_DIR = path.join(MAINFRAMES_DIR, 'omen');
+const OMEN_GOLD_COLOR = 'm';
+const OMEN_SINGLE_COLORS = [...VARIANT_COLORS, OMEN_GOLD_COLOR];
+const OMEN_PART_TYPES = [
+  { type: 'omenPinline', mask: 'omenPinline.png', style: 'regular' },
+  { type: 'omenRulesLeft', mask: 'omenRulesLeft.png', style: 'regular' },
+];
+
+async function generateOmenParts() {
+  for (const { type, mask: maskName, style } of OMEN_PART_TYPES) {
+    const maskPath = path.join(PARTS_DIR, maskName);
+    if (!fs.existsSync(maskPath)) {
+      throw new Error(`Mask image not found: ${maskPath}`);
+    }
+    const mask = await Jimp.read(maskPath);
+    const { width: maskW, height: maskH } = mask.bitmap;
+
+    const frames = new Map();
+    for (const color of OMEN_SINGLE_COLORS) {
+      const sourcePath = path.join(OMEN_DIR, style, `${color}.png`);
+      if (fs.existsSync(sourcePath)) {
+        const frame = await Jimp.read(sourcePath);
+        if (!sameSize(frame, maskW, maskH)) {
+          frame.resize({ w: maskW, h: maskH });
+        }
+        frames.set(color, frame);
+      }
+    }
+
+    const outputDir = path.join(PARTS_DIR, type);
+    if (!fs.existsSync(outputDir)) {
+      fs.mkdirSync(outputDir, { recursive: true });
+    }
+
+    let written = 0;
+    const skipped = [];
+
+    // Single colors (WUBRG + gold).
+    for (const color of OMEN_SINGLE_COLORS) {
+      const frame = frames.get(color);
+      if (!frame) {
+        skipped.push(`${color} (source missing)`);
+        continue;
+      }
+      if (!sameSize(frame, maskW, maskH)) {
+        skipped.push(`${color} (source size != mask ${maskW}x${maskH})`);
+        continue;
+      }
+      const out = carveSingle(frame, mask);
+      await out.write(path.join(outputDir, `${color}.png`));
+      written += 1;
+      console.log(`${type}  ✓ ${color}.png`);
+    }
+
+    // Two-color combinations. The omen rules box sits off the image centre (on
+    // the left half), so the two colors are mixed around the centroid of the
+    // mask's visible pixels instead of the geometric image centre.
     const blendCenterX = /Rules/.test(type) ? visiblePixelCentroidX(mask) : undefined;
     const comboResult = await writeCombos(
       type,
