@@ -69,10 +69,12 @@ const isArtStyleAvailableForType = (artStyle: string, cardTypes: CardType[] = []
     if (cardTypes.includes(CardType.Planeswalker)) return artStyle === CardArtStyles.Borderless;
     // The Alternate Art showcases are adventure-only.
     if (ALTERNATE_ART_STYLES.includes(artStyle)) return cardTypes.includes(CardType.Adventure);
-    // For now, adventures and omens support no other non-regular art styles:
-    // Extended and Borderless are disabled for them (omens have no
-    // extended/borderless frames at all).
-    return !cardTypes.includes(CardType.Adventure) && !cardTypes.includes(CardType.Omen);
+    // Adventures and omens support the Extended art style, but no other
+    // non-regular art styles (Borderless is disabled for them; omens have no
+    // borderless frames at all).
+    if (cardTypes.includes(CardType.Omen) || cardTypes.includes(CardType.Adventure)) {
+      return artStyle === CardArtStyles.Extended;
+    }
   }
   return true;
 };
@@ -256,9 +258,10 @@ const CardEditor: React.FC<CardEditorInterface> = ({
 
       // Automatic art style switch when the current style is no longer
       // available for the new set of card types: adding Adventure replaces
-      // the generic showcases (Borderless/Extended) with the ELD alternate
-      // style; removing Adventure falls back from the alternate showcases to
-      // Extended; anything else falls back to that type's Regular style.
+      // the Borderless showcase with the ELD alternate style (Extended stays
+      // available); removing Adventure falls back from the alternate
+      // showcases to Extended; anything else falls back to that type's
+      // Regular style.
       if (!isArtStyleAvailableForType(getValue('artStyle'), nextTypes)) {
         const currentArtStyle = getValue('artStyle');
         if (

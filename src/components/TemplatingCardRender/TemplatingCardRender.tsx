@@ -269,9 +269,9 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
   );
   const pinline = isAlternateArt
     ? getEldAlternateAdventurePinline(isLand ? landColors : allColors)
-    : isOmen
+    : isOmen && artStyle === CardArtStyles.Regular
       ? getOmenPinline(isLand ? landColors : allColors)
-      : isAdventure
+      : isAdventure && artStyle === CardArtStyles.Regular
         ? getAdventurePinline(isLand ? landColors : allColors)
         : getPinline(isLand ? landColors : allColors, isArtifact, artStyle, isToken);
   const adventureRulesLeft = isAlternateArt
