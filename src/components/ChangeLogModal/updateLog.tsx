@@ -448,6 +448,10 @@ updateLog.push({
       type: ChangeLogFeatureType.Added,
       feature: 'Omen Cards',
     },
+    {
+      type: ChangeLogFeatureType.Added,
+      feature: 'Prepared Cards',
+    },
   ],
 });
 //
