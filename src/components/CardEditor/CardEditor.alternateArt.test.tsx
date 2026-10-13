@@ -104,7 +104,7 @@ const deselectCardType = (typeLabel: string) => {
 };
 
 describe('CardEditor - alternate art art style', () => {
-  it('offers ELD Alternate Art for an adventure; Extended and Borderless are disabled', () => {
+  it('offers ELD Alternate Art and Extended for an adventure; Borderless is disabled', () => {
     render(
       <Store.Provider value={mockStoreValue}>
         <CardEditor
@@ -115,9 +115,9 @@ describe('CardEditor - alternate art art style', () => {
     );
 
     expect(screen.getByText('ELD Alternate Art')).toBeVisible();
-    // Extended and Borderless are unavailable for adventures for now.
+    // Extended is available for adventures; Borderless is not.
+    expect(screen.getByText('Extended')).toBeVisible();
     expect(screen.queryByText('Borderless')).toBeNull();
-    expect(screen.queryByText('Extended')).toBeNull();
   });
 
   it('CONTROL: a non-adventure keeps Extended and Borderless and hides the Alternate Art style', () => {
@@ -132,7 +132,7 @@ describe('CardEditor - alternate art art style', () => {
     expect(screen.getByText('Extended')).toBeVisible();
   });
 
-  it('adding the Adventure type switches a chosen Extended style to ELD Alternate Art', async () => {
+  it('adding the Adventure type keeps a chosen Extended style', async () => {
     const saveTmpCard = vi.fn();
     render(
       <Store.Provider value={mockStoreValue}>
@@ -153,7 +153,8 @@ describe('CardEditor - alternate art art style', () => {
       .reverse()
       .find(c => c?.front?.cardTypes?.includes(CardType.Adventure));
     expect(saved?.front.cardTypes).toContain(CardType.Adventure);
-    expect(saved?.front.artStyle).toBe(CardArtStyles.EldAlternateArt);
+    // Extended is available for adventures, so it is kept as-is.
+    expect(saved?.front.artStyle).toBe(CardArtStyles.Extended);
   });
 
   it('adding the Adventure type switches a chosen Borderless style to ELD Alternate Art', async () => {

@@ -294,20 +294,40 @@ describe('CardEditor - Omen section', () => {
     expect(saved?.front.omenType).toBe(OmenType.Instant);
   });
 
-  it('offers only the Regular art style for an Omen card', () => {
+  it('offers the Regular and Extended art styles for an Omen card', () => {
     renderEditor(makeCard([CardType.Creature, CardType.Omen]));
 
     expect(screen.getByText(CardArtStyles.Regular)).toBeInTheDocument();
-    expect(screen.queryByText(CardArtStyles.Extended)).toBeNull();
+    expect(screen.getByText(CardArtStyles.Extended)).toBeInTheDocument();
     expect(screen.queryByText(CardArtStyles.Borderless)).toBeNull();
     expect(screen.queryByText(CardArtStyles.EldAlternateArt)).toBeNull();
     expect(screen.queryByText(CardArtStyles.Invention)).toBeNull();
     expect(screen.queryByText(CardArtStyles.Invocation)).toBeNull();
   });
 
-  it('adding the Omen type switches a chosen Extended style to Regular', async () => {
+  it('adding the Omen type keeps a chosen Extended style', async () => {
     const saveTmpCard = vi.fn();
     renderEditor(makeCard([CardType.Creature], { artStyle: CardArtStyles.Extended }), saveTmpCard);
+
+    await selectCardType('Omen');
+
+    await new Promise(resolve => setTimeout(resolve, 700));
+
+    const saved = saveTmpCard.mock.calls
+      .map(call => call[0])
+      .reverse()
+      .find(c => c?.front?.cardTypes?.includes(CardType.Omen));
+    expect(saved?.front.cardTypes).toContain(CardType.Omen);
+    // Extended is available for omens, so it is kept as-is.
+    expect(saved?.front.artStyle).toBe(CardArtStyles.Extended);
+  });
+
+  it('adding the Omen type switches a chosen Borderless style to Regular', async () => {
+    const saveTmpCard = vi.fn();
+    renderEditor(
+      makeCard([CardType.Creature], { artStyle: CardArtStyles.Borderless }),
+      saveTmpCard,
+    );
 
     await selectCardType('Omen');
 
