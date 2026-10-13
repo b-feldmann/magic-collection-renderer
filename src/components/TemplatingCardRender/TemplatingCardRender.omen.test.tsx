@@ -5,7 +5,7 @@ import '@testing-library/jest-dom/vitest';
 
 import TemplatingCardRender from './TemplatingCardRender';
 import { Store, StoreType } from '../../store';
-import { CardType, OmenType, RarityType } from '../../interfaces/enums';
+import { CardArtStyles, CardType, OmenType, RarityType } from '../../interfaces/enums';
 import { UNKNOWN_CREATOR } from '../../utils/constants';
 
 // jsdom polyfills required by TextResize.
@@ -33,6 +33,7 @@ const mockStoreValue: StoreType = {
 // variant (see getSpellBoxVariant / getOmenRulesLeft).
 const renderOmen = (
   opts: {
+    artStyle?: CardArtStyles;
     enchantment?: boolean;
     manaCost?: string;
     noOmen?: boolean;
@@ -49,6 +50,7 @@ const renderOmen = (
         name="Test Omen"
         rarity={RarityType.Common}
         cardID="test-omen"
+        artStyle={opts.artStyle}
         manaCost={opts.manaCost ?? '{1}{G}'}
         cardTypes={[
           CardType.Creature,
@@ -164,6 +166,27 @@ describe('TemplatingCardRender - enchantment omen (nyx mainframe)', () => {
     renderOmen();
 
     expect(findBySrc('omen/nyx')).toBeUndefined();
+  });
+});
+
+describe('TemplatingCardRender - omen Extended frame parts', () => {
+  it('an Extended omen uses the generic extended mainframe, not the omen pinline', () => {
+    renderOmen({ artStyle: CardArtStyles.Extended });
+
+    // The Extended art style replaces both the omen mainframe and the omen
+    // pinline with the generic extended parts; the omen left box stays.
+    expect(findBySrc('mainframes/extended')).toBeInTheDocument();
+    expect(findBySrc('omenPinline')).toBeUndefined();
+    expect(findBySrc('omenRulesLeft')).toBeInTheDocument();
+  });
+
+  it('a two-color Extended omen resolves the generic extended combo pinline', () => {
+    renderOmen({ artStyle: CardArtStyles.Extended, manaCost: '{W}{U}' });
+
+    // The extended pinlines are combo-only: {W}{U} must resolve the wu asset
+    // from the generic extended pinline folder.
+    expect(findBySrc('pinline/extended/wu')).toBeInTheDocument();
+    expect(findBySrc('omenPinline')).toBeUndefined();
   });
 });
 

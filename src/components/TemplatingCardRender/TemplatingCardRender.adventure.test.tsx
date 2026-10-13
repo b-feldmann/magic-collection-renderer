@@ -310,6 +310,27 @@ describe('TemplatingCardRender - adventure rules-right overlay (Extended/Borderl
   });
 });
 
+describe('TemplatingCardRender - adventure Extended frame parts', () => {
+  it('an Extended adventure uses the generic extended mainframe, not the adventure pinline', () => {
+    renderAdventure({ artStyle: CardArtStyles.Extended });
+
+    // The Extended art style replaces both the adventure mainframe and the
+    // adventure pinline with the generic extended parts; only the adventure
+    // rules boxes stay.
+    expect(findBySrc('mainframes/extended')).toBeInTheDocument();
+    expect(findBySrc('adventurePinline')).toBeUndefined();
+  });
+
+  it('a two-color Extended adventure resolves the generic extended combo pinline', () => {
+    renderAdventure({ artStyle: CardArtStyles.Extended, manaCost: '{W}{U}' });
+
+    // The extended pinlines are combo-only: {W}{U} must resolve the wu asset
+    // from the generic extended pinline folder.
+    expect(findBySrc('pinline/extended/wu')).toBeInTheDocument();
+    expect(findBySrc('adventurePinline')).toBeUndefined();
+  });
+});
+
 describe('TemplatingCardRender - adventure spell box', () => {
   it('renders the adventure name, cost, type line, and text into the left box', () => {
     renderAdventure({

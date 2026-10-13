@@ -267,11 +267,15 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
     artStyle === CardArtStyles.Borderless,
     isLand,
   );
+  // The omen / adventure pinlines belong to the Regular art style; the
+  // Extended style carves the generic extended pinlines instead. A missing
+  // artStyle counts as Regular, like everywhere else in this component.
+  const isRegularArtStyle = !artStyle || artStyle === CardArtStyles.Regular;
   const pinline = isAlternateArt
     ? getEldAlternateAdventurePinline(isLand ? landColors : allColors)
-    : isOmen && artStyle === CardArtStyles.Regular
+    : isOmen && isRegularArtStyle
       ? getOmenPinline(isLand ? landColors : allColors)
-      : isAdventure && artStyle === CardArtStyles.Regular
+      : isAdventure && isRegularArtStyle
         ? getAdventurePinline(isLand ? landColors : allColors)
         : getPinline(isLand ? landColors : allColors, isArtifact, artStyle, isToken);
   const adventureRulesLeft = isAlternateArt
