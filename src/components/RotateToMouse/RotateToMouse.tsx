@@ -4,8 +4,8 @@ import styles from './RotateToMouse.module.scss';
 
 const MIN_ROTATE = -0.7;
 const MAX_ROTATE = 0.7;
-const HOVER_TRANSITION = 'transform 0.1s';
-const RESET_TRANSITION = 'transform 0.5s';
+const ROTATION_STIFFNESS = 0.066;
+const ROTATION_DAMPING = 0.25;
 
 const RotateToMouse = ({
   children,
@@ -15,15 +15,117 @@ const RotateToMouse = ({
   const [covers, setCovers] = useState<HTMLCollectionOf<Element>>();
   // Transient values that must not trigger a re-render on every mousemove.
   const rectRef = useRef<DOMRect | null>(null);
-  // Ease-in the tilt on entry; per-move transitions restart on every mousemove
-  // and read as jitter, so moves themselves stay transition-free.
-  const easeInRef = useRef(false);
+  const targetRotationRef = useRef({ x: 0, y: 0 });
+  const rotationRef = useRef({ x: 0, y: 0 });
+  const velocityRef = useRef({ x: 0, y: 0 });
+  const targetCoverRef = useRef({ x: 0, y: 0, scale: 1 });
+  const coverRef = useRef({ x: 0, y: 0, scale: 1 });
+  const coverVelocityRef = useRef({ x: 0, y: 0, scale: 0 });
+  const frameRef = useRef<number | null>(null);
+  const lastFrameTimeRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (ref.current) {
       setCovers(ref.current.getElementsByClassName('card-cover'));
     }
+
+    return () => {
+      if (frameRef.current !== null) cancelAnimationFrame(frameRef.current);
+    };
   }, []);
+
+  const animateRotation = (timestamp: number) => {
+    frameRef.current = null;
+    const elapsed =
+      lastFrameTimeRef.current === null
+        ? 1
+        : Math.min((timestamp - lastFrameTimeRef.current) / (1000 / 60), 2);
+    lastFrameTimeRef.current = timestamp;
+
+    const rotation = rotationRef.current;
+    const target = targetRotationRef.current;
+    const velocity = velocityRef.current;
+    const cover = coverRef.current;
+    const coverTarget = targetCoverRef.current;
+    const coverVelocity = coverVelocityRef.current;
+
+    velocity.x +=
+      ((target.x - rotation.x) * ROTATION_STIFFNESS - velocity.x * ROTATION_DAMPING) * elapsed;
+    velocity.y +=
+      ((target.y - rotation.y) * ROTATION_STIFFNESS - velocity.y * ROTATION_DAMPING) * elapsed;
+    rotation.x += velocity.x * elapsed;
+    rotation.y += velocity.y * elapsed;
+
+    coverVelocity.x +=
+      ((coverTarget.x - cover.x) * ROTATION_STIFFNESS - coverVelocity.x * ROTATION_DAMPING) *
+      elapsed;
+    coverVelocity.y +=
+      ((coverTarget.y - cover.y) * ROTATION_STIFFNESS - coverVelocity.y * ROTATION_DAMPING) *
+      elapsed;
+    coverVelocity.scale +=
+      ((coverTarget.scale - cover.scale) * ROTATION_STIFFNESS -
+        coverVelocity.scale * ROTATION_DAMPING) *
+      elapsed;
+    cover.x += coverVelocity.x * elapsed;
+    cover.y += coverVelocity.y * elapsed;
+    cover.scale += coverVelocity.scale * elapsed;
+
+    if (
+      Math.abs(target.x - rotation.x) < 0.001 &&
+      Math.abs(target.y - rotation.y) < 0.001 &&
+      Math.abs(velocity.x) < 0.001 &&
+      Math.abs(velocity.y) < 0.001 &&
+      Math.abs(coverTarget.x - cover.x) < 0.001 &&
+      Math.abs(coverTarget.y - cover.y) < 0.001 &&
+      Math.abs(coverTarget.scale - cover.scale) < 0.001 &&
+      Math.abs(coverVelocity.x) < 0.001 &&
+      Math.abs(coverVelocity.y) < 0.001 &&
+      Math.abs(coverVelocity.scale) < 0.001
+    ) {
+      rotation.x = target.x;
+      rotation.y = target.y;
+      velocity.x = 0;
+      velocity.y = 0;
+      cover.x = coverTarget.x;
+      cover.y = coverTarget.y;
+      cover.scale = coverTarget.scale;
+      coverVelocity.x = 0;
+      coverVelocity.y = 0;
+      coverVelocity.scale = 0;
+      lastFrameTimeRef.current = null;
+    }
+
+    ref.current?.style.setProperty(
+      'transform',
+      `rotateX(${-rotation.y}deg) rotateY(${rotation.x}deg)`,
+    );
+
+    if (covers) {
+      for (let i = 0; i < covers.length; i += 1) {
+        (covers.item(i) as HTMLElement | null)?.style.setProperty(
+          'transform',
+          `translateX(${cover.x}px) translateY(${cover.y}px) scale(${cover.scale})`,
+        );
+      }
+    }
+
+    if (
+      velocity.x !== 0 ||
+      velocity.y !== 0 ||
+      coverVelocity.x !== 0 ||
+      coverVelocity.y !== 0 ||
+      coverVelocity.scale !== 0
+    ) {
+      frameRef.current = requestAnimationFrame(animateRotation);
+    }
+  };
+
+  const scheduleRotation = () => {
+    if (frameRef.current === null) {
+      lastFrameTimeRef.current = null;
+      frameRef.current = requestAnimationFrame(animateRotation);
+    }
+  };
 
   const cacheRect = () => {
     if (ref.current) {
@@ -41,44 +143,16 @@ const RotateToMouse = ({
     const rotateX = (MAX_ROTATE - MIN_ROTATE) * relativeX + MIN_ROTATE;
     const rotateY = (MAX_ROTATE - MIN_ROTATE) * relativeY + MIN_ROTATE;
 
-    const transform = `transform: rotateX(${-rotateY}deg) rotateY(${rotateX}deg)`;
-    if (easeInRef.current) {
-      ref.current?.setAttribute('style', `${transform}; transition: ${HOVER_TRANSITION}`);
-      easeInRef.current = false;
-    } else {
-      ref.current?.setAttribute('style', transform);
-    }
-
-    if (covers) {
-      for (let i = 0; i < covers.length; i += 1) {
-        const item = covers.item(i);
-        if (item) {
-          item.setAttribute(
-            'style',
-            `transform: translateX(${rotateX * 10}px) translateY(${rotateY * 10}px) scale(1.1); transition: ${HOVER_TRANSITION};`,
-          );
-        }
-      }
-    }
+    targetRotationRef.current = { x: rotateX, y: rotateY };
+    targetCoverRef.current = { x: rotateX * 10, y: rotateY * 10, scale: 1.1 };
+    scheduleRotation();
   };
 
   const reset = () => {
     rectRef.current = null;
-    // Glide back flat in sync with the cover parallax instead of snapping,
-    // which flickers when the rotation moved the card out from under the cursor.
-    ref.current?.setAttribute(
-      'style',
-      'transform: rotateX(0deg) rotateY(0deg); transition: transform 0.5s',
-    );
-
-    if (covers) {
-      for (let i = 0; i < covers.length; i += 1) {
-        const item = covers.item(i);
-        if (item) {
-          item.setAttribute('style', `transform: scale(1); transition: ${RESET_TRANSITION};`);
-        }
-      }
-    }
+    targetRotationRef.current = { x: 0, y: 0 };
+    targetCoverRef.current = { x: 0, y: 0, scale: 1 };
+    scheduleRotation();
   };
 
   return (
@@ -89,7 +163,6 @@ const RotateToMouse = ({
       // re-trigger enter/leave loops (flicker at the edges).
       onMouseEnter={e => {
         cacheRect();
-        easeInRef.current = true;
         update(e.clientX, e.clientY);
       }}
       onMouseMove={e => update(e.clientX, e.clientY)}

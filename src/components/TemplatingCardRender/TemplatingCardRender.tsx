@@ -331,19 +331,18 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
   if (isAdventure || isOmen || isPrepared) {
     rulesPart = '';
   }
-  if (artStyle === CardArtStyles.Borderless) {
-    titlePart = '';
-    typePart = '';
-    rulesPart = '';
-  }
 
   if (isAlternateArt) {
     mainframe = getEldAlternateAdventureMainframe(color);
     pt = getAdventurePt(color);
   } else if (artStyle === CardArtStyles.Extended) {
     mainframe = getExtendedMainframe(color, isLand, isArtifact, vehicle, isEnchantment);
+    typePart = '';
   } else if (artStyle === CardArtStyles.Borderless) {
     mainframe = getBorderlessMainframe(color, isLand, isArtifact, isNickname);
+    titlePart = '';
+    typePart = '';
+    rulesPart = '';
   } else if (isInvention) {
     mainframe = getInventionMainframe(color, isArtifact);
     pt = getInventionPt();

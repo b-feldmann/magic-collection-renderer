@@ -6,6 +6,7 @@ import CardFaceInterface from '../../interfaces/CardFaceInterface';
 import styles from './BigCardRenderModal.module.scss';
 import { NonMemoCardRender as CardRender } from '../TemplatingCardRender/index';
 import { CARD_WIDTH, CARD_HEIGHT } from '../../utils/constants';
+import TrainerGalleryHolofoil from './TrainerGalleryHolofoil';
 
 interface MobileBigCardRenderModalProps {
   card: CardInterface;
@@ -74,7 +75,7 @@ const MobileBigCardRenderModal = ({
         }}
       >
         {faces.map((face, index) => (
-          <div key={`${face.name}-${index}`} style={{ width: cardWidth }}>
+          <TrainerGalleryHolofoil key={`${face.name}-${index}`} style={{ width: cardWidth }}>
             <CardRender
               containerWidth={cardWidth}
               {...face}
@@ -85,7 +86,7 @@ const MobileBigCardRenderModal = ({
               collectionNumber={collectionNumber}
               collectionSize={collectionSize}
             />
-          </div>
+          </TrainerGalleryHolofoil>
         ))}
       </div>
     </Modal>

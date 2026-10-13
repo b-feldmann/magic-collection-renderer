@@ -16,6 +16,7 @@ import { updateCard } from '../../actions/cardActions';
 import { NEEDED_LIKES_TO_APPROVE, CARD_WIDTH, CARD_HEIGHT } from '../../utils/constants';
 import MobileBigCardRenderModal from './MobileBigCardRenderModal';
 import RotateToMouse from '../RotateToMouse/RotateToMouse';
+import TrainerGalleryHolofoil from './TrainerGalleryHolofoil';
 
 interface BigCardRenderModalProps {
   card: CardInterface;
@@ -197,7 +198,7 @@ const BigCardRenderModal = ({
             }}
           >
             {faces.map((face, index) => (
-              <div
+              <TrainerGalleryHolofoil
                 key={`${face.name}-${index}`}
                 className={styles.modalCardWrapper}
                 style={{
@@ -214,7 +215,7 @@ const BigCardRenderModal = ({
                   collectionNumber={collectionNumber}
                   collectionSize={collectionSize}
                 />
-              </div>
+              </TrainerGalleryHolofoil>
             ))}
           </RotateToMouse>
         </div>
