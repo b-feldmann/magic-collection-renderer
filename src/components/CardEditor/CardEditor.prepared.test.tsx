@@ -265,26 +265,10 @@ describe('CardEditor - Prepared art styles', () => {
     renderEditor(makeCard([CardType.Creature, CardType.Prepared]));
 
     expect(screen.getByText(CardArtStyles.Regular)).toBeInTheDocument();
-    expect(screen.queryByText(CardArtStyles.Extended)).toBeNull();
+    expect(screen.queryByText(CardArtStyles.Extended)).toBeInTheDocument();
     expect(screen.queryByText(CardArtStyles.Borderless)).toBeNull();
     expect(screen.queryByText(CardArtStyles.EldAlternateArt)).toBeNull();
     expect(screen.queryByText(CardArtStyles.Invention)).toBeNull();
     expect(screen.queryByText(CardArtStyles.Invocation)).toBeNull();
-  });
-
-  it('adding the Prepared type switches a chosen Extended style to Regular', async () => {
-    const saveTmpCard = vi.fn();
-    renderEditor(makeCard([CardType.Creature], { artStyle: CardArtStyles.Extended }), saveTmpCard);
-
-    await selectCardType('Prepared');
-
-    await new Promise(resolve => setTimeout(resolve, 700));
-
-    const saved = saveTmpCard.mock.calls
-      .map(call => call[0])
-      .reverse()
-      .find(c => c?.front?.cardTypes?.includes(CardType.Prepared));
-    expect(saved?.front.cardTypes).toContain(CardType.Prepared);
-    expect(saved?.front.artStyle).toBe(CardArtStyles.Regular);
   });
 });

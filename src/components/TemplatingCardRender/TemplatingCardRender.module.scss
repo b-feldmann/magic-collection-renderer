@@ -165,6 +165,7 @@
     width: 1150px;
     height: 100px;
     white-space: nowrap;
+    pointer-events: none;
 
     // Vertically center the title text within the bounded box. The TextResize
     // wrapper is the only direct child; a nowrap line still overflows (never
@@ -184,12 +185,14 @@
     width: 100%;
     text-align: center;
     font-style: italic;
+    pointer-events: none;
   }
 
   .tokenTitle {
     text-align: center;
     width: 1248px;
     color: white;
+    pointer-events: none;
 
     div {
       justify-content: center;
@@ -207,6 +210,7 @@
     width: 1150px;
     height: 100px;
     white-space: nowrap;
+    pointer-events: none;
 
     // Vertically center the type text within the bounded box, mirroring the
     // title. The TextResize wrapper is the only direct child; the BasicLand
@@ -284,6 +288,7 @@
     height: 596px;
     left: 132px;
     width: 1236px;
+    pointer-events: none;
 
     p {
       margin-top: 25px;
@@ -405,9 +410,9 @@
 
   .prepareCost {
     position: absolute;
-    top: 1321px;
+    top: 1322px;
     // right edge of the right box is x 1419.4, inset ~15px
-    right: 96px;
+    right: 97px;
     font-size: 1.5em;
     text-align: right;
   }
@@ -420,7 +425,7 @@
     font-family: 'Beleren Bold', sans-serif;
     position: absolute;
     font-size: 1.6em;
-    top: 1420px;
+    top: 1439px;
     left: 780px;
     color: white;
   }
@@ -429,10 +434,10 @@
     font-family: 'MPlantin', sans-serif;
     position: absolute;
     font-size: 1.25em;
-    top: 1510px;
-    height: 360px;
-    left: 780px;
-    width: 604px;
+    top: 1520px;
+    height: 356px;
+    left: 770px;
+    width: 614px;
 
     p {
       margin-top: 20px;
@@ -449,10 +454,10 @@
   // while the prepare spell occupies the right one (the omenRightText mirror
   // across the centerline). Must sit after .text to win at equal specificity.
   .prepareLeftText {
-    left: 110px;
+    left: 120px;
     width: 620px;
     top: 1320px;
-    height: 590px;
+    height: 610px;
   }
 
   // Constrain the creature's rules text (and flavour) to the frame's right

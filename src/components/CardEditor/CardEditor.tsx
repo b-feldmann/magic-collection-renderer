@@ -70,15 +70,14 @@ const isArtStyleAvailableForType = (artStyle: string, cardTypes: CardType[] = []
     if (cardTypes.includes(CardType.Planeswalker)) return artStyle === CardArtStyles.Borderless;
     // The Alternate Art showcases are adventure-only.
     if (ALTERNATE_ART_STYLES.includes(artStyle)) return cardTypes.includes(CardType.Adventure);
-    // For now, prepared cards support no non-regular art styles (unlike
-    // adventures and omens, which support Extended).
-    if (cardTypes.includes(CardType.Prepared)) {
-      return false;
-    }
     // Adventures and omens support the Extended art style, but no other
     // non-regular art styles (Borderless is disabled for them; omens have no
     // borderless frames at all).
-    if (cardTypes.includes(CardType.Omen) || cardTypes.includes(CardType.Adventure)) {
+    if (
+      cardTypes.includes(CardType.Omen) ||
+      cardTypes.includes(CardType.Adventure) ||
+      cardTypes.includes(CardType.Prepared)
+    ) {
       return artStyle === CardArtStyles.Extended;
     }
   }
