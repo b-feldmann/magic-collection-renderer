@@ -24,6 +24,9 @@ import {
   getOmenMainframe,
   getOmenPinline,
   getOmenRulesLeft,
+  getPrepareMainframe,
+  getPreparePinline,
+  getPrepareRulesRight,
   getPt,
 } from './assetLoader';
 import { ColorType, CardArtStyles } from '../../interfaces/enums';
@@ -678,5 +681,58 @@ describe('ELD alternate adventure frames (ELD Alternate Art art style)', () => {
     expect(getAdventurePt(ColorType.White)).not.toBe(
       getPt(ColorType.White, false, false, false, false, false),
     );
+  });
+});
+
+describe('prepare frames', () => {
+  it('returns a color-specific prepare mainframe', () => {
+    const w = getPrepareMainframe(ColorType.White);
+    const u = getPrepareMainframe(ColorType.Blue);
+    expect(w.highRes).toBeTruthy();
+    expect(u.highRes).toBeTruthy();
+    expect(w.highRes).toContain('prepare/regular/w');
+    expect(w.highRes).not.toBe(u.highRes);
+  });
+
+  it('returns the nyx prepare mainframe for an enchantment prepared', () => {
+    const w = getPrepareMainframe(ColorType.White, true);
+    expect(w.highRes).toBeTruthy();
+    expect(w.highRes).toContain('prepare/nyx/w');
+    expect(w.highRes).not.toBe(getPrepareMainframe(ColorType.White).highRes);
+  });
+
+  it('folds a colorless enchantment prepared to the nyx frame', () => {
+    const c = getPrepareMainframe(ColorType.Colorless, true);
+    expect(c.highRes).toContain('prepare/nyx/a');
+    expect(c.highRes).not.toBe(getPrepareMainframe(ColorType.Gold, true).highRes);
+  });
+
+  it('folds a colorless prepared to the regular a frame', () => {
+    const c = getPrepareMainframe(ColorType.Colorless);
+    expect(c.highRes).toBeTruthy();
+    expect(c.highRes).toContain('prepare/regular/a');
+    expect(c.highRes).not.toBe(getPrepareMainframe(ColorType.White).highRes);
+  });
+
+  it('returns combo-order-independent pinline and rules-right', () => {
+    expect(getPreparePinline([ColorType.White, ColorType.Blue])).toBe(
+      getPreparePinline([ColorType.Blue, ColorType.White]),
+    );
+    expect(getPreparePinline([ColorType.White, ColorType.Blue])).toBeTruthy();
+    expect(getPrepareRulesRight([ColorType.White, ColorType.Blue])).toBe(
+      getPrepareRulesRight([ColorType.Blue, ColorType.White]),
+    );
+    expect(getPrepareRulesRight([ColorType.White, ColorType.Blue])).toBeTruthy();
+  });
+
+  it('folds 3+ colors to the gold part and the empty set to no asset', () => {
+    expect(getPreparePinline([ColorType.White, ColorType.Blue, ColorType.Black])).toBe(
+      getPreparePinline([ColorType.Gold]),
+    );
+    expect(getPrepareRulesRight([ColorType.White, ColorType.Blue, ColorType.Black])).toBe(
+      getPrepareRulesRight([ColorType.Gold]),
+    );
+    expect(getPreparePinline([])).toBe('');
+    expect(getPrepareRulesRight([])).toBe('');
   });
 });

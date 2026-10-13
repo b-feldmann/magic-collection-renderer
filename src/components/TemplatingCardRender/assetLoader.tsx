@@ -849,6 +849,77 @@ import OmenRulesLeftBg from './images/parts/omenRulesLeft/bg.png';
 import OmenRulesLeftRw from './images/parts/omenRulesLeft/rw.png';
 import OmenRulesLeftGu from './images/parts/omenRulesLeft/gu.png';
 
+// --- Prepare mainframes (single color, full-res + Thumb) ---
+// regular/ also ships l/v frames; they stay unused like the omen ones: a
+// Land+Prepared face renders the land mainframe chain first. There is no
+// dedicated colorless frame, so the colorless default folds to the artifact
+// ('a') frame, mirroring the adventure/omen convention. Enchantment prepared
+// cards take the nyx prepare frames.
+import PrepareMainframeW from './images/mainframes/prepare/regular/w.png';
+import PrepareMainframeWLowRes from './images/mainframes/prepare/regular/wThumb.png';
+import PrepareMainframeU from './images/mainframes/prepare/regular/u.png';
+import PrepareMainframeULowRes from './images/mainframes/prepare/regular/uThumb.png';
+import PrepareMainframeB from './images/mainframes/prepare/regular/b.png';
+import PrepareMainframeBLowRes from './images/mainframes/prepare/regular/bThumb.png';
+import PrepareMainframeR from './images/mainframes/prepare/regular/r.png';
+import PrepareMainframeRLowRes from './images/mainframes/prepare/regular/rThumb.png';
+import PrepareMainframeG from './images/mainframes/prepare/regular/g.png';
+import PrepareMainframeGLowRes from './images/mainframes/prepare/regular/gThumb.png';
+import PrepareMainframeM from './images/mainframes/prepare/regular/m.png';
+import PrepareMainframeMLowRes from './images/mainframes/prepare/regular/mThumb.png';
+import PrepareMainframeA from './images/mainframes/prepare/regular/a.png';
+import PrepareMainframeALowRes from './images/mainframes/prepare/regular/aThumb.png';
+import PrepareMainframeWNyx from './images/mainframes/prepare/nyx/w.png';
+import PrepareMainframeWNyxLowRes from './images/mainframes/prepare/nyx/wThumb.png';
+import PrepareMainframeUNyx from './images/mainframes/prepare/nyx/u.png';
+import PrepareMainframeUNyxLowRes from './images/mainframes/prepare/nyx/uThumb.png';
+import PrepareMainframeBNyx from './images/mainframes/prepare/nyx/b.png';
+import PrepareMainframeBNyxLowRes from './images/mainframes/prepare/nyx/bThumb.png';
+import PrepareMainframeRNyx from './images/mainframes/prepare/nyx/r.png';
+import PrepareMainframeRNyxLowRes from './images/mainframes/prepare/nyx/rThumb.png';
+import PrepareMainframeGNyx from './images/mainframes/prepare/nyx/g.png';
+import PrepareMainframeGNyxLowRes from './images/mainframes/prepare/nyx/gThumb.png';
+import PrepareMainframeMNyx from './images/mainframes/prepare/nyx/m.png';
+import PrepareMainframeMNyxLowRes from './images/mainframes/prepare/nyx/mThumb.png';
+import PrepareMainframeANyx from './images/mainframes/prepare/nyx/a.png';
+import PrepareMainframeANyxLowRes from './images/mainframes/prepare/nyx/aThumb.png';
+
+// --- Prepare pinline (single + WUBRG two-color combos) ---
+import PreparePinlineW from './images/parts/preparePinline/w.png';
+import PreparePinlineU from './images/parts/preparePinline/u.png';
+import PreparePinlineB from './images/parts/preparePinline/b.png';
+import PreparePinlineR from './images/parts/preparePinline/r.png';
+import PreparePinlineG from './images/parts/preparePinline/g.png';
+import PreparePinlineM from './images/parts/preparePinline/m.png';
+import PreparePinlineWu from './images/parts/preparePinline/wu.png';
+import PreparePinlineUb from './images/parts/preparePinline/ub.png';
+import PreparePinlineBr from './images/parts/preparePinline/br.png';
+import PreparePinlineRg from './images/parts/preparePinline/rg.png';
+import PreparePinlineGw from './images/parts/preparePinline/gw.png';
+import PreparePinlineWb from './images/parts/preparePinline/wb.png';
+import PreparePinlineUr from './images/parts/preparePinline/ur.png';
+import PreparePinlineBg from './images/parts/preparePinline/bg.png';
+import PreparePinlineRw from './images/parts/preparePinline/rw.png';
+import PreparePinlineGu from './images/parts/preparePinline/gu.png';
+
+// --- Prepare rules-right (single + WUBRG two-color combos) ---
+import PrepareRulesRightW from './images/parts/prepareRulesRight/w.png';
+import PrepareRulesRightU from './images/parts/prepareRulesRight/u.png';
+import PrepareRulesRightB from './images/parts/prepareRulesRight/b.png';
+import PrepareRulesRightR from './images/parts/prepareRulesRight/r.png';
+import PrepareRulesRightG from './images/parts/prepareRulesRight/g.png';
+import PrepareRulesRightM from './images/parts/prepareRulesRight/m.png';
+import PrepareRulesRightWu from './images/parts/prepareRulesRight/wu.png';
+import PrepareRulesRightUb from './images/parts/prepareRulesRight/ub.png';
+import PrepareRulesRightBr from './images/parts/prepareRulesRight/br.png';
+import PrepareRulesRightRg from './images/parts/prepareRulesRight/rg.png';
+import PrepareRulesRightGw from './images/parts/prepareRulesRight/gw.png';
+import PrepareRulesRightWb from './images/parts/prepareRulesRight/wb.png';
+import PrepareRulesRightUr from './images/parts/prepareRulesRight/ur.png';
+import PrepareRulesRightBg from './images/parts/prepareRulesRight/bg.png';
+import PrepareRulesRightRw from './images/parts/prepareRulesRight/rw.png';
+import PrepareRulesRightGu from './images/parts/prepareRulesRight/gu.png';
+
 export interface ImageResData {
   highRes: string;
   lowRes?: string;
@@ -1431,6 +1502,94 @@ export const getOmenMainframe = (color: ColorType, isEnchantment = false): Image
       return { highRes: OmenMainframeM, lowRes: OmenMainframeMLowRes };
     default:
       return { highRes: OmenMainframeA, lowRes: OmenMainframeALowRes };
+  }
+};
+
+// --- Prepare frame parts ---
+// Prepared frames split their textbox into a spell box and a right rules box
+// (like the adventure/omen frames); the parts are carved from the prepare
+// regular frames by scripts/generate-parts.cjs.
+const PREPARE_PINLINE_BY_KEY: Partial<Record<PartVariant, string>> = {
+  w: PreparePinlineW,
+  u: PreparePinlineU,
+  b: PreparePinlineB,
+  r: PreparePinlineR,
+  g: PreparePinlineG,
+  m: PreparePinlineM,
+  wu: PreparePinlineWu,
+  ub: PreparePinlineUb,
+  br: PreparePinlineBr,
+  rg: PreparePinlineRg,
+  gw: PreparePinlineGw,
+  wb: PreparePinlineWb,
+  ur: PreparePinlineUr,
+  bg: PreparePinlineBg,
+  rw: PreparePinlineRw,
+  gu: PreparePinlineGu,
+};
+
+const PREPARE_RULES_RIGHT_BY_KEY: Partial<Record<PartVariant, string>> = {
+  w: PrepareRulesRightW,
+  u: PrepareRulesRightU,
+  b: PrepareRulesRightB,
+  r: PrepareRulesRightR,
+  g: PrepareRulesRightG,
+  m: PrepareRulesRightM,
+  wu: PrepareRulesRightWu,
+  ub: PrepareRulesRightUb,
+  br: PrepareRulesRightBr,
+  rg: PrepareRulesRightRg,
+  gw: PrepareRulesRightGw,
+  wb: PrepareRulesRightWb,
+  ur: PrepareRulesRightUr,
+  bg: PrepareRulesRightBg,
+  rw: PrepareRulesRightRw,
+  gu: PrepareRulesRightGu,
+};
+
+export const getPreparePinline = (colors: ColorType[]): string =>
+  PREPARE_PINLINE_BY_KEY[getSpellBoxVariant(colors)] ?? '';
+
+export const getPrepareRulesRight = (colors: ColorType[]): string =>
+  PREPARE_RULES_RIGHT_BY_KEY[getSpellBoxVariant(colors)] ?? '';
+
+// Single-color prepare mainframe. Like the adventure/omen getter: regular/
+// has no colorless frame, so the colorless default folds to the artifact ('a')
+// frame. Enchantment prepared cards take the nyx prepare frames.
+export const getPrepareMainframe = (color: ColorType, isEnchantment = false): ImageResData => {
+  if (isEnchantment) {
+    switch (color) {
+      case ColorType.White:
+        return { highRes: PrepareMainframeWNyx, lowRes: PrepareMainframeWNyxLowRes };
+      case ColorType.Blue:
+        return { highRes: PrepareMainframeUNyx, lowRes: PrepareMainframeUNyxLowRes };
+      case ColorType.Black:
+        return { highRes: PrepareMainframeBNyx, lowRes: PrepareMainframeBNyxLowRes };
+      case ColorType.Red:
+        return { highRes: PrepareMainframeRNyx, lowRes: PrepareMainframeRNyxLowRes };
+      case ColorType.Green:
+        return { highRes: PrepareMainframeGNyx, lowRes: PrepareMainframeGNyxLowRes };
+      case ColorType.Gold:
+        return { highRes: PrepareMainframeMNyx, lowRes: PrepareMainframeMNyxLowRes };
+      default:
+        return { highRes: PrepareMainframeANyx, lowRes: PrepareMainframeANyxLowRes };
+    }
+  }
+  switch (color) {
+    case ColorType.White:
+      return { highRes: PrepareMainframeW, lowRes: PrepareMainframeWLowRes };
+    case ColorType.Blue:
+      return { highRes: PrepareMainframeU, lowRes: PrepareMainframeULowRes };
+    case ColorType.Black:
+      return { highRes: PrepareMainframeB, lowRes: PrepareMainframeBLowRes };
+    case ColorType.Red:
+      return { highRes: PrepareMainframeR, lowRes: PrepareMainframeRLowRes };
+    case ColorType.Green:
+      return { highRes: PrepareMainframeG, lowRes: PrepareMainframeGLowRes };
+    case ColorType.Gold:
+      return { highRes: PrepareMainframeM, lowRes: PrepareMainframeMLowRes };
+    default:
+      return { highRes: PrepareMainframeA, lowRes: PrepareMainframeALowRes };
   }
 };
 
