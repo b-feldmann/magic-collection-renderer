@@ -17,6 +17,7 @@ import {
   ColorType,
   CoverFit,
   OmenType,
+  PreparedType,
   RarityType,
 } from '../../interfaces/enums';
 import { Store, StoreType } from '../../store';
@@ -38,6 +39,9 @@ import {
   getOmenMainframe,
   getOmenPinline,
   getOmenRulesLeft,
+  getPrepareMainframe,
+  getPreparePinline,
+  getPrepareRulesRight,
   getBlack,
   getBorderlessMainframe,
   getColorMainframe,
@@ -102,6 +106,12 @@ interface TemplatingCardRenderProps {
   omenCost?: string;
   omenText?: string[];
   omenType?: OmenType;
+  // The spell half of a Prepared card (rendered into the right box — the
+  // adventure/omen left-box geometry mirrored across the frame centerline).
+  prepareName?: string;
+  prepareCost?: string;
+  prepareText?: string[];
+  prepareType?: PreparedType;
   flavourAuthor?: string;
   cover?: string;
   coverFit?: CoverFit;
@@ -117,6 +127,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
   const { cardText, flavourText = '', flavourAuthor, cardID } = cardRenderProps;
   const { adventureName, adventureCost, adventureText, adventureType } = cardRenderProps;
   const { omenName, omenCost, omenText, omenType } = cardRenderProps;
+  const { prepareName, prepareCost, prepareText, prepareType } = cardRenderProps;
   const { backFace, collectionNumber, collectionSize } = cardRenderProps;
   const { containerWidth = CARD_WIDTH, artStyle, coverFit } = cardRenderProps;
 
@@ -177,6 +188,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
   const isCreature = cardTypes.includes(CardType.Creature);
   const isAdventure = cardTypes.includes(CardType.Adventure);
   const isOmen = cardTypes.includes(CardType.Omen);
+  const isPrepared = cardTypes.includes(CardType.Prepared);
   // The Alternate Art art style is an adventure-specific showcase: it swaps
   // every adventure asset (frame, pinline, rules-left, pt) for its alternate
   // variant set.
@@ -247,6 +259,11 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
   // The omen's left rules box belongs to the omen spell, so its color derives
   // from the omenCost when set — exactly like the adventure's left box.
   const omenColors = isOmen && omenCost ? getColor(omenCost).allColors : undefined;
+  // The prepare's right rules box belongs to the prepare spell, so its color
+  // derives from the prepareCost when set — mirroring the adventure/omen left
+  // boxes across the centerline. The pinline (which spans the whole frame) and
+  // the mainframe keep using the card's own manaCost.
+  const prepareColors = isPrepared && prepareCost ? getColor(prepareCost).allColors : undefined;
   let landColors: ColorType[] = [];
   if (isLand) {
     landColors = getLandColor(cardText);
@@ -267,17 +284,20 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
     artStyle === CardArtStyles.Borderless,
     isLand,
   );
-  // The omen / adventure pinlines belong to the Regular art style; the
-  // Extended style carves the generic extended pinlines instead. A missing
+  // The omen / adventure / prepare pinlines belong to the Regular art style;
+  // the Extended style carves the generic extended pinlines instead. A missing
   // artStyle counts as Regular, like everywhere else in this component.
+  // (Prepared has only the Regular style.)
   const isRegularArtStyle = !artStyle || artStyle === CardArtStyles.Regular;
   const pinline = isAlternateArt
     ? getEldAlternateAdventurePinline(isLand ? landColors : allColors)
     : isOmen && isRegularArtStyle
       ? getOmenPinline(isLand ? landColors : allColors)
-      : isAdventure && isRegularArtStyle
-        ? getAdventurePinline(isLand ? landColors : allColors)
-        : getPinline(isLand ? landColors : allColors, isArtifact, artStyle, isToken);
+      : isPrepared && isRegularArtStyle
+        ? getPreparePinline(isLand ? landColors : allColors)
+        : isAdventure && isRegularArtStyle
+          ? getAdventurePinline(isLand ? landColors : allColors)
+          : getPinline(isLand ? landColors : allColors, isArtifact, artStyle, isToken);
   const adventureRulesLeft = isAlternateArt
     ? getEldAlternateAdventureRulesLeft(isLand ? landColors : (adventureColors ?? allColors))
     : isAdventure
@@ -285,6 +305,11 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
       : '';
   const omenRulesLeft = isOmen
     ? getOmenRulesLeft(isLand ? landColors : (omenColors ?? allColors))
+    : '';
+  // The prepare's right rules box mirrors the adventure/omen left boxes across
+  // the centerline; its color follows the prepareCost, like theirs.
+  const prepareRulesRight = isPrepared
+    ? getPrepareRulesRight(isLand ? landColors : (prepareColors ?? allColors))
     : '';
   const adventureRulesRight =
     isAdventure && (artStyle === CardArtStyles.Extended || artStyle === CardArtStyles.Borderless)
@@ -303,7 +328,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
       ? getRulesPart(landColors, isArtifact, true)
       : getLandRulesPart(landColors)
     : getRulesPart(allColors, isArtifact, isToken);
-  if (isAdventure || isOmen) {
+  if (isAdventure || isOmen || isPrepared) {
     rulesPart = '';
   }
   if (artStyle === CardArtStyles.Borderless) {
@@ -330,6 +355,8 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
     mainframe = getAdventureMainframe(color, isEnchantment);
   } else if (isOmen) {
     mainframe = getOmenMainframe(color, isEnchantment);
+  } else if (isPrepared) {
+    mainframe = getPrepareMainframe(color, isEnchantment);
   } else {
     mainframe = getColorMainframe(color, isEnchantment, isArtifact, vehicle);
   }
@@ -454,6 +481,9 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
           {omenRulesLeft ? (
             <img className={styles.omenRulesLeft} src={omenRulesLeft} alt="" />
           ) : null}
+          {prepareRulesRight ? (
+            <img className={styles.prepareRulesRight} src={prepareRulesRight} alt="" />
+          ) : null}
           {adventureRulesRight ? (
             <img className={styles.adventureRulesRight} src={adventureRulesRight} alt="" />
           ) : null}
@@ -521,6 +551,40 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
             </div>
           ) : null}
 
+          {/* The prepare spell renders into the frame's RIGHT box: the prepare
+              frame geometry is the adventure/omen left-box geometry mirrored
+              across the centerline, so it needs its own SCSS classes (the
+              adventure/omen classes position the left box); each part only
+              appears when its data is set. The type line renders the plain
+              prepareType — no "– Prepared" suffix (user decision). */}
+          {isPrepared && prepareName ? (
+            <div className={styles.prepareName}>{prepareName}</div>
+          ) : null}
+          {isPrepared && prepareCost ? (
+            <div className={styles.prepareCost}>
+              {injectManaIcons(getColor(prepareCost).orderedCost, true)}
+            </div>
+          ) : null}
+          {isPrepared && prepareType ? (
+            <div className={styles.prepareTypeLine}>{`${prepareType}`}</div>
+          ) : null}
+          {isPrepared && prepareText && prepareText.length > 0 ? (
+            <div className={styles.prepareText}>
+              <TextResize
+                defaultFontSize={42}
+                maxFontSize={50}
+                minFontSize={28}
+                className={styles.textWrap}
+              >
+                <div>
+                  {prepareText.map((val, i) => (
+                    <p key={`prepare-text-${cardID}-${i}`}>{injectForText(val, name, mechanics)}</p>
+                  ))}
+                </div>
+              </TextResize>
+            </div>
+          ) : null}
+
           {isNickname && !crown && (
             <ImageLoader
               src={getNicknameTitle(color, isArtifact, isLand, isLand ? landColors : allColors)}
@@ -573,11 +637,11 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
           <div
             className={`${styles.text} ${isToken ? styles.tokenText : ''} ${
               isAdventure ? styles.adventureRightText : ''
-            } ${isOmen ? styles.omenRightText : ''}`}
+            } ${isOmen ? styles.omenRightText : ''} ${isPrepared ? styles.prepareLeftText : ''}`}
           >
             <TextResize
               defaultFontSize={42}
-              maxFontSize={isAdventure || isOmen ? 50 : 56}
+              maxFontSize={isAdventure || isOmen || isPrepared ? 50 : 56}
               minFontSize={38}
               className={styles.textWrap}
             >

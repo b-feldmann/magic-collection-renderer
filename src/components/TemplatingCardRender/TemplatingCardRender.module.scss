@@ -133,6 +133,18 @@
     pointer-events: none;
   }
 
+  // Decorative Prepared overlay for the right rules column (the adventure
+  // rules-right geometry, full-frame absolute). Image-only, no text is
+  // rendered into this box.
+  .prepareRulesRight {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1500px;
+    height: 2100px;
+    pointer-events: none;
+  }
+
   .adventureRulesRight {
     position: absolute;
     top: 0;
@@ -368,6 +380,79 @@
   .omenText {
     top: 1518px;
     height: 412px;
+  }
+
+  // --- Prepared spell box ---
+  // The prepare frame mirrors the adventure/omen geometry across the
+  // centerline: the spell box spans x 745.5-1419.4, y 1313.4-1878.4 in the
+  // 1500x2100 design space (measured from the prepareRulesRight mask) —
+  // inset 35 from the box's left edge, 15 from its right edge, text clipped
+  // to the y 1878 bottom. The creature's text moves to the left box
+  // (x 110-745, y 1313-1937). These values are the plan's derivation from
+  // the measured masks; the visual smoke check confirms and tunes them.
+  .prepareName {
+    font-family: 'Beleren Bold', sans-serif;
+    position: absolute;
+    font-size: 1.6em;
+    top: 1326px;
+    left: 780px;
+    width: 470px;
+    height: 75px;
+    white-space: nowrap;
+    overflow: hidden;
+    color: white;
+  }
+
+  .prepareCost {
+    position: absolute;
+    top: 1321px;
+    // right edge of the right box is x 1419.4, inset ~15px
+    right: 96px;
+    font-size: 1.5em;
+    text-align: right;
+  }
+
+  .prepareCost > * {
+    margin-left: 12.5px;
+  }
+
+  .prepareTypeLine {
+    font-family: 'Beleren Bold', sans-serif;
+    position: absolute;
+    font-size: 1.6em;
+    top: 1420px;
+    left: 780px;
+    color: white;
+  }
+
+  .prepareText {
+    font-family: 'MPlantin', sans-serif;
+    position: absolute;
+    font-size: 1.25em;
+    top: 1510px;
+    height: 360px;
+    left: 780px;
+    width: 604px;
+
+    p {
+      margin-top: 20px;
+      margin-bottom: 20px;
+    }
+
+    i {
+      margin-top: -12.5px;
+      font-size: 0.8em;
+    }
+  }
+
+  // Constrain the creature's rules text (and flavour) to the frame's left box
+  // while the prepare spell occupies the right one (the omenRightText mirror
+  // across the centerline). Must sit after .text to win at equal specificity.
+  .prepareLeftText {
+    left: 110px;
+    width: 620px;
+    top: 1320px;
+    height: 590px;
   }
 
   // Constrain the creature's rules text (and flavour) to the frame's right
