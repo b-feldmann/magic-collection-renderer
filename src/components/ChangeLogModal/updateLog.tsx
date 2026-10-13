@@ -452,6 +452,10 @@ updateLog.push({
       type: ChangeLogFeatureType.Added,
       feature: 'Prepared Cards',
     },
+    {
+      type: ChangeLogFeatureType.Added,
+      feature: 'Holofoil Effect',
+    },
   ],
 });
 //
