@@ -133,9 +133,9 @@
     pointer-events: none;
   }
 
-  // Decorative Prepared overlay for the right rules column (the adventure
-  // rules-right geometry, full-frame absolute). Image-only, no text is
-  // rendered into this box.
+  // Decorative Prepared overlay for the right spell box (full-frame absolute,
+  // mirror of the adventure left box). Image-only decoration — the prepare
+  // spell text renders over it via the .prepare* classes.
   .prepareRulesRight {
     position: absolute;
     top: 0;

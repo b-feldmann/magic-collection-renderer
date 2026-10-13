@@ -56,7 +56,7 @@ const isArtStyleAvailableForType = (artStyle: string, cardTypes: CardType[] = []
   }
   if (artStyle === CardArtStyles.Invocation) return false;
   // Invention is artifact-only and unavailable for the mutually exclusive
-  // showcase types (Adventure/Omen/Split Card/Aftermath/Planeswalker).
+  // showcase types (Adventure/Omen/Split Card/Aftermath/Prepared/Planeswalker).
   if (artStyle === CardArtStyles.Invention) {
     return (
       cardTypes.includes(CardType.Artifact) &&
@@ -73,7 +73,7 @@ const isArtStyleAvailableForType = (artStyle: string, cardTypes: CardType[] = []
     // For now, prepared cards support no non-regular art styles (unlike
     // adventures and omens, which support Extended).
     if (cardTypes.includes(CardType.Prepared)) {
-      return artStyle === CardArtStyles.Regular;
+      return false;
     }
     // Adventures and omens support the Extended art style, but no other
     // non-regular art styles (Borderless is disabled for them; omens have no

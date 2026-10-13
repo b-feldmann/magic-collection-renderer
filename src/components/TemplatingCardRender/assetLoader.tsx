@@ -1299,9 +1299,10 @@ const CROWN_NICKNAME_COMBOS: Record<CrownComboKey, ImageResData> = {
   gu: { highRes: CrownGuNickname, lowRes: CrownGuNicknameLowRes },
 };
 
-// Maps an (unordered) spell-box color set (an adventure's or an omen's) to its
-// on-disk asset key. Shared by adventures and omens; reuses the same
-// single/two-color variant helpers the file uses for crowns and pinlines
+// Maps an (unordered) spell-box color set (an adventure's, an omen's or a
+// prepared card's) to its on-disk asset key. Shared by adventures, omens and
+// prepared cards; reuses the same single/two-color variant helpers the file
+// uses for crowns and pinlines
 // (getSingleColorVariant / getTwoColorVariant) so the keys match the on-disk
 // combo filenames and are order-independent (wu === uw). 3+ colors and the gold
 // single-color case fold to the gold ('m') asset; an empty set yields ''.
@@ -1506,9 +1507,10 @@ export const getOmenMainframe = (color: ColorType, isEnchantment = false): Image
 };
 
 // --- Prepare frame parts ---
-// Prepared frames split their textbox into a spell box and a right rules box
-// (like the adventure/omen frames); the parts are carved from the prepare
-// regular frames by scripts/generate-parts.cjs.
+// Prepared frames split their textbox into a left rules box and a right spell
+// box — the adventure/omen arrangement mirrored: the right box IS the spell
+// box; the left box carries the card's own rules text. The parts are carved
+// from the prepare regular frames by scripts/generate-parts.cjs.
 const PREPARE_PINLINE_BY_KEY: Partial<Record<PartVariant, string>> = {
   w: PreparePinlineW,
   u: PreparePinlineU,

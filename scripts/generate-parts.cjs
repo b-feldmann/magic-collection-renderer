@@ -60,8 +60,8 @@
  * `parts/omenPinline/<color|combo>.png` and `parts/omenRulesLeft/<color|combo>.png`.
  *
  * Prepare frames (`mainframes/prepare/regular/<color>.png`) split their textbox
- * into a left spell box and a right rules box, like the adventure and omen
- * frames. Their pinline and right rules box are carved with the dedicated
+ * into a left rules box and a right spell box — the adventure/omen arrangement
+ * mirrored. Their pinline and right spell box are carved with the dedicated
  * `parts/preparePinline.png` and `parts/prepareRulesRight.png` masks; the five
  * WUBRG single colors and the gold (`m`) single are produced (gold for
  * multicolor prepares), along with the ten two-color combinations, written to
@@ -728,8 +728,8 @@ async function generateOmenParts() {
   }
 }
 
-// Prepare frame parts: prepare frames split their textbox into a left spell
-// box and a right rules box (like the adventure and omen frames). The parts
+// Prepare frame parts: prepare frames split their textbox into a left rules
+// box and a right spell box — the adventure/omen arrangement mirrored. Parts
 // are carved from the prepare frames (`mainframes/prepare/regular/<color>.png`)
 // using the dedicated `parts/preparePinline.png` and
 // `parts/prepareRulesRight.png` masks. The five WUBRG single colors and the
