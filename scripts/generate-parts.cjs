@@ -59,9 +59,18 @@
  * omens), along with the ten two-color combinations, written to
  * `parts/omenPinline/<color|combo>.png` and `parts/omenRulesLeft/<color|combo>.png`.
  *
+ * Prepare frames (`mainframes/prepare/regular/<color>.png`) split their textbox
+ * into a left spell box and a right rules box, like the adventure and omen
+ * frames. Their pinline and right rules box are carved with the dedicated
+ * `parts/preparePinline.png` and `parts/prepareRulesRight.png` masks; the five
+ * WUBRG single colors and the gold (`m`) single are produced (gold for
+ * multicolor prepares), along with the ten two-color combinations, written to
+ * `parts/preparePinline/<color|combo>.png` and
+ * `parts/prepareRulesRight/<color|combo>.png`.
+ *
  * An optional CLI argument list runs only the named generators, e.g.
  * `node scripts/generate-parts.cjs omen` (keys: m15, variants, adventure, omen,
- * planeswalker, planeswalkerNickname, token, nickname, crown). Without
+ * prepare, planeswalker, planeswalkerNickname, token, nickname, crown). Without
  * arguments every generator runs, as before.
  *
  * Run with: npm run generate:parts
@@ -315,6 +324,7 @@ async function run() {
   if (selected('variants')) await generateVariantPinlines();
   if (selected('adventure')) await generateAdventureParts();
   if (selected('omen')) await generateOmenParts();
+  if (selected('prepare')) await generatePrepareParts();
   if (selected('planeswalker')) await generatePlaneswalkerPinlines();
   if (selected('planeswalkerNickname')) await generatePlaneswalkerNicknameCombos();
   if (selected('token')) await generateTokenParts();
@@ -697,6 +707,94 @@ async function generateOmenParts() {
     // Two-color combinations. The omen rules box sits off the image centre (on
     // the left half), so the two colors are mixed around the centroid of the
     // mask's visible pixels instead of the geometric image centre.
+    const blendCenterX = /Rules/.test(type) ? visiblePixelCentroidX(mask) : undefined;
+    const comboResult = await writeCombos(
+      type,
+      frames,
+      mask,
+      maskW,
+      maskH,
+      outputDir,
+      blendCenterX,
+    );
+    written += comboResult.written;
+    skipped.push(...comboResult.skipped);
+
+    console.log(`\nDone. Wrote ${written} ${type} image(s) to ${outputDir}`);
+    if (skipped.length > 0) {
+      console.log(`Skipped ${skipped.length}:`);
+      for (const s of skipped) console.log(`  - ${s}`);
+    }
+  }
+}
+
+// Prepare frame parts: prepare frames split their textbox into a left spell
+// box and a right rules box (like the adventure and omen frames). The parts
+// are carved from the prepare frames (`mainframes/prepare/regular/<color>.png`)
+// using the dedicated `parts/preparePinline.png` and
+// `parts/prepareRulesRight.png` masks. The five WUBRG single colors and the
+// gold (`m`) single are produced (gold for multicolor prepares), along with the
+// ten two-color combinations, written to `parts/<type>/<color|combo>.png`. The
+// land ('l') and vehicle ('v') prepare frames are not carved: a Land+Prepared
+// face renders the land mainframe chain first, exactly like adventures and
+// omens.
+const PREPARE_DIR = path.join(MAINFRAMES_DIR, 'prepare');
+const PREPARE_GOLD_COLOR = 'm';
+const PREPARE_SINGLE_COLORS = [...VARIANT_COLORS, PREPARE_GOLD_COLOR];
+const PREPARE_PART_TYPES = [
+  { type: 'preparePinline', mask: 'preparePinline.png', style: 'regular' },
+  { type: 'prepareRulesRight', mask: 'prepareRulesRight.png', style: 'regular' },
+];
+
+async function generatePrepareParts() {
+  for (const { type, mask: maskName, style } of PREPARE_PART_TYPES) {
+    const maskPath = path.join(PARTS_DIR, maskName);
+    if (!fs.existsSync(maskPath)) {
+      throw new Error(`Mask image not found: ${maskPath}`);
+    }
+    const mask = await Jimp.read(maskPath);
+    const { width: maskW, height: maskH } = mask.bitmap;
+
+    const frames = new Map();
+    for (const color of PREPARE_SINGLE_COLORS) {
+      const sourcePath = path.join(PREPARE_DIR, style, `${color}.png`);
+      if (fs.existsSync(sourcePath)) {
+        const frame = await Jimp.read(sourcePath);
+        if (!sameSize(frame, maskW, maskH)) {
+          frame.resize({ w: maskW, h: maskH });
+        }
+        frames.set(color, frame);
+      }
+    }
+
+    const outputDir = path.join(PARTS_DIR, type);
+    if (!fs.existsSync(outputDir)) {
+      fs.mkdirSync(outputDir, { recursive: true });
+    }
+
+    let written = 0;
+    const skipped = [];
+
+    // Single colors (WUBRG + gold).
+    for (const color of PREPARE_SINGLE_COLORS) {
+      const frame = frames.get(color);
+      if (!frame) {
+        skipped.push(`${color} (source missing)`);
+        continue;
+      }
+      if (!sameSize(frame, maskW, maskH)) {
+        skipped.push(`${color} (source size != mask ${maskW}x${maskH})`);
+        continue;
+      }
+      const out = carveSingle(frame, mask);
+      await out.write(path.join(outputDir, `${color}.png`));
+      written += 1;
+      console.log(`${type}  ✓ ${color}.png`);
+    }
+
+    // Two-color combinations. The prepare rules box sits off the image centre
+    // (on the right half), so the two colors are mixed around the centroid of
+    // the mask's visible pixels instead of the geometric image centre.
     const blendCenterX = /Rules/.test(type) ? visiblePixelCentroidX(mask) : undefined;
     const comboResult = await writeCombos(
       type,
