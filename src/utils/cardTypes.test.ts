@@ -124,6 +124,12 @@ describe('deriveLegacyMainType', () => {
     );
   });
 
+  it('degrades a Prepared-only face to Creature (no legacy equivalent)', () => {
+    expect(deriveLegacyMainType(face({ cardTypes: [CardType.Prepared] }))).toBe(
+      CardMainType.Creature,
+    );
+  });
+
   it('degrades an Adventure-only face to Creature (no legacy equivalent)', () => {
     // Adventure has no legacy CardMainType, so deriveLegacyMainType falls
     // through every branch to the final Creature fallback. This documents the
@@ -180,6 +186,15 @@ describe('formatTypeLine', () => {
       'Creature',
     );
   });
+
+  it('strips the Prepared marker from the type line like Adventure and Omen', () => {
+    expect(formatTypeLine(face({ cardTypes: [CardType.Creature, CardType.Prepared] }))).toBe(
+      'Creature',
+    );
+    expect(formatTypeLine(face({ cardTypes: [CardType.Creature, CardType.Omen] }))).toBe(
+      'Creature',
+    );
+  });
 });
 
 describe('resolveExclusiveCardTypes', () => {
@@ -199,6 +214,21 @@ describe('resolveExclusiveCardTypes', () => {
         [CardType.Creature, CardType.Adventure],
       ),
     ).toEqual([CardType.Creature, CardType.Adventure]);
+  });
+
+  it('strips a newly added Prepared when Adventure already exists', () => {
+    expect(
+      resolveExclusiveCardTypes([CardType.Creature, CardType.Adventure, CardType.Prepared], []),
+    ).toEqual([CardType.Creature, CardType.Adventure]);
+  });
+
+  it('keeps Prepared when it was already present and Omen is the newcomer', () => {
+    expect(
+      resolveExclusiveCardTypes(
+        [CardType.Creature, CardType.Prepared, CardType.Omen],
+        [CardType.Creature, CardType.Prepared],
+      ),
+    ).toEqual([CardType.Creature, CardType.Prepared]);
   });
 
   it('strips newly added group members while the established one survives', () => {

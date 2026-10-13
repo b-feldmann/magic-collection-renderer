@@ -44,6 +44,7 @@ export enum CardType {
   Omen = 'Omen',
   SplitCard = 'Split Card',
   Aftermath = 'Aftermath',
+  Prepared = 'Prepared',
 }
 
 // The spell half of an Adventure card. Adventures are always an Instant or a
@@ -58,6 +59,14 @@ export enum AdventureType {
 // (plus the "Omen" marker on the face's cardTypes), so this is a dedicated
 // two-value enum rather than reusing the full CardType list.
 export enum OmenType {
+  Instant = 'Instant',
+  Sorcery = 'Sorcery',
+}
+
+// The spell half of a Prepared card. Prepared cards are always an Instant or a
+// Sorcery (plus the "Prepared" marker on the face's cardTypes), so this is a
+// dedicated two-value enum rather than reusing the full CardType list.
+export enum PreparedType {
   Instant = 'Instant',
   Sorcery = 'Sorcery',
 }

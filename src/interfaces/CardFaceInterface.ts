@@ -1,4 +1,12 @@
-import { AdventureType, BasicLandType, CardType, ColorType, CoverFit, OmenType } from './enums';
+import {
+  AdventureType,
+  BasicLandType,
+  CardType,
+  ColorType,
+  CoverFit,
+  OmenType,
+  PreparedType,
+} from './enums';
 
 export default interface CardFaceInterface {
   [key: string]: number | string | boolean | undefined | string[];
@@ -28,4 +36,9 @@ export default interface CardFaceInterface {
   omenCost?: string;
   omenText?: string[];
   omenType?: OmenType;
+  // The spell half of a Prepared card (the small right box on the frame).
+  prepareName?: string;
+  prepareCost?: string;
+  prepareText?: string[];
+  prepareType?: PreparedType;
 }

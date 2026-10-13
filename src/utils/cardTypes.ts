@@ -39,6 +39,7 @@ export const MUTUALLY_EXCLUSIVE_CARD_TYPES = [
   CardType.Omen,
   CardType.SplitCard,
   CardType.Aftermath,
+  CardType.Prepared,
   CardType.Planeswalker,
   CardType.Token,
 ];
@@ -102,7 +103,10 @@ export const deriveLegacyMainType = (face: CardFaceInterface): CardMainType => {
 export const formatTypeLine = (face: CardFaceInterface): string => {
   const types = Array.isArray(face.cardTypes)
     ? face.cardTypes.filter(
-        cardType => cardType !== CardType.Adventure && cardType !== CardType.Omen,
+        cardType =>
+          cardType !== CardType.Adventure &&
+          cardType !== CardType.Omen &&
+          cardType !== CardType.Prepared,
       )
     : [];
 
