@@ -114,7 +114,7 @@ const optionTitles = (): string[] =>
   );
 
 describe('CardEditor - hidden card types', () => {
-  it('lists Omen among the card type options; Split Card and Aftermath stay hidden', () => {
+  it('lists Omen and Prepared among the card type options; Split Card and Aftermath stay hidden', () => {
     renderEditor(makeCard([CardType.Creature]));
 
     openTypeSelect();
@@ -123,6 +123,10 @@ describe('CardEditor - hidden card types', () => {
     expect(titles).toContain(CardType.Omen);
     expect(titles).not.toContain('Split Card');
     expect(titles).not.toContain(CardType.Aftermath);
+    // The option list is virtualized (~10 rows) and Prepared sorts below the
+    // initial window, so it is brought into view by typing it into the
+    // select's search filter first (see typeOption).
+    expect(typeOption(CardType.Prepared)).not.toBeNull();
   });
 
   it('disables group alternatives while Adventure is selected', () => {

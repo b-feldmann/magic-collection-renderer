@@ -16,6 +16,7 @@ import {
   ColorType,
   CoverFit,
   OmenType,
+  PreparedType,
   RarityType,
 } from '../../interfaces/enums';
 import EditField from './EditField';
@@ -69,6 +70,11 @@ const isArtStyleAvailableForType = (artStyle: string, cardTypes: CardType[] = []
     if (cardTypes.includes(CardType.Planeswalker)) return artStyle === CardArtStyles.Borderless;
     // The Alternate Art showcases are adventure-only.
     if (ALTERNATE_ART_STYLES.includes(artStyle)) return cardTypes.includes(CardType.Adventure);
+    // For now, prepared cards support no non-regular art styles (unlike
+    // adventures and omens, which support Extended).
+    if (cardTypes.includes(CardType.Prepared)) {
+      return artStyle === CardArtStyles.Regular;
+    }
     // Adventures and omens support the Extended art style, but no other
     // non-regular art styles (Borderless is disabled for them; omens have no
     // borderless frames at all).
@@ -120,6 +126,27 @@ const omenSectionConfig: InputConfigInterface[] = [
     width: 100,
   },
   { key: 'omenText', type: 'text-list', name: 'Text', width: 100, allowMechanics: false },
+];
+
+// The Prepared section configures the spell half of a Prepared card,
+// mirroring the Adventure and Omen sections. It is spliced into the field
+// list only when the current face is a Prepared card.
+const prepareSectionConfig: InputConfigInterface[] = [
+  { key: 'prepareSection', type: 'divider', name: 'Prepared', width: 100 },
+  { key: 'prepareName', type: 'input', name: 'Name', width: 50 },
+  { key: 'prepareCost', type: 'input', name: 'Cost', width: 50 },
+  {
+    key: 'prepareType',
+    type: 'select',
+    name: 'Type',
+    // A prepared spell is only ever an Instant or a Sorcery.
+    data: (Object.keys(PreparedType) as (keyof typeof PreparedType)[]).map(type => ({
+      key: PreparedType[type],
+      value: PreparedType[type],
+    })),
+    width: 100,
+  },
+  { key: 'prepareText', type: 'text-list', name: 'Text', width: 100, allowMechanics: false },
 ];
 
 const dummyCard: CardInterface = {
@@ -256,6 +283,15 @@ const CardEditor: React.FC<CardEditorInterface> = ({
         }
       }
 
+      // A prepared spell half must be an Instant or a Sorcery too; default
+      // to Instant when the Prepared type is added without one.
+      if (nextTypes.includes(CardType.Prepared)) {
+        const pt = getValue('prepareType');
+        if (pt !== PreparedType.Instant && pt !== PreparedType.Sorcery) {
+          saveValue('prepareType', PreparedType.Instant);
+        }
+      }
+
       // Automatic art style switch when the current style is no longer
       // available for the new set of card types: adding Adventure replaces
       // the Borderless showcase with the ELD alternate style (Extended stays
@@ -376,6 +412,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
   const isLand = () => types().includes(CardType.Land) || types().includes(CardType.BasicLand);
   const isAdventure = () => types().includes(CardType.Adventure);
   const isOmen = () => types().includes(CardType.Omen);
+  const isPrepared = () => types().includes(CardType.Prepared);
   const hasMana = () =>
     !types().includes(CardType.Token) && !isLand() && !types().includes(CardType.Emblem);
   const showManaCost = () => hasMana() && !editBack;
@@ -506,6 +543,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
     },
     ...(isAdventure() ? adventureSectionConfig : []),
     ...(isOmen() ? omenSectionConfig : []),
+    ...(isPrepared() ? prepareSectionConfig : []),
     // { key: 'comment', type: 'area', name: 'Comment' },
   ];
 
