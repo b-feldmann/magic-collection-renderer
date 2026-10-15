@@ -201,9 +201,7 @@ const BigCardRenderModal = ({
               <TrainerGalleryHolofoil
                 key={`${face.name}-${index}`}
                 className={styles.modalCardWrapper}
-                style={{
-                  width: singleCardWidth,
-                }}
+                cardWidth={singleCardWidth}
               >
                 <CardRender
                   containerWidth={singleCardWidth}

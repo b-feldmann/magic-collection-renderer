@@ -75,7 +75,7 @@ const MobileBigCardRenderModal = ({
         }}
       >
         {faces.map((face, index) => (
-          <TrainerGalleryHolofoil key={`${face.name}-${index}`} style={{ width: cardWidth }}>
+          <TrainerGalleryHolofoil key={`${face.name}-${index}`} cardWidth={cardWidth}>
             <CardRender
               containerWidth={cardWidth}
               {...face}

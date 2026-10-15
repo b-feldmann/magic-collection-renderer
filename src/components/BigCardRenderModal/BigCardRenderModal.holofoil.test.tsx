@@ -3,6 +3,7 @@ import { fireEvent, render } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
 import BigCardRenderModal from './BigCardRenderModal';
+import TrainerGalleryHolofoil from './TrainerGalleryHolofoil';
 import CardInterface from '../../interfaces/CardInterface';
 import { CardState, CardType, RarityType } from '../../interfaces/enums';
 import holofoilStyles from './TrainerGalleryHolofoil.module.scss';
@@ -48,6 +49,17 @@ const card: CardInterface = {
 };
 
 describe('BigCardRenderModal Trainer Gallery holofoil', () => {
+  it('scales the holofoil corner radius with the card width', () => {
+    const { container } = render(
+      <TrainerGalleryHolofoil cardWidth={300}>
+        <div />
+      </TrainerGalleryHolofoil>,
+    );
+    const wrapper = container.querySelector(`.${holofoilStyles.holofoilWrapper}`);
+
+    expect(wrapper).toHaveStyle({ width: '300px', borderRadius: '12px' });
+  });
+
   it('layers the holofoil effect over each rendered card face', () => {
     const { container } = render(
       <BigCardRenderModal

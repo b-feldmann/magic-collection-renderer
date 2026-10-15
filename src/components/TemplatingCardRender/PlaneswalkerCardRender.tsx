@@ -240,7 +240,15 @@ const PlaneswalkerCardRender = (cardRender: PlaneswalkerCardRenderProps) => {
                       minFontSize={38}
                       className={styles.textWrap}
                     >
-                      <div>{injectForText(text, name, mechanics)}</div>
+                      <div
+                        style={
+                          text.startsWith('--')
+                            ? { paddingLeft: '0.5em', boxSizing: 'border-box' }
+                            : undefined
+                        }
+                      >
+                        {injectForText(text, name, mechanics)}
+                      </div>
                     </TextResize>
                   </div>
                 </div>

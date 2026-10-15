@@ -255,6 +255,20 @@ describe('TemplatingCardRender - omen spell box', () => {
     expect(screen.getByText('Flash.')).toBeInTheDocument();
   });
 
+  it('indents the complete paragraph for card text lines starting with --', () => {
+    renderOmen({ cardText: ['--Indented paragraph.', 'Following paragraph.'] });
+
+    const indentedParagraph = Array.from(document.querySelectorAll('p')).find(p =>
+      p.textContent?.includes('Indented paragraph.'),
+    );
+    const followingParagraph = Array.from(document.querySelectorAll('p')).find(p =>
+      p.textContent?.includes('Following paragraph.'),
+    );
+
+    expect(indentedParagraph?.style.marginLeft).toBe('0.5em');
+    expect(followingParagraph?.style.marginLeft).toBe('');
+  });
+
   it('CONTROL: a non-omen keeps the full-width text box', () => {
     renderOmen({ noOmen: true, cardText: ['Flash.'] });
 

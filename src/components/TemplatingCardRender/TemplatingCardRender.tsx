@@ -511,7 +511,10 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
               >
                 <div>
                   {adventureText.map((val, i) => (
-                    <p key={`adventure-text-${cardID}-${i}`}>
+                    <p
+                      key={`adventure-text-${cardID}-${i}`}
+                      style={val.startsWith('--') ? { marginLeft: '0.5em' } : undefined}
+                    >
                       {injectForText(val, name, mechanics)}
                     </p>
                   ))}
@@ -543,7 +546,12 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
               >
                 <div>
                   {omenText.map((val, i) => (
-                    <p key={`omen-text-${cardID}-${i}`}>{injectForText(val, name, mechanics)}</p>
+                    <p
+                      key={`omen-text-${cardID}-${i}`}
+                      style={val.startsWith('--') ? { marginLeft: '0.5em' } : undefined}
+                    >
+                      {injectForText(val, name, mechanics)}
+                    </p>
                   ))}
                 </div>
               </TextResize>
@@ -577,7 +585,12 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
               >
                 <div>
                   {prepareText.map((val, i) => (
-                    <p key={`prepare-text-${cardID}-${i}`}>{injectForText(val, name, mechanics)}</p>
+                    <p
+                      key={`prepare-text-${cardID}-${i}`}
+                      style={val.startsWith('--') ? { marginLeft: '0.5em' } : undefined}
+                    >
+                      {injectForText(val, name, mechanics)}
+                    </p>
                   ))}
                 </div>
               </TextResize>
@@ -646,7 +659,12 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
             >
               <div>
                 {cardText.map((val, i) => (
-                  <p key={`card-text-${cardID}-${i}`}>{injectForText(val, name, mechanics)}</p>
+                  <p
+                    key={`card-text-${cardID}-${i}`}
+                    style={val.startsWith('--') ? { marginLeft: '0.5em' } : undefined}
+                  >
+                    {injectForText(val, name, mechanics)}
+                  </p>
                 ))}
                 <FlavourText name={name} flavourText={flavourText} flavourAuthor={flavourAuthor} />
               </div>

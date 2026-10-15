@@ -125,7 +125,12 @@ const InvocationCardRender = (cardRender: InvocationCardRenderProps) => {
             >
               <div>
                 {cardText.map((val, i) => (
-                  <p key={`card-text-${cardID}-${i}`}>{injectForText(val, name, mechanics)}</p>
+                  <p
+                    key={`card-text-${cardID}-${i}`}
+                    style={val.startsWith('--') ? { marginLeft: '0.5em' } : undefined}
+                  >
+                    {injectForText(val, name, mechanics)}
+                  </p>
                 ))}
                 <FlavourText name={name} flavourText={flavourText} flavourAuthor={flavourAuthor} />
               </div>

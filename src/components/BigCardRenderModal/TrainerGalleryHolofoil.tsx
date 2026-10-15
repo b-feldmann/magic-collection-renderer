@@ -1,14 +1,19 @@
 import React from 'react';
 
+import { CARD_WIDTH } from '../../utils/constants';
 import styles from './TrainerGalleryHolofoil.module.scss';
 
 interface TrainerGalleryHolofoilProps {
   children: React.ReactNode;
+  cardWidth: number;
   className?: string;
-  style?: React.CSSProperties;
 }
 
-const TrainerGalleryHolofoil = ({ children, className, style }: TrainerGalleryHolofoilProps) => {
+const TrainerGalleryHolofoil = ({
+  children,
+  cardWidth,
+  className,
+}: TrainerGalleryHolofoilProps) => {
   const updatePointerPosition = (event: React.PointerEvent<HTMLDivElement>) => {
     const { currentTarget, clientX, clientY } = event;
     const bounds = currentTarget.getBoundingClientRect();
@@ -27,7 +32,10 @@ const TrainerGalleryHolofoil = ({ children, className, style }: TrainerGalleryHo
   return (
     <div
       className={`${styles.holofoilWrapper}${className ? ` ${className}` : ''}`}
-      style={style}
+      style={{
+        width: cardWidth,
+        borderRadius: `${(cardWidth / CARD_WIDTH) * 60}px`,
+      }}
       onPointerMove={updatePointerPosition}
     >
       {children}

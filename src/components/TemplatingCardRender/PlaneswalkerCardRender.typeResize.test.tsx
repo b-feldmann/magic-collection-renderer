@@ -28,7 +28,7 @@ const mockStoreValue: StoreType = {
   dispatch: () => {},
 };
 
-const renderPlaneswalker = () =>
+const renderPlaneswalker = (cardText = ['+1: Do a thing.']) =>
   render(
     <Store.Provider value={mockStoreValue}>
       <PlaneswalkerCardRender
@@ -39,7 +39,7 @@ const renderPlaneswalker = () =>
         legendary
         cardTypes={[CardType.Planeswalker]}
         cardSubTypes="Jace"
-        cardText={['+1: Do a thing.']}
+        cardText={cardText}
         cardStats="4"
         collectionNumber={1}
         collectionSize={10}
@@ -79,5 +79,20 @@ describe('PlaneswalkerCardRender - type line auto-resize', () => {
     renderPlaneswalker();
 
     expect(getTypeResizeWrapper()?.textContent).toBe('Legendary Planeswalker – Jace');
+  });
+
+  it('indents a complete -- paragraph without indenting the next ability', () => {
+    renderPlaneswalker(['+1|--Indented paragraph.', '0|Following ability.']);
+
+    const textLines = Array.from(document.querySelectorAll<HTMLElement>('div')).filter(line =>
+      line.className.includes('loyaltyText'),
+    );
+    const getParagraph = (line?: HTMLElement) =>
+      Array.from(line?.children ?? []).find(child => child.className.includes('textWrap'))
+        ?.firstElementChild as HTMLElement | null | undefined;
+    const firstParagraph = getParagraph(textLines[0]);
+    const followingParagraph = getParagraph(textLines[1]);
+    expect(firstParagraph?.style.paddingLeft).toBe('0.5em');
+    expect(followingParagraph?.style.paddingLeft).toBe('');
   });
 });
