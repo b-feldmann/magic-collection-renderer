@@ -458,6 +458,26 @@ updateLog.push({
     },
   ],
 });
+
+updateLog.push({
+  version: '3.1.0',
+  title: 'Evolution Update',
+  content: [
+    {
+      type: ChangeLogFeatureType.Added,
+      feature: 'Added Evolution (Leveler Cards)',
+    },
+    {
+      type: ChangeLogFeatureType.Changed,
+      feature: 'Added indent on card text lines that start with a --',
+    },
+    {
+      type: ChangeLogFeatureType.Fixed,
+      feature: 'Border Radius on mobile cards',
+    },
+  ],
+});
+
 //
 // updateLog.push({
 //   version: '1.1.3',
