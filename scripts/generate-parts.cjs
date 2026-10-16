@@ -69,8 +69,10 @@
  * `parts/prepareRulesRight/<color|combo>.png`.
  *
  * An optional CLI argument list runs only the named generators, e.g.
- * `node scripts/generate-parts.cjs omen` (keys: m15, variants, adventure, omen,
- * prepare, planeswalker, planeswalkerNickname, token, nickname, crown). Without
+ * `node scripts/generate-parts.cjs omen` (keys: m15, frame, levelerFrame,
+ * variants, adventure, omen, prepare, leveler, planeswalker,
+ * planeswalkerNickname, token, nickname, crown). Without arguments every
+ * generator runs, as before.
  * arguments every generator runs, as before.
  *
  * Run with: npm run generate:parts
@@ -307,6 +309,89 @@ async function generate(type, maskPath, frames, outputDir) {
   }
 }
 
+// Full m15 frame parts: mask each available regular and Nyx frame with the
+// shared parts/frame.png silhouette, writing color-named images under
+// parts/frame/<style>/.
+const M15_FRAME_STYLES = ['regular', 'nyx'];
+
+async function generateM15FrameParts() {
+  const maskPath = path.join(PARTS_DIR, 'frame.png');
+  if (!fs.existsSync(maskPath)) {
+    throw new Error(`Mask image not found: ${maskPath}`);
+  }
+
+  const mask = await Jimp.read(maskPath);
+  const { width: maskW, height: maskH } = mask.bitmap;
+
+  for (const style of M15_FRAME_STYLES) {
+    const sourceDir = path.join(SOURCE_DIR, style);
+    const outputDir = path.join(PARTS_DIR, 'frame', style);
+    if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir, { recursive: true });
+
+    let written = 0;
+    const skipped = [];
+
+    for (const color of COLORS) {
+      const sourcePath = path.join(sourceDir, `${color}.png`);
+      if (!fs.existsSync(sourcePath)) continue;
+
+      const frame = await Jimp.read(sourcePath);
+      if (!sameSize(frame, maskW, maskH)) {
+        skipped.push(
+          `${color} (source size ${frame.bitmap.width}x${frame.bitmap.height} != mask ${maskW}x${maskH})`,
+        );
+        continue;
+      }
+
+      const out = carveSingle(frame, mask);
+      await out.write(path.join(outputDir, `${color}.png`));
+      written += 1;
+      console.log(`frame/${style}  ✓ ${color}.png`);
+    }
+
+    console.log(`\nDone. Wrote ${written} frame/${style} image(s) to ${outputDir}`);
+    if (skipped.length > 0) {
+      console.log(`Skipped ${skipped.length}:`);
+      for (const reason of skipped) console.log(`  - ${reason}`);
+    }
+  }
+}
+
+// Leveler frame parts use the same regular and Nyx M15 sources as the full
+// frame parts, clipped to the leveler frame silhouette.
+async function generateM15LevelerFrameParts() {
+  const maskPath = path.join(PARTS_DIR, 'levelerFrame.svg');
+  if (!fs.existsSync(maskPath)) {
+    throw new Error(`Mask image not found: ${maskPath}`);
+  }
+
+  const mask = await readMask(maskPath);
+  const { width: maskW, height: maskH } = mask.bitmap;
+
+  for (const style of M15_FRAME_STYLES) {
+    const sourceDir = path.join(SOURCE_DIR, style);
+    const outputDir = path.join(PARTS_DIR, 'levelerFrame', style);
+    if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir, { recursive: true });
+
+    let written = 0;
+
+    for (const color of COLORS) {
+      const sourcePath = path.join(sourceDir, `${color}.png`);
+      if (!fs.existsSync(sourcePath)) continue;
+
+      const frame = await Jimp.read(sourcePath);
+      if (!sameSize(frame, maskW, maskH)) frame.resize({ w: maskW, h: maskH });
+
+      const out = carveSingle(frame, mask);
+      await out.write(path.join(outputDir, `${color}.png`));
+      written += 1;
+      console.log(`levelerFrame/${style}  ✓ ${color}.png`);
+    }
+
+    console.log(`\nDone. Wrote ${written} levelerFrame/${style} image(s) to ${outputDir}`);
+  }
+}
+
 async function run() {
   // Optional CLI filter: with arguments, only the named generators run so a
   // new part family can be generated without rewriting the existing files.
@@ -321,10 +406,13 @@ async function run() {
       await generate(type, maskPath, frames, outputDir);
     }
   }
+  if (selected('frame')) await generateM15FrameParts();
+  if (selected('levelerFrame')) await generateM15LevelerFrameParts();
   if (selected('variants')) await generateVariantPinlines();
   if (selected('adventure')) await generateAdventureParts();
   if (selected('omen')) await generateOmenParts();
   if (selected('prepare')) await generatePrepareParts();
+  if (selected('leveler')) await generateLevelerParts();
   if (selected('planeswalker')) await generatePlaneswalkerPinlines();
   if (selected('planeswalkerNickname')) await generatePlaneswalkerNicknameCombos();
   if (selected('token')) await generateTokenParts();
@@ -812,6 +900,75 @@ async function generatePrepareParts() {
     if (skipped.length > 0) {
       console.log(`Skipped ${skipped.length}:`);
       for (const s of skipped) console.log(`  - ${s}`);
+    }
+  }
+}
+
+// Leveler frames have their own pinline and rules masks, carved from their
+// color-specific regular frames. PT plates are loaded from pt/levelers and are
+// not generated here. Generate WUBRG singles, gold and colorless singles for
+// the parts; two-color combinations are only needed for pinline and rules.
+const LEVELER_DIR = path.join(MAINFRAMES_DIR, 'levelers', 'regular');
+const LEVELER_SINGLE_COLORS = [...VARIANT_COLORS, 'm', 'a'];
+const LEVELER_PART_TYPES = [
+  { type: 'levelerPinline', mask: 'levelerPinline.svg' },
+  { type: 'levelerRules', mask: 'levelerRules.svg' },
+];
+
+async function generateLevelerParts() {
+  for (const { type, mask: maskName } of LEVELER_PART_TYPES) {
+    const maskPath = path.join(PARTS_DIR, maskName);
+    if (!fs.existsSync(maskPath)) {
+      throw new Error(`Mask image not found: ${maskPath}`);
+    }
+    const mask = await readMask(maskPath);
+    const { width: maskW, height: maskH } = mask.bitmap;
+    const frames = new Map();
+
+    for (const color of LEVELER_SINGLE_COLORS) {
+      const sourcePath = path.join(LEVELER_DIR, `${color}.png`);
+      if (!fs.existsSync(sourcePath)) continue;
+
+      const frame = await Jimp.read(sourcePath);
+      if (!sameSize(frame, maskW, maskH)) frame.resize({ w: maskW, h: maskH });
+      frames.set(color, frame);
+    }
+
+    const outputDir = path.join(PARTS_DIR, type);
+    if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir, { recursive: true });
+
+    let written = 0;
+    const skipped = [];
+
+    for (const color of LEVELER_SINGLE_COLORS) {
+      const frame = frames.get(color);
+      if (!frame) {
+        skipped.push(`${color} (source missing)`);
+        continue;
+      }
+      const out = carveSingle(frame, mask);
+      await out.write(path.join(outputDir, `${color}.png`));
+      written += 1;
+      console.log(`${type}  ✓ ${color}.png`);
+    }
+
+    const blendCenterX = type === 'levelerRules' ? visiblePixelCentroidX(mask) : undefined;
+    const comboResult = await writeCombos(
+      type,
+      frames,
+      mask,
+      maskW,
+      maskH,
+      outputDir,
+      blendCenterX,
+    );
+    written += comboResult.written;
+    skipped.push(...comboResult.skipped);
+
+    console.log(`\nDone. Wrote ${written} ${type} image(s) to ${outputDir}`);
+    if (skipped.length > 0) {
+      console.log(`Skipped ${skipped.length}:`);
+      for (const reason of skipped) console.log(`  - ${reason}`);
     }
   }
 }

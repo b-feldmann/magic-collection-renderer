@@ -238,6 +238,7 @@ const PlaneswalkerCardRender = (cardRender: PlaneswalkerCardRenderProps) => {
                       defaultFontSize={42}
                       maxFontSize={56}
                       minFontSize={38}
+                      lineHeight={1.1}
                       className={styles.textWrap}
                     >
                       <div

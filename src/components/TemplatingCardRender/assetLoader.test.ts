@@ -27,6 +27,10 @@ import {
   getPrepareMainframe,
   getPreparePinline,
   getPrepareRulesRight,
+  getLevelerMainframe,
+  getLevelerPinline,
+  getLevelerRules,
+  getLevelerPt,
   getPt,
 } from './assetLoader';
 import { ColorType, CardArtStyles } from '../../interfaces/enums';
@@ -629,6 +633,32 @@ describe('omen frames', () => {
     );
     expect(getOmenPinline([])).toBe('');
     expect(getOmenRulesLeft([])).toBe('');
+  });
+});
+
+describe('leveler frames', () => {
+  it('selects a colorless Leveler Mainframe for colorless cards', () => {
+    expect(getLevelerMainframe(ColorType.Colorless).highRes).toContain('levelers/regular/a.png');
+  });
+
+  it('returns color-combination parts independent of color order', () => {
+    expect(getLevelerPinline([ColorType.Blue, ColorType.White])).toBe(
+      getLevelerPinline([ColorType.White, ColorType.Blue]),
+    );
+    expect(getLevelerRules([ColorType.Blue, ColorType.White])).toBe(
+      getLevelerRules([ColorType.White, ColorType.Blue]),
+    );
+    expect(getLevelerPinline([ColorType.White, ColorType.Blue])).toContain('levelerPinline/wu.png');
+    expect(getLevelerRules([ColorType.White, ColorType.Blue])).toContain('levelerRules/wu.png');
+  });
+
+  it('selects the dedicated Leveler PT images without two-color assets', () => {
+    expect(getLevelerPt(ColorType.White)).toContain('pt/levelers/w.png');
+    expect(getLevelerPt(ColorType.Green)).toContain('pt/levelers/g.png');
+    expect(getLevelerPt(ColorType.Gold)).toContain('pt/levelers/m.png');
+    expect(getLevelerPt(ColorType.Colorless)).toContain('pt/levelers/a.png');
+    expect(getLevelerPt(ColorType.Colorless, false, true)).toContain('pt/levelers/a.png');
+    expect(getLevelerPt(ColorType.Colorless, true, true)).toContain('pt/levelers/v.png');
   });
 });
 

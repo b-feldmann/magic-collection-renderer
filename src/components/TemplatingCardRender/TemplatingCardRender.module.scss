@@ -44,6 +44,15 @@
     height: 2100px;
   }
 
+  .frame {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-size: cover;
+    width: 1500px;
+    height: 2100px;
+  }
+
   .tokenMainframe {
     width: 1500px;
     height: 2100px;
@@ -291,14 +300,35 @@
     pointer-events: none;
 
     p {
-      margin-top: 25px;
-      margin-bottom: 25px;
+      margin-top: 20px;
+      margin-bottom: 20px;
     }
 
     i {
       margin-top: -12.5px;
       font-size: 0.8em;
     }
+  }
+
+  .levelerText {
+    top: 1315px;
+    left: 130px;
+    width: 1050px;
+    height: 205px;
+  }
+
+  .levelerLevel1Text {
+    top: 1510px;
+    left: 300px;
+    width: 860px;
+    height: 220px;
+  }
+
+  .levelerLevel2Text {
+    top: 1720px;
+    left: 300px;
+    width: 860px;
+    height: 220px;
   }
 
   .tokenText {
@@ -372,8 +402,8 @@
     width: 604px;
 
     p {
-      margin-top: 20px;
-      margin-bottom: 20px;
+      margin-top: 16px;
+      margin-bottom: 16px;
     }
 
     i {
@@ -440,8 +470,8 @@
     width: 614px;
 
     p {
-      margin-top: 20px;
-      margin-bottom: 20px;
+      margin-top: 16px;
+      margin-bottom: 16px;
     }
 
     i {
@@ -510,6 +540,51 @@
     display: flex;
     justify-content: center;
     align-items: center;
+  }
+
+  .levelerStatsTop,
+  .levelerStatsMid,
+  .levelerStatsBottom {
+    left: 1183px;
+    width: 216px;
+    height: 124px;
+  }
+
+  .levelerStatsTop {
+    top: 1354px;
+  }
+
+  .levelerStatsMid {
+    top: 1552px;
+  }
+
+  .levelerStatsBottom {
+    top: 1760px;
+  }
+
+  .levelerIndicator {
+    position: absolute;
+    left: 68px;
+    width: 210px;
+    height: 144px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    box-sizing: border-box;
+    text-align: center;
+    font-family: 'Gotham Medium', sans-serif;
+    font-size: 1.9em;
+    line-height: 1.15;
+    pointer-events: none;
+  }
+
+  .levelerIndicatorMid {
+    top: 1541px;
+  }
+
+  .levelerIndicatorBottom {
+    top: 1755px;
   }
 
   .collectionBlock,
@@ -886,6 +961,11 @@
   .landSymbol > * > * {
     width: 270px;
   }
+}
+
+.evolution .pt,
+.levelerPt {
+  bottom: 195px;
 }
 
 // Controls how the cover image fills its fixed-size box. `stretch` keeps the

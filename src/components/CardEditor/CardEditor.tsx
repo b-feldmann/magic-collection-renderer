@@ -54,6 +54,7 @@ const isArtStyleAvailableForType = (artStyle: string, cardTypes: CardType[] = []
   if (cardTypes.includes(CardType.BasicLand)) {
     return (Object.values(BasicLandArtStyles) as string[]).includes(artStyle);
   }
+  if (cardTypes.includes(CardType.Evolution)) return artStyle === CardArtStyles.Regular;
   if (artStyle === CardArtStyles.Invocation) return false;
   // Invention is artifact-only and unavailable for the mutually exclusive
   // showcase types (Adventure/Omen/Split Card/Aftermath/Prepared/Planeswalker).
@@ -148,6 +149,37 @@ const prepareSectionConfig: InputConfigInterface[] = [
   { key: 'prepareText', type: 'text-list', name: 'Text', width: 100, allowMechanics: false },
 ];
 
+const evolutionSectionConfig: InputConfigInterface[] = [
+  { key: 'evolutionSection1', type: 'divider', name: 'Level 1', width: 100 },
+  {
+    key: 'level1Indicator',
+    pairedFieldKey: 'level1Text',
+    type: 'paired-text',
+    name: 'Level 1',
+    width: 100,
+  },
+  {
+    key: 'level1Stats',
+    type: 'split-input',
+    name: 'Level 1 Power/Level 1 Toughness',
+    width: 50,
+  },
+  { key: 'evolutionSection2', type: 'divider', name: 'Level 2', width: 100 },
+  {
+    key: 'level2Indicator',
+    pairedFieldKey: 'level2Text',
+    type: 'paired-text',
+    name: 'Level 2',
+    width: 100,
+  },
+  {
+    key: 'level2Stats',
+    type: 'split-input',
+    name: 'Level 2 Power/Level 2 Toughness',
+    width: 50,
+  },
+];
+
 const dummyCard: CardInterface = {
   name: '',
   uuid: NO_CARD,
@@ -174,6 +206,7 @@ interface InputConfigInterface {
   type:
     | 'input'
     | 'split-input'
+    | 'paired-text'
     | 'upload-input'
     | 'select'
     | 'multi-select'
@@ -185,6 +218,7 @@ interface InputConfigInterface {
     | 'bool'
     | 'divider';
   name: string;
+  pairedFieldKey?: string;
   data?: { key: string; value: string }[];
   disabledKeys?: string[];
   // Passed through to EditField; false omits the "Add Mechanic" select.
@@ -412,6 +446,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
   const isAdventure = () => types().includes(CardType.Adventure);
   const isOmen = () => types().includes(CardType.Omen);
   const isPrepared = () => types().includes(CardType.Prepared);
+  const isEvolution = () => types().includes(CardType.Evolution);
   const hasMana = () =>
     !types().includes(CardType.Token) && !isLand() && !types().includes(CardType.Emblem);
   const showManaCost = () => hasMana() && !editBack;
@@ -420,7 +455,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
   // rules text).
   const isColoredToken = () => types().includes(CardType.Token) && !types().includes(CardType.Land);
 
-  const hasStats = () => isCreature() || isPlaneswalker() || isVehicle();
+  const hasStats = () => isCreature() || isPlaneswalker() || isVehicle() || isEvolution();
 
   const hasNickname = () =>
     getValue('artStyle') !== CardArtStyles.Invention &&
@@ -540,6 +575,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
       data: user.filter(u => u.name !== 'ADMIN').map(o => ({ key: o.uuid, value: o.name })),
       width: hasStats() ? 50 : 100,
     },
+    ...(isEvolution() ? evolutionSectionConfig : []),
     ...(isAdventure() ? adventureSectionConfig : []),
     ...(isOmen() ? omenSectionConfig : []),
     ...(isPrepared() ? prepareSectionConfig : []),
@@ -678,6 +714,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
               <EditField
                 fieldKey={config.key}
                 type={config.type}
+                pairedFieldKey={config.pairedFieldKey}
                 data={config.data}
                 disabledKeys={config.disabledKeys}
                 name={config.name}

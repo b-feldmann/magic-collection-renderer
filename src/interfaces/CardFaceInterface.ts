@@ -20,6 +20,12 @@ export default interface CardFaceInterface {
   basicLandType?: BasicLandType;
   cardText: string[];
   cardStats?: string;
+  level1Indicator?: string;
+  level2Indicator?: string;
+  level1Text?: string[];
+  level2Text?: string[];
+  level1Stats?: string;
+  level2Stats?: string;
   flavourText?: string;
   flavourAuthor?: string;
   cover?: string;

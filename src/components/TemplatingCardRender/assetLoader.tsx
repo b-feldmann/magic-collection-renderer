@@ -125,23 +125,59 @@ import InnerCrownGold from './images/crown/m15InnerCrownMNyx.png';
 
 import Black from './images/black.png';
 
-import VehicleMainframe from './images/mainframes/m15/v.png';
-import ArtefactMainframe from './images/mainframes/m15/a.png';
+import VehicleMainframe from './images/mainframes/m15/regular/v.png';
+import ArtefactMainframe from './images/mainframes/m15/regular/a.png';
 import ArtefactNyxMainframe from './images/mainframes/m15/nyx/a.png';
 import ColorlessNyxMainframe from './images/mainframes/m15/nyx/a.png';
-import WhiteMainframe from './images/mainframes/m15/w.png';
+import WhiteMainframe from './images/mainframes/m15/regular/w.png';
 import WhiteNyxMainframe from './images/mainframes/m15/nyx/w.png';
-import BlueMainframe from './images/mainframes/m15/u.png';
+import BlueMainframe from './images/mainframes/m15/regular/u.png';
 import BlueNyxMainframe from './images/mainframes/m15/nyx/u.png';
-import BlackMainframe from './images/mainframes/m15/b.png';
+import BlackMainframe from './images/mainframes/m15/regular/b.png';
 import BlackNyxMainframe from './images/mainframes/m15/nyx/b.png';
-import RedMainframe from './images/mainframes/m15/r.png';
+import RedMainframe from './images/mainframes/m15/regular/r.png';
 import RedNyxMainframe from './images/mainframes/m15/nyx/r.png';
-import GreenMainframe from './images/mainframes/m15/g.png';
+import GreenMainframe from './images/mainframes/m15/regular/g.png';
 import GreenNyxMainframe from './images/mainframes/m15/nyx/g.png';
-import GoldMainframe from './images/mainframes/m15/m.png';
+import GoldMainframe from './images/mainframes/m15/regular/m.png';
 import GoldNyxMainframe from './images/mainframes/m15/nyx/m.png';
-import ColorlessMainframe from './images/mainframes/m15/c.png';
+import ColorlessMainframe from './images/mainframes/m15/regular/c.png';
+
+import VehicleFrame from './images/parts/frame/regular/v.png';
+import ArtefactFrame from './images/parts/frame/regular/a.png';
+import ArtefactNyxFrame from './images/parts/frame/nyx/a.png';
+import ColorlessNyxFrame from './images/parts/frame/nyx/a.png';
+import WhiteFrame from './images/parts/frame/regular/w.png';
+import WhiteNyxFrame from './images/parts/frame/nyx/w.png';
+import BlueFrame from './images/parts/frame/regular/u.png';
+import BlueNyxFrame from './images/parts/frame/nyx/u.png';
+import BlackFrame from './images/parts/frame/regular/b.png';
+import BlackNyxFrame from './images/parts/frame/nyx/b.png';
+import RedFrame from './images/parts/frame/regular/r.png';
+import RedNyxFrame from './images/parts/frame/nyx/r.png';
+import GreenFrame from './images/parts/frame/regular/g.png';
+import GreenNyxFrame from './images/parts/frame/nyx/g.png';
+import GoldFrame from './images/parts/frame/regular/m.png';
+import GoldNyxFrame from './images/parts/frame/nyx/m.png';
+import ColorlessFrame from './images/parts/frame/regular/c.png';
+
+import LevelerVehicleFrame from './images/parts/levelerFrame/regular/v.png';
+import LevelerArtefactFrame from './images/parts/levelerFrame/regular/a.png';
+import LevelerArtefactNyxFrame from './images/parts/levelerFrame/nyx/a.png';
+import LevelerColorlessNyxFrame from './images/parts/levelerFrame/nyx/a.png';
+import LevelerWhiteFrame from './images/parts/levelerFrame/regular/w.png';
+import LevelerWhiteNyxFrame from './images/parts/levelerFrame/nyx/w.png';
+import LevelerBlueFrame from './images/parts/levelerFrame/regular/u.png';
+import LevelerBlueNyxFrame from './images/parts/levelerFrame/nyx/u.png';
+import LevelerBlackFrame from './images/parts/levelerFrame/regular/b.png';
+import LevelerBlackNyxFrame from './images/parts/levelerFrame/nyx/b.png';
+import LevelerRedFrame from './images/parts/levelerFrame/regular/r.png';
+import LevelerRedNyxFrame from './images/parts/levelerFrame/nyx/r.png';
+import LevelerGreenFrame from './images/parts/levelerFrame/regular/g.png';
+import LevelerGreenNyxFrame from './images/parts/levelerFrame/nyx/g.png';
+import LevelerGoldFrame from './images/parts/levelerFrame/regular/m.png';
+import LevelerGoldNyxFrame from './images/parts/levelerFrame/nyx/m.png';
+import LevelerColorlessFrame from './images/parts/levelerFrame/regular/c.png';
 
 import BorderlessFrameA from './images/mainframes/borderless/m15GenericShowcaseFrameA.png';
 import BorderlessFrameC from './images/mainframes/borderless/m15GenericShowcaseFrameC.png';
@@ -253,15 +289,15 @@ import InventionRedMainframe from './images/mainframes/invention/r.png';
 import InventionGreenMainframe from './images/mainframes/invention/g.png';
 import InventionGoldMainframe from './images/mainframes/invention/m.png';
 
-import LowResWhiteMainframe from './images/mainframes/m15/wThumb.png';
-import LowResBlueMainframe from './images/mainframes/m15/uThumb.png';
-import LowResBlackMainframe from './images/mainframes/m15/bThumb.png';
-import LowResRedMainframe from './images/mainframes/m15/rThumb.png';
-import LowResGreenMainframe from './images/mainframes/m15/gThumb.png';
-import LowResGoldMainframe from './images/mainframes/m15/mThumb.png';
-import LowResColorlessMainframe from './images/mainframes/m15/cThumb.png';
-import LowResArtefactMainframe from './images/mainframes/m15/aThumb.png';
-import LowResVehicleMainframe from './images/mainframes/m15/vThumb.png';
+import LowResWhiteMainframe from './images/mainframes/m15/regular/wThumb.png';
+import LowResBlueMainframe from './images/mainframes/m15/regular/uThumb.png';
+import LowResBlackMainframe from './images/mainframes/m15/regular/bThumb.png';
+import LowResRedMainframe from './images/mainframes/m15/regular/rThumb.png';
+import LowResGreenMainframe from './images/mainframes/m15/regular/gThumb.png';
+import LowResGoldMainframe from './images/mainframes/m15/regular/mThumb.png';
+import LowResColorlessMainframe from './images/mainframes/m15/regular/cThumb.png';
+import LowResArtefactMainframe from './images/mainframes/m15/regular/aThumb.png';
+import LowResVehicleMainframe from './images/mainframes/m15/regular/vThumb.png';
 
 import LowResWhiteMainframeNyx from './images/mainframes/m15/nyx/wThumb.png';
 import LowResBlueMainframeNyx from './images/mainframes/m15/nyx/uThumb.png';
@@ -884,6 +920,66 @@ import PrepareMainframeMNyxLowRes from './images/mainframes/prepare/nyx/mThumb.p
 import PrepareMainframeANyx from './images/mainframes/prepare/nyx/a.png';
 import PrepareMainframeANyxLowRes from './images/mainframes/prepare/nyx/aThumb.png';
 
+// --- Leveler mainframes (regular, full-res + Thumb) ---
+import LevelerMainframeA from './images/mainframes/levelers/regular/a.png';
+import LevelerMainframeALowRes from './images/mainframes/levelers/regular/aThumb.png';
+import LevelerMainframeW from './images/mainframes/levelers/regular/w.png';
+import LevelerMainframeWLowRes from './images/mainframes/levelers/regular/wThumb.png';
+import LevelerMainframeU from './images/mainframes/levelers/regular/u.png';
+import LevelerMainframeULowRes from './images/mainframes/levelers/regular/uThumb.png';
+import LevelerMainframeB from './images/mainframes/levelers/regular/b.png';
+import LevelerMainframeBLowRes from './images/mainframes/levelers/regular/bThumb.png';
+import LevelerMainframeR from './images/mainframes/levelers/regular/r.png';
+import LevelerMainframeRLowRes from './images/mainframes/levelers/regular/rThumb.png';
+import LevelerMainframeG from './images/mainframes/levelers/regular/g.png';
+import LevelerMainframeGLowRes from './images/mainframes/levelers/regular/gThumb.png';
+import LevelerMainframeM from './images/mainframes/levelers/regular/m.png';
+import LevelerMainframeMLowRes from './images/mainframes/levelers/regular/mThumb.png';
+
+// --- Generated Leveler pinline and rules parts (single and two-color) ---
+import LevelerPinlineA from './images/parts/levelerPinline/a.png';
+import LevelerPinlineW from './images/parts/levelerPinline/w.png';
+import LevelerPinlineU from './images/parts/levelerPinline/u.png';
+import LevelerPinlineB from './images/parts/levelerPinline/b.png';
+import LevelerPinlineR from './images/parts/levelerPinline/r.png';
+import LevelerPinlineG from './images/parts/levelerPinline/g.png';
+import LevelerPinlineM from './images/parts/levelerPinline/m.png';
+import LevelerPinlineWu from './images/parts/levelerPinline/wu.png';
+import LevelerPinlineUb from './images/parts/levelerPinline/ub.png';
+import LevelerPinlineBr from './images/parts/levelerPinline/br.png';
+import LevelerPinlineRg from './images/parts/levelerPinline/rg.png';
+import LevelerPinlineGw from './images/parts/levelerPinline/gw.png';
+import LevelerPinlineWb from './images/parts/levelerPinline/wb.png';
+import LevelerPinlineUr from './images/parts/levelerPinline/ur.png';
+import LevelerPinlineBg from './images/parts/levelerPinline/bg.png';
+import LevelerPinlineRw from './images/parts/levelerPinline/rw.png';
+import LevelerPinlineGu from './images/parts/levelerPinline/gu.png';
+import LevelerRulesA from './images/parts/levelerRules/a.png';
+import LevelerRulesW from './images/parts/levelerRules/w.png';
+import LevelerRulesU from './images/parts/levelerRules/u.png';
+import LevelerRulesB from './images/parts/levelerRules/b.png';
+import LevelerRulesR from './images/parts/levelerRules/r.png';
+import LevelerRulesG from './images/parts/levelerRules/g.png';
+import LevelerRulesM from './images/parts/levelerRules/m.png';
+import LevelerRulesWu from './images/parts/levelerRules/wu.png';
+import LevelerRulesUb from './images/parts/levelerRules/ub.png';
+import LevelerRulesBr from './images/parts/levelerRules/br.png';
+import LevelerRulesRg from './images/parts/levelerRules/rg.png';
+import LevelerRulesGw from './images/parts/levelerRules/gw.png';
+import LevelerRulesWb from './images/parts/levelerRules/wb.png';
+import LevelerRulesUr from './images/parts/levelerRules/ur.png';
+import LevelerRulesBg from './images/parts/levelerRules/bg.png';
+import LevelerRulesRw from './images/parts/levelerRules/rw.png';
+import LevelerRulesGu from './images/parts/levelerRules/gu.png';
+import LevelerPtA from './images/pt/levelers/a.png';
+import LevelerPtV from './images/pt/levelers/v.png';
+import LevelerPtW from './images/pt/levelers/w.png';
+import LevelerPtU from './images/pt/levelers/u.png';
+import LevelerPtB from './images/pt/levelers/b.png';
+import LevelerPtR from './images/pt/levelers/r.png';
+import LevelerPtG from './images/pt/levelers/g.png';
+import LevelerPtM from './images/pt/levelers/m.png';
+
 // --- Prepare pinline (single + WUBRG two-color combos) ---
 import PreparePinlineW from './images/parts/preparePinline/w.png';
 import PreparePinlineU from './images/parts/preparePinline/u.png';
@@ -935,7 +1031,11 @@ export const getPt = (
   isNickname = false,
   isBorderless = false,
   isLand = false,
+  isEvolution = false,
 ) => {
+  if (isEvolution) {
+    return getLevelerPt(color, isArtefact, isVehicle);
+  }
   if (isLand) {
     return PtLBorderless;
   }
@@ -1050,6 +1150,87 @@ export const getNicknameTitle = (
       return NicknameTitleM;
     default:
       return NicknameTitleA;
+  }
+};
+
+export const getColorFrame = (
+  color: ColorType,
+  isEnchantment = false,
+  isArtifact = false,
+  isVehicle = false,
+  isLeveler = false,
+): string => {
+  // A colorless artifact uses the artefact frame instead of the plain colorless frame.
+  if (isArtifact) {
+    if (isEnchantment) {
+      return isLeveler ? LevelerArtefactNyxFrame : ArtefactNyxFrame;
+    }
+    return isVehicle
+      ? isLeveler
+        ? LevelerVehicleFrame
+        : VehicleFrame
+      : isLeveler
+        ? LevelerArtefactFrame
+        : ArtefactFrame;
+  }
+
+  switch (color) {
+    case ColorType.White:
+      return isEnchantment
+        ? isLeveler
+          ? LevelerWhiteNyxFrame
+          : WhiteNyxFrame
+        : isLeveler
+          ? LevelerWhiteFrame
+          : WhiteFrame;
+    case ColorType.Blue:
+      return isEnchantment
+        ? isLeveler
+          ? LevelerBlueNyxFrame
+          : BlueNyxFrame
+        : isLeveler
+          ? LevelerBlueFrame
+          : BlueFrame;
+    case ColorType.Black:
+      return isEnchantment
+        ? isLeveler
+          ? LevelerBlackNyxFrame
+          : BlackNyxFrame
+        : isLeveler
+          ? LevelerBlackFrame
+          : BlackFrame;
+    case ColorType.Red:
+      return isEnchantment
+        ? isLeveler
+          ? LevelerRedNyxFrame
+          : RedNyxFrame
+        : isLeveler
+          ? LevelerRedFrame
+          : RedFrame;
+    case ColorType.Green:
+      return isEnchantment
+        ? isLeveler
+          ? LevelerGreenNyxFrame
+          : GreenNyxFrame
+        : isLeveler
+          ? LevelerGreenFrame
+          : GreenFrame;
+    case ColorType.Gold:
+      return isEnchantment
+        ? isLeveler
+          ? LevelerGoldNyxFrame
+          : GoldNyxFrame
+        : isLeveler
+          ? LevelerGoldFrame
+          : GoldFrame;
+    default:
+      return isEnchantment
+        ? isLeveler
+          ? LevelerColorlessNyxFrame
+          : ColorlessNyxFrame
+        : isLeveler
+          ? LevelerColorlessFrame
+          : ColorlessFrame;
   }
 };
 
@@ -1592,6 +1773,102 @@ export const getPrepareMainframe = (color: ColorType, isEnchantment = false): Im
       return { highRes: PrepareMainframeM, lowRes: PrepareMainframeMLowRes };
     default:
       return { highRes: PrepareMainframeA, lowRes: PrepareMainframeALowRes };
+  }
+};
+
+export const getLevelerMainframe = (color: ColorType): ImageResData => {
+  switch (color) {
+    case ColorType.White:
+      return { highRes: LevelerMainframeW, lowRes: LevelerMainframeWLowRes };
+    case ColorType.Blue:
+      return { highRes: LevelerMainframeU, lowRes: LevelerMainframeULowRes };
+    case ColorType.Black:
+      return { highRes: LevelerMainframeB, lowRes: LevelerMainframeBLowRes };
+    case ColorType.Red:
+      return { highRes: LevelerMainframeR, lowRes: LevelerMainframeRLowRes };
+    case ColorType.Green:
+      return { highRes: LevelerMainframeG, lowRes: LevelerMainframeGLowRes };
+    case ColorType.Gold:
+      return { highRes: LevelerMainframeM, lowRes: LevelerMainframeMLowRes };
+    default:
+      return { highRes: LevelerMainframeA, lowRes: LevelerMainframeALowRes };
+  }
+};
+
+type LevelerPartVariant = 'a' | Exclude<PartVariant, ''>;
+
+const getLevelerPartVariant = (colors: ColorType[]): LevelerPartVariant => {
+  if (colors.length === 0 || colors.includes(ColorType.Colorless)) return 'a';
+  if (colors.length === 2) return getTwoColorVariant(colors) as Exclude<PartVariant, ''>;
+  if (colors.length > 2) return 'm';
+  return getSingleColorVariant(colors[0]) as Exclude<PartVariant, ''>;
+};
+
+const LEVELER_PINLINE_PARTS: Record<LevelerPartVariant, string> = {
+  a: LevelerPinlineA,
+  w: LevelerPinlineW,
+  u: LevelerPinlineU,
+  b: LevelerPinlineB,
+  r: LevelerPinlineR,
+  g: LevelerPinlineG,
+  m: LevelerPinlineM,
+  wu: LevelerPinlineWu,
+  ub: LevelerPinlineUb,
+  br: LevelerPinlineBr,
+  rg: LevelerPinlineRg,
+  gw: LevelerPinlineGw,
+  wb: LevelerPinlineWb,
+  ur: LevelerPinlineUr,
+  bg: LevelerPinlineBg,
+  rw: LevelerPinlineRw,
+  gu: LevelerPinlineGu,
+};
+
+const LEVELER_RULES_PARTS: Record<LevelerPartVariant, string> = {
+  a: LevelerRulesA,
+  w: LevelerRulesW,
+  u: LevelerRulesU,
+  b: LevelerRulesB,
+  r: LevelerRulesR,
+  g: LevelerRulesG,
+  m: LevelerRulesM,
+  wu: LevelerRulesWu,
+  ub: LevelerRulesUb,
+  br: LevelerRulesBr,
+  rg: LevelerRulesRg,
+  gw: LevelerRulesGw,
+  wb: LevelerRulesWb,
+  ur: LevelerRulesUr,
+  bg: LevelerRulesBg,
+  rw: LevelerRulesRw,
+  gu: LevelerRulesGu,
+};
+
+export const getLevelerPinline = (colors: ColorType[]): string =>
+  LEVELER_PINLINE_PARTS[getLevelerPartVariant(colors)];
+
+export const getLevelerRules = (colors: ColorType[]): string =>
+  LEVELER_RULES_PARTS[getLevelerPartVariant(colors)];
+
+export const getLevelerPt = (color: ColorType, isArtefact = false, isVehicle = false): string => {
+  if (isArtefact && isVehicle) return LevelerPtV;
+  if (isArtefact && color !== ColorType.Gold) return LevelerPtA;
+
+  switch (color) {
+    case ColorType.White:
+      return LevelerPtW;
+    case ColorType.Blue:
+      return LevelerPtU;
+    case ColorType.Black:
+      return LevelerPtB;
+    case ColorType.Red:
+      return LevelerPtR;
+    case ColorType.Green:
+      return LevelerPtG;
+    case ColorType.Gold:
+      return LevelerPtM;
+    default:
+      return LevelerPtA;
   }
 };
 

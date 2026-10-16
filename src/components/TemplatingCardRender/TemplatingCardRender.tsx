@@ -36,6 +36,9 @@ import {
   getEldAlternateAdventurePinline,
   getEldAlternateAdventureRulesLeft,
   getAdventurePt,
+  getLevelerMainframe,
+  getLevelerPinline,
+  getLevelerRules,
   getOmenMainframe,
   getOmenPinline,
   getOmenRulesLeft,
@@ -65,6 +68,7 @@ import {
   getTokenLandTypePart,
   getTokenMainframe,
   getTypePart,
+  getColorFrame,
 } from './assetLoader';
 import { injectForText, injectManaIcons } from '../../utils/injectUtils';
 import ImageLoader from '../ImageLoader/ImageLoader';
@@ -93,6 +97,12 @@ interface TemplatingCardRenderProps {
   basicLandType?: BasicLandType;
   cardText: string[];
   cardStats?: string;
+  level1Indicator?: string;
+  level2Indicator?: string;
+  level1Text?: string[];
+  level2Text?: string[];
+  level1Stats?: string;
+  level2Stats?: string;
   tokenColors?: ColorType[];
   flavourText?: string;
   // The spell half of an Adventure card (rendered into the left box).
@@ -124,6 +134,8 @@ interface TemplatingCardRenderProps {
 const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
   const { legendary, vehicle, nickname, cardTypes, basicLandType, rarity } = cardRenderProps;
   const { name, manaCost, cardStats, cover, creator } = cardRenderProps;
+  const { level1Indicator, level2Indicator, level1Text, level2Text, level1Stats, level2Stats } =
+    cardRenderProps;
   const { cardText, flavourText = '', flavourAuthor, cardID } = cardRenderProps;
   const { adventureName, adventureCost, adventureText, adventureType } = cardRenderProps;
   const { omenName, omenCost, omenText, omenType } = cardRenderProps;
@@ -189,6 +201,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
   const isAdventure = cardTypes.includes(CardType.Adventure);
   const isOmen = cardTypes.includes(CardType.Omen);
   const isPrepared = cardTypes.includes(CardType.Prepared);
+  const isEvolution = cardTypes.includes(CardType.Evolution);
   // The Alternate Art art style is an adventure-specific showcase: it swaps
   // every adventure asset (frame, pinline, rules-left, pt) for its alternate
   // variant set.
@@ -283,21 +296,24 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
     isNickname,
     artStyle === CardArtStyles.Borderless,
     isLand,
+    isEvolution,
   );
   // The omen / adventure / prepare pinlines belong to the Regular art style;
   // the Extended style carves the generic extended pinlines instead. A missing
   // artStyle counts as Regular, like everywhere else in this component.
   // (Prepared has only the Regular style.)
   const isRegularArtStyle = !artStyle || artStyle === CardArtStyles.Regular;
-  const pinline = isAlternateArt
-    ? getEldAlternateAdventurePinline(isLand ? landColors : allColors)
-    : isOmen && isRegularArtStyle
-      ? getOmenPinline(isLand ? landColors : allColors)
-      : isPrepared && isRegularArtStyle
-        ? getPreparePinline(isLand ? landColors : allColors)
-        : isAdventure && isRegularArtStyle
-          ? getAdventurePinline(isLand ? landColors : allColors)
-          : getPinline(isLand ? landColors : allColors, isArtifact, artStyle, isToken);
+  const pinline = isEvolution
+    ? getLevelerPinline(allColors)
+    : isAlternateArt
+      ? getEldAlternateAdventurePinline(isLand ? landColors : allColors)
+      : isOmen && isRegularArtStyle
+        ? getOmenPinline(isLand ? landColors : allColors)
+        : isPrepared && isRegularArtStyle
+          ? getPreparePinline(isLand ? landColors : allColors)
+          : isAdventure && isRegularArtStyle
+            ? getAdventurePinline(isLand ? landColors : allColors)
+            : getPinline(isLand ? landColors : allColors, isArtifact, artStyle, isToken);
   const adventureRulesLeft = isAlternateArt
     ? getEldAlternateAdventureRulesLeft(isLand ? landColors : (adventureColors ?? allColors))
     : isAdventure
@@ -323,16 +339,22 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
       ? getTokenLandTypePart()
       : getLandTypePart(landColors)
     : getTypePart(allColors, isArtifact, isToken);
-  let rulesPart = isLand
-    ? isToken
-      ? getRulesPart(landColors, isArtifact, true)
-      : getLandRulesPart(landColors)
-    : getRulesPart(allColors, isArtifact, isToken);
-  if (isAdventure || isOmen || isPrepared) {
+  let rulesPart = isEvolution
+    ? getLevelerRules(allColors)
+    : isLand
+      ? isToken
+        ? getRulesPart(landColors, isArtifact, true)
+        : getLandRulesPart(landColors)
+      : getRulesPart(allColors, isArtifact, isToken);
+  if (isAdventure || isOmen || isPrepared || isEvolution) {
     rulesPart = '';
   }
 
-  if (isAlternateArt) {
+  if (isEvolution) {
+    mainframe = getLevelerMainframe(color);
+    titlePart = '';
+    typePart = '';
+  } else if (isAlternateArt) {
     mainframe = getEldAlternateAdventureMainframe(color);
     pt = getAdventurePt(color);
   } else if (artStyle === CardArtStyles.Extended) {
@@ -423,6 +445,11 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
     }
   }
 
+  let frame: string | null = null;
+  if (isEvolution) {
+    frame = getColorFrame(color, isEnchantment, isArtifact, vehicle, true);
+  }
+
   return (
     <div style={{ height: `${getHeight(containerWidth)}px` }}>
       <div
@@ -447,6 +474,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
             ${isInvention && styles.invention}
             ${isNickname && styles.nicknameFrame}
             ${isEnchantment && styles.enchantment}
+            ${isEvolution && styles.evolution}
             ${isLand && styles.land}
             ${isArtifact && styles.artifact}
             ${artStyle === CardArtStyles.Extended && styles.extended}
@@ -467,6 +495,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
             }`}
             fallBackColor={artStyle !== CardArtStyles.Borderless ? hexColor : undefined}
           />
+          {frame && <ImageLoader src={frame} className={styles.frame} />}
 
           {titlePart ? <img className={styles.titlePart} src={titlePart} alt="" /> : null}
           {typePart ? <img className={styles.typePart} src={typePart} alt="" /> : null}
@@ -507,6 +536,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
                 defaultFontSize={42}
                 maxFontSize={50}
                 minFontSize={28}
+                lineHeight={1.1}
                 className={styles.textWrap}
               >
                 <div>
@@ -542,6 +572,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
                 defaultFontSize={42}
                 maxFontSize={50}
                 minFontSize={28}
+                lineHeight={1.1}
                 className={styles.textWrap}
               >
                 <div>
@@ -581,6 +612,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
                 defaultFontSize={42}
                 maxFontSize={50}
                 minFontSize={28}
+                lineHeight={1.1}
                 className={styles.textWrap}
               >
                 <div>
@@ -615,14 +647,85 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
             className={`${styles.rarity} ${isToken ? styles.tokenRarity : ''}`}
           />
 
-          {(isCreature || (isArtifact && vehicle)) && (
+          {(isCreature || (isArtifact && vehicle) || isEvolution) && (
             <div>
-              {pt ? <img className={styles.pt} src={pt} alt="" /> : null}
-              <div className={styles.stats}>
+              {pt ? (
+                <img
+                  className={`${styles.pt} ${isEvolution ? styles.levelerPt : ''}`}
+                  src={pt}
+                  alt=""
+                />
+              ) : null}
+              <div className={`${styles.stats} ${isEvolution ? styles.levelerStatsTop : ''}`}>
                 {`${parseStats(cardStats).power}/${parseStats(cardStats).toughness}`}
               </div>
             </div>
           )}
+
+          {isEvolution ? (
+            <>
+              {level1Indicator ? (
+                <div className={`${styles.levelerIndicator} ${styles.levelerIndicatorMid}`}>
+                  {level1Indicator}
+                </div>
+              ) : null}
+              {level1Text?.length ? (
+                <div className={`${styles.text} ${styles.levelerText} ${styles.levelerLevel1Text}`}>
+                  <TextResize
+                    defaultFontSize={42}
+                    maxFontSize={56}
+                    minFontSize={38}
+                    lineHeight={1.1}
+                    className={styles.textWrap}
+                  >
+                    <div>
+                      {level1Text.map((val, i) => (
+                        <p
+                          key={`level-1-text-${cardID}-${i}`}
+                          style={val.startsWith('--') ? { marginLeft: '0.5em' } : undefined}
+                        >
+                          {injectForText(val, name, mechanics)}
+                        </p>
+                      ))}
+                    </div>
+                  </TextResize>
+                </div>
+              ) : null}
+              <div className={`${styles.stats} ${styles.levelerStatsMid}`}>
+                {`${parseStats(level1Stats).power}/${parseStats(level1Stats).toughness}`}
+              </div>
+              {level2Indicator ? (
+                <div className={`${styles.levelerIndicator} ${styles.levelerIndicatorBottom}`}>
+                  {level2Indicator}
+                </div>
+              ) : null}
+              {level2Text?.length ? (
+                <div className={`${styles.text} ${styles.levelerText} ${styles.levelerLevel2Text}`}>
+                  <TextResize
+                    defaultFontSize={42}
+                    maxFontSize={56}
+                    minFontSize={38}
+                    lineHeight={1.1}
+                    className={styles.textWrap}
+                  >
+                    <div>
+                      {level2Text.map((val, i) => (
+                        <p
+                          key={`level-2-text-${cardID}-${i}`}
+                          style={val.startsWith('--') ? { marginLeft: '0.5em' } : undefined}
+                        >
+                          {injectForText(val, name, mechanics)}
+                        </p>
+                      ))}
+                    </div>
+                  </TextResize>
+                </div>
+              ) : null}
+              <div className={`${styles.stats} ${styles.levelerStatsBottom}`}>
+                {`${parseStats(level2Stats).power}/${parseStats(level2Stats).toughness}`}
+              </div>
+            </>
+          ) : null}
 
           {!isLand && !isToken && !backFace && (
             <div ref={costRef} className={`${styles.cost} ${isToken ? styles.tokenCost : ''}`}>
@@ -649,12 +752,15 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
           <div
             className={`${styles.text} ${isToken ? styles.tokenText : ''} ${
               isAdventure ? styles.adventureRightText : ''
-            } ${isOmen ? styles.omenRightText : ''} ${isPrepared ? styles.prepareLeftText : ''}`}
+            } ${isOmen ? styles.omenRightText : ''} ${isPrepared ? styles.prepareLeftText : ''} ${
+              isEvolution ? styles.levelerText : ''
+            }`}
           >
             <TextResize
               defaultFontSize={42}
               maxFontSize={isAdventure || isOmen || isPrepared ? 50 : 56}
               minFontSize={38}
+              lineHeight={1.1}
               className={styles.textWrap}
             >
               <div>
@@ -684,7 +790,9 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
           </div>
           <div
             className={
-              isCreature || (isArtifact && vehicle) ? styles.copyrightStats : styles.copyright
+              isCreature || (isArtifact && vehicle) || isEvolution
+                ? styles.copyrightStats
+                : styles.copyright
             }
           >
             &#8482; &amp; &#169; 2019 BJennWare

@@ -15,6 +15,7 @@ interface EditFieldInterface {
   type:
     | 'input'
     | 'split-input'
+    | 'paired-text'
     | 'upload-input'
     | 'select'
     | 'multi-select'
@@ -26,6 +27,7 @@ interface EditFieldInterface {
     | 'bool'
     | 'divider';
   name: string;
+  pairedFieldKey?: string;
   data?: { key: string; value: string }[];
   disabledKeys?: string[];
   // Set to false to omit the "Add Mechanic" select from list footers.
@@ -40,6 +42,7 @@ const EditField = (props: EditFieldInterface) => {
     type,
     fieldKey,
     name,
+    pairedFieldKey,
     data,
     disabledKeys,
     allowMechanics = true,
@@ -48,7 +51,7 @@ const EditField = (props: EditFieldInterface) => {
     mechanics,
   } = props;
 
-  const renderAddMechanic = () => {
+  const renderAddMechanic = (targetFieldKey = fieldKey) => {
     if (!mechanics || mechanics.length === 0) return null;
 
     return (
@@ -61,16 +64,16 @@ const EditField = (props: EditFieldInterface) => {
         options={[...mechanics]
           .sort((a, b) => a.name.localeCompare(b.name))
           .map(mechanic => ({
-            key: `${fieldKey}-mechanic-${mechanic.uuid}`,
+            key: `${targetFieldKey}-mechanic-${mechanic.uuid}`,
             value: mechanic.uuid,
             label: mechanic.name,
           }))}
         onSelect={(uuid: string | null) => {
           const mechanic = mechanics.find(m => m.uuid === uuid);
           if (!mechanic) return;
-          const list = getValue(fieldKey) || [];
+          const list = getValue(targetFieldKey) || [];
           list.push(`[${mechanic.name} {X}]`);
-          saveValue(fieldKey, list);
+          saveValue(targetFieldKey, list);
         }}
       />
     );
@@ -107,6 +110,38 @@ const EditField = (props: EditFieldInterface) => {
           value={getValue(fieldKey)}
           onChange={e => saveValue(fieldKey, e.target.value)}
         />
+      </span>
+    );
+  }
+
+  if (type === 'paired-text' && pairedFieldKey) {
+    const text = ((getValue(pairedFieldKey) as string[]) || []).join('\n');
+
+    return (
+      <span>
+        <p className={styles.label}>
+          {name} <EditorTooltip className={styles.tooltip} />
+        </p>
+        <InputGroup compact>
+          <Input
+            placeholder="Indicator"
+            style={{ width: '20%' }}
+            value={getValue(fieldKey) || ''}
+            onChange={e => saveValue(fieldKey, e.target.value)}
+          />
+          <TextArea
+            placeholder="Card Text"
+            style={{ width: '80%' }}
+            value={text}
+            onChange={e => saveValue(pairedFieldKey, e.target.value.split('\n'))}
+            autoSize
+          />
+        </InputGroup>
+        {allowMechanics ? (
+          <div className={styles.listFooter}>
+            <div className={styles.centerParent}>{renderAddMechanic(pairedFieldKey)}</div>
+          </div>
+        ) : null}
       </span>
     );
   }

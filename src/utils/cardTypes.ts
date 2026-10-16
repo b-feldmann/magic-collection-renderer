@@ -40,6 +40,7 @@ export const MUTUALLY_EXCLUSIVE_CARD_TYPES = [
   CardType.SplitCard,
   CardType.Aftermath,
   CardType.Prepared,
+  CardType.Evolution,
   CardType.Planeswalker,
   CardType.Token,
 ];
@@ -106,7 +107,8 @@ export const formatTypeLine = (face: CardFaceInterface): string => {
         cardType =>
           cardType !== CardType.Adventure &&
           cardType !== CardType.Omen &&
-          cardType !== CardType.Prepared,
+          cardType !== CardType.Prepared &&
+          cardType !== CardType.Evolution,
       )
     : [];
 

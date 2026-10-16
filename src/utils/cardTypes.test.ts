@@ -198,6 +198,16 @@ describe('formatTypeLine', () => {
 });
 
 describe('resolveExclusiveCardTypes', () => {
+  it('keeps Evolution exclusive with other group members', () => {
+    const evolution = 'Evolution' as CardType;
+    expect(
+      resolveExclusiveCardTypes(
+        [CardType.Creature, evolution, CardType.Prepared],
+        [CardType.Creature],
+      ),
+    ).toEqual([CardType.Creature, evolution]);
+  });
+
   it('strips a newly added Adventure when Omen already exists', () => {
     expect(
       resolveExclusiveCardTypes(

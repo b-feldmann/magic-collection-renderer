@@ -9,6 +9,7 @@ export interface TextResizeProps {
   defaultFontSize?: number;
   maxFontSize?: number;
   minFontSize?: number;
+  lineHeight?: number;
   className?: string;
   children: React.ReactNode;
 }
@@ -17,6 +18,7 @@ const TextResize: React.FC<TextResizeProps> = ({
   defaultFontSize = 20,
   maxFontSize = 32,
   minFontSize = 14,
+  lineHeight = 1.2,
   className,
   children,
 }) => {
@@ -42,15 +44,14 @@ const TextResize: React.FC<TextResizeProps> = ({
     const applyScale = (size: number) => {
       const scale = size / maxFontSize;
       el.style.fontSize = `${size}px`;
+      el.style.lineHeight = ((lineHeight * (1 + scale)) / 2).toFixed(2);
       if (scale < 1) {
-        el.style.lineHeight = ((1.2 * (1 + scale)) / 2).toFixed(2);
         const marginScale = Math.sqrt(scale);
         paragraphs.forEach((p, i) => {
           p.style.marginTop = `${baseMargins[i].top * marginScale}px`;
           p.style.marginBottom = `${baseMargins[i].bottom * marginScale}px`;
         });
       } else {
-        el.style.lineHeight = '';
         paragraphs.forEach(p => {
           p.style.marginTop = '';
           p.style.marginBottom = '';
@@ -76,7 +77,7 @@ const TextResize: React.FC<TextResizeProps> = ({
     const observer = new ResizeObserver(() => fit());
     observer.observe(el);
     return () => observer.disconnect();
-  }, [children, maxFontSize, minFontSize]);
+  }, [children, lineHeight, maxFontSize, minFontSize]);
 
   return (
     <div
