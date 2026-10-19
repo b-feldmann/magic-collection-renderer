@@ -10,6 +10,7 @@ export type StoreType = {
   cards: CardInterface[];
   newUuid?: string;
   mechanics: MechanicInterface[];
+  tags?: string[];
   annotationAccessor: AnnotationAccessorInterface;
   user: UserInterface[];
   currentUser: UserInterface;
@@ -20,6 +21,7 @@ const initialState = {
   cards: [],
   newUuid: undefined,
   mechanics: [],
+  tags: [],
   annotationAccessor: {},
   user: [],
   currentUser: UNKNOWN_CREATOR,

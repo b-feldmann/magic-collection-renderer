@@ -228,6 +228,13 @@ describe('TemplatingCardRender - prepared spell box', () => {
     expect(screen.getByText('Flash.')).toBeInTheDocument();
   });
 
+  it('keeps whitespace-indented double-hyphen lines as indented em-dash paragraphs', () => {
+    renderPrepared({ cardText: ['  --Indented paragraph.'] });
+
+    const paragraph = screen.getByText('—Indented paragraph.').closest('p');
+    expect(paragraph?.getAttribute('style')).toBe('margin-left: 0.5em;');
+  });
+
   it('CONTROL: a non-prepared keeps the full-width text box', () => {
     renderPrepared({ noPrepared: true, cardText: ['Flash.'] });
 

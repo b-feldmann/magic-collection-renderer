@@ -4,9 +4,31 @@ import { Action, MechanicActionType } from '../reducer';
 
 import { getAccessToken } from '../utils/accessService';
 import MechanicInterface from '../interfaces/MechanicInterface';
+import CardInterface from '../interfaces/CardInterface';
 import { staticAntd } from '../utils/staticAntd';
+import { createTag } from './tagActions';
+import { updateCard } from './cardActions';
+import { getAutomaticCardTags } from '../utils/cardTags';
 
 const MIDDLEWARE_ENDPOINT = import.meta.env.PROD ? '' : 'http://localhost:8080';
+
+export const syncCardsWithMechanic = (
+  dispatch: (value: Action) => void,
+  cards: CardInterface[],
+  mechanic: MechanicInterface,
+) => {
+  if (!mechanic.name.trim()) return;
+
+  cards.forEach(card => {
+    if (!getAutomaticCardTags(card, [mechanic]).includes(mechanic.name)) return;
+    if (card.tags?.includes(mechanic.name)) return;
+
+    updateCard(dispatch, {
+      ...card,
+      tags: [...new Set([...(card.tags || []), mechanic.name])],
+    }).catch(() => {});
+  });
+};
 
 export const getMechanics = (dispatch: (value: Action) => void) => {
   const request = `${MIDDLEWARE_ENDPOINT}/mechanics`;
@@ -22,13 +44,15 @@ export const getMechanics = (dispatch: (value: Action) => void) => {
     .catch(() => {});
 };
 
-export const createMechanic = (dispatch: (value: Action) => void) => {
+export const createMechanic = (dispatch: (value: Action) => void, cards: CardInterface[] = []) => {
   const request = `${MIDDLEWARE_ENDPOINT}/mechanics`;
   const args = { accessKey: getAccessToken() };
 
   axios
     .post(request, args)
     .then(result => {
+      if (result.data.mechanic.name.trim()) createTag(dispatch, result.data.mechanic.name);
+      syncCardsWithMechanic(dispatch, cards, result.data.mechanic);
       return dispatch({
         type: MechanicActionType.CreateMechanic,
         payload: {
@@ -41,7 +65,11 @@ export const createMechanic = (dispatch: (value: Action) => void) => {
     });
 };
 
-export const updateMechanic = (dispatch: (value: Action) => void, updated: MechanicInterface) => {
+export const updateMechanic = (
+  dispatch: (value: Action) => void,
+  updated: MechanicInterface,
+  cards: CardInterface[] = [],
+) => {
   const request = `${MIDDLEWARE_ENDPOINT}/mechanics`;
   const parsed = { ...updated };
   // `_id`/`__v` are Mongo-internal fields that ride along on mechanics held in
@@ -55,6 +83,8 @@ export const updateMechanic = (dispatch: (value: Action) => void, updated: Mecha
   axios
     .put(request, { mechanic: parsed, accessKey: getAccessToken() })
     .then(result => {
+      if (result.data.mechanic.name.trim()) createTag(dispatch, result.data.mechanic.name);
+      syncCardsWithMechanic(dispatch, cards, result.data.mechanic);
       return dispatch({
         type: MechanicActionType.UpdateMechanic,
         payload: {

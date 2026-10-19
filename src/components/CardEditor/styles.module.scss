@@ -103,5 +103,28 @@
 
 .uploadWrapper {
   display: flex;
+  flex-direction: column;
   width: 100%;
+}
+
+.uploadRow {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+}
+
+// As a bare flex item the input can shrink below its width (even to zero)
+// once sibling content grows; pin it to the remaining space instead.
+.uploadInput {
+  flex: 1;
+  min-width: 0;
+}
+
+.uploadFileName {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 2px;
+  font-size: 12px;
 }

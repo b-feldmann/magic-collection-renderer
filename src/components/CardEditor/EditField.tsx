@@ -1,9 +1,11 @@
-import { Button, Checkbox, Divider, Input, Listy, Radio, Select, Space, Upload } from 'antd';
+import { Button, Checkbox, Divider, Input, Listy, Radio, Select, Space, Tag, Upload } from 'antd';
+import { PaperClipOutlined } from '@ant-design/icons';
 
 import AntIcon from '../AntIcon/AntIcon';
 import React from 'react';
 import styles from './styles.module.scss';
 import resizeImage from '../../utils/resizeImage';
+import { getCoverFileName, isUploadedCover } from '../../utils/cover';
 import EditorTooltip from '../EditorTooltip';
 import MechanicInterface from '../../interfaces/MechanicInterface';
 
@@ -32,10 +34,91 @@ interface EditFieldInterface {
   disabledKeys?: string[];
   // Set to false to omit the "Add Mechanic" select from list footers.
   allowMechanics?: boolean;
+  allowCreate?: boolean;
+  nonRemovableValues?: string[];
   getValue: (key: string) => any;
   saveValue: (key: string, value: any) => void;
   mechanics?: MechanicInterface[];
 }
+
+interface UploadInputInterface {
+  fieldKey: string;
+  getValue: (key: string) => any;
+  saveValue: (key: string, value: any) => void;
+}
+
+// The file name of an uploaded cover is persisted with the card value (see
+// utils/cover.ts), so it needs no local state and survives card switches and
+// reloads — unlike antd's internal Upload list, which leaked across cards.
+const UploadInput = ({ fieldKey, getValue, saveValue }: UploadInputInterface) => {
+  const coverValue = getValue(fieldKey);
+  const uploaded = isUploadedCover(coverValue);
+  const fileName = getCoverFileName(coverValue);
+
+  return (
+    <div className={styles.uploadWrapper}>
+      <div className={styles.uploadRow}>
+        {/* `showUploadList={false}`: antd's internal file list is uncontrolled
+            state that survives switching to another card and squishes the URL
+            input. The persisted file name is rendered below instead. */}
+        <Upload
+          showUploadList={false}
+          beforeUpload={(file: File) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => {
+              // The file name travels with the value; the image data is
+              // uploaded to the middleware on save (see cardActions).
+              if (typeof reader.result === 'string') {
+                resizeImage(reader.result, image => {
+                  saveValue(fieldKey, `base64:${file.name}|${image}`);
+                });
+              } else {
+                saveValue(fieldKey, `base64:${file.name}|${reader.result}`);
+              }
+            };
+            // Prevent antd from actually uploading; we handle the file locally.
+            return false;
+          }}
+        >
+          <Button shape="circle" icon={<AntIcon type="upload" />} size="small" danger />
+        </Upload>
+        {/* Uploaded covers have no URL to edit — the persisted file name is
+            shown below the row instead. */}
+        {!uploaded && (
+          <Input
+            className={styles.uploadInput}
+            size="small"
+            value={stripUploadValue(coverValue)}
+            onChange={e => saveValue(fieldKey, `url:${e.target.value}`)}
+          />
+        )}
+        {coverValue ? (
+          <Button
+            shape="circle"
+            size="small"
+            aria-label="Remove cover"
+            icon={<AntIcon type="close-circle" theme="twoTone" twoToneColor="#FF0000" />}
+            onClick={() => saveValue(fieldKey, '')}
+          />
+        ) : null}
+      </div>
+      {uploaded && (
+        <span className={styles.uploadFileName}>
+          <PaperClipOutlined /> {fileName || 'Uploaded Image'}
+        </span>
+      )}
+    </div>
+  );
+};
+
+// Only URL (or legacy raw) values reach the editable input.
+const stripUploadValue = (value?: string) => {
+  if (!value) return '';
+  if (value.startsWith('url:')) return value.substring(4);
+
+  return value;
+};
 
 const EditField = (props: EditFieldInterface) => {
   const {
@@ -46,6 +129,8 @@ const EditField = (props: EditFieldInterface) => {
     data,
     disabledKeys,
     allowMechanics = true,
+    allowCreate = false,
+    nonRemovableValues,
     getValue,
     saveValue,
     mechanics,
@@ -147,52 +232,10 @@ const EditField = (props: EditFieldInterface) => {
   }
 
   if (type === 'upload-input') {
-    const stripValue = (value?: string) => {
-      if (!value) return '';
-      if (value.startsWith('base64:') || value === 'loading') return '';
-      if (value.startsWith('url:')) return value.substring(4);
-
-      return value;
-    };
-
-    const getPlaceholder = (value?: string) => {
-      if (!value) return '';
-      if (value.startsWith('base64:')) return 'Use Uploaded Image';
-      if (value === 'loading') return 'Loading Image';
-
-      return '';
-    };
-
     return (
       <span>
         <p className={styles.label}>{name}</p>
-        <div className={styles.uploadWrapper}>
-          <Upload
-            beforeUpload={(file: File) => {
-              const reader = new FileReader();
-              reader.readAsDataURL(file);
-              reader.onload = () => {
-                if (typeof reader.result === 'string') {
-                  resizeImage(reader.result, image => {
-                    saveValue(fieldKey, `base64:${image}`);
-                  });
-                } else {
-                  saveValue(fieldKey, `base64:${reader.result}`);
-                }
-              };
-              // Prevent antd from actually uploading; we handle the file locally.
-              return false;
-            }}
-          >
-            <Button shape="circle" icon={<AntIcon type="upload" />} size="small" danger />
-          </Upload>
-          <Input
-            size="small"
-            placeholder={getPlaceholder(getValue(fieldKey))}
-            value={stripValue(getValue(fieldKey))}
-            onChange={e => saveValue(fieldKey, `url:${e.target.value}`)}
-          />
-        </div>
+        <UploadInput fieldKey={fieldKey} getValue={getValue} saveValue={saveValue} />
       </span>
     );
   }
@@ -276,12 +319,24 @@ const EditField = (props: EditFieldInterface) => {
         <p className={styles.label}>{name}</p>
         <Select
           size="small"
-          mode="multiple"
+          mode={allowCreate ? 'tags' : 'multiple'}
           allowClear
           value={getValue(fieldKey) || []}
           onChange={(keys: string[]) => saveValue(fieldKey, keys)}
           style={{ width: '100%' }}
-          placeholder="Select Colors"
+          placeholder={allowCreate ? 'Add Tags' : 'Select Colors'}
+          tagRender={
+            allowCreate
+              ? props => (
+                  <Tag
+                    closable={props.closable && !nonRemovableValues?.includes(String(props.value))}
+                    onClose={props.onClose}
+                  >
+                    {props.label}
+                  </Tag>
+                )
+              : undefined
+          }
           options={data.map(d => ({
             key: `${fieldKey} + ${d.key}`,
             value: d.key,

@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, render } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
 import BigCardRenderModal from './BigCardRenderModal';
@@ -75,6 +75,20 @@ describe('BigCardRenderModal Trainer Gallery holofoil', () => {
     expect(
       container.querySelectorAll(`.${holofoilStyles.shine}, .${holofoilStyles.glare}`),
     ).toHaveLength(2);
+  });
+
+  it('shows a heart on a favorited card model', () => {
+    render(
+      <BigCardRenderModal
+        card={{ ...card, favorite: true }}
+        visible
+        hide={() => {}}
+        collectionNumber={1}
+        collectionSize={1}
+      />,
+    );
+
+    expect(screen.getByRole('img', { name: 'Favorite card' })).toBeVisible();
   });
 
   it('moves the foil highlight with the pointer', () => {

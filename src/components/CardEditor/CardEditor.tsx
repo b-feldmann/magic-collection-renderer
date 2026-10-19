@@ -21,6 +21,8 @@ import {
 } from '../../interfaces/enums';
 import EditField from './EditField';
 import { MUTUALLY_EXCLUSIVE_CARD_TYPES, resolveExclusiveCardTypes } from '../../utils/cardTypes';
+import { getAutomaticCardTags, getCardTags, updateCardTags } from '../../utils/cardTags';
+import { createTag } from '../../actions/tagActions';
 
 import CardFaceInterface from '../../interfaces/CardFaceInterface';
 import { deleteCard, updateCard } from '../../actions/cardActions';
@@ -223,6 +225,8 @@ interface InputConfigInterface {
   disabledKeys?: string[];
   // Passed through to EditField; false omits the "Add Mechanic" select.
   allowMechanics?: boolean;
+  allowCreate?: boolean;
+  nonRemovableValues?: string[];
   width?: number;
 }
 
@@ -242,9 +246,10 @@ const CardEditor: React.FC<CardEditorInterface> = ({
 
   const [editBack, setEditBack] = useState<boolean>(false);
 
-  const { dispatch, user, mechanics, currentUser } = useContext<StoreType>(Store);
+  const { dispatch, user, mechanics, tags, currentUser } = useContext<StoreType>(Store);
 
   const canDeleteCard = currentUser.name === BJENNWARE || card.creator.uuid === currentUser.uuid;
+  const canFavoriteCard = card.uuid !== NO_CARD && card.creator.uuid === currentUser.uuid;
 
   const getCurrentFace = (currentCard: CardInterface): CardFaceInterface => {
     if (currentCard.back && editBack) return currentCard.back;
@@ -256,10 +261,12 @@ const CardEditor: React.FC<CardEditorInterface> = ({
     if (key === 'rarity' || key === 'manaCost') return tmpCard[key];
     if (key === 'comment') return tmpCard.meta[key];
     if (key === 'coverFit') return getCurrentFace(tmpCard).coverFit || CoverFit.Zoom;
+    if (key === 'tags') return getCardTags(tmpCard, mechanics);
     return getCurrentFace(tmpCard)[key];
   };
 
   const saveValue = (key: string, value: any) => {
+    const previousCard = cloneDeep(tmpCard);
     const newTmpCard = { ...tmpCard };
     if (key === 'name') {
       getCurrentFace(newTmpCard)[key] = value;
@@ -274,9 +281,14 @@ const CardEditor: React.FC<CardEditorInterface> = ({
       newTmpCard[key] = value;
     } else if (key === 'comment') {
       newTmpCard.meta[key] = value;
+    } else if (key === 'tags') {
+      newTmpCard.tags = value;
+      value.forEach((tag: string) => createTag(dispatch, tag));
     } else {
       getCurrentFace(newTmpCard)[key] = value;
     }
+
+    newTmpCard.tags = updateCardTags(previousCard, newTmpCard, mechanics);
 
     if (key === 'cardTypes') {
       const previousTypes: CardType[] = getCurrentFace(tmpCard).cardTypes || [];
@@ -407,6 +419,21 @@ const CardEditor: React.FC<CardEditorInterface> = ({
     });
   };
 
+  const toggleFavorite = () => {
+    const updatedCard = { ...tmpCard, favorite: !tmpCard.favorite };
+
+    // Persist immediately. Also cancel any pending debounced save so it cannot
+    // overwrite the favorite flag with an older snapshot of the card.
+    if (timerId.current) clearTimeout(timerId.current);
+    if (saveTimerId.current) clearTimeout(saveTimerId.current);
+    saveGenRef.current += 1;
+    setTmpCard(updatedCard);
+    setOriginalCard(cloneDeep(updatedCard));
+    setContentChanged(false);
+    saveTmpCard(null);
+    updateCard(dispatch, cloneDeep(updatedCard)).catch(() => {});
+  };
+
   useEffect(() => {
     if (
       isEqual(originalCard, tmpCard) &&
@@ -454,6 +481,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
   // of a mana cost (a Token that is also a Land keeps deriving colors from its
   // rules text).
   const isColoredToken = () => types().includes(CardType.Token) && !types().includes(CardType.Land);
+  const showColorIdentity = () => !tmpCard.manaCost && !isColoredToken();
 
   const hasStats = () => isCreature() || isPlaneswalker() || isVehicle() || isEvolution();
 
@@ -477,6 +505,18 @@ const CardEditor: React.FC<CardEditorInterface> = ({
     }))
     .sort((a, b) => a.value.localeCompare(b.value));
 
+  const tagOptions = [
+    ...new Set([
+      ...(tags || []),
+      ...(tmpCard.tags || []),
+      ...mechanics.map(mechanic => mechanic.name),
+    ]),
+  ]
+    .filter(Boolean)
+    .sort((a, b) => a.localeCompare(b))
+    .map(tag => ({ key: tag, value: tag }));
+  const automaticTags = getAutomaticCardTags(tmpCard, mechanics);
+
   let inputConfig: InputConfigInterface[] = [
     {
       key: 'artStyle',
@@ -493,6 +533,15 @@ const CardEditor: React.FC<CardEditorInterface> = ({
       width: 100,
     },
     { key: 'name', type: 'input', name: 'Card Name', width: hasNickname() ? 50 : 100 },
+    {
+      key: 'tags',
+      type: 'multi-select',
+      name: 'Tags',
+      data: tagOptions,
+      allowCreate: true,
+      nonRemovableValues: automaticTags,
+      width: 100,
+    },
     { key: 'nickname', type: 'input', name: 'Nickname', width: hasNickname() ? 50 : 0 },
     { key: 'cover', type: 'upload-input', name: 'Cover (URL)', width: 50 },
     {
@@ -540,6 +589,26 @@ const CardEditor: React.FC<CardEditorInterface> = ({
       // card render still shows it on the back face.
       width: editBack ? 0 : showManaCost() ? 50 : 100,
     },
+    ...(showColorIdentity()
+      ? [
+          {
+            key: 'colorIdentity',
+            type: 'multi-select' as const,
+            name: 'Color Identity',
+            data: [
+              ColorType.White,
+              ColorType.Blue,
+              ColorType.Black,
+              ColorType.Red,
+              ColorType.Green,
+            ].map(color => ({
+              key: color,
+              value: `${color.charAt(0).toUpperCase()}${color.slice(1)}`,
+            })),
+            width: 100,
+          },
+        ]
+      : []),
     {
       key: 'cardTypes',
       type: 'multi-select',
@@ -681,6 +750,11 @@ const CardEditor: React.FC<CardEditorInterface> = ({
       <Row>
         <div className={styles.fullField}>
           <Space.Compact className={styles.smallButtonGroup} size="small">
+            {canFavoriteCard && (
+              <Button onClick={toggleFavorite}>
+                {tmpCard.favorite ? 'Unmark as favorite' : 'Mark as favorite'}
+              </Button>
+            )}
             {card.back && editBack && (
               <Button onClick={() => setEditBack(false)}>
                 <span>Edit Front Face</span>
@@ -719,6 +793,8 @@ const CardEditor: React.FC<CardEditorInterface> = ({
                 disabledKeys={config.disabledKeys}
                 name={config.name}
                 allowMechanics={config.allowMechanics}
+                allowCreate={config.allowCreate}
+                nonRemovableValues={config.nonRemovableValues}
                 saveValue={saveValue}
                 getValue={getValue}
                 mechanics={mechanics}

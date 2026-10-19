@@ -27,6 +27,11 @@ export enum MechanicActionType {
   DeleteMechanic = 'delete-mechanic',
 }
 
+export enum TagActionType {
+  GetTags = 'get-tags',
+  CreateTag = 'create-tag',
+}
+
 export enum AnnotationActionType {
   GetAnnotations = 'get-annotations',
   CreateAnnotation = 'create-annotation',
@@ -43,6 +48,7 @@ export enum UserActionType {
 type State = {
   cards: CardInterface[];
   mechanics: MechanicInterface[];
+  tags: string[];
   annotationAccessor: AnnotationAccessorInterface;
   user: UserInterface[];
   newUuid?: string;
@@ -60,6 +66,8 @@ export type Action =
   | { type: MechanicActionType.CreateMechanic; payload: { mechanic: MechanicInterface } }
   | { type: MechanicActionType.UpdateMechanic; payload: { mechanic: MechanicInterface } }
   | { type: MechanicActionType.DeleteMechanic; payload: { uuid: string } }
+  | { type: TagActionType.GetTags; payload: { tags: string[] } }
+  | { type: TagActionType.CreateTag; payload: { tag: string } }
   | { type: AnnotationActionType.GetAnnotations; payload: { annotations: AnnotationInterface[] } }
   | { type: AnnotationActionType.CreateAnnotation; payload: { annotation: AnnotationInterface } }
   | { type: AnnotationActionType.UpdateAnnotation; payload: { annotation: AnnotationInterface } }
@@ -69,11 +77,11 @@ export type Action =
   | { type: UserActionType.SetCurrentUser; payload: { user: UserInterface } }
   | {
       type: ImageActionType.CreateImage;
-      payload: { base64: string; cardUuid: string; face: number };
+      payload: { base64: string; name?: string; cardUuid: string; face: number };
     }
   | {
       type: ImageActionType.ReadImage;
-      payload: { base64: string; cardUuid: string; face: number };
+      payload: { base64: string; name?: string; cardUuid: string; face: number };
     };
 
 const reducer: React.Reducer<State, Action> = (state, action) => {
@@ -145,6 +153,18 @@ const reducer: React.Reducer<State, Action> = (state, action) => {
       return {
         ...state,
         mechanics: [...state.mechanics.filter(mechanic => mechanic.uuid !== action.payload.uuid)],
+      };
+    case TagActionType.GetTags:
+      return {
+        ...state,
+        tags: action.payload.tags,
+      };
+    case TagActionType.CreateTag:
+      return {
+        ...state,
+        tags: state.tags.includes(action.payload.tag)
+          ? state.tags
+          : [...state.tags, action.payload.tag],
       };
     case AnnotationActionType.GetAnnotations:
       annotationAccessor = {};
@@ -231,7 +251,13 @@ const reducer: React.Reducer<State, Action> = (state, action) => {
       };
 
     case ImageActionType.ReadImage:
-    case ImageActionType.CreateImage:
+    case ImageActionType.CreateImage: {
+      // The persisted file name is kept with the cover value so the editor
+      // can show it after a reload (see utils/cover.ts).
+      const cover = action.payload.name
+        ? `base64:${action.payload.name}|${action.payload.base64}`
+        : `base64:${action.payload.base64}`;
+
       return {
         ...state,
         cards: state.cards.map(card => {
@@ -239,14 +265,15 @@ const reducer: React.Reducer<State, Action> = (state, action) => {
 
           const result: CardInterface = { ...card };
           if (action.payload.face === 1 && result.back) {
-            result.back.cover = `base64:${action.payload.base64}`;
+            result.back.cover = cover;
           } else {
-            result.front.cover = `base64:${action.payload.base64}`;
+            result.front.cover = cover;
           }
 
           return result;
         }),
       };
+    }
 
     default:
       return state;

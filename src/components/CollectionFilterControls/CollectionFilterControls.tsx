@@ -7,18 +7,21 @@ import CardInterface from '../../interfaces/CardInterface';
 import cardToColor from '../../utils/cardToColor';
 import { UNKNOWN_CREATOR } from '../../utils/constants';
 import Mana from '../Mana/Mana.tsx';
+import { getAvailableCardTags, getInitialTagFilterState } from '../../utils/cardTagFilter';
 
 export interface CollectionFilterInterface {
   colors: CheckBoxGroupInterface;
   rarity: CheckBoxGroupInterface;
   types: CheckBoxGroupInterface;
   creators: CheckBoxGroupInterface;
+  tags: CheckBoxGroupInterface;
 }
 
 interface CollectionFilterControlsInterface {
   setCollectionColSpan?: (span: number) => void;
   setCollectionFilter?: (filter: CollectionFilterInterface) => void;
   collection: CardInterface[];
+  availableTags?: string[];
   setNameFilter: (filter: string) => void;
 }
 
@@ -34,6 +37,7 @@ const CollectionFilterControls = ({
   setCollectionColSpan,
   setCollectionFilter,
   collection,
+  availableTags = [],
   setNameFilter,
 }: CollectionFilterControlsInterface) => {
   const createEnumInitState = (values: string[]): CheckBoxGroupInterface => {
@@ -54,6 +58,7 @@ const CollectionFilterControls = ({
     createEnumInitState(Object.values(RarityType)),
   );
   const [shownCreators, setShownCreators] = useState<CheckBoxGroupInterface>({});
+  const [shownTags, setShownTags] = useState<CheckBoxGroupInterface>({});
 
   const colorTypeToSymbol = (colorTypeString: string) => {
     switch (colorTypeString) {
@@ -135,6 +140,11 @@ const CollectionFilterControls = ({
     });
   }, [collection]);
 
+  const tagList = useMemo(
+    () => getAvailableCardTags(collection, availableTags),
+    [collection, availableTags],
+  );
+
   // Reconcile the creator checkbox state when the derived creator set changes
   // (e.g. switching tabs). Newly-seen creators default to checked.
   useEffect(() => {
@@ -147,6 +157,19 @@ const CollectionFilterControls = ({
     });
   }, [creatorList]);
 
+  // Tags are dynamic and scoped to the active-tab collection. Newly available
+  // tags default to checked, while tags absent from the tab stay hidden.
+  useEffect(() => {
+    setShownTags(prev => {
+      const next: CheckBoxGroupInterface = {};
+      Object.assign(next, getInitialTagFilterState(tagList.map(({ name }) => name)));
+      tagList.forEach(({ name }) => {
+        if (name in prev) next[name] = prev[name];
+      });
+      return next;
+    });
+  }, [tagList]);
+
   useEffect(() => {
     setCollectionFilter &&
       setCollectionFilter({
@@ -154,8 +177,9 @@ const CollectionFilterControls = ({
         rarity: shownRarities,
         types: shownCardTypes,
         creators: shownCreators,
+        tags: shownTags,
       });
-  }, [shownColors, shownRarities, shownCardTypes, shownCreators, setCollectionFilter]);
+  }, [shownColors, shownRarities, shownCardTypes, shownCreators, shownTags, setCollectionFilter]);
 
   const spanMarks = {
     0: 'Auto',
@@ -259,6 +283,18 @@ const CollectionFilterControls = ({
                   }
                 >
                   {`${uuid === UNKNOWN_CREATOR.uuid ? 'Unknown' : name} (${count})`}
+                </Checkbox>
+              ))}
+            </div>
+            <div className={styles.controlItem}>
+              <h4>Shown Tags</h4>
+              {tagList.map(({ name, count }) => (
+                <Checkbox
+                  key={`collection-filter-controls-checkbox-tag-${name}`}
+                  checked={shownTags[name] !== false}
+                  onChange={e => updateEnumState(name, e.target.checked, shownTags, setShownTags)}
+                >
+                  {`${name} (${count})`}
                 </Checkbox>
               ))}
             </div>

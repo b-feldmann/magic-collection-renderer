@@ -6,9 +6,10 @@ import { Mana } from '../Mana/Mana';
 
 import TextResize from '../TextResize/TextResize';
 
-import { CardType, CoverFit, RarityType } from '../../interfaces/enums';
+import { CardType, ColorType, CoverFit, RarityType } from '../../interfaces/enums';
 import { Store, StoreType } from '../../store';
 import { getColor } from '../../utils/cardToColor';
+import { resolveColorIdentity } from '../../utils/getLandColor';
 import { formatTypeLine } from '../../utils/cardTypes';
 import CardFaceInterface from '../../interfaces/CardFaceInterface';
 
@@ -38,6 +39,7 @@ interface InvocationCardRenderProps {
   cardTypes: CardType[];
   cardSubTypes?: string;
   cardText: string[];
+  colorIdentity?: ColorType[];
   cardStats?: string;
   flavourText?: string;
   flavourAuthor?: string;
@@ -69,7 +71,10 @@ const InvocationCardRender = (cardRender: InvocationCardRenderProps) => {
   const isCreature = cardTypes.includes(CardType.Creature);
   const isArtifact = cardTypes.includes(CardType.Artifact);
 
-  const { color, orderedCost } = getColor(manaCost);
+  const colorInfo = manaCost
+    ? getColor(manaCost)
+    : getColor('', resolveColorIdentity(cardText, cardRender.colorIdentity));
+  const { color, orderedCost } = colorInfo;
   const mainframe = getInvocationMainframe(color);
   const pt = getInvocationPt();
 
@@ -128,7 +133,7 @@ const InvocationCardRender = (cardRender: InvocationCardRenderProps) => {
                 {cardText.map((val, i) => (
                   <p
                     key={`card-text-${cardID}-${i}`}
-                    style={val.startsWith('--') ? { marginLeft: '0.5em' } : undefined}
+                    style={val.trimStart().startsWith('--') ? { marginLeft: '0.5em' } : undefined}
                   >
                     {injectForText(val, name, mechanics)}
                   </p>

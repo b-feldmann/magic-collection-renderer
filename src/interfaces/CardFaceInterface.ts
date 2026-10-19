@@ -31,6 +31,7 @@ export default interface CardFaceInterface {
   cover?: string;
   coverFit?: CoverFit;
   tokenColors?: ColorType[];
+  colorIdentity?: ColorType[];
   backFace?: boolean;
   // The spell half of an Adventure card (the small left box on the frame).
   adventureName?: string;

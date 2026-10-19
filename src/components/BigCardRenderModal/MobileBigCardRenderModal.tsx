@@ -7,6 +7,7 @@ import styles from './BigCardRenderModal.module.scss';
 import { NonMemoCardRender as CardRender } from '../TemplatingCardRender/index';
 import { CARD_WIDTH, CARD_HEIGHT } from '../../utils/constants';
 import TrainerGalleryHolofoil from './TrainerGalleryHolofoil';
+import FavoriteHeart from '../FavoriteHeart/FavoriteHeart';
 
 interface MobileBigCardRenderModalProps {
   card: CardInterface;
@@ -86,6 +87,7 @@ const MobileBigCardRenderModal = ({
               collectionNumber={collectionNumber}
               collectionSize={collectionSize}
             />
+            <FavoriteHeart favorite={card.favorite} />
           </TrainerGalleryHolofoil>
         ))}
       </div>

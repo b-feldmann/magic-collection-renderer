@@ -13,8 +13,18 @@ vi.mock('../utils/accessService', () => ({
   deleteAccessToken: vi.fn(),
 }));
 
+vi.mock('./tagActions', () => ({
+  createTag: vi.fn(),
+}));
+
+vi.mock('./cardActions', () => ({
+  updateCard: vi.fn(),
+}));
+
 import axios from 'axios';
-import { updateMechanic } from './mechanicActions';
+import { createMechanic, syncCardsWithMechanic, updateMechanic } from './mechanicActions';
+import { createTag } from './tagActions';
+import { updateCard } from './cardActions';
 import MechanicInterface from '../interfaces/MechanicInterface';
 
 const makeMechanic = (uuid: string): MechanicInterface => ({
@@ -26,6 +36,39 @@ const makeMechanic = (uuid: string): MechanicInterface => ({
 describe('updateMechanic', () => {
   beforeEach(() => {
     vi.mocked(axios.put).mockReset();
+    vi.mocked(axios.post).mockReset();
+    vi.mocked(createTag).mockReset();
+    vi.mocked(updateCard).mockReset().mockResolvedValue({});
+  });
+
+  it('creates a tag when updating a mechanic with a non-empty name', async () => {
+    const mechanic = makeMechanic('uuid-1');
+    vi.mocked(axios.put).mockResolvedValue({ data: { mechanic } });
+
+    updateMechanic(() => {}, mechanic);
+    await Promise.resolve();
+
+    expect(createTag).toHaveBeenCalledWith(expect.any(Function), 'Test');
+  });
+
+  it('creates a tag when creating a mechanic with a non-empty returned name', async () => {
+    const mechanic = makeMechanic('uuid-1');
+    vi.mocked(axios.post).mockResolvedValue({ data: { mechanic } });
+
+    createMechanic(() => {});
+    await Promise.resolve();
+
+    expect(createTag).toHaveBeenCalledWith(expect.any(Function), 'Test');
+  });
+
+  it('does not create a tag for an empty mechanic name', async () => {
+    const mechanic = { ...makeMechanic('uuid-1'), name: '' };
+    vi.mocked(axios.put).mockResolvedValue({ data: { mechanic } });
+
+    updateMechanic(() => {}, mechanic);
+    await Promise.resolve();
+
+    expect(createTag).not.toHaveBeenCalled();
   });
 
   it('does not send the Mongo-internal _id field in the update payload', async () => {
@@ -52,5 +95,20 @@ describe('updateMechanic', () => {
     // ...but the immutable Mongo fields must be stripped.
     expect(body.mechanic._id).toBeUndefined();
     expect(body.mechanic.__v).toBeUndefined();
+  });
+
+  it('updates cards that use a newly available mechanic', () => {
+    const card = {
+      uuid: 'card-1',
+      tags: [],
+      front: { name: 'Card', cardTypes: [], cardText: ['[Test]'] },
+    } as never;
+
+    syncCardsWithMechanic(() => {}, [card], makeMechanic('uuid-1'));
+
+    expect(updateCard).toHaveBeenCalledWith(
+      expect.any(Function),
+      expect.objectContaining({ uuid: 'card-1', tags: ['Test'] }),
+    );
   });
 });

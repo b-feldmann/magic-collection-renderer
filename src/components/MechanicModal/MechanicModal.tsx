@@ -20,16 +20,16 @@ const MechanicModal = ({
   visible: boolean;
   setVisible: (key: boolean) => void;
 }) => {
-  const { mechanics, dispatch } = useContext<StoreType>(Store);
+  const { mechanics, cards, dispatch } = useContext<StoreType>(Store);
 
   const handleNameChange = (name: string, record: RecordProps) => {
     const { key, ...rest } = record;
-    updateMechanic(dispatch, { ...rest, name });
+    updateMechanic(dispatch, { ...rest, name }, cards);
   };
 
   const handleDescriptionChange = (description: string, record: RecordProps) => {
     const { key, ...rest } = record;
-    updateMechanic(dispatch, { ...rest, description });
+    updateMechanic(dispatch, { ...rest, description }, cards);
   };
 
   const sortedMechanics: RecordProps[] = sortBy(mechanics, [o => o.uuid]).map(mechanic => ({
@@ -71,7 +71,11 @@ const MechanicModal = ({
           )}
         />
       </Table>
-      <Button style={{ width: '100%' }} type="primary" onClick={() => createMechanic(dispatch)}>
+      <Button
+        style={{ width: '100%' }}
+        type="primary"
+        onClick={() => createMechanic(dispatch, cards)}
+      >
         Add Mechanic
       </Button>
     </Modal>

@@ -1,6 +1,10 @@
 import { BasicLandType, CardType, ColorType } from '../interfaces/enums';
 import CardFaceInterface from '../interfaces/CardFaceInterface';
-import getLandColor, { getHybridColors, getSingleColor } from './getLandColor';
+import getLandColor, {
+  getHybridColors,
+  getSingleColor,
+  resolveColorIdentity,
+} from './getLandColor';
 
 // Re-exported for backwards compatibility: a land's colour identity is derived
 // from its mana cost and rules text. See ./getLandColor.
@@ -23,6 +27,12 @@ const colorToColorHex = (color: ColorType): string => {
     default:
       return '#d9d7da';
   }
+};
+
+const identityToCardColor = (identity: ColorType[]) => {
+  if (identity.length === 1) return { color: identity[0], allColors: identity };
+  if (identity.length >= 2) return { color: ColorType.Gold, allColors: identity };
+  return { color: ColorType.Colorless, allColors: [ColorType.Colorless] };
 };
 
 interface ColorDictInterface {
@@ -191,13 +201,13 @@ const cardToColor = (
   // Lands usually have no mana cost, so their colour identity is derived from
   // the mana symbols in their rules text instead.
   if (types.includes(CardType.Land)) {
-    const identity = getLandColor(cardText);
-    if (identity.length === 1) return { color: identity[0], allColors: identity };
-    if (identity.length >= 2) return { color: ColorType.Gold, allColors: identity };
-    return { color: ColorType.Colorless, allColors: [ColorType.Colorless] };
+    const identity = resolveColorIdentity(cardText, !manaCost ? face.colorIdentity : undefined);
+    return identityToCardColor(identity);
   }
 
-  if (!manaCost) return { color: ColorType.Colorless, allColors: [ColorType.Colorless] };
+  if (!manaCost) {
+    return identityToCardColor(resolveColorIdentity(cardText, face.colorIdentity));
+  }
 
   const setColor = (type: ColorType) => {
     if (color === type) return;

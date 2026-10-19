@@ -10,6 +10,7 @@ import Cell, { CellData } from './Cell';
 import styles from './styles.module.scss';
 import { getImage } from '../../actions/imageActions';
 import { Store, StoreType } from '../../store';
+import { isLoadingCover } from '../../utils/cover';
 import { CARD_WIDTH, CARD_HEIGHT } from '../../utils/constants';
 
 export interface CardCollectionInterface {
@@ -116,13 +117,13 @@ const CardCollection = ({
               ) {
                 if (data.cards[i]) {
                   const frontCover = data.cards[i].front.cover;
-                  if (frontCover && frontCover === 'loading') {
+                  if (isLoadingCover(frontCover)) {
                     getImage(dispatch, data.cards[i], 0);
                   }
                   const { back } = data.cards[i];
                   if (back) {
                     const backCover = back.cover;
-                    if (backCover && backCover === 'loading') {
+                    if (isLoadingCover(backCover)) {
                       getImage(dispatch, data.cards[i], 1);
                     }
                   }

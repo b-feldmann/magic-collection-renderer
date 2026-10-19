@@ -122,4 +122,23 @@ const getLandColor = (cardText: string[] = []): ColorType[] => {
   return allColors;
 };
 
+/**
+ * Resolves a card's identity from an optional explicit selection, falling back
+ * to the colors represented in its rules text when no colors are selected.
+ */
+export const resolveColorIdentity = (
+  cardText: string[] = [],
+  override?: ColorType[],
+): ColorType[] => {
+  const identityColors = [
+    ColorType.White,
+    ColorType.Blue,
+    ColorType.Black,
+    ColorType.Red,
+    ColorType.Green,
+  ];
+  const selected = [...new Set((override ?? []).filter(color => identityColors.includes(color)))];
+  return selected.length > 0 ? selected : getLandColor(cardText);
+};
+
 export default getLandColor;

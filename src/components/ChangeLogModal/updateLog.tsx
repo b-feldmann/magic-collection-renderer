@@ -478,6 +478,38 @@ updateLog.push({
   ],
 });
 
+updateLog.push({
+  version: '3.2.0',
+  title: 'Usability Update',
+  content: [
+    {
+      type: ChangeLogFeatureType.Added,
+      feature: 'You can favorite cards you created yourself',
+    },
+    {
+      type: ChangeLogFeatureType.Added,
+      feature: 'Card Text design',
+      description: 'You can create bullet points if you start a line with * or -',
+    },
+    {
+      type: ChangeLogFeatureType.Added,
+      feature: 'Tagging System',
+      description:
+        'You can now give cards a custom tag. Cards automatically have a tag if use a mechanic. You can sort cards by their tags in the collection.',
+    },
+    {
+      type: ChangeLogFeatureType.Changed,
+      feature: 'Color Identity on cards without cost',
+      description:
+        'If no mana cost is set the color identity is derived from the card test. You can overwrite the color identity of cards without mana cost.',
+    },
+    {
+      type: ChangeLogFeatureType.Fixed,
+      feature: 'Uploading and deletion of custom images',
+    },
+  ],
+});
+
 //
 // updateLog.push({
 //   version: '1.1.3',

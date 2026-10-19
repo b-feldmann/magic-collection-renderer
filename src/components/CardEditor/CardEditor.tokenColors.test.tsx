@@ -124,3 +124,55 @@ describe('CardEditor - token colors', () => {
     expect(saved?.front.tokenColors).toEqual([ColorType.White]);
   });
 });
+
+describe('CardEditor - color identity override', () => {
+  const makeNoCostCard = (manaCost = ''): CardInterface => ({
+    ...makeCard([CardType.Creature]),
+    manaCost,
+  });
+
+  it('shows the Color Identity multi-select for a no-cost card', () => {
+    render(
+      <Store.Provider value={mockStoreValue}>
+        <CardEditor card={makeNoCostCard()} saveTmpCard={() => {}} />
+      </Store.Provider>,
+    );
+
+    expect(screen.getByText('Color Identity')).toBeVisible();
+  });
+
+  it('hides the Color Identity multi-select when the card has a mana cost', () => {
+    render(
+      <Store.Provider value={mockStoreValue}>
+        <CardEditor card={makeNoCostCard('{2}{U}')} saveTmpCard={() => {}} />
+      </Store.Provider>,
+    );
+
+    expect(screen.queryByText('Color Identity')).not.toBeInTheDocument();
+  });
+
+  it('saves selected identity colors to the card face', async () => {
+    const saveTmpCard = vi.fn();
+    render(
+      <Store.Provider value={mockStoreValue}>
+        <CardEditor card={makeNoCostCard()} saveTmpCard={saveTmpCard} />
+      </Store.Provider>,
+    );
+
+    const label = screen.getByText('Color Identity');
+    const field = label.parentElement!.parentElement!;
+    fireEvent.mouseDown(field.querySelector('.ant-select') as HTMLElement);
+
+    await waitFor(() => {
+      expect(document.querySelectorAll('[role="option"]').length).toBeGreaterThan(0);
+    });
+    fireEvent.click(screen.getByText('Blue'));
+    await new Promise(resolve => setTimeout(resolve, 700));
+
+    const saved = saveTmpCard.mock.calls
+      .map(call => call[0])
+      .reverse()
+      .find(c => c?.front?.colorIdentity);
+    expect(saved?.front.colorIdentity).toEqual([ColorType.Blue]);
+  });
+});

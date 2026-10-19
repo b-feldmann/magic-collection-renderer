@@ -19,6 +19,7 @@ import { EMPTY_CARD, refreshCollection } from './actions/cardActions';
 
 import { hasAccessToken, updateAccessToken } from './utils/accessService';
 import { getMechanics } from './actions/mechanicActions';
+import { getTags } from './actions/tagActions';
 import ChangeLogModal from './components/ChangeLogModal/ChangeLogModal';
 import BigCardRenderModal from './components/BigCardRenderModal/BigCardRenderModal';
 import { getAnnotations } from './actions/annotationActions';
@@ -141,6 +142,7 @@ const MobileApp: React.FC = () => {
   const refresh = () => {
     refreshCollection(dispatch);
     getMechanics(dispatch);
+    getTags(dispatch);
     getAnnotations(dispatch);
     getUser(dispatch);
   };

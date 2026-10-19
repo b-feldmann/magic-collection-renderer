@@ -5,7 +5,7 @@ import '@testing-library/jest-dom/vitest';
 
 import TemplatingCardRender from './TemplatingCardRender';
 import { Store, StoreType } from '../../store';
-import { CardType, RarityType } from '../../interfaces/enums';
+import { CardType, ColorType, RarityType } from '../../interfaces/enums';
 import { UNKNOWN_CREATOR } from '../../utils/constants';
 
 // jsdom polyfills required by TextResize.
@@ -28,17 +28,23 @@ const mockStoreValue: StoreType = {
   dispatch: () => {},
 };
 
-const renderCard = (cardTypes: CardType[], cardText: string[]) =>
+const renderCard = (
+  cardTypes: CardType[],
+  cardText: string[],
+  manaCost = '',
+  colorIdentity?: ColorType[],
+) =>
   render(
     <Store.Provider value={mockStoreValue}>
       <TemplatingCardRender
         name="Test Land"
         rarity={RarityType.Common}
         cardID="test-land"
-        manaCost=""
+        manaCost={manaCost}
         cardTypes={cardTypes}
         cardSubTypes=""
         cardText={cardText}
+        colorIdentity={colorIdentity}
         collectionNumber={1}
         collectionSize={10}
       />
@@ -77,6 +83,59 @@ describe('TemplatingCardRender - land pinlines (colors from card text)', () => {
     renderLand(['{T}: Add {C}.']);
 
     expect(getPinlineImage()).toBeUndefined();
+  });
+});
+
+describe('TemplatingCardRender - no-cost card identity', () => {
+  it('uses the rules-text color for a card without a mana cost', () => {
+    const fromText = renderCard([CardType.Creature], ['This spell costs {G} less to cast.']);
+    const textFrame = Array.from(fromText.container.querySelectorAll('img')).find(img =>
+      img.className.includes('mainframe'),
+    );
+    const textFrameSource = textFrame?.getAttribute('src');
+    fromText.unmount();
+
+    const fromCost = renderCard([CardType.Creature], [], '{G}');
+    const costFrame = Array.from(fromCost.container.querySelectorAll('img')).find(img =>
+      img.className.includes('mainframe'),
+    );
+
+    expect(textFrameSource).toBeTruthy();
+    expect(costFrame?.getAttribute('src')).toBe(textFrameSource);
+  });
+
+  it('renders a configured identity when there is no mana cost', () => {
+    const fromIdentity = renderCard([CardType.Creature], ['{G}'], '', [ColorType.Blue]);
+    const identityFrame = Array.from(fromIdentity.container.querySelectorAll('img')).find(img =>
+      img.className.includes('mainframe'),
+    );
+    const identityFrameSource = identityFrame?.getAttribute('src');
+    fromIdentity.unmount();
+
+    const fromCost = renderCard([CardType.Creature], [], '{U}');
+    const costFrame = Array.from(fromCost.container.querySelectorAll('img')).find(img =>
+      img.className.includes('mainframe'),
+    );
+
+    expect(identityFrameSource).toBeTruthy();
+    expect(costFrame?.getAttribute('src')).toBe(identityFrameSource);
+  });
+
+  it('ignores a configured identity when rendering a card with a mana cost', () => {
+    const fromIdentity = renderCard([CardType.Creature], [], '{U}', [ColorType.Green]);
+    const identityFrame = Array.from(fromIdentity.container.querySelectorAll('img')).find(img =>
+      img.className.includes('mainframe'),
+    );
+    const identityFrameSource = identityFrame?.getAttribute('src');
+    fromIdentity.unmount();
+
+    const fromCost = renderCard([CardType.Creature], [], '{U}');
+    const costFrame = Array.from(fromCost.container.querySelectorAll('img')).find(img =>
+      img.className.includes('mainframe'),
+    );
+
+    expect(identityFrameSource).toBeTruthy();
+    expect(costFrame?.getAttribute('src')).toBe(identityFrameSource);
   });
 });
 

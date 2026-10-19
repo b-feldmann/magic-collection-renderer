@@ -25,6 +25,7 @@ import { createCard, EMPTY_CARD, refreshCollection } from './actions/cardActions
 
 import { hasAccessToken, updateAccessToken } from './utils/accessService';
 import { getMechanics } from './actions/mechanicActions';
+import { getTags } from './actions/tagActions';
 import MechanicModal from './components/MechanicModal/MechanicModal';
 import useLocalStorage from './utils/useLocalStorageHook';
 import ChangeLogModal from './components/ChangeLogModal/ChangeLogModal';
@@ -38,6 +39,7 @@ import {
   shouldShowUserSelect,
 } from './actions/userActions';
 import { UNKNOWN_CREATOR } from './utils/constants';
+import { matchesSelectedTags } from './utils/cardTagFilter';
 
 const { Search } = Input;
 const { confirm } = Modal;
@@ -65,6 +67,14 @@ const CARD_TABS: { name: string; filter: (o: CardInterface) => boolean }[] = [
 const tabKey = (name: string) => `tab-key-${name}`;
 const DEFAULT_TAB_KEY = tabKey('Card Drafts / Idea Dump');
 
+export const openMechanicEditor = (
+  closeCardModal: (visible: boolean) => void,
+  openMechanicModal: (visible: boolean) => void,
+) => {
+  closeCardModal(false);
+  openMechanicModal(true);
+};
+
 // Guard so the initial data fetch runs once per app load, not again under
 // StrictMode's dev double-mount or on remount.
 let didInit = false;
@@ -90,13 +100,14 @@ const App: React.FC = () => {
     rarity: {},
     types: {},
     creators: {},
+    tags: {},
   });
 
   const [colSpanSetting, setColSpanSetting] = useState<number>(-1);
 
   const [activeTabKey, setActiveTabKey] = useState<string>(DEFAULT_TAB_KEY);
 
-  const { cards, newUuid, dispatch, annotationAccessor, user, currentUser } =
+  const { cards, newUuid, dispatch, annotationAccessor, user, currentUser, tags } =
     useContext<StoreType>(Store);
 
   // Captured once at mount: avoids flashing the user chooser while the stored
@@ -143,7 +154,11 @@ const App: React.FC = () => {
           collectionFilter.colors[cardToColor(o.front, o.manaCost).color] &&
           collectionFilter.rarity[o.rarity] &&
           o.front.cardTypes.some(t => collectionFilter.types[t]) &&
-          collectionFilter.creators[o.creator.uuid] !== false,
+          collectionFilter.creators[o.creator.uuid] !== false &&
+          matchesSelectedTags(
+            o.tags || [],
+            Object.keys(collectionFilter.tags).filter(tag => collectionFilter.tags[tag]),
+          ),
       ),
     [mergedCollection, sortList, deferredNameFilter, collectionFilter],
   );
@@ -172,6 +187,7 @@ const App: React.FC = () => {
   const refresh = () => {
     refreshCollection(dispatch);
     getMechanics(dispatch);
+    getTags(dispatch);
     getAnnotations(dispatch);
     getUser(dispatch);
   };
@@ -370,13 +386,14 @@ const App: React.FC = () => {
                 collection={tabCollection}
                 setCollectionColSpan={setColSpanSetting}
                 setCollectionFilter={setCollectionFilter}
+                availableTags={tags || []}
                 setNameFilter={setCardNameFilter}
               />
             </div>
             <div className={styles.desktopControls}>
               <Button
                 icon={<AntIcon type="edit" />}
-                onClick={() => setMechanicsVisible(true)}
+                onClick={() => openMechanicEditor(setShowCardModal, setMechanicsVisible)}
                 style={{ width: '100%' }}
                 type="primary"
               >

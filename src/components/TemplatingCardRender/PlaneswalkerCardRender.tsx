@@ -10,11 +10,13 @@ import {
   BasicLandArtStyles,
   CardArtStyles,
   CardType,
+  ColorType,
   CoverFit,
   RarityType,
 } from '../../interfaces/enums';
 import { Store, StoreType } from '../../store';
 import { getColor } from '../../utils/cardToColor';
+import { resolveColorIdentity } from '../../utils/getLandColor';
 import { formatTypeLine } from '../../utils/cardTypes';
 import CardFaceInterface from '../../interfaces/CardFaceInterface';
 
@@ -50,6 +52,7 @@ interface PlaneswalkerCardRenderProps {
   cardTypes: CardType[];
   cardSubTypes?: string;
   cardText: string[];
+  colorIdentity?: ColorType[];
   cardStats?: string;
   flavourText?: string;
   flavourAuthor?: string;
@@ -123,7 +126,10 @@ const PlaneswalkerCardRender = (cardRender: PlaneswalkerCardRenderProps) => {
 
   const lineLayouts = getAbilityLineLayouts(lineCount, isTall);
 
-  const { color, allColors, orderedCost } = getColor(manaCost);
+  const colorInfo = manaCost
+    ? getColor(manaCost)
+    : getColor('', resolveColorIdentity(cardText, cardRender.colorIdentity));
+  const { color, allColors, orderedCost } = colorInfo;
   const mainframe = getPlaneswalkerMainframe(color, isTall, isBorderless);
   const pinline = getPlaneswalkerPinline(allColors, isTall, isBorderless);
   const nicknamePlate = isNickname ? getPlaneswalkerNicknamePlate(color, allColors) : '';
@@ -243,7 +249,7 @@ const PlaneswalkerCardRender = (cardRender: PlaneswalkerCardRenderProps) => {
                     >
                       <div
                         style={
-                          text.startsWith('--')
+                          text.trimStart().startsWith('--')
                             ? { paddingLeft: '0.5em', boxSizing: 'border-box' }
                             : undefined
                         }

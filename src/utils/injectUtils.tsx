@@ -4,9 +4,12 @@ import { Mana } from '../components/Mana/Mana';
 import MechanicInterface from '../interfaces/MechanicInterface';
 
 export const injectForText = (line: string, cardName: string, mechanics: MechanicInterface[]) => {
+  const bulletPrefix = line.match(/^\s*(?:\*|-(?!-))\s*/);
+  const text = bulletPrefix ? `• ${line.slice(bulletPrefix[0].length)}` : line;
+
   return injectQuotationMarks(
     injectManaIcons(
-      injectName(injectMechanics(injectLongDash(line), mechanics, cardName), cardName),
+      injectName(injectMechanics(injectLongDash(text), mechanics, cardName), cardName),
     ),
   );
 };

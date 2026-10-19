@@ -42,4 +42,27 @@ describe('injectUtils', () => {
     expect(markup).toContain('—');
     expect(markup).not.toContain('--');
   });
+
+  it('renders leading asterisk and hyphen markers as bullets, allowing leading whitespace', () => {
+    const markup = renderToStaticMarkup(
+      <div>
+        <p>{injectForText('* First item', 'Test', [])}</p>
+        <p>{injectForText('  - Second item', 'Test', [])}</p>
+      </div>,
+    );
+
+    expect(markup).toContain('<p>• First item</p>');
+    expect(markup).toContain('<p>• Second item</p>');
+    expect(markup).not.toContain('* First item');
+    expect(markup).not.toContain('- Second item');
+  });
+
+  it('keeps the existing double-hyphen em dash convention', () => {
+    const markup = renderToStaticMarkup(
+      <p>{injectForText('--Indented paragraph.', 'Test', [])}</p>,
+    );
+
+    expect(markup).toContain('—Indented paragraph.');
+    expect(markup).not.toContain('•');
+  });
 });

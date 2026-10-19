@@ -67,6 +67,44 @@ describe('cardToColor - tokenColors override', () => {
     expect(result.allColors).toEqual([ColorType.Blue]);
   });
 
+  it('derives a no-cost card identity from colored mana symbols in its rules text', () => {
+    const result = cardToColor(
+      face({ cardTypes: [CardType.Creature], cardText: ['This spell costs {G} less to cast.'] }),
+      '',
+    );
+
+    expect(result.color).toBe(ColorType.Green);
+    expect(result.allColors).toEqual([ColorType.Green]);
+  });
+
+  it('uses an explicit color identity for a no-cost card instead of its rules text', () => {
+    const result = cardToColor(
+      face({
+        cardTypes: [CardType.Creature],
+        cardText: ['This spell costs {G} less to cast.'],
+        colorIdentity: [ColorType.Blue, ColorType.Black],
+      }),
+      '',
+    );
+
+    expect(result.color).toBe(ColorType.Gold);
+    expect(result.allColors).toEqual([ColorType.Blue, ColorType.Black]);
+  });
+
+  it('ignores the configured color identity when a mana cost exists', () => {
+    const result = cardToColor(
+      face({
+        cardTypes: [CardType.Creature],
+        cardText: ['This spell costs {R} less to cast.'],
+        colorIdentity: [ColorType.Green],
+      }),
+      '{2}{U}',
+    );
+
+    expect(result.color).toBe(ColorType.Blue);
+    expect(result.allColors).toEqual([ColorType.Blue]);
+  });
+
   it('lands still derive colors from rules text', () => {
     const result = cardToColor(
       face({ cardTypes: [CardType.Land], cardText: ['{T}: Add {W}.'] }),

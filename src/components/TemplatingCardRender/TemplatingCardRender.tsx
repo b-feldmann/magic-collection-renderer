@@ -71,6 +71,7 @@ import {
   getColorFrame,
 } from './assetLoader';
 import { injectForText, injectManaIcons } from '../../utils/injectUtils';
+import { getCoverImageSrc } from '../../utils/cover';
 import ImageLoader from '../ImageLoader/ImageLoader';
 import getCoverFitClass from './getCoverFitClass';
 import BasicLandCardRender from './BasicLandCardRender';
@@ -80,7 +81,7 @@ import parseStats from '../../utils/parseStats';
 import parseCollectionNumber from '../../utils/parseCollectionNumber';
 import PlaneswalkerCardRender from './PlaneswalkerCardRender';
 import FlavourText from './FlavourText';
-import getLandColor from '../../utils/getLandColor.ts';
+import getLandColor, { resolveColorIdentity } from '../../utils/getLandColor.ts';
 
 interface TemplatingCardRenderProps {
   artStyle?: BasicLandArtStyles | CardArtStyles;
@@ -104,6 +105,7 @@ interface TemplatingCardRenderProps {
   level1Stats?: string;
   level2Stats?: string;
   tokenColors?: ColorType[];
+  colorIdentity?: ColorType[];
   flavourText?: string;
   // The spell half of an Adventure card (rendered into the left box).
   adventureName?: string;
@@ -182,14 +184,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
     return () => observer.disconnect();
   }, [manaCost, backFace, cardTypes]);
 
-  const stripCoverValue = (value?: string) => {
-    if (!value) return '';
-    if (value === 'loading') return '';
-    if (value.startsWith('url:')) return value.substring(4);
-    if (value.startsWith('base64:')) return value.substring(7);
-
-    return value;
-  };
+  const stripCoverValue = (value?: string) => getCoverImageSrc(value);
 
   const parsedCover = stripCoverValue(cover);
   const isLand = cardTypes.includes(CardType.Land);
@@ -262,8 +257,16 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
   // Tokens take their colors from the explicit tokenColors selection; a token
   // without a selection is colorless. The mana cost is never used for tokens.
   const tokenFaceColors = isToken ? cardRenderProps.tokenColors : undefined;
-  let { color } = getColor(isToken ? '' : manaCost, tokenFaceColors);
-  const { allColors, orderedCost, hexColor } = getColor(isToken ? '' : manaCost, tokenFaceColors);
+  const manaColor = getColor(isToken ? '' : manaCost, tokenFaceColors);
+  const textIdentityColors =
+    !manaCost && (!isToken || isLand)
+      ? resolveColorIdentity(cardText, cardRenderProps.colorIdentity)
+      : undefined;
+  const textColor = textIdentityColors ? getColor('', textIdentityColors) : undefined;
+  let color = textColor?.color ?? manaColor.color;
+  const allColors = textColor?.allColors ?? manaColor.allColors;
+  const orderedCost = manaColor.orderedCost;
+  const hexColor = textColor?.hexColor ?? manaColor.hexColor;
   // The adventure's left rules box belongs to the adventure spell, so its color
   // derives from the adventureCost when set; the pinline (which spans the whole
   // frame), right box, and mainframe keep using the card's own manaCost.
@@ -279,7 +282,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
   const prepareColors = isPrepared && prepareCost ? getColor(prepareCost).allColors : undefined;
   let landColors: ColorType[] = [];
   if (isLand) {
-    landColors = getLandColor(cardText);
+    landColors = textColor?.allColors ?? getLandColor(cardText);
     if (landColors.length === 0) {
       color = ColorType.Colorless;
     } else if (landColors.length === 1) {
@@ -543,7 +546,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
                   {adventureText.map((val, i) => (
                     <p
                       key={`adventure-text-${cardID}-${i}`}
-                      style={val.startsWith('--') ? { marginLeft: '0.5em' } : undefined}
+                      style={val.trimStart().startsWith('--') ? { marginLeft: '0.5em' } : undefined}
                     >
                       {injectForText(val, name, mechanics)}
                     </p>
@@ -579,7 +582,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
                   {omenText.map((val, i) => (
                     <p
                       key={`omen-text-${cardID}-${i}`}
-                      style={val.startsWith('--') ? { marginLeft: '0.5em' } : undefined}
+                      style={val.trimStart().startsWith('--') ? { marginLeft: '0.5em' } : undefined}
                     >
                       {injectForText(val, name, mechanics)}
                     </p>
@@ -619,7 +622,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
                   {prepareText.map((val, i) => (
                     <p
                       key={`prepare-text-${cardID}-${i}`}
-                      style={val.startsWith('--') ? { marginLeft: '0.5em' } : undefined}
+                      style={val.trimStart().startsWith('--') ? { marginLeft: '0.5em' } : undefined}
                     >
                       {injectForText(val, name, mechanics)}
                     </p>
@@ -682,7 +685,9 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
                       {level1Text.map((val, i) => (
                         <p
                           key={`level-1-text-${cardID}-${i}`}
-                          style={val.startsWith('--') ? { marginLeft: '0.5em' } : undefined}
+                          style={
+                            val.trimStart().startsWith('--') ? { marginLeft: '0.5em' } : undefined
+                          }
                         >
                           {injectForText(val, name, mechanics)}
                         </p>
@@ -712,7 +717,9 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
                       {level2Text.map((val, i) => (
                         <p
                           key={`level-2-text-${cardID}-${i}`}
-                          style={val.startsWith('--') ? { marginLeft: '0.5em' } : undefined}
+                          style={
+                            val.trimStart().startsWith('--') ? { marginLeft: '0.5em' } : undefined
+                          }
                         >
                           {injectForText(val, name, mechanics)}
                         </p>
@@ -767,7 +774,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
                 {cardText.map((val, i) => (
                   <p
                     key={`card-text-${cardID}-${i}`}
-                    style={val.startsWith('--') ? { marginLeft: '0.5em' } : undefined}
+                    style={val.trimStart().startsWith('--') ? { marginLeft: '0.5em' } : undefined}
                   >
                     {injectForText(val, name, mechanics)}
                   </p>

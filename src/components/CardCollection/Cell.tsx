@@ -8,6 +8,7 @@ import CardRender from '../TemplatingCardRender/index';
 import GlowingStar from '../GlowingStar/index';
 import CardInterface from '../../interfaces/CardInterface';
 import CardFaceInterface from '../../interfaces/CardFaceInterface';
+import FavoriteHeart from '../FavoriteHeart/FavoriteHeart';
 
 export interface CellData {
   columnCount: number;
@@ -100,6 +101,7 @@ const Cell = ({
           />
         </ActionHover>
       </Spin>
+      <FavoriteHeart favorite={card.favorite} />
       {card.back && (
         <Button
           icon={<AntIcon type="swap" />}

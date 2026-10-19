@@ -12,6 +12,12 @@ import { UNKNOWN_CREATOR } from '../utils/constants';
 import UserInterface from '../interfaces/UserInterface';
 import { createImage, getImage } from './imageActions';
 import { staticAntd } from '../utils/staticAntd';
+import {
+  getCoverFileName,
+  getCoverImageData,
+  isLoadingCover,
+  toLoadingCover,
+} from '../utils/cover';
 
 const MIDDLEWARE_ENDPOINT = import.meta.env.PROD ? '' : 'http://localhost:8080';
 
@@ -25,6 +31,8 @@ export const EMPTY_CARD = (): CardInterface => ({
   },
   manaCost: '',
   rarity: RarityType.Common,
+  favorite: false,
+  tags: [],
   creator: UNKNOWN_CREATOR,
   meta: {
     comment: '',
@@ -112,8 +120,11 @@ export const updateCard = (
     parsed.back = { ...parsed.back, cardMainType: deriveLegacyMainType(parsed.back) };
   }
   if (updated.front.cover && updated.front.cover.startsWith('base64:')) {
-    createImage(dispatch, updated.front.cover.substring(7), updated, 0);
-    parsed.front.cover = 'loading';
+    const name = getCoverFileName(updated.front.cover);
+    createImage(dispatch, getCoverImageData(updated.front.cover), name, updated, 0);
+    // The image data lives in the images collection; the file name rides
+    // along on the cover so the editor can show it after a reload.
+    parsed.front.cover = toLoadingCover(name);
   }
   if (
     updated.back &&
@@ -121,26 +132,20 @@ export const updateCard = (
     updated.back.cover &&
     updated.back.cover.startsWith('base64:')
   ) {
-    createImage(dispatch, updated.back.cover.substring(7), updated, 1);
-    parsed.back.cover = 'loading';
+    const name = getCoverFileName(updated.back.cover);
+    createImage(dispatch, getCoverImageData(updated.back.cover), name, updated, 1);
+    parsed.back.cover = toLoadingCover(name);
   }
 
   return axios
     .put(request, { card: parsed, accessKey: getAccessToken() })
     .then(result => {
-      if (
-        result.data.card.front.cover &&
-        (result.data.card.front.cover === 'loading' ||
-          result.data.card.front.cover.startsWith('base64:'))
-      ) {
+      // `loading`/`loading:<name>` covers point at the images collection.
+      if (isLoadingCover(result.data.card.front.cover)) {
         getImage(dispatch, result.data.card, 0);
       }
       if (result.data.card.back) {
-        if (
-          result.data.card.back.cover &&
-          (result.data.card.back.cover === 'loading' ||
-            result.data.card.back.cover.startsWith('base64:'))
-        ) {
+        if (isLoadingCover(result.data.card.back.cover)) {
           getImage(dispatch, result.data.card, 1);
         }
       }
