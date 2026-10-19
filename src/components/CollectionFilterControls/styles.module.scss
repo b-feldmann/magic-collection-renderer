@@ -25,3 +25,20 @@
   display: flex;
   margin-inline-start: 8px;
 }
+
+.rarityIcon {
+  object-fit: contain;
+  vertical-align: middle;
+}
+
+.rarityOptionContent {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.filterOptionGrid {
+  display: grid;
+  grid-template-columns: repeat(2, max-content);
+  gap: 4px 12px;
+}

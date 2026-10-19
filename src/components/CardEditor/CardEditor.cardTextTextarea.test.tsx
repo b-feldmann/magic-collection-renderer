@@ -133,11 +133,11 @@ describe('CardEditor - card text textarea for non-planeswalker', () => {
     expect(getPersisted().front.cardText).toEqual(['One.', '', 'Two.', '']);
   });
 
-  it('hides the Add Instruction button and keeps Add Mechanic', () => {
+  it('hides the Add Instruction and Add Mechanic controls', () => {
     renderEditor(makeCard({ cardText: [] }));
 
     expect(screen.queryByText('Add Instruction')).toBeNull();
-    expect(screen.getByText('Add Mechanic')).toBeDefined();
+    expect(screen.queryByText('Add Mechanic')).toBeNull();
   });
 
   it('keeps the per-instruction list UI for planeswalkers', () => {

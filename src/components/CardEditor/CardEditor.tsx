@@ -106,7 +106,7 @@ const adventureSectionConfig: InputConfigInterface[] = [
     })),
     width: 100,
   },
-  { key: 'adventureText', type: 'text-list', name: 'Text', width: 100, allowMechanics: false },
+  { key: 'adventureText', type: 'text-list', name: 'Text', width: 100 },
 ];
 
 // The Omen section configures the spell half of an Omen card, mirroring the
@@ -127,7 +127,7 @@ const omenSectionConfig: InputConfigInterface[] = [
     })),
     width: 100,
   },
-  { key: 'omenText', type: 'text-list', name: 'Text', width: 100, allowMechanics: false },
+  { key: 'omenText', type: 'text-list', name: 'Text', width: 100 },
 ];
 
 // The Prepared section configures the spell half of a Prepared card,
@@ -148,39 +148,50 @@ const prepareSectionConfig: InputConfigInterface[] = [
     })),
     width: 100,
   },
-  { key: 'prepareText', type: 'text-list', name: 'Text', width: 100, allowMechanics: false },
+  { key: 'prepareText', type: 'text-list', name: 'Text', width: 100 },
 ];
 
-const evolutionSectionConfig: InputConfigInterface[] = [
-  { key: 'evolutionSection1', type: 'divider', name: 'Level 1', width: 100 },
-  {
-    key: 'level1Indicator',
-    pairedFieldKey: 'level1Text',
-    type: 'paired-text',
-    name: 'Level 1',
-    width: 100,
-  },
-  {
-    key: 'level1Stats',
-    type: 'split-input',
-    name: 'Level 1 Power/Level 1 Toughness',
-    width: 50,
-  },
-  { key: 'evolutionSection2', type: 'divider', name: 'Level 2', width: 100 },
-  {
-    key: 'level2Indicator',
-    pairedFieldKey: 'level2Text',
-    type: 'paired-text',
-    name: 'Level 2',
-    width: 100,
-  },
-  {
-    key: 'level2Stats',
-    type: 'split-input',
-    name: 'Level 2 Power/Level 2 Toughness',
-    width: 50,
-  },
-];
+const getEvolutionSectionConfig = (includeStats: boolean): InputConfigInterface[] => {
+  const section1: InputConfigInterface[] = [
+    { key: 'evolutionSection1', type: 'divider', name: 'Level 1', width: 100 },
+    {
+      key: 'level1Indicator',
+      pairedFieldKey: 'level1Text',
+      type: 'paired-text',
+      name: 'Level 1',
+      width: 100,
+    },
+  ];
+  if (includeStats) {
+    section1.push({
+      key: 'level1Stats',
+      type: 'split-input',
+      name: 'Level 1 Power/Level 1 Toughness',
+      width: 50,
+    });
+  }
+  const section2: InputConfigInterface[] = [
+    { key: 'evolutionSection2', type: 'divider', name: 'Level 2', width: 100 },
+    {
+      key: 'level2Indicator',
+      pairedFieldKey: 'level2Text',
+      type: 'paired-text',
+      name: 'Level 2',
+      width: 100,
+    },
+  ];
+
+  if (includeStats) {
+    section2.push({
+      key: 'level2Stats',
+      type: 'split-input',
+      name: 'Level 2 Power/Level 2 Toughness',
+      width: 50,
+    });
+  }
+
+  return [...section1, ...section2];
+};
 
 const dummyCard: CardInterface = {
   name: '',
@@ -223,8 +234,6 @@ interface InputConfigInterface {
   pairedFieldKey?: string;
   data?: { key: string; value: string }[];
   disabledKeys?: string[];
-  // Passed through to EditField; false omits the "Add Mechanic" select.
-  allowMechanics?: boolean;
   allowCreate?: boolean;
   nonRemovableValues?: string[];
   width?: number;
@@ -483,7 +492,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
   const isColoredToken = () => types().includes(CardType.Token) && !types().includes(CardType.Land);
   const showColorIdentity = () => !tmpCard.manaCost && !isColoredToken();
 
-  const hasStats = () => isCreature() || isPlaneswalker() || isVehicle() || isEvolution();
+  const hasStats = () => isCreature() || isPlaneswalker() || isVehicle();
 
   const hasNickname = () =>
     getValue('artStyle') !== CardArtStyles.Invention &&
@@ -644,7 +653,8 @@ const CardEditor: React.FC<CardEditorInterface> = ({
       data: user.filter(u => u.name !== 'ADMIN').map(o => ({ key: o.uuid, value: o.name })),
       width: hasStats() ? 50 : 100,
     },
-    ...(isEvolution() ? evolutionSectionConfig : []),
+    // Evolution is mutually exclusive with Creature, but still owns level-specific P/T fields.
+    ...(isEvolution() ? getEvolutionSectionConfig(hasStats()) : []),
     ...(isAdventure() ? adventureSectionConfig : []),
     ...(isOmen() ? omenSectionConfig : []),
     ...(isPrepared() ? prepareSectionConfig : []),
@@ -792,12 +802,10 @@ const CardEditor: React.FC<CardEditorInterface> = ({
                 data={config.data}
                 disabledKeys={config.disabledKeys}
                 name={config.name}
-                allowMechanics={config.allowMechanics}
                 allowCreate={config.allowCreate}
                 nonRemovableValues={config.nonRemovableValues}
                 saveValue={saveValue}
                 getValue={getValue}
-                mechanics={mechanics}
               />
             </div>
           );

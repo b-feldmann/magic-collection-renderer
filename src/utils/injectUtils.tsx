@@ -3,8 +3,12 @@ import React from 'react';
 import { Mana } from '../components/Mana/Mana';
 import MechanicInterface from '../interfaces/MechanicInterface';
 
+const BULLET_PREFIX = /^\s*(?:\*|-(?!-))\s*/;
+
+export const isBulletText = (line: string) => BULLET_PREFIX.test(line);
+
 export const injectForText = (line: string, cardName: string, mechanics: MechanicInterface[]) => {
-  const bulletPrefix = line.match(/^\s*(?:\*|-(?!-))\s*/);
+  const bulletPrefix = line.match(BULLET_PREFIX);
   const text = bulletPrefix ? `• ${line.slice(bulletPrefix[0].length)}` : line;
 
   return injectQuotationMarks(

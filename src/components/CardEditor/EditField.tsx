@@ -7,7 +7,6 @@ import styles from './styles.module.scss';
 import resizeImage from '../../utils/resizeImage';
 import { getCoverFileName, isUploadedCover } from '../../utils/cover';
 import EditorTooltip from '../EditorTooltip';
-import MechanicInterface from '../../interfaces/MechanicInterface';
 
 const { TextArea } = Input;
 const InputGroup = Input.Group;
@@ -32,13 +31,10 @@ interface EditFieldInterface {
   pairedFieldKey?: string;
   data?: { key: string; value: string }[];
   disabledKeys?: string[];
-  // Set to false to omit the "Add Mechanic" select from list footers.
-  allowMechanics?: boolean;
   allowCreate?: boolean;
   nonRemovableValues?: string[];
   getValue: (key: string) => any;
   saveValue: (key: string, value: any) => void;
-  mechanics?: MechanicInterface[];
 }
 
 interface UploadInputInterface {
@@ -128,41 +124,11 @@ const EditField = (props: EditFieldInterface) => {
     pairedFieldKey,
     data,
     disabledKeys,
-    allowMechanics = true,
     allowCreate = false,
     nonRemovableValues,
     getValue,
     saveValue,
-    mechanics,
   } = props;
-
-  const renderAddMechanic = (targetFieldKey = fieldKey) => {
-    if (!mechanics || mechanics.length === 0) return null;
-
-    return (
-      <Select
-        size="small"
-        style={{ width: 150 }}
-        placeholder="Add Mechanic"
-        value={null}
-        onClick={e => e.stopPropagation()}
-        options={[...mechanics]
-          .sort((a, b) => a.name.localeCompare(b.name))
-          .map(mechanic => ({
-            key: `${targetFieldKey}-mechanic-${mechanic.uuid}`,
-            value: mechanic.uuid,
-            label: mechanic.name,
-          }))}
-        onSelect={(uuid: string | null) => {
-          const mechanic = mechanics.find(m => m.uuid === uuid);
-          if (!mechanic) return;
-          const list = getValue(targetFieldKey) || [];
-          list.push(`[${mechanic.name} {X}]`);
-          saveValue(targetFieldKey, list);
-        }}
-      />
-    );
-  };
 
   // A purely presentational section header inside the field list (e.g. the
   // Adventure section). The title is rendered bigger and bold so it reads as
@@ -222,11 +188,6 @@ const EditField = (props: EditFieldInterface) => {
             autoSize
           />
         </InputGroup>
-        {allowMechanics ? (
-          <div className={styles.listFooter}>
-            <div className={styles.centerParent}>{renderAddMechanic(pairedFieldKey)}</div>
-          </div>
-        ) : null}
       </span>
     );
   }
@@ -462,7 +423,6 @@ const EditField = (props: EditFieldInterface) => {
                 >
                   Add Instruction
                 </Button>
-                {allowMechanics && renderAddMechanic()}
               </Space.Compact>
             </div>
           </div>
@@ -486,11 +446,6 @@ const EditField = (props: EditFieldInterface) => {
           onChange={e => saveValue(fieldKey, e.target.value.split('\n'))}
           autoSize
         />
-        {allowMechanics ? (
-          <div className={styles.listFooter}>
-            <div className={styles.centerParent}>{renderAddMechanic()}</div>
-          </div>
-        ) : null}
       </span>
     );
   }

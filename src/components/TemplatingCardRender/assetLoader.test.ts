@@ -28,8 +28,8 @@ import {
   getPreparePinline,
   getPrepareRulesRight,
   getLevelerMainframe,
-  getLevelerPinline,
   getLevelerRules,
+  getLevelerLevelPart,
   getLevelerPt,
   getPt,
 } from './assetLoader';
@@ -92,6 +92,17 @@ describe('getPinline', () => {
     expect(
       getPinline([ColorType.White, ColorType.Blue, ColorType.Black], true, CardArtStyles.Invention),
     ).toBe('');
+  });
+});
+
+describe('getLevelerLevelPart', () => {
+  it('uses gold level overlays for two-color cards', () => {
+    const twoColor = [ColorType.White, ColorType.Blue];
+
+    expect(getLevelerLevelPart('mid', twoColor)).toBe(getLevelerLevelPart('mid', [ColorType.Gold]));
+    expect(getLevelerLevelPart('bottom', twoColor)).toBe(
+      getLevelerLevelPart('bottom', [ColorType.Gold]),
+    );
   });
 });
 
@@ -642,13 +653,9 @@ describe('leveler frames', () => {
   });
 
   it('returns color-combination parts independent of color order', () => {
-    expect(getLevelerPinline([ColorType.Blue, ColorType.White])).toBe(
-      getLevelerPinline([ColorType.White, ColorType.Blue]),
-    );
     expect(getLevelerRules([ColorType.Blue, ColorType.White])).toBe(
       getLevelerRules([ColorType.White, ColorType.Blue]),
     );
-    expect(getLevelerPinline([ColorType.White, ColorType.Blue])).toContain('levelerPinline/wu.png');
     expect(getLevelerRules([ColorType.White, ColorType.Blue])).toContain('levelerRules/wu.png');
   });
 

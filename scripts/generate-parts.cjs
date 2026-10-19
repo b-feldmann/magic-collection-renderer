@@ -392,6 +392,38 @@ async function generateM15LevelerFrameParts() {
   }
 }
 
+// Evolution cards use the ordinary M15 frame as their base. These masks carve
+// single-color level separators from the dedicated leveler frames so they can
+// be layered on top of either the regular or Nyx mainframe. Two-color pairs are
+// intentionally not generated for these indicators.
+async function generateM15LevelParts() {
+  const levels = [
+    { type: 'levelerLevelMid', mask: 'levelerLevelMid.svg' },
+    { type: 'levelerLevelBottom', mask: 'levelerLevelBottom.svg' },
+  ];
+
+  for (const { type, mask: maskName } of levels) {
+    const maskPath = path.join(PARTS_DIR, maskName);
+    if (!fs.existsSync(maskPath)) throw new Error(`Mask image not found: ${maskPath}`);
+    const mask = await readMask(maskPath);
+    const { width: maskW, height: maskH } = mask.bitmap;
+
+    for (const style of M15_FRAME_STYLES) {
+      const sourceDir = LEVELER_DIR;
+      const outputDir = path.join(PARTS_DIR, type, style);
+      if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir, { recursive: true });
+
+      for (const color of ['a', ...VARIANT_COLORS, 'm']) {
+        const sourcePath = path.join(sourceDir, `${color}.png`);
+        if (!fs.existsSync(sourcePath)) continue;
+        const frame = await Jimp.read(sourcePath);
+        if (!sameSize(frame, maskW, maskH)) frame.resize({ w: maskW, h: maskH });
+        await carveSingle(frame, mask).write(path.join(outputDir, `${color}.png`));
+      }
+    }
+  }
+}
+
 async function run() {
   // Optional CLI filter: with arguments, only the named generators run so a
   // new part family can be generated without rewriting the existing files.
@@ -408,6 +440,7 @@ async function run() {
   }
   if (selected('frame')) await generateM15FrameParts();
   if (selected('levelerFrame')) await generateM15LevelerFrameParts();
+  if (selected('levelerLevels')) await generateM15LevelParts();
   if (selected('variants')) await generateVariantPinlines();
   if (selected('adventure')) await generateAdventureParts();
   if (selected('omen')) await generateOmenParts();

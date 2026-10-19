@@ -36,8 +36,7 @@ import {
   getEldAlternateAdventurePinline,
   getEldAlternateAdventureRulesLeft,
   getAdventurePt,
-  getLevelerMainframe,
-  getLevelerPinline,
+  getLevelerLevelPart,
   getLevelerRules,
   getOmenMainframe,
   getOmenPinline,
@@ -68,9 +67,8 @@ import {
   getTokenLandTypePart,
   getTokenMainframe,
   getTypePart,
-  getColorFrame,
 } from './assetLoader';
-import { injectForText, injectManaIcons } from '../../utils/injectUtils';
+import { injectForText, injectManaIcons, isBulletText } from '../../utils/injectUtils';
 import { getCoverImageSrc } from '../../utils/cover';
 import ImageLoader from '../ImageLoader/ImageLoader';
 import getCoverFitClass from './getCoverFitClass';
@@ -306,9 +304,11 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
   // artStyle counts as Regular, like everywhere else in this component.
   // (Prepared has only the Regular style.)
   const isRegularArtStyle = !artStyle || artStyle === CardArtStyles.Regular;
-  const pinline = isEvolution
-    ? getLevelerPinline(allColors)
-    : isAlternateArt
+  const pinline =
+    // isEvolution
+    // ? getLevelerPinline(allColors)
+    // :
+    isAlternateArt
       ? getEldAlternateAdventurePinline(isLand ? landColors : allColors)
       : isOmen && isRegularArtStyle
         ? getOmenPinline(isLand ? landColors : allColors)
@@ -353,11 +353,12 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
     rulesPart = '';
   }
 
-  if (isEvolution) {
-    mainframe = getLevelerMainframe(color);
-    titlePart = '';
-    typePart = '';
-  } else if (isAlternateArt) {
+  // if (isEvolution) {
+  //   mainframe = getColorMainframe(color, isEnchantment, isArtifact, vehicle);
+  //   titlePart = '';
+  //   typePart = '';
+  // } else
+  if (isAlternateArt) {
     mainframe = getEldAlternateAdventureMainframe(color);
     pt = getAdventurePt(color);
   } else if (artStyle === CardArtStyles.Extended) {
@@ -448,10 +449,10 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
     }
   }
 
-  let frame: string | null = null;
-  if (isEvolution) {
-    frame = getColorFrame(color, isEnchantment, isArtifact, vehicle, true);
-  }
+  const levelerLevelMid =
+    isEvolution && level1Indicator ? getLevelerLevelPart('mid', allColors, isEnchantment) : null;
+  const levelerLevelBottom =
+    isEvolution && level2Indicator ? getLevelerLevelPart('bottom', allColors, isEnchantment) : null;
 
   return (
     <div style={{ height: `${getHeight(containerWidth)}px` }}>
@@ -498,13 +499,17 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
             }`}
             fallBackColor={artStyle !== CardArtStyles.Borderless ? hexColor : undefined}
           />
-          {frame && <ImageLoader src={frame} className={styles.frame} />}
 
           {titlePart ? <img className={styles.titlePart} src={titlePart} alt="" /> : null}
           {typePart ? <img className={styles.typePart} src={typePart} alt="" /> : null}
           {rulesPart ? <img className={styles.rulesPart} src={rulesPart} alt="" /> : null}
 
           {pinline ? <img className={styles.pinline} src={pinline} alt="" /> : null}
+
+          {levelerLevelMid ? <ImageLoader src={levelerLevelMid} className={styles.frame} /> : null}
+          {levelerLevelBottom ? (
+            <ImageLoader src={levelerLevelBottom} className={styles.frame} />
+          ) : null}
 
           {adventureRulesLeft ? (
             <img className={styles.adventureRulesLeft} src={adventureRulesLeft} alt="" />
@@ -546,6 +551,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
                   {adventureText.map((val, i) => (
                     <p
                       key={`adventure-text-${cardID}-${i}`}
+                      className={isBulletText(val) ? styles.bulletText : undefined}
                       style={val.trimStart().startsWith('--') ? { marginLeft: '0.5em' } : undefined}
                     >
                       {injectForText(val, name, mechanics)}
@@ -582,6 +588,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
                   {omenText.map((val, i) => (
                     <p
                       key={`omen-text-${cardID}-${i}`}
+                      className={isBulletText(val) ? styles.bulletText : undefined}
                       style={val.trimStart().startsWith('--') ? { marginLeft: '0.5em' } : undefined}
                     >
                       {injectForText(val, name, mechanics)}
@@ -622,6 +629,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
                   {prepareText.map((val, i) => (
                     <p
                       key={`prepare-text-${cardID}-${i}`}
+                      className={isBulletText(val) ? styles.bulletText : undefined}
                       style={val.trimStart().startsWith('--') ? { marginLeft: '0.5em' } : undefined}
                     >
                       {injectForText(val, name, mechanics)}
@@ -650,7 +658,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
             className={`${styles.rarity} ${isToken ? styles.tokenRarity : ''}`}
           />
 
-          {(isCreature || (isArtifact && vehicle) || isEvolution) && (
+          {(isCreature || (isArtifact && vehicle)) && (
             <div>
               {pt ? (
                 <img
@@ -673,7 +681,10 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
                 </div>
               ) : null}
               {level1Text?.length ? (
-                <div className={`${styles.text} ${styles.levelerText} ${styles.levelerLevel1Text}`}>
+                <div
+                  className={`${styles.text} ${styles.levelerText} ${styles.levelerLevel1Text}`}
+                  style={{ backgroundColor: 'rgba(0, 0, 0, 0.3)' }}
+                >
                   <TextResize
                     defaultFontSize={42}
                     maxFontSize={56}
@@ -685,6 +696,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
                       {level1Text.map((val, i) => (
                         <p
                           key={`level-1-text-${cardID}-${i}`}
+                          className={isBulletText(val) ? styles.bulletText : undefined}
                           style={
                             val.trimStart().startsWith('--') ? { marginLeft: '0.5em' } : undefined
                           }
@@ -696,16 +708,21 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
                   </TextResize>
                 </div>
               ) : null}
-              <div className={`${styles.stats} ${styles.levelerStatsMid}`}>
-                {`${parseStats(level1Stats).power}/${parseStats(level1Stats).toughness}`}
-              </div>
+              {isCreature && (
+                <div className={`${styles.stats} ${styles.levelerStatsMid}`}>
+                  {`${parseStats(level1Stats).power}/${parseStats(level1Stats).toughness}`}
+                </div>
+              )}
               {level2Indicator ? (
                 <div className={`${styles.levelerIndicator} ${styles.levelerIndicatorBottom}`}>
                   {level2Indicator}
                 </div>
               ) : null}
               {level2Text?.length ? (
-                <div className={`${styles.text} ${styles.levelerText} ${styles.levelerLevel2Text}`}>
+                <div
+                  className={`${styles.text} ${styles.levelerText} ${styles.levelerLevel2Text}`}
+                  style={{ backgroundColor: 'rgba(0, 0, 0, 0.4)' }}
+                >
                   <TextResize
                     defaultFontSize={42}
                     maxFontSize={56}
@@ -717,6 +734,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
                       {level2Text.map((val, i) => (
                         <p
                           key={`level-2-text-${cardID}-${i}`}
+                          className={isBulletText(val) ? styles.bulletText : undefined}
                           style={
                             val.trimStart().startsWith('--') ? { marginLeft: '0.5em' } : undefined
                           }
@@ -728,9 +746,11 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
                   </TextResize>
                 </div>
               ) : null}
-              <div className={`${styles.stats} ${styles.levelerStatsBottom}`}>
-                {`${parseStats(level2Stats).power}/${parseStats(level2Stats).toughness}`}
-              </div>
+              {isCreature && (
+                <div className={`${styles.stats} ${styles.levelerStatsBottom}`}>
+                  {`${parseStats(level2Stats).power}/${parseStats(level2Stats).toughness}`}
+                </div>
+              )}
             </>
           ) : null}
 
@@ -774,6 +794,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
                 {cardText.map((val, i) => (
                   <p
                     key={`card-text-${cardID}-${i}`}
+                    className={isBulletText(val) ? styles.bulletText : undefined}
                     style={val.trimStart().startsWith('--') ? { marginLeft: '0.5em' } : undefined}
                   >
                     {injectForText(val, name, mechanics)}

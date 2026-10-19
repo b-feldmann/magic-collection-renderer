@@ -8,6 +8,7 @@ import cardToColor from '../../utils/cardToColor';
 import { UNKNOWN_CREATOR } from '../../utils/constants';
 import Mana from '../Mana/Mana.tsx';
 import { getAvailableCardTags, getInitialTagFilterState } from '../../utils/cardTagFilter';
+import { getRarityIcon } from '../TemplatingCardRender/assetLoader';
 
 export interface CollectionFilterInterface {
   colors: CheckBoxGroupInterface;
@@ -234,7 +235,7 @@ const CollectionFilterControls = ({
             </div>
             <div className={styles.controlItem}>
               <h4>Shown Colors</h4>
-              <div>
+              <div className={styles.filterOptionGrid} data-testid="color-filter-grid">
                 {Object.values(ColorType).map((key: string) => {
                   if (cardCountStats[key] === 0) return null;
                   return (
@@ -258,19 +259,31 @@ const CollectionFilterControls = ({
             </div>
             <div className={styles.controlItem}>
               <h4>Shown Rarities</h4>
-              {mapEnum(RarityType, (key: string) =>
-                cardCountStats[key] === 0 ? null : (
-                  <Checkbox
-                    key={`collection-filter-controls-checkbox-rarity-${key}`}
-                    checked={shownRarities[key]}
-                    onChange={e =>
-                      updateEnumState(key, e.target.checked, shownRarities, setShownRarities)
-                    }
-                  >
-                    {`${key} (${cardCountStats[key]})`}
-                  </Checkbox>
-                ),
-              )}
+              <div className={styles.filterOptionGrid} data-testid="rarity-filter-grid">
+                {mapEnum(RarityType, (key: string) =>
+                  cardCountStats[key] === 0 ? null : (
+                    <Checkbox
+                      key={`collection-filter-controls-checkbox-rarity-${key}`}
+                      aria-label={`${key} rarity`}
+                      checked={shownRarities[key]}
+                      onChange={e =>
+                        updateEnumState(key, e.target.checked, shownRarities, setShownRarities)
+                      }
+                    >
+                      <span className={styles.rarityOptionContent}>
+                        <img
+                          src={getRarityIcon(key as RarityType)}
+                          alt=""
+                          width={24}
+                          height={24}
+                          className={styles.rarityIcon}
+                        />
+                        <span>{` (${cardCountStats[key]})`}</span>
+                      </span>
+                    </Checkbox>
+                  ),
+                )}
+              </div>
             </div>
             <div className={styles.controlItem}>
               <h4>Shown Creators</h4>

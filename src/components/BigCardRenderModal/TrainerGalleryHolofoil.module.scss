@@ -16,6 +16,16 @@
   inset: 0;
   z-index: 2;
   pointer-events: none;
+  opacity: 0;
+  transition: opacity 500ms ease;
+}
+
+.isActive .shine {
+  opacity: 0.72;
+}
+
+.isActive .glare {
+  opacity: 1;
 }
 
 .shine {
@@ -32,7 +42,6 @@
   background-size: 300% 400%;
   background-position: var(--pointer-x) var(--background-y);
   mix-blend-mode: color-dodge;
-  opacity: 0.72;
   filter: brightness(calc(var(--pointer-from-center) * 0.3 + 0.5)) contrast(2.3) saturate(1);
 }
 
@@ -60,4 +69,11 @@
     hsla(180, 11%, 35%, 1) 60%
   );
   mix-blend-mode: soft-light;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shine,
+  .glare {
+    transition: none;
+  }
 }

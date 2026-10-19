@@ -29,7 +29,13 @@ const mockStoreValue: StoreType = {
   dispatch: () => {},
 };
 
-const renderEvolution = (evolution = true) =>
+const renderEvolution = (
+  evolution = true,
+  indicators: { level1Indicator?: string; level2Indicator?: string } = {
+    level1Indicator: 'LEVEL 2-3',
+    level2Indicator: 'LEVEL 4+',
+  },
+) =>
   render(
     <Store.Provider value={mockStoreValue}>
       <TemplatingCardRender
@@ -37,12 +43,11 @@ const renderEvolution = (evolution = true) =>
         rarity={RarityType.Common}
         cardID="test-evolution"
         manaCost="{1}{G}"
-        cardTypes={evolution ? [EVOLUTION] : [CardType.Creature]}
+        cardTypes={evolution ? [EVOLUTION, CardType.Creature] : [CardType.Creature]}
         cardText={[]}
         cardStats="1/1"
         {...({
-          level1Indicator: 'LEVEL 2-3',
-          level2Indicator: 'LEVEL 4+',
+          ...indicators,
           level1Text: ['Level 1 ability'],
           level2Text: ['Level 2 ability'],
           level1Stats: '3/3',
@@ -57,12 +62,20 @@ const renderEvolution = (evolution = true) =>
 const allImages = () => Array.from(document.querySelectorAll('img'));
 
 describe('TemplatingCardRender - Evolution frame', () => {
-  it('uses the Leveler Mainframe, indicators, and all three P/T rows', () => {
+  it('uses the regular frame with level overlays, indicators, and all three P/T rows', () => {
     renderEvolution();
 
-    expect(allImages().some(img => img.getAttribute('src')?.includes('mainframes/levelers'))).toBe(
+    expect(allImages().some(img => img.getAttribute('src')?.includes('mainframes/m15/'))).toBe(
       true,
     );
+    expect(
+      allImages().some(img => img.getAttribute('src')?.includes('parts/levelerLevelMid/regular/')),
+    ).toBe(true);
+    expect(
+      allImages().some(img =>
+        img.getAttribute('src')?.includes('parts/levelerLevelBottom/regular/'),
+      ),
+    ).toBe(true);
     expect(allImages().some(img => img.className.includes('levelerPt'))).toBe(true);
     expect(
       allImages()
@@ -86,6 +99,17 @@ describe('TemplatingCardRender - Evolution frame', () => {
     expect(screen.getByText('4/4')).toBeInTheDocument();
   });
 
+  it('darkens level 1 rules and makes the level 2 rules overlay slightly darker', () => {
+    renderEvolution();
+
+    expect(screen.getByText('Level 1 ability').closest('[class*="levelerLevel1Text"]')).toHaveStyle(
+      { backgroundColor: 'rgba(0, 0, 0, 0.3)' },
+    );
+    expect(screen.getByText('Level 2 ability').closest('[class*="levelerLevel2Text"]')).toHaveStyle(
+      { backgroundColor: 'rgba(0, 0, 0, 0.4)' },
+    );
+  });
+
   it('keeps ordinary cards on the regular frame without level indicators', () => {
     renderEvolution(false);
 
@@ -95,5 +119,35 @@ describe('TemplatingCardRender - Evolution frame', () => {
     expect(screen.queryByText('LEVEL 2-3')).toBeNull();
     expect(screen.queryByText('LEVEL 4+')).toBeNull();
     expect(screen.getByText('1/1')).toBeInTheDocument();
+  });
+
+  it('does not render the level 2 indicator plate when its indicator is unset', () => {
+    renderEvolution(true, { level1Indicator: 'LEVEL 2-3' });
+
+    expect(screen.getByText('LEVEL 2-3')).toBeInTheDocument();
+    expect(screen.queryByText('LEVEL 4+')).toBeNull();
+    expect(
+      allImages().some(img => img.getAttribute('src')?.includes('parts/levelerLevelMid/regular/')),
+    ).toBe(true);
+    expect(
+      allImages().some(img =>
+        img.getAttribute('src')?.includes('parts/levelerLevelBottom/regular/'),
+      ),
+    ).toBe(false);
+  });
+
+  it('does not render the level 1 indicator plate when its indicator is unset', () => {
+    renderEvolution(true, { level2Indicator: 'LEVEL 4+' });
+
+    expect(screen.queryByText('LEVEL 2-3')).toBeNull();
+    expect(screen.getByText('LEVEL 4+')).toBeInTheDocument();
+    expect(
+      allImages().some(img => img.getAttribute('src')?.includes('parts/levelerLevelMid/regular/')),
+    ).toBe(false);
+    expect(
+      allImages().some(img =>
+        img.getAttribute('src')?.includes('parts/levelerLevelBottom/regular/'),
+      ),
+    ).toBe(true);
   });
 });

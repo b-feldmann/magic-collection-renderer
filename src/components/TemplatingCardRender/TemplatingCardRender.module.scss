@@ -289,6 +289,14 @@
     justify-content: space-around;
   }
 
+  // Hanging indent for bullet paragraphs: the bullet stays in the outer
+  // margin while every wrapped line starts at the first line's text column.
+  .bulletText {
+    // The rendered `• ` marker is narrower than a full em in MPlantin.
+    padding-left: 0.625em;
+    text-indent: -0.625em;
+  }
+
   .text {
     font-family: 'MPlantin', sans-serif;
     position: absolute;
@@ -313,21 +321,21 @@
   .levelerText {
     top: 1315px;
     left: 130px;
-    width: 1050px;
+    width: 1040px;
     height: 205px;
   }
 
   .levelerLevel1Text {
     top: 1510px;
     left: 300px;
-    width: 860px;
+    width: 850px;
     height: 220px;
   }
 
   .levelerLevel2Text {
     top: 1720px;
     left: 300px;
-    width: 860px;
+    width: 850px;
     height: 220px;
   }
 

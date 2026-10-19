@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { act } from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import BigCardRenderModal from './BigCardRenderModal';
 import TrainerGalleryHolofoil from './TrainerGalleryHolofoil';
@@ -49,6 +49,10 @@ const card: CardInterface = {
 };
 
 describe('BigCardRenderModal Trainer Gallery holofoil', () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   it('scales the holofoil corner radius with the card width', () => {
     const { container } = render(
       <TrainerGalleryHolofoil cardWidth={300}>
@@ -118,5 +122,43 @@ describe('BigCardRenderModal Trainer Gallery holofoil', () => {
     fireEvent.pointerMove(wrapper, { clientX: 75, clientY: 50 });
 
     expect(wrapper).toHaveStyle('--pointer-x: 75%; --pointer-y: 25%');
+  });
+
+  it('fades the holofoil out one second after the pointer leaves', () => {
+    vi.useFakeTimers();
+    const { container } = render(
+      <TrainerGalleryHolofoil cardWidth={300}>
+        <div />
+      </TrainerGalleryHolofoil>,
+    );
+    const wrapper = container.querySelector(`.${holofoilStyles.holofoilWrapper}`) as HTMLElement;
+
+    fireEvent.pointerMove(wrapper, { clientX: 100, clientY: 100 });
+    expect(wrapper).toHaveClass(holofoilStyles.isActive);
+
+    fireEvent.pointerLeave(wrapper);
+    act(() => vi.advanceTimersByTime(999));
+    expect(wrapper).toHaveClass(holofoilStyles.isActive);
+
+    act(() => vi.advanceTimersByTime(1));
+    expect(wrapper).not.toHaveClass(holofoilStyles.isActive);
+  });
+
+  it('keeps the holofoil active when the pointer returns during the delay', () => {
+    vi.useFakeTimers();
+    const { container } = render(
+      <TrainerGalleryHolofoil cardWidth={300}>
+        <div />
+      </TrainerGalleryHolofoil>,
+    );
+    const wrapper = container.querySelector(`.${holofoilStyles.holofoilWrapper}`) as HTMLElement;
+
+    fireEvent.pointerMove(wrapper, { clientX: 100, clientY: 100 });
+    fireEvent.pointerLeave(wrapper);
+    act(() => vi.advanceTimersByTime(500));
+    fireEvent.pointerMove(wrapper, { clientX: 120, clientY: 120 });
+    act(() => vi.advanceTimersByTime(1000));
+
+    expect(wrapper).toHaveClass(holofoilStyles.isActive);
   });
 });

@@ -510,6 +510,25 @@ updateLog.push({
   ],
 });
 
+updateLog.push({
+  version: '3.2.1',
+  title: 'Usability Update Hotfix',
+  content: [
+    {
+      type: ChangeLogFeatureType.Changed,
+      feature: 'Filter by rarity now uses symbols',
+    },
+    {
+      type: ChangeLogFeatureType.Fixed,
+      feature: 'It is now possible to have evolution cards that are no creatures.',
+    },
+    {
+      type: ChangeLogFeatureType.Fixed,
+      feature: 'It is possible to build evolution cards that have only a single evolution.',
+    },
+  ],
+});
+
 //
 // updateLog.push({
 //   version: '1.1.3',

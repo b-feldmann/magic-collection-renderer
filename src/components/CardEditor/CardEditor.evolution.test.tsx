@@ -89,7 +89,7 @@ const getLevelTextField = (label: string) =>
 
 describe('CardEditor - Evolution fields', () => {
   it('shows combined indicator and text fields plus P/T fields for an Evolution card', () => {
-    renderEditor(makeCard([EVOLUTION]));
+    renderEditor(makeCard([EVOLUTION, CardType.Creature]));
 
     for (const label of [
       'Level 1 Power',
@@ -106,26 +106,6 @@ describe('CardEditor - Evolution fields', () => {
     }
     expect(screen.getByText('Power')).toBeVisible();
     expect(screen.getByText('Toughness')).toBeVisible();
-  });
-
-  it('orders level text and stats beneath Power/Toughness in level order', () => {
-    renderEditor(makeCard([EVOLUTION]));
-
-    const orderedFields = [
-      'Power',
-      'Toughness',
-      getSectionHeading('Level 1'),
-      'Level 1 Power',
-      getSectionHeading('Level 2'),
-      'Level 2 Power',
-    ].map(label => (typeof label === 'string' ? screen.getByText(label) : label));
-
-    for (let i = 0; i < orderedFields.length - 1; i++) {
-      expect(
-        orderedFields[i].compareDocumentPosition(orderedFields[i + 1]) &
-          Node.DOCUMENT_POSITION_FOLLOWING,
-      ).toBeTruthy();
-    }
   });
 
   it('does not show level fields for other card types', () => {
@@ -155,7 +135,7 @@ describe('CardEditor - Evolution fields', () => {
     const saveTmpCard = vi.fn();
     render(
       <Store.Provider value={mockStoreValue}>
-        <CardEditor card={makeCard([EVOLUTION])} saveTmpCard={saveTmpCard} />
+        <CardEditor card={makeCard([EVOLUTION, CardType.Creature])} saveTmpCard={saveTmpCard} />
       </Store.Provider>,
     );
 

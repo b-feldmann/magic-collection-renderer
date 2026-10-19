@@ -161,6 +161,35 @@ import GoldFrame from './images/parts/frame/regular/m.png';
 import GoldNyxFrame from './images/parts/frame/nyx/m.png';
 import ColorlessFrame from './images/parts/frame/regular/c.png';
 
+import LevelerLevelMidA from './images/parts/levelerLevelMid/regular/a.png';
+import LevelerLevelMidW from './images/parts/levelerLevelMid/regular/w.png';
+import LevelerLevelMidU from './images/parts/levelerLevelMid/regular/u.png';
+import LevelerLevelMidB from './images/parts/levelerLevelMid/regular/b.png';
+import LevelerLevelMidR from './images/parts/levelerLevelMid/regular/r.png';
+import LevelerLevelMidG from './images/parts/levelerLevelMid/regular/g.png';
+import LevelerLevelMidM from './images/parts/levelerLevelMid/regular/m.png';
+import LevelerLevelMidANyx from './images/parts/levelerLevelMid/nyx/a.png';
+import LevelerLevelMidWNyx from './images/parts/levelerLevelMid/nyx/w.png';
+import LevelerLevelMidUNyx from './images/parts/levelerLevelMid/nyx/u.png';
+import LevelerLevelMidBNyx from './images/parts/levelerLevelMid/nyx/b.png';
+import LevelerLevelMidRNyx from './images/parts/levelerLevelMid/nyx/r.png';
+import LevelerLevelMidGNyx from './images/parts/levelerLevelMid/nyx/g.png';
+import LevelerLevelMidMNyx from './images/parts/levelerLevelMid/nyx/m.png';
+import LevelerLevelBottomA from './images/parts/levelerLevelBottom/regular/a.png';
+import LevelerLevelBottomW from './images/parts/levelerLevelBottom/regular/w.png';
+import LevelerLevelBottomU from './images/parts/levelerLevelBottom/regular/u.png';
+import LevelerLevelBottomB from './images/parts/levelerLevelBottom/regular/b.png';
+import LevelerLevelBottomR from './images/parts/levelerLevelBottom/regular/r.png';
+import LevelerLevelBottomG from './images/parts/levelerLevelBottom/regular/g.png';
+import LevelerLevelBottomM from './images/parts/levelerLevelBottom/regular/m.png';
+import LevelerLevelBottomANyx from './images/parts/levelerLevelBottom/nyx/a.png';
+import LevelerLevelBottomWNyx from './images/parts/levelerLevelBottom/nyx/w.png';
+import LevelerLevelBottomUNyx from './images/parts/levelerLevelBottom/nyx/u.png';
+import LevelerLevelBottomBNyx from './images/parts/levelerLevelBottom/nyx/b.png';
+import LevelerLevelBottomRNyx from './images/parts/levelerLevelBottom/nyx/r.png';
+import LevelerLevelBottomGNyx from './images/parts/levelerLevelBottom/nyx/g.png';
+import LevelerLevelBottomMNyx from './images/parts/levelerLevelBottom/nyx/m.png';
+
 import LevelerVehicleFrame from './images/parts/levelerFrame/regular/v.png';
 import LevelerArtefactFrame from './images/parts/levelerFrame/regular/a.png';
 import LevelerArtefactNyxFrame from './images/parts/levelerFrame/nyx/a.png';
@@ -936,24 +965,7 @@ import LevelerMainframeGLowRes from './images/mainframes/levelers/regular/gThumb
 import LevelerMainframeM from './images/mainframes/levelers/regular/m.png';
 import LevelerMainframeMLowRes from './images/mainframes/levelers/regular/mThumb.png';
 
-// --- Generated Leveler pinline and rules parts (single and two-color) ---
-import LevelerPinlineA from './images/parts/levelerPinline/a.png';
-import LevelerPinlineW from './images/parts/levelerPinline/w.png';
-import LevelerPinlineU from './images/parts/levelerPinline/u.png';
-import LevelerPinlineB from './images/parts/levelerPinline/b.png';
-import LevelerPinlineR from './images/parts/levelerPinline/r.png';
-import LevelerPinlineG from './images/parts/levelerPinline/g.png';
-import LevelerPinlineM from './images/parts/levelerPinline/m.png';
-import LevelerPinlineWu from './images/parts/levelerPinline/wu.png';
-import LevelerPinlineUb from './images/parts/levelerPinline/ub.png';
-import LevelerPinlineBr from './images/parts/levelerPinline/br.png';
-import LevelerPinlineRg from './images/parts/levelerPinline/rg.png';
-import LevelerPinlineGw from './images/parts/levelerPinline/gw.png';
-import LevelerPinlineWb from './images/parts/levelerPinline/wb.png';
-import LevelerPinlineUr from './images/parts/levelerPinline/ur.png';
-import LevelerPinlineBg from './images/parts/levelerPinline/bg.png';
-import LevelerPinlineRw from './images/parts/levelerPinline/rw.png';
-import LevelerPinlineGu from './images/parts/levelerPinline/gu.png';
+// --- Generated Leveler rules parts (single and two-color) ---
 import LevelerRulesA from './images/parts/levelerRules/a.png';
 import LevelerRulesW from './images/parts/levelerRules/w.png';
 import LevelerRulesU from './images/parts/levelerRules/u.png';
@@ -1804,26 +1816,6 @@ const getLevelerPartVariant = (colors: ColorType[]): LevelerPartVariant => {
   return getSingleColorVariant(colors[0]) as Exclude<PartVariant, ''>;
 };
 
-const LEVELER_PINLINE_PARTS: Record<LevelerPartVariant, string> = {
-  a: LevelerPinlineA,
-  w: LevelerPinlineW,
-  u: LevelerPinlineU,
-  b: LevelerPinlineB,
-  r: LevelerPinlineR,
-  g: LevelerPinlineG,
-  m: LevelerPinlineM,
-  wu: LevelerPinlineWu,
-  ub: LevelerPinlineUb,
-  br: LevelerPinlineBr,
-  rg: LevelerPinlineRg,
-  gw: LevelerPinlineGw,
-  wb: LevelerPinlineWb,
-  ur: LevelerPinlineUr,
-  bg: LevelerPinlineBg,
-  rw: LevelerPinlineRw,
-  gu: LevelerPinlineGu,
-};
-
 const LEVELER_RULES_PARTS: Record<LevelerPartVariant, string> = {
   a: LevelerRulesA,
   w: LevelerRulesW,
@@ -1844,11 +1836,63 @@ const LEVELER_RULES_PARTS: Record<LevelerPartVariant, string> = {
   gu: LevelerRulesGu,
 };
 
-export const getLevelerPinline = (colors: ColorType[]): string =>
-  LEVELER_PINLINE_PARTS[getLevelerPartVariant(colors)];
-
 export const getLevelerRules = (colors: ColorType[]): string =>
   LEVELER_RULES_PARTS[getLevelerPartVariant(colors)];
+
+const LEVELER_LEVEL_PARTS = {
+  mid: {
+    regular: {
+      a: LevelerLevelMidA,
+      w: LevelerLevelMidW,
+      u: LevelerLevelMidU,
+      b: LevelerLevelMidB,
+      r: LevelerLevelMidR,
+      g: LevelerLevelMidG,
+      m: LevelerLevelMidM,
+    },
+    nyx: {
+      a: LevelerLevelMidANyx,
+      w: LevelerLevelMidWNyx,
+      u: LevelerLevelMidUNyx,
+      b: LevelerLevelMidBNyx,
+      r: LevelerLevelMidRNyx,
+      g: LevelerLevelMidGNyx,
+      m: LevelerLevelMidMNyx,
+    },
+  },
+  bottom: {
+    regular: {
+      a: LevelerLevelBottomA,
+      w: LevelerLevelBottomW,
+      u: LevelerLevelBottomU,
+      b: LevelerLevelBottomB,
+      r: LevelerLevelBottomR,
+      g: LevelerLevelBottomG,
+      m: LevelerLevelBottomM,
+    },
+    nyx: {
+      a: LevelerLevelBottomANyx,
+      w: LevelerLevelBottomWNyx,
+      u: LevelerLevelBottomUNyx,
+      b: LevelerLevelBottomBNyx,
+      r: LevelerLevelBottomRNyx,
+      g: LevelerLevelBottomGNyx,
+      m: LevelerLevelBottomMNyx,
+    },
+  },
+} as const;
+
+type LevelerLevelPartVariant = keyof typeof LEVELER_LEVEL_PARTS.mid.regular;
+
+const getLevelerLevelPartVariant = (colors: ColorType[]): LevelerLevelPartVariant =>
+  colors.length >= 2 ? 'm' : (getLevelerPartVariant(colors) as LevelerLevelPartVariant);
+
+export const getLevelerLevelPart = (
+  level: 'mid' | 'bottom',
+  colors: ColorType[],
+  isNyx = false,
+): string =>
+  LEVELER_LEVEL_PARTS[level][isNyx ? 'nyx' : 'regular'][getLevelerLevelPartVariant(colors)];
 
 export const getLevelerPt = (color: ColorType, isArtefact = false, isVehicle = false): string => {
   if (isArtefact && isVehicle) return LevelerPtV;

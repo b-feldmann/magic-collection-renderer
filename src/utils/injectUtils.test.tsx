@@ -3,9 +3,16 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it, vi } from 'vitest';
 
 import MechanicInterface from '../interfaces/MechanicInterface';
-import { injectForText, injectManaIcons } from './injectUtils';
+import { injectForText, injectManaIcons, isBulletText } from './injectUtils';
 
 describe('injectUtils', () => {
+  it('identifies card text lines that render with a bullet', () => {
+    expect(isBulletText('* First item')).toBe(true);
+    expect(isBulletText('  - Second item')).toBe(true);
+    expect(isBulletText('--Indented paragraph.')).toBe(false);
+    expect(isBulletText('Regular paragraph.')).toBe(false);
+  });
+
   it('should not trigger "unique key" warnings when rendering injected arrays', () => {
     const warningSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     const mechanics: MechanicInterface[] = [

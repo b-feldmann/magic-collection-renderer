@@ -178,13 +178,10 @@ describe('CardEditor - Prepared section', () => {
     }
   });
 
-  it('offers no Add Mechanic select on the Prepared Text field', () => {
-    // The store carries a mechanic (see mockStoreValue), so Card Text renders
-    // its "Add Mechanic" select; the Prepared Text footer must not add a
-    // second one.
+  it('does not render mechanic selects in Card Text or Prepared Text', () => {
     renderEditor(makeCard([CardType.Creature, CardType.Prepared]));
 
-    expect(fieldWrapper('Card Text').querySelector('.ant-select')).not.toBeNull();
+    expect(fieldWrapper('Card Text').querySelector('.ant-select')).toBeNull();
     expect(fieldWrapper('Text').querySelector('.ant-select')).toBeNull();
   });
 
