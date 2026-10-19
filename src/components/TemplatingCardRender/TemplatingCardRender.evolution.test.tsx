@@ -99,17 +99,6 @@ describe('TemplatingCardRender - Evolution frame', () => {
     expect(screen.getByText('4/4')).toBeInTheDocument();
   });
 
-  it('darkens level 1 rules and makes the level 2 rules overlay slightly darker', () => {
-    renderEvolution();
-
-    expect(screen.getByText('Level 1 ability').closest('[class*="levelerLevel1Text"]')).toHaveStyle(
-      { backgroundColor: 'rgba(0, 0, 0, 0.3)' },
-    );
-    expect(screen.getByText('Level 2 ability').closest('[class*="levelerLevel2Text"]')).toHaveStyle(
-      { backgroundColor: 'rgba(0, 0, 0, 0.4)' },
-    );
-  });
-
   it('keeps ordinary cards on the regular frame without level indicators', () => {
     renderEvolution(false);
 

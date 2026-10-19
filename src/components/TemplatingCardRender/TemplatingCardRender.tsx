@@ -30,25 +30,17 @@ import styles from './TemplatingCardRender.module.scss';
 import {
   getAdventureMainframe,
   getAdventurePinline,
+  getAdventurePt,
   getAdventureRulesLeft,
   getAdventureRulesRight,
-  getEldAlternateAdventureMainframe,
-  getEldAlternateAdventurePinline,
-  getEldAlternateAdventureRulesLeft,
-  getAdventurePt,
-  getLevelerLevelPart,
-  getLevelerRules,
-  getOmenMainframe,
-  getOmenPinline,
-  getOmenRulesLeft,
-  getPrepareMainframe,
-  getPreparePinline,
-  getPrepareRulesRight,
   getBlack,
   getBorderlessMainframe,
   getColorMainframe,
   getCrown,
   getCrownFloatingExtendedArtFix,
+  getEldAlternateAdventureMainframe,
+  getEldAlternateAdventurePinline,
+  getEldAlternateAdventureRulesLeft,
   getExtendedMainframe,
   getFallbackCover,
   getInnerCrown,
@@ -58,8 +50,16 @@ import {
   getLandRulesPart,
   getLandTitlePart,
   getLandTypePart,
+  getLevelerLevelPart,
+  getLevelerRules,
   getNicknameTitle,
+  getOmenMainframe,
+  getOmenPinline,
+  getOmenRulesLeft,
   getPinline,
+  getPrepareMainframe,
+  getPreparePinline,
+  getPrepareRulesRight,
   getPt,
   getRarityIcon,
   getRulesPart,
@@ -449,10 +449,16 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
     }
   }
 
+  const hasStats: boolean = isCreature || (isArtifact && !!vehicle);
+
   const levelerLevelMid =
     isEvolution && level1Indicator ? getLevelerLevelPart('mid', allColors, isEnchantment) : null;
   const levelerLevelBottom =
     isEvolution && level2Indicator ? getLevelerLevelPart('bottom', allColors, isEnchantment) : null;
+
+  const hasSecondEvolution: boolean =
+    isEvolution &&
+    (!!level2Indicator || (!!level2Text && level2Text.length > 0 && level2Text[0] !== ''));
 
   return (
     <div style={{ height: `${getHeight(containerWidth)}px` }}>
@@ -479,10 +485,12 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
             ${isNickname && styles.nicknameFrame}
             ${isEnchantment && styles.enchantment}
             ${isEvolution && styles.evolution}
+            ${!hasSecondEvolution && styles.hasNoSecondEvolution}
             ${isLand && styles.land}
             ${isArtifact && styles.artifact}
             ${artStyle === CardArtStyles.Extended && styles.extended}
             ${color === ColorType.Colorless && styles.colorless}
+            ${hasStats && styles.hasStats}
           `}
         >
           <ImageLoader
@@ -505,11 +513,6 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
           {rulesPart ? <img className={styles.rulesPart} src={rulesPart} alt="" /> : null}
 
           {pinline ? <img className={styles.pinline} src={pinline} alt="" /> : null}
-
-          {levelerLevelMid ? <ImageLoader src={levelerLevelMid} className={styles.frame} /> : null}
-          {levelerLevelBottom ? (
-            <ImageLoader src={levelerLevelBottom} className={styles.frame} />
-          ) : null}
 
           {adventureRulesLeft ? (
             <img className={styles.adventureRulesLeft} src={adventureRulesLeft} alt="" />
@@ -675,16 +678,9 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
 
           {isEvolution ? (
             <>
-              {level1Indicator ? (
-                <div className={`${styles.levelerIndicator} ${styles.levelerIndicatorMid}`}>
-                  {level1Indicator}
-                </div>
-              ) : null}
               {level1Text?.length ? (
-                <div
-                  className={`${styles.text} ${styles.levelerText} ${styles.levelerLevel1Text}`}
-                  style={{ backgroundColor: 'rgba(0, 0, 0, 0.3)' }}
-                >
+                <div className={`${styles.text} ${styles.levelerText} ${styles.levelerLevel1Text}`}>
+                  <div className={styles.levelerLevel1TextBackground}></div>
                   <TextResize
                     defaultFontSize={42}
                     maxFontSize={56}
@@ -708,48 +704,65 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
                   </TextResize>
                 </div>
               ) : null}
+              {levelerLevelMid ? (
+                <ImageLoader src={levelerLevelMid} className={styles.levelerLevelMid} />
+              ) : null}
+              {level1Indicator ? (
+                <div className={`${styles.levelerIndicator} ${styles.levelerIndicatorMid}`}>
+                  {level1Indicator}
+                </div>
+              ) : null}
               {isCreature && (
                 <div className={`${styles.stats} ${styles.levelerStatsMid}`}>
                   {`${parseStats(level1Stats).power}/${parseStats(level1Stats).toughness}`}
                 </div>
               )}
-              {level2Indicator ? (
-                <div className={`${styles.levelerIndicator} ${styles.levelerIndicatorBottom}`}>
-                  {level2Indicator}
-                </div>
-              ) : null}
-              {level2Text?.length ? (
-                <div
-                  className={`${styles.text} ${styles.levelerText} ${styles.levelerLevel2Text}`}
-                  style={{ backgroundColor: 'rgba(0, 0, 0, 0.4)' }}
-                >
-                  <TextResize
-                    defaultFontSize={42}
-                    maxFontSize={56}
-                    minFontSize={38}
-                    lineHeight={1.1}
-                    className={styles.textWrap}
-                  >
-                    <div>
-                      {level2Text.map((val, i) => (
-                        <p
-                          key={`level-2-text-${cardID}-${i}`}
-                          className={isBulletText(val) ? styles.bulletText : undefined}
-                          style={
-                            val.trimStart().startsWith('--') ? { marginLeft: '0.5em' } : undefined
-                          }
-                        >
-                          {injectForText(val, name, mechanics)}
-                        </p>
-                      ))}
+              {hasSecondEvolution && (
+                <>
+                  {level2Text?.length ? (
+                    <div
+                      className={`${styles.text} ${styles.levelerText} ${styles.levelerLevel2Text}`}
+                    >
+                      <div className={styles.levelerLevel2TextBackground}></div>
+                      <TextResize
+                        defaultFontSize={42}
+                        maxFontSize={56}
+                        minFontSize={38}
+                        lineHeight={1.1}
+                        className={styles.textWrap}
+                      >
+                        <div>
+                          {level2Text.map((val, i) => (
+                            <p
+                              key={`level-2-text-${cardID}-${i}`}
+                              className={isBulletText(val) ? styles.bulletText : undefined}
+                              style={
+                                val.trimStart().startsWith('--')
+                                  ? { marginLeft: '0.5em' }
+                                  : undefined
+                              }
+                            >
+                              {injectForText(val, name, mechanics)}
+                            </p>
+                          ))}
+                        </div>
+                      </TextResize>
                     </div>
-                  </TextResize>
-                </div>
-              ) : null}
-              {isCreature && (
-                <div className={`${styles.stats} ${styles.levelerStatsBottom}`}>
-                  {`${parseStats(level2Stats).power}/${parseStats(level2Stats).toughness}`}
-                </div>
+                  ) : null}
+                  {levelerLevelBottom ? (
+                    <ImageLoader src={levelerLevelBottom} className={styles.levelerLevelBottom} />
+                  ) : null}
+                  {level2Indicator ? (
+                    <div className={`${styles.levelerIndicator} ${styles.levelerIndicatorBottom}`}>
+                      {level2Indicator}
+                    </div>
+                  ) : null}
+                  {isCreature && (
+                    <div className={`${styles.stats} ${styles.levelerStatsBottom}`}>
+                      {`${parseStats(level2Stats).power}/${parseStats(level2Stats).toughness}`}
+                    </div>
+                  )}
+                </>
               )}
             </>
           ) : null}

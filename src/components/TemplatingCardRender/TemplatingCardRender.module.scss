@@ -44,6 +44,8 @@
     height: 2100px;
   }
 
+  .levelerLevelMid,
+  .levelerLevelBottom,
   .frame {
     position: absolute;
     top: 0;
@@ -321,22 +323,40 @@
   .levelerText {
     top: 1315px;
     left: 130px;
-    width: 1040px;
+    width: 1260px;
     height: 205px;
   }
 
   .levelerLevel1Text {
     top: 1510px;
     left: 300px;
-    width: 850px;
+    width: 1090px;
     height: 220px;
+  }
+
+  .levelerLevel1TextBackground {
+    position: absolute;
+    top: 0px;
+    left: -190px;
+    width: 1276px;
+    height: 216px;
+    background: rgba(0, 0, 0, 0.075);
   }
 
   .levelerLevel2Text {
     top: 1720px;
     left: 300px;
-    width: 850px;
+    width: 1090px;
     height: 220px;
+  }
+
+  .levelerLevel2TextBackground {
+    position: absolute;
+    top: 5px;
+    left: -190px;
+    width: 1276px;
+    height: 220px;
+    background: rgba(0, 0, 0, 0.15);
   }
 
   .tokenText {
@@ -648,6 +668,43 @@
     display: flex;
     justify-content: center;
     text-align: center;
+  }
+}
+
+.hasNoSecondEvolution {
+  .levelerText {
+    height: 315px;
+  }
+
+  .levelerLevel1Text {
+    top: 1620px;
+    height: 330px;
+  }
+
+  .levelerLevel1TextBackground {
+    height: 326px;
+  }
+
+  .levelerLevelMid {
+    top: 170px;
+  }
+
+  .levelerIndicatorMid {
+    top: 1711px;
+  }
+}
+
+.hasStats {
+  .levelerText {
+    width: 1020px;
+  }
+
+  .levelerLevel1Text {
+    width: 850px;
+  }
+
+  .levelerLevel2Text {
+    width: 850px;
   }
 }
 
