@@ -51,6 +51,7 @@ import {
   getLandTitlePart,
   getLandTypePart,
   getLevelerLevelPart,
+  getLevelerPt,
   getLevelerRules,
   getNicknameTitle,
   getOmenMainframe,
@@ -665,7 +666,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
             <div>
               {pt ? (
                 <img
-                  className={`${styles.pt} ${isEvolution ? styles.levelerPt : ''}`}
+                  className={`${styles.pt} ${isEvolution ? `${styles.levelerPt} ${styles.levelerPtTop}` : ''}`}
                   src={pt}
                   alt=""
                 />
@@ -712,10 +713,17 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
                   {level1Indicator}
                 </div>
               ) : null}
-              {isCreature && (
-                <div className={`${styles.stats} ${styles.levelerStatsMid}`}>
-                  {`${parseStats(level1Stats).power}/${parseStats(level1Stats).toughness}`}
-                </div>
+              {hasStats && (
+                <>
+                  <img
+                    className={`${styles.pt} ${styles.levelerPt} ${styles.levelerPtMid}`}
+                    src={getLevelerPt(color, isArtifact, vehicle, 'mid')}
+                    alt=""
+                  />
+                  <div className={`${styles.stats} ${styles.levelerStatsMid}`}>
+                    {`${parseStats(level1Stats).power}/${parseStats(level1Stats).toughness}`}
+                  </div>
+                </>
               )}
               {hasSecondEvolution && (
                 <>
@@ -757,10 +765,17 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
                       {level2Indicator}
                     </div>
                   ) : null}
-                  {isCreature && (
-                    <div className={`${styles.stats} ${styles.levelerStatsBottom}`}>
-                      {`${parseStats(level2Stats).power}/${parseStats(level2Stats).toughness}`}
-                    </div>
+                  {hasStats && (
+                    <>
+                      <img
+                        className={`${styles.pt} ${styles.levelerPt} ${styles.levelerPtBottom}`}
+                        src={getLevelerPt(color, isArtifact, vehicle, 'bottom')}
+                        alt=""
+                      />
+                      <div className={`${styles.stats} ${styles.levelerStatsBottom}`}>
+                        {`${parseStats(level2Stats).power}/${parseStats(level2Stats).toughness}`}
+                      </div>
+                    </>
                   )}
                 </>
               )}

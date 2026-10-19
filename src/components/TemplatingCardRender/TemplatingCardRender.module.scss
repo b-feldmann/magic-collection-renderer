@@ -582,6 +582,22 @@
     top: 1354px;
   }
 
+  .levelerPt {
+    bottom: auto;
+  }
+
+  .levelerPtTop {
+    top: 1345px;
+  }
+
+  .levelerPtMid {
+    top: 1543px;
+  }
+
+  .levelerPtBottom {
+    top: 1751px;
+  }
+
   .levelerStatsMid {
     top: 1552px;
   }
@@ -691,6 +707,14 @@
 
   .levelerIndicatorMid {
     top: 1711px;
+  }
+
+  .levelerPtMid {
+    top: 1713px;
+  }
+
+  .levelerStatsMid {
+    top: 1722px;
   }
 }
 
@@ -1026,11 +1050,6 @@
   .landSymbol > * > * {
     width: 270px;
   }
-}
-
-.evolution .pt,
-.levelerPt {
-  bottom: 195px;
 }
 
 // Controls how the cover image fills its fixed-size box. `stretch` keeps the

@@ -983,14 +983,30 @@ import LevelerRulesUr from './images/parts/levelerRules/ur.png';
 import LevelerRulesBg from './images/parts/levelerRules/bg.png';
 import LevelerRulesRw from './images/parts/levelerRules/rw.png';
 import LevelerRulesGu from './images/parts/levelerRules/gu.png';
-import LevelerPtA from './images/pt/levelers/a.png';
-import LevelerPtV from './images/pt/levelers/v.png';
-import LevelerPtW from './images/pt/levelers/w.png';
-import LevelerPtU from './images/pt/levelers/u.png';
-import LevelerPtB from './images/pt/levelers/b.png';
-import LevelerPtR from './images/pt/levelers/r.png';
-import LevelerPtG from './images/pt/levelers/g.png';
-import LevelerPtM from './images/pt/levelers/m.png';
+import LevelerPtTopA from './images/pt/levelers/top/a.png';
+import LevelerPtTopV from './images/pt/levelers/top/v.png';
+import LevelerPtTopW from './images/pt/levelers/top/w.png';
+import LevelerPtTopU from './images/pt/levelers/top/u.png';
+import LevelerPtTopB from './images/pt/levelers/top/b.png';
+import LevelerPtTopR from './images/pt/levelers/top/r.png';
+import LevelerPtTopG from './images/pt/levelers/top/g.png';
+import LevelerPtTopM from './images/pt/levelers/top/m.png';
+import LevelerPtMidA from './images/pt/levelers/mid/a.png';
+import LevelerPtMidV from './images/pt/levelers/mid/v.png';
+import LevelerPtMidW from './images/pt/levelers/mid/w.png';
+import LevelerPtMidU from './images/pt/levelers/mid/u.png';
+import LevelerPtMidB from './images/pt/levelers/mid/b.png';
+import LevelerPtMidR from './images/pt/levelers/mid/r.png';
+import LevelerPtMidG from './images/pt/levelers/mid/g.png';
+import LevelerPtMidM from './images/pt/levelers/mid/m.png';
+import LevelerPtBottomA from './images/pt/levelers/bottom/a.png';
+import LevelerPtBottomV from './images/pt/levelers/bottom/v.png';
+import LevelerPtBottomW from './images/pt/levelers/bottom/w.png';
+import LevelerPtBottomU from './images/pt/levelers/bottom/u.png';
+import LevelerPtBottomB from './images/pt/levelers/bottom/b.png';
+import LevelerPtBottomR from './images/pt/levelers/bottom/r.png';
+import LevelerPtBottomG from './images/pt/levelers/bottom/g.png';
+import LevelerPtBottomM from './images/pt/levelers/bottom/m.png';
 
 // --- Prepare pinline (single + WUBRG two-color combos) ---
 import PreparePinlineW from './images/parts/preparePinline/w.png';
@@ -1894,25 +1910,64 @@ export const getLevelerLevelPart = (
 ): string =>
   LEVELER_LEVEL_PARTS[level][isNyx ? 'nyx' : 'regular'][getLevelerLevelPartVariant(colors)];
 
-export const getLevelerPt = (color: ColorType, isArtefact = false, isVehicle = false): string => {
-  if (isArtefact && isVehicle) return LevelerPtV;
-  if (isArtefact && color !== ColorType.Gold) return LevelerPtA;
+const LEVELER_PT = {
+  top: {
+    a: LevelerPtTopA,
+    v: LevelerPtTopV,
+    w: LevelerPtTopW,
+    u: LevelerPtTopU,
+    b: LevelerPtTopB,
+    r: LevelerPtTopR,
+    g: LevelerPtTopG,
+    m: LevelerPtTopM,
+  },
+  mid: {
+    a: LevelerPtMidA,
+    v: LevelerPtMidV,
+    w: LevelerPtMidW,
+    u: LevelerPtMidU,
+    b: LevelerPtMidB,
+    r: LevelerPtMidR,
+    g: LevelerPtMidG,
+    m: LevelerPtMidM,
+  },
+  bottom: {
+    a: LevelerPtBottomA,
+    v: LevelerPtBottomV,
+    w: LevelerPtBottomW,
+    u: LevelerPtBottomU,
+    b: LevelerPtBottomB,
+    r: LevelerPtBottomR,
+    g: LevelerPtBottomG,
+    m: LevelerPtBottomM,
+  },
+};
+
+export const getLevelerPt = (
+  color: ColorType,
+  isArtefact = false,
+  isVehicle = false,
+  row: 'top' | 'mid' | 'bottom' = 'top',
+): string => {
+  const parts = LEVELER_PT[row];
+  if (isArtefact && isVehicle) return parts.v;
+  if (isArtefact && color !== ColorType.Gold) return parts.a;
 
   switch (color) {
     case ColorType.White:
-      return LevelerPtW;
+      return parts.w;
     case ColorType.Blue:
-      return LevelerPtU;
+      return parts.u;
     case ColorType.Black:
-      return LevelerPtB;
+      return parts.b;
     case ColorType.Red:
-      return LevelerPtR;
+      return parts.r;
     case ColorType.Green:
-      return LevelerPtG;
+      return parts.g;
     case ColorType.Gold:
-      return LevelerPtM;
+      return parts.m;
     default:
-      return LevelerPtA;
+      return parts.a;
   }
 };
 

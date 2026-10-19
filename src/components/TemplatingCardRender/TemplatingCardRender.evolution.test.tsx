@@ -31,7 +31,7 @@ const mockStoreValue: StoreType = {
 
 const renderEvolution = (
   evolution = true,
-  indicators: { level1Indicator?: string; level2Indicator?: string } = {
+  indicators: { level1Indicator?: string; level2Indicator?: string; level2Text?: string[] } = {
     level1Indicator: 'LEVEL 2-3',
     level2Indicator: 'LEVEL 4+',
   },
@@ -47,11 +47,11 @@ const renderEvolution = (
         cardText={[]}
         cardStats="1/1"
         {...({
-          ...indicators,
           level1Text: ['Level 1 ability'],
           level2Text: ['Level 2 ability'],
           level1Stats: '3/3',
           level2Stats: '4/4',
+          ...indicators,
         } as any)}
         collectionNumber={1}
         collectionSize={10}
@@ -76,12 +76,13 @@ describe('TemplatingCardRender - Evolution frame', () => {
         img.getAttribute('src')?.includes('parts/levelerLevelBottom/regular/'),
       ),
     ).toBe(true);
-    expect(allImages().some(img => img.className.includes('levelerPt'))).toBe(true);
-    expect(
-      allImages()
-        .find(img => img.className.includes('levelerPt'))
-        ?.getAttribute('src'),
-    ).toContain('pt/levelers/g.png');
+    const ptImages = allImages().filter(img => img.className.includes('levelerPt'));
+    expect(ptImages).toHaveLength(3);
+    expect(ptImages.map(img => img.getAttribute('src'))).toEqual([
+      expect.stringContaining('pt/levelers/top/g.png'),
+      expect.stringContaining('pt/levelers/mid/g.png'),
+      expect.stringContaining('pt/levelers/bottom/g.png'),
+    ]);
     // Only real (carved) parts render: no debug-colored overlay masks.
     for (const cls of ['levelerRulesTop', 'levelerRulesMid', 'levelerRulesBottom']) {
       expect(allImages().some(img => img.className.includes(cls))).toBe(false);
@@ -108,6 +109,21 @@ describe('TemplatingCardRender - Evolution frame', () => {
     expect(screen.queryByText('LEVEL 2-3')).toBeNull();
     expect(screen.queryByText('LEVEL 4+')).toBeNull();
     expect(screen.getByText('1/1')).toBeInTheDocument();
+    expect(allImages().filter(img => img.className.includes('levelerPt'))).toHaveLength(0);
+  });
+
+  it('renders only two separate P/T images when there is no second evolution', () => {
+    renderEvolution(true, { level1Indicator: 'LEVEL 2+', level2Text: [] });
+
+    const ptImages = allImages().filter(img => img.className.includes('levelerPt'));
+    expect(ptImages).toHaveLength(2);
+    expect(ptImages.map(img => img.getAttribute('src'))).toEqual([
+      expect.stringContaining('pt/levelers/top/g.png'),
+      expect.stringContaining('pt/levelers/mid/g.png'),
+    ]);
+    expect(screen.getByText('1/1')).toBeInTheDocument();
+    expect(screen.getByText('3/3')).toBeInTheDocument();
+    expect(screen.queryByText('4/4')).not.toBeInTheDocument();
   });
 
   it('does not render the level 2 indicator plate when its indicator is unset', () => {

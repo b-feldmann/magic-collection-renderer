@@ -660,12 +660,29 @@ describe('leveler frames', () => {
   });
 
   it('selects the dedicated Leveler PT images without two-color assets', () => {
-    expect(getLevelerPt(ColorType.White)).toContain('pt/levelers/w.png');
-    expect(getLevelerPt(ColorType.Green)).toContain('pt/levelers/g.png');
-    expect(getLevelerPt(ColorType.Gold)).toContain('pt/levelers/m.png');
-    expect(getLevelerPt(ColorType.Colorless)).toContain('pt/levelers/a.png');
-    expect(getLevelerPt(ColorType.Colorless, false, true)).toContain('pt/levelers/a.png');
-    expect(getLevelerPt(ColorType.Colorless, true, true)).toContain('pt/levelers/v.png');
+    expect(getLevelerPt(ColorType.White)).toContain('pt/levelers/top/w.png');
+    expect(getLevelerPt(ColorType.Green)).toContain('pt/levelers/top/g.png');
+    expect(getLevelerPt(ColorType.Gold)).toContain('pt/levelers/top/m.png');
+    expect(getLevelerPt(ColorType.Colorless)).toContain('pt/levelers/top/a.png');
+    expect(getLevelerPt(ColorType.Colorless, false, true)).toContain('pt/levelers/top/a.png');
+    expect(getLevelerPt(ColorType.Colorless, true, true)).toContain('pt/levelers/top/v.png');
+  });
+
+  it.each(['top', 'mid', 'bottom'] as const)('selects matching colors for the %s P/T row', row => {
+    for (const [color, file] of [
+      [ColorType.White, 'w'],
+      [ColorType.Blue, 'u'],
+      [ColorType.Black, 'b'],
+      [ColorType.Red, 'r'],
+      [ColorType.Green, 'g'],
+      [ColorType.Gold, 'm'],
+      [ColorType.Colorless, 'a'],
+    ] as const) {
+      expect(getLevelerPt(color, false, false, row)).toContain(`pt/levelers/${row}/${file}.png`);
+    }
+    expect(getLevelerPt(ColorType.Green, true, false, row)).toContain(`pt/levelers/${row}/a.png`);
+    expect(getLevelerPt(ColorType.Gold, true, false, row)).toContain(`pt/levelers/${row}/m.png`);
+    expect(getLevelerPt(ColorType.Green, true, true, row)).toContain(`pt/levelers/${row}/v.png`);
   });
 });
 
