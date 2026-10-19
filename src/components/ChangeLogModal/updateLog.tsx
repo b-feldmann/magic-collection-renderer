@@ -520,11 +520,11 @@ updateLog.push({
     },
     {
       type: ChangeLogFeatureType.Fixed,
-      feature: 'It is now possible to have evolution cards that are no creatures.',
+      feature: 'It is now possible to have non-creature evolution cards.',
     },
     {
       type: ChangeLogFeatureType.Fixed,
-      feature: 'It is possible to build evolution cards that have only a single evolution.',
+      feature: 'It is possible to build evolution cards with only a single evolution.',
     },
   ],
 });
