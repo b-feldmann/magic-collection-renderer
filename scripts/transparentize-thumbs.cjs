@@ -29,6 +29,15 @@ const MAINFRAMES_DIR = path.join(
   'images',
   'mainframes',
 );
+const CROWNS_DIR = path.join(
+  __dirname,
+  '..',
+  'src',
+  'components',
+  'TemplatingCardRender',
+  'images',
+  'crown',
+);
 
 // A pixel counts as "white" when each of its RGB channels is >= this value.
 const THRESHOLD = 255;
@@ -44,11 +53,18 @@ function listThumbs(dir) {
 }
 
 (async () => {
-  const files = listThumbs(MAINFRAMES_DIR);
-  if (files.length === 0) {
+  const files_mainframes = listThumbs(MAINFRAMES_DIR);
+  if (files_mainframes.length === 0) {
     console.log('No *Thumb.png files found under', MAINFRAMES_DIR);
     return;
   }
+  const files_crowns = listThumbs(CROWNS_DIR);
+  if (files_crowns.length === 0) {
+    console.log('No *Thumb.png files found under', CROWNS_DIR);
+    return;
+  }
+
+  const files = [...files_mainframes, ...files_crowns];
 
   let totalCleared = 0;
   for (const file of files) {

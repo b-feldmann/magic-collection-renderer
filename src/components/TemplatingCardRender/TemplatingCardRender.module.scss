@@ -65,6 +65,12 @@
     height: 2100px;
   }
 
+  .crown,
+  .crownFloating {
+    // Override ImageLoader's full-height thumbnail without distorting the crown.
+    height: auto;
+  }
+
   .crown {
     position: absolute;
     top: 40px;
