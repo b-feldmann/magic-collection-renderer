@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { Button, Modal, Row, Space } from 'antd';
+import { Button, ConfigProvider, Flex, Modal, Row } from 'antd';
 import cloneDeep from 'lodash/cloneDeep';
 import isEqual from 'lodash/isEqual';
 import dayjs from 'dayjs';
@@ -25,7 +25,8 @@ import { getAutomaticCardTags, getCardTags, updateCardTags } from '../../utils/c
 import { createTag } from '../../actions/tagActions';
 
 import CardFaceInterface from '../../interfaces/CardFaceInterface';
-import { deleteCard, updateCard } from '../../actions/cardActions';
+import { createCardVariant, deleteCard, updateCard } from '../../actions/cardActions';
+import { withLatestVariantIds } from '../../utils/cardVariants';
 import { Store, StoreType } from '../../store';
 import {
   BJENNWARE,
@@ -37,6 +38,8 @@ import {
 interface CardEditorInterface {
   card?: CardInterface;
   saveTmpCard: (card: CardInterface | null) => void;
+  // Immediate draft tracking, separate from the debounced collection preview.
+  onDraftChange?: (card: CardInterface | null) => void;
 }
 
 const NO_CARD = '-1';
@@ -241,8 +244,13 @@ interface InputConfigInterface {
 
 const CardEditor: React.FC<CardEditorInterface> = ({
   card = dummyCard,
-  saveTmpCard,
+  saveTmpCard: savePreview,
+  onDraftChange,
 }: CardEditorInterface) => {
+  const saveTmpCard = (draft: CardInterface | null) => {
+    onDraftChange?.(draft);
+    savePreview(draft);
+  };
   const [contentChanged, setContentChanged] = useState<boolean>(false);
   const [originalCard, setOriginalCard] = useState<CardInterface>(() => cloneDeep(card));
   const [tmpCard, setTmpCard] = useState<CardInterface>(() => cloneDeep(card));
@@ -254,8 +262,55 @@ const CardEditor: React.FC<CardEditorInterface> = ({
   const saveGenRef = useRef<number>(0);
 
   const [editBack, setEditBack] = useState<boolean>(false);
+  const [creatingVariant, setCreatingVariant] = useState(false);
+  const creatingVariantRef = useRef(false);
+  const inFlightSaves = useRef(new Set<Promise<unknown>>());
 
-  const { dispatch, user, mechanics, tags, currentUser } = useContext<StoreType>(Store);
+  const { dispatch, user, mechanics, tags, currentUser, cards } = useContext<StoreType>(Store);
+  const collectionRef = useRef(cards);
+  collectionRef.current = cards;
+
+  const saveEditorSnapshot = (snapshot: CardInterface): Promise<unknown> => {
+    const saving = updateCard(
+      dispatch,
+      cloneDeep(withLatestVariantIds(snapshot, collectionRef.current)),
+    );
+    inFlightSaves.current.add(saving);
+    saving.then(
+      () => inFlightSaves.current.delete(saving),
+      () => inFlightSaves.current.delete(saving),
+    );
+    return saving;
+  };
+
+  const createVariant = async () => {
+    if (creatingVariantRef.current || card.uuid === NO_CARD) return;
+    creatingVariantRef.current = true;
+    setCreatingVariant(true);
+    if (timerId.current) clearTimeout(timerId.current);
+    if (saveTimerId.current) clearTimeout(saveTimerId.current);
+    saveGenRef.current += 1;
+    const snapshot = cloneDeep(tmpCard);
+    try {
+      // An older in-flight PUT must finish before reciprocal links are written.
+      await Promise.all([...inFlightSaves.current]);
+      await createCardVariant(
+        dispatch,
+        withLatestVariantIds(snapshot, collectionRef.current),
+        collectionRef.current,
+        currentUser,
+      );
+      setOriginalCard(cloneDeep(snapshot));
+      setContentChanged(false);
+      saveTmpCard(null);
+    } catch {
+      // Actions report persistence failures. Keep the editable draft for retry.
+      saveTmpCard(snapshot);
+    } finally {
+      creatingVariantRef.current = false;
+      setCreatingVariant(false);
+    }
+  };
 
   const canDeleteCard = currentUser.name === BJENNWARE || card.creator.uuid === currentUser.uuid;
   const canFavoriteCard = card.uuid !== NO_CARD && card.creator.uuid === currentUser.uuid;
@@ -379,6 +434,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
 
     setTmpCard(newTmpCard);
 
+    onDraftChange?.(newTmpCard);
     setContentChanged(true);
 
     if (timerId.current) clearTimeout(timerId.current);
@@ -389,7 +445,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
     if (saveTimerId.current) clearTimeout(saveTimerId.current);
     const saveGen = ++saveGenRef.current;
     saveTimerId.current = setTimeout(() => {
-      updateCard(dispatch, cloneDeep(newTmpCard))
+      saveEditorSnapshot(newTmpCard)
         .then(() => {
           // Only clear the "unsaved changes" marker if no newer edits are
           // pending; otherwise the parent would drop them from its preview.
@@ -404,10 +460,11 @@ const CardEditor: React.FC<CardEditorInterface> = ({
 
     if (timerId.current) clearTimeout(timerId.current);
     if (saveTimerId.current) clearTimeout(saveTimerId.current);
-    setTmpCard(cloneDeep(originalCard));
+    const restored = withLatestVariantIds(cloneDeep(originalCard), collectionRef.current);
+    setTmpCard(restored);
     saveTmpCard(null);
     setContentChanged(false);
-    updateCard(dispatch, cloneDeep(originalCard));
+    saveEditorSnapshot(restored).catch(() => {});
   };
 
   const confirmDeleteCard = () => {
@@ -419,11 +476,13 @@ const CardEditor: React.FC<CardEditorInterface> = ({
       okText: 'Yes, delete card',
       okType: 'danger',
       cancelText: 'Cancel',
-      onOk() {
+      async onOk() {
         if (timerId.current) clearTimeout(timerId.current);
         if (saveTimerId.current) clearTimeout(saveTimerId.current);
+        saveGenRef.current += 1;
+        await Promise.all([...inFlightSaves.current]);
         saveTmpCard(null);
-        return deleteCard(dispatch, card.uuid);
+        return deleteCard(dispatch, card.uuid, collectionRef.current);
       },
     });
   };
@@ -440,7 +499,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
     setOriginalCard(cloneDeep(updatedCard));
     setContentChanged(false);
     saveTmpCard(null);
-    updateCard(dispatch, cloneDeep(updatedCard)).catch(() => {});
+    saveEditorSnapshot(updatedCard).catch(() => {});
   };
 
   useEffect(() => {
@@ -456,6 +515,9 @@ const CardEditor: React.FC<CardEditorInterface> = ({
   }, [tmpCard]);
 
   useEffect(() => {
+    if (timerId.current) clearTimeout(timerId.current);
+    if (saveTimerId.current) clearTimeout(saveTimerId.current);
+    saveGenRef.current += 1;
     setEditBack(false);
     setTmpCard(cloneDeep(card));
     setOriginalCard(cloneDeep(card));
@@ -738,8 +800,11 @@ const CardEditor: React.FC<CardEditorInterface> = ({
     // matching the debounced saveValue path. Without this the freshly
     // saved card stays pinned as tmpCard and the app keeps warning about
     // (already-saved) unsaved changes.
-    updateCard(dispatch, cloneDeep(newTmpCard))
-      .then(() => saveTmpCard(null))
+    const saveGen = ++saveGenRef.current;
+    saveEditorSnapshot(newTmpCard)
+      .then(() => {
+        if (saveGen === saveGenRef.current) saveTmpCard(null);
+      })
       .catch(() => {});
   };
 
@@ -749,83 +814,100 @@ const CardEditor: React.FC<CardEditorInterface> = ({
     setTmpCard(newTmpCard);
     saveTmpCard(newTmpCard);
     setContentChanged(true);
-    updateCard(dispatch, cloneDeep(newTmpCard))
-      .then(() => saveTmpCard(null))
+    const saveGen = ++saveGenRef.current;
+    saveEditorSnapshot(newTmpCard)
+      .then(() => {
+        if (saveGen === saveGenRef.current) saveTmpCard(null);
+      })
       .catch(() => {});
   };
 
   return (
-    <div className={styles.editor}>
-      <canvas id="cover-resize-canvas" className={styles.canvas} />
-      <Row>
-        <div className={styles.fullField}>
-          <Space.Compact className={styles.smallButtonGroup} size="small">
-            {canFavoriteCard && (
-              <Button onClick={toggleFavorite}>
-                {tmpCard.favorite ? 'Unmark as favorite' : 'Mark as favorite'}
+    <ConfigProvider componentDisabled={creatingVariant}>
+      <div className={styles.editor}>
+        <canvas id="cover-resize-canvas" className={styles.canvas} />
+        <Row>
+          <div className={`${styles.fullField} ${styles.actionField}`}>
+            <Flex className={styles.smallButtonGroup} wrap gap={4}>
+              {canFavoriteCard && (
+                <Button size="small" onClick={toggleFavorite}>
+                  {tmpCard.favorite ? 'Unmark as favorite' : 'Mark as favorite'}
+                </Button>
+              )}
+              <Button
+                size="small"
+                aria-label="Create Variant"
+                onClick={createVariant}
+                loading={creatingVariant}
+              >
+                Create Variant
               </Button>
-            )}
-            {card.back && editBack && (
-              <Button onClick={() => setEditBack(false)}>
-                <span>Edit Front Face</span>
+              {card.back && editBack && (
+                <Button size="small" onClick={() => setEditBack(false)}>
+                  <span>Edit Front Face</span>
+                </Button>
+              )}
+              {card.back && !editBack && (
+                <Button size="small" onClick={() => setEditBack(true)}>
+                  <span>Edit Back Face</span>
+                </Button>
+              )}
+              {card.back && (
+                <Button size="small" onClick={deleteBackFace} danger>
+                  <span>Delete Back Face</span>
+                </Button>
+              )}
+              {!card.back && (
+                <Button size="small" onClick={addBackFace}>
+                  Add Back Face
+                </Button>
+              )}
+            </Flex>
+          </div>
+        </Row>
+        <Row>
+          {inputConfig.map(config => {
+            const style: any = {};
+            if (config.width === 0) style.display = 'none';
+            if (config.width) style.width = `${config.width}%`;
+            return (
+              <div
+                key={`card-editor-key:${config.key}`}
+                className={config.width ? styles.partialField : styles.fullField}
+                style={style}
+              >
+                <EditField
+                  fieldKey={config.key}
+                  type={config.type}
+                  pairedFieldKey={config.pairedFieldKey}
+                  data={config.data}
+                  disabledKeys={config.disabledKeys}
+                  name={config.name}
+                  allowCreate={config.allowCreate}
+                  nonRemovableValues={config.nonRemovableValues}
+                  saveValue={saveValue}
+                  getValue={getValue}
+                />
+              </div>
+            );
+          })}
+        </Row>
+        <Row>
+          <div className={`${styles.fullField} ${styles.actionField}`}>
+            <Flex className={styles.buttonGroup} wrap gap={4}>
+              <Button size="small" disabled={!contentChanged} onClick={undoChanges} danger>
+                <span>Undo Changes</span>
               </Button>
-            )}
-            {card.back && !editBack && (
-              <Button onClick={() => setEditBack(true)}>
-                <span>Edit Back Face</span>
-              </Button>
-            )}
-            {card.back && (
-              <Button onClick={deleteBackFace} danger>
-                <span>Delete Back Face</span>
-              </Button>
-            )}
-            {!card.back && <Button onClick={addBackFace}>Add Back Face</Button>}
-          </Space.Compact>
-        </div>
-      </Row>
-      <Row>
-        {inputConfig.map(config => {
-          const style: any = {};
-          if (config.width === 0) style.display = 'none';
-          if (config.width) style.width = `${config.width}%`;
-          return (
-            <div
-              key={`card-editor-key:${config.key}`}
-              className={config.width ? styles.partialField : styles.fullField}
-              style={style}
-            >
-              <EditField
-                fieldKey={config.key}
-                type={config.type}
-                pairedFieldKey={config.pairedFieldKey}
-                data={config.data}
-                disabledKeys={config.disabledKeys}
-                name={config.name}
-                allowCreate={config.allowCreate}
-                nonRemovableValues={config.nonRemovableValues}
-                saveValue={saveValue}
-                getValue={getValue}
-              />
-            </div>
-          );
-        })}
-      </Row>
-      <Row>
-        <div className={styles.fullField}>
-          <Space.Compact className={styles.buttonGroup} size="small">
-            <Button disabled={!contentChanged} onClick={undoChanges} danger>
-              <span>Undo Changes</span>
-            </Button>
-            {canDeleteCard && (
-              <Button onClick={confirmDeleteCard} danger>
-                <span>Delete Card</span>
-              </Button>
-            )}
-          </Space.Compact>
-        </div>
-      </Row>
-    </div>
+              {canDeleteCard && (
+                <Button size="small" onClick={confirmDeleteCard} danger>
+                  <span>Delete Card</span>
+                </Button>
+              )}
+            </Flex>
+          </div>
+        </Row>
+      </div>
+    </ConfigProvider>
   );
 };
 

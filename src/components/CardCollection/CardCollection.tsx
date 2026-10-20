@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 import { Grid } from 'react-window';
 
@@ -8,14 +8,14 @@ import CardInterface from '../../interfaces/CardInterface';
 import Cell, { CellData } from './Cell';
 
 import styles from './styles.module.scss';
-import { getImage } from '../../actions/imageActions';
-import { Store, StoreType } from '../../store';
-import { isLoadingCover } from '../../utils/cover';
 import { CARD_WIDTH, CARD_HEIGHT } from '../../utils/constants';
+import { getVariantGroups } from '../../utils/cardVariants';
 
 export interface CardCollectionInterface {
   cards?: CardInterface[];
+  allCards?: CardInterface[];
   editCard: (id: string) => void;
+  onSelectVariant?: (id: string) => void;
   downloadImage?: (id: string) => void;
   downloadJson?: (id: string) => void;
   currentEditId: string;
@@ -27,7 +27,9 @@ export interface CardCollectionInterface {
 
 const CardCollection = ({
   cards = [],
+  allCards = cards,
   editCard,
+  onSelectVariant,
   downloadJson = () => {},
   currentEditId,
   colSpanSetting = 4,
@@ -36,13 +38,29 @@ const CardCollection = ({
   mobile,
 }: CardCollectionInterface) => {
   const [showBackFaceConfig, setShowBackFaceConfig] = useState<{ [key: string]: boolean }>({});
+  const [selectedVariants, setSelectedVariants] = useState<Record<string, string>>({});
+  const groups = useMemo(() => getVariantGroups(cards, allCards), [cards, allCards]);
+  const previousEditId = useRef('');
 
-  const { dispatch } = useContext<StoreType>(Store);
+  // Follow accepted editor navigation; standalone collections can also browse locally.
+  useEffect(() => {
+    if (previousEditId.current === currentEditId) return;
+    const group = groups.find(family => family.some(card => card.uuid === currentEditId));
+    if (!group) return;
+    previousEditId.current = currentEditId;
+    setSelectedVariants(previous => ({ ...previous, [group[0].uuid]: currentEditId }));
+  }, [currentEditId, groups]);
+
+  const selectedIds = new Set(Object.values(selectedVariants));
+  const visibleCards = groups.map(
+    group =>
+      group.find(card => card.uuid === selectedVariants[group[0].uuid]) ||
+      group.find(card => selectedIds.has(card.uuid)) ||
+      group[0],
+  );
 
   const toggleShowBackConfig = (id: string) => {
-    const newConfig = { ...showBackFaceConfig };
-    newConfig[id] = !newConfig[id];
-    setShowBackFaceConfig(newConfig);
+    setShowBackFaceConfig(previous => ({ ...previous, [id]: !previous[id] }));
   };
 
   return (
@@ -69,7 +87,7 @@ const CardCollection = ({
           else columns = 2;
         }
 
-        const rows: number = Math.ceil(cards.length / columns);
+        const rows: number = Math.ceil(groups.length / columns);
 
         // Reserve room for the vertical scrollbar so the rightmost column of
         // cards is never rendered underneath it. Only reserve the space when
@@ -86,7 +104,12 @@ const CardCollection = ({
         const columnHeight: number = (columnWidth / CARD_WIDTH) * CARD_HEIGHT;
 
         const data: CellData = {
-          cards,
+          cards: visibleCards,
+          variantGroups: groups,
+          selectVariant: (familyId, uuid) => {
+            if (onSelectVariant) onSelectVariant(uuid);
+            else setSelectedVariants(previous => ({ ...previous, [familyId]: uuid }));
+          },
           columnCount: columns,
           seenCardUuids,
           currentEditId,
@@ -109,27 +132,6 @@ const CardCollection = ({
             rowCount={rows}
             rowHeight={columnHeight}
             style={{ height, width }}
-            onCellsRendered={(_visibleCells, allCells) => {
-              for (
-                let i = allCells.rowStartIndex * columns;
-                i <= allCells.rowStopIndex * columns;
-                i += 1
-              ) {
-                if (data.cards[i]) {
-                  const frontCover = data.cards[i].front.cover;
-                  if (isLoadingCover(frontCover)) {
-                    getImage(dispatch, data.cards[i], 0);
-                  }
-                  const { back } = data.cards[i];
-                  if (back) {
-                    const backCover = back.cover;
-                    if (isLoadingCover(backCover)) {
-                      getImage(dispatch, data.cards[i], 1);
-                    }
-                  }
-                }
-              }
-            }}
           />
         );
       }}

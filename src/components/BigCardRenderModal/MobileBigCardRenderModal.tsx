@@ -17,6 +17,7 @@ interface MobileBigCardRenderModalProps {
   collectionSize: number;
   width: number;
   height: number;
+  variantNavigation?: React.ReactNode;
 }
 
 const MobileBigCardRenderModal = ({
@@ -27,6 +28,7 @@ const MobileBigCardRenderModal = ({
   collectionSize,
   width,
   height,
+  variantNavigation,
 }: MobileBigCardRenderModalProps) => {
   // Mark the back face so card renderers suppress front-only chrome
   // (e.g. the mana cost) on it, matching CardCollection's Cell.
@@ -40,7 +42,7 @@ const MobileBigCardRenderModal = ({
   const portrait = height > width;
 
   const wOffset = 40;
-  const hOffset = 30;
+  const hOffset = variantNavigation ? 72 : 30;
 
   const dimFactor = CARD_WIDTH / CARD_HEIGHT;
 
@@ -72,24 +74,26 @@ const MobileBigCardRenderModal = ({
         className={styles.mobilePositioner}
         style={{
           width: modalWidth,
-          flexDirection: portrait ? 'column' : 'row',
         }}
       >
-        {faces.map((face, index) => (
-          <TrainerGalleryHolofoil key={`${face.name}-${index}`} cardWidth={cardWidth}>
-            <CardRender
-              containerWidth={cardWidth}
-              {...face}
-              cardID={card.uuid}
-              creator={card.creator.name}
-              rarity={card.rarity}
-              manaCost={card.manaCost}
-              collectionNumber={collectionNumber}
-              collectionSize={collectionSize}
-            />
-            <FavoriteHeart favorite={card.favorite} />
-          </TrainerGalleryHolofoil>
-        ))}
+        <div className={styles.mobileFaces} style={{ flexDirection: portrait ? 'column' : 'row' }}>
+          {faces.map((face, index) => (
+            <TrainerGalleryHolofoil key={`${card.uuid}-${index}`} cardWidth={cardWidth}>
+              <CardRender
+                containerWidth={cardWidth}
+                {...face}
+                cardID={card.uuid}
+                creator={card.creator.name}
+                rarity={card.rarity}
+                manaCost={card.manaCost}
+                collectionNumber={collectionNumber}
+                collectionSize={collectionSize}
+              />
+              <FavoriteHeart favorite={card.favorite} />
+            </TrainerGalleryHolofoil>
+          ))}
+        </div>
+        {variantNavigation}
       </div>
     </Modal>
   );

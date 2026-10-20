@@ -21,6 +21,7 @@ export default interface CardInterface {
   manaCost: string;
   favorite?: boolean;
   tags?: string[];
+  variantIds?: string[];
   front: CardFaceInterface;
   back?: CardFaceInterface;
   loading?: boolean;

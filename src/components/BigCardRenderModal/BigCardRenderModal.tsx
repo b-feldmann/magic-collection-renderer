@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext, useMemo } from 'react';
+import React, { ReactElement, useContext, useEffect, useMemo, useState } from 'react';
 import { Button, Card, Modal, Tooltip } from 'antd';
 
 import AntIcon from '../AntIcon/AntIcon';
@@ -18,6 +18,10 @@ import MobileBigCardRenderModal from './MobileBigCardRenderModal';
 import RotateToMouse from '../RotateToMouse/RotateToMouse';
 import TrainerGalleryHolofoil from './TrainerGalleryHolofoil';
 import FavoriteHeart from '../FavoriteHeart/FavoriteHeart';
+import { getVariantFamily } from '../../utils/cardVariants';
+import { getImage } from '../../actions/imageActions';
+import { isLoadingCover } from '../../utils/cover';
+import useUnreadComments from '../../useUnreadComments';
 
 interface BigCardRenderModalProps {
   card: CardInterface;
@@ -26,22 +30,65 @@ interface BigCardRenderModalProps {
   collectionNumber: number;
   collectionSize: number;
   mobile?: boolean;
+  onSelectVariant?: (id: string) => void;
 }
 
 const BigCardRenderModal = ({
-  card,
+  card: openedCard,
   visible,
   hide,
   collectionNumber,
   collectionSize,
   mobile,
+  onSelectVariant,
 }: BigCardRenderModalProps) => {
-  const { annotationAccessor, currentUser, user, dispatch } = useContext<StoreType>(Store);
+  const { annotationAccessor, currentUser, user, dispatch, cards } = useContext<StoreType>(Store);
+  const family = useMemo(() => getVariantFamily(openedCard, cards), [openedCard, cards]);
+  const [selection, setSelection] = useState({
+    openedId: openedCard.uuid,
+    visible,
+    selectedId: openedCard.uuid,
+  });
+  const newSession = selection.openedId !== openedCard.uuid || selection.visible !== visible;
+  // Reset synchronously on a new opening, without remounting the modal/close animation.
+  if (newSession) {
+    setSelection({ openedId: openedCard.uuid, visible, selectedId: openedCard.uuid });
+  }
+  const selectedId = newSession ? openedCard.uuid : selection.selectedId;
+  const card = family.find(member => member.uuid === selectedId) || openedCard;
+  const variantIndex = family.findIndex(member => member.uuid === card.uuid);
+
+  useEffect(() => {
+    if (!visible) return;
+    if (isLoadingCover(card.front.cover)) getImage(dispatch, card, 0);
+    if (isLoadingCover(card.back?.cover)) getImage(dispatch, card, 1);
+  }, [card, dispatch, visible]);
+
+  const switchVariant = (offset: number) => {
+    const next = family[(variantIndex + offset + family.length) % family.length];
+    if (onSelectVariant) onSelectVariant(next.uuid);
+    else setSelection({ openedId: openedCard.uuid, visible, selectedId: next.uuid });
+  };
+  const variantNavigation =
+    family.length > 1 ? (
+      <div className={styles.variantNavigation} role="group" aria-label="Card variants">
+        <Button size="small" aria-label="Previous variant" onClick={() => switchVariant(-1)}>
+          ‹
+        </Button>
+        <span aria-live="polite">
+          {variantIndex + 1} / {family.length}
+        </span>
+        <Button size="small" aria-label="Next variant" onClick={() => switchVariant(1)}>
+          ›
+        </Button>
+      </div>
+    ) : null;
 
   // O(1) uuid -> name lookups instead of an O(n) `_.find` per uuid.
   const userNameByUuid = useMemo(() => new Map(user.map(u => [u.uuid, u.name])), [user]);
 
   const annotations = annotationAccessor[card.uuid] || [];
+  useUnreadComments(currentUser.uuid, card.uuid, annotations, visible);
 
   // Mark the back face so card renderers suppress front-only chrome
   // (e.g. the mana cost) on it, matching CardCollection's Cell.
@@ -63,6 +110,7 @@ const BigCardRenderModal = ({
         collectionSize={collectionSize}
         width={width}
         height={height}
+        variantNavigation={variantNavigation}
       />
     );
 
@@ -194,6 +242,7 @@ const BigCardRenderModal = ({
           }}
         >
           <RotateToMouse
+            key={card.uuid}
             style={{
               width: fullCardWidth,
             }}
@@ -218,6 +267,7 @@ const BigCardRenderModal = ({
               </TrainerGalleryHolofoil>
             ))}
           </RotateToMouse>
+          {variantNavigation}
         </div>
         <div
           className={styles.annotationView}
@@ -227,6 +277,7 @@ const BigCardRenderModal = ({
           }}
         >
           <AnnotationList
+            key={card.uuid}
             split={rowLayout}
             annotations={annotations}
             headerExtra={releaseForRatingButton}

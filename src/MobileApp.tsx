@@ -1,4 +1,4 @@
-import React, { useContext, useDeferredValue, useEffect, useMemo, useState } from 'react';
+import React, { useContext, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
 import { Badge, Button, Card, Col, Input, Modal, Result, Row, Select, Tabs } from 'antd';
 import sortBy from 'lodash/sortBy';
 
@@ -6,6 +6,7 @@ import CardInterface from './interfaces/CardInterface';
 import AntIcon from './components/AntIcon/AntIcon';
 import { CardState } from './interfaces/enums';
 import CardCollection from './components/CardCollection/CardCollection';
+import { getVariantGroups, withLatestVariantIds } from './utils/cardVariants';
 import CardEditor from './components/CardEditor/CardEditor';
 
 import { Store, StoreType } from './store';
@@ -43,6 +44,7 @@ let didInit = false;
 
 const MobileApp: React.FC = () => {
   const [tmpCard, setTmpCard] = useState<CardInterface | null>(null);
+  const pendingDraftRef = useRef<CardInterface | null>(null);
   const [cardEditId, setCardEditId] = useState<string>(NO_CARD);
   const [cardViewId, setCardViewId] = useState<string>(NO_CARD);
   const [showCardModal, setShowCardModal] = useState<boolean>(false);
@@ -66,7 +68,7 @@ const MobileApp: React.FC = () => {
 
   const mergedCollection = useMemo(() => {
     const merged = cards.filter(card => card.uuid !== (tmpCard ? tmpCard.uuid : ''));
-    if (tmpCard) merged.push(tmpCard);
+    if (tmpCard) merged.push(withLatestVariantIds(tmpCard, cards));
     return merged;
   }, [cards, tmpCard]);
 
@@ -90,8 +92,8 @@ const MobileApp: React.FC = () => {
 
   // O(1) uuid -> card lookups instead of a linear scan on every call.
   const cardByUuid = useMemo(
-    () => new Map(filteredCollection.map(card => [card.uuid, card])),
-    [filteredCollection],
+    () => new Map(mergedCollection.map(card => [card.uuid, card])),
+    [mergedCollection],
   );
 
   const getCard = (collection: CardInterface[], uuid: string) =>
@@ -110,13 +112,16 @@ const MobileApp: React.FC = () => {
       return;
     }
 
-    if (tmpCard) {
+    const pendingDraft = pendingDraftRef.current || tmpCard;
+    if (pendingDraft) {
       confirm({
-        title: `${oldCardName} has unsaved changes`,
+        title: `${pendingDraft.name || oldCardName} has unsaved changes`,
         okText: 'Yes discard all changes',
         okType: 'danger',
         cancelText: 'Edit old card',
         onOk() {
+          pendingDraftRef.current = null;
+          setTmpCard(null);
           setCardEditId(id);
           viewCard(id);
         },
@@ -154,6 +159,27 @@ const MobileApp: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const switchCardVariant = (id: string) => {
+    const select = () => {
+      setCardEditId(id);
+      setCardViewId(id);
+    };
+    const pendingDraft = pendingDraftRef.current || tmpCard;
+    if (pendingDraft && id !== cardEditId) {
+      confirm({
+        title: `${pendingDraft.name} has unsaved changes`,
+        okText: 'Yes discard all changes',
+        okType: 'danger',
+        cancelText: 'Edit old card',
+        onOk() {
+          pendingDraftRef.current = null;
+          setTmpCard(null);
+          select();
+        },
+      });
+    } else select();
+  };
+
   const createGrid = (collection: CardInterface[]) => {
     const collectionSpan = 24;
     const editorSpan = 0;
@@ -185,7 +211,10 @@ const MobileApp: React.FC = () => {
               label: (
                 <Badge
                   className={styles.tabBadge}
-                  count={filteredCollection.filter(tabObj.filter).length}
+                  count={
+                    getVariantGroups(filteredCollection.filter(tabObj.filter), mergedCollection)
+                      .length
+                  }
                   showZero
                   overflowCount={999}
                 >
@@ -196,7 +225,9 @@ const MobileApp: React.FC = () => {
                 <div className={styles.fullHeight}>
                   <CardCollection
                     cards={filteredCollection.filter(tabObj.filter)}
+                    allCards={mergedCollection}
                     currentEditId={cardEditId}
+                    onSelectVariant={switchCardVariant}
                     editCard={id => {
                       if (cardEditId === NO_CARD) openCardInEditor(id, '');
                       else openCardInEditor(id, getCard(collection, cardEditId).name);
@@ -211,7 +242,13 @@ const MobileApp: React.FC = () => {
           />
         </Col>
         <Col span={editorSpan} className={styles.editor}>
-          <CardEditor card={getCardUndefined(collection, cardEditId)} saveTmpCard={setTmpCard} />
+          <CardEditor
+            card={getCardUndefined(collection, cardEditId)}
+            saveTmpCard={setTmpCard}
+            onDraftChange={draft => {
+              pendingDraftRef.current = draft;
+            }}
+          />
         </Col>
       </Row>
     );
@@ -293,6 +330,7 @@ const MobileApp: React.FC = () => {
         </div>
       </Row>
       <BigCardRenderModal
+        onSelectVariant={switchCardVariant}
         mobile
         card={getCard(filteredCollection, cardViewId)}
         visible={showCardModal}

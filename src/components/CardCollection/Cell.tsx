@@ -1,5 +1,5 @@
 import { Button, Spin } from 'antd';
-import React from 'react';
+import React, { useContext, useEffect } from 'react';
 import styles from './styles.module.scss';
 import AntIcon from '../AntIcon/AntIcon';
 import ActionHover from '../ActionHover/ActionHover';
@@ -9,10 +9,17 @@ import GlowingStar from '../GlowingStar/index';
 import CardInterface from '../../interfaces/CardInterface';
 import CardFaceInterface from '../../interfaces/CardFaceInterface';
 import FavoriteHeart from '../FavoriteHeart/FavoriteHeart';
+import { Store } from '../../store';
+import { getImage } from '../../actions/imageActions';
+import { isLoadingCover } from '../../utils/cover';
+import MessageFilled from '@ant-design/icons/MessageFilled';
+import useUnreadComments from '../../useUnreadComments';
 
 export interface CellData {
   columnCount: number;
   cards: CardInterface[];
+  variantGroups?: CardInterface[][];
+  selectVariant?: (familyId: string, uuid: string) => void;
   seenCardUuids: { [key: string]: boolean };
   currentEditId: string;
   addSeenCard: (uuid: string) => void;
@@ -38,6 +45,8 @@ const Cell = ({
   columnIndex,
   rowIndex,
   cards,
+  variantGroups,
+  selectVariant,
   columnCount,
   seenCardUuids,
   currentEditId,
@@ -49,8 +58,21 @@ const Cell = ({
   mobile,
 }: CellProps) => {
   const index = columnIndex + rowIndex * columnCount;
-  if (index >= cards.length) return <div style={style} {...ariaAttributes} />;
   const card = cards[index];
+  const { dispatch, annotationAccessor, currentUser } = useContext(Store);
+  const hasUnreadComments = useUnreadComments(
+    currentUser.uuid,
+    card?.uuid || '',
+    card ? annotationAccessor[card.uuid] : undefined,
+  );
+  useEffect(() => {
+    if (!card) return;
+    if (isLoadingCover(card.front.cover)) getImage(dispatch, card, 0);
+    if (isLoadingCover(card.back?.cover)) getImage(dispatch, card, 1);
+  }, [card, dispatch]);
+  if (!card) return <div style={style} {...ariaAttributes} />;
+  const family = variantGroups?.[index] || [card];
+  const variantIndex = family.findIndex(member => member.uuid === card.uuid);
 
   const isNew = !seenCardUuids[card.uuid];
 
@@ -62,6 +84,16 @@ const Cell = ({
   return (
     <div className={styles.cardBox} style={style} {...ariaAttributes}>
       {isNew && <GlowingStar />}
+      {!mobile && hasUnreadComments && (
+        <span
+          className={styles.newComments}
+          role="img"
+          aria-label="New comments"
+          title="New comments"
+        >
+          <MessageFilled aria-hidden="true" />
+        </span>
+      )}
       <Spin size="large" spinning={!!card.loading}>
         <ActionHover
           onClick={() => {
@@ -102,12 +134,44 @@ const Cell = ({
         </ActionHover>
       </Spin>
       <FavoriteHeart favorite={card.favorite} />
-      {card.back && (
-        <Button
-          icon={<AntIcon type="swap" />}
-          className={styles.swapButton}
-          onClick={() => toggleShowBackConfig(card.uuid)}
-        />
+      {(family.length > 1 || card.back) && (
+        <div className={styles.cardControls} role="group" aria-label="Card controls">
+          {family.length > 1 && (
+            <div className={styles.variantControls} role="group" aria-label="Card variants">
+              <Button
+                size="small"
+                aria-label="Previous variant"
+                onClick={() =>
+                  selectVariant?.(
+                    family[0].uuid,
+                    family[(variantIndex + family.length - 1) % family.length].uuid,
+                  )
+                }
+              >
+                ‹
+              </Button>
+              <span aria-live="polite">
+                {variantIndex + 1} / {family.length}
+              </span>
+              <Button
+                size="small"
+                aria-label="Next variant"
+                onClick={() =>
+                  selectVariant?.(family[0].uuid, family[(variantIndex + 1) % family.length].uuid)
+                }
+              >
+                ›
+              </Button>
+            </div>
+          )}
+          {card.back && (
+            <Button
+              aria-label="Show other face"
+              icon={<AntIcon type="swap" />}
+              onClick={() => toggleShowBackConfig(card.uuid)}
+            />
+          )}
+        </div>
       )}
     </div>
   );

@@ -128,7 +128,13 @@ const reducer: React.Reducer<State, Action> = (state, action) => {
     case CardActionType.DeleteCard:
       return {
         ...state,
-        cards: [...state.cards.filter(card => card.uuid !== action.payload.uuid)],
+        cards: state.cards
+          .filter(card => card.uuid !== action.payload.uuid)
+          .map(card =>
+            card.variantIds
+              ? { ...card, variantIds: card.variantIds.filter(id => id !== action.payload.uuid) }
+              : card,
+          ),
       };
 
     case MechanicActionType.GetMechanics:

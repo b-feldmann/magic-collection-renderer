@@ -529,6 +529,27 @@ updateLog.push({
   ],
 });
 
+updateLog.push({
+  version: '3.3.0',
+  title: 'Card Variants Update',
+  content: [
+    {
+      type: ChangeLogFeatureType.Added,
+      feature: 'Added Card Variants',
+      description:
+        'It is now possible to create a variant of a card at the top of the editor. Deleting a variant does only delete this variant and not the other variants.',
+    },
+    {
+      type: ChangeLogFeatureType.Changed,
+      feature: 'Reordered mana symbols when rendering mana symbols in the card text',
+    },
+    {
+      type: ChangeLogFeatureType.Added,
+      feature: 'Added a new indicator that shows if a new comment was added to a card',
+    },
+  ],
+});
+
 //
 // updateLog.push({
 //   version: '1.1.3',

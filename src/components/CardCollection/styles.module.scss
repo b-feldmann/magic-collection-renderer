@@ -4,15 +4,44 @@
   overflow-x: hidden !important;
 }
 
-.swapButton {
-  position: absolute;
-  left: 50%;
-  transform: translateX(calc(-50% + 1px)) translateY(-110%);
-}
-
 .cardBox {
   position: relative;
   padding: 8px;
+}
+
+.newComments {
+  position: absolute;
+  top: 32px;
+  right: 14px;
+  z-index: 3;
+  pointer-events: none;
+  color: #1677ff;
+  font-size: 24px;
+  line-height: 1;
+  filter: drop-shadow(0 0 3px white) drop-shadow(0 0 5px lightblue);
+}
+
+.cardControls {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.variantControls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 6px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.95);
+  color: #222;
+  font-size: 12px;
+  white-space: nowrap;
 }
 
 .edit {

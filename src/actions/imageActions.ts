@@ -45,7 +45,7 @@ export const createImage = (
 ) => {
   const args = { accessKey: getAccessToken(), base64, cardUuid: card.uuid, face };
 
-  axios
+  return axios
     .post(MIDDLEWARE_ENDPOINT, args)
     .then(() => {
       dispatch({
@@ -53,7 +53,8 @@ export const createImage = (
         payload: { base64, name, face, cardUuid: card.uuid },
       });
     })
-    .catch(_error => {
+    .catch(error => {
       staticAntd.message.error('Failed creating a new image :(');
+      throw error;
     });
 };
