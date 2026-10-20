@@ -6,6 +6,40 @@ import MechanicInterface from '../interfaces/MechanicInterface';
 import { injectForText, injectManaIcons, isBulletText } from './injectUtils';
 
 describe('injectUtils', () => {
+  it.each([
+    ['Pay {w}{u}{1}.', ['1', 'w', 'u']],
+    ['Pay {W}{R}{2}, then {G}{B}{X}.', ['2', 'r', 'w', 'x', 'b', 'g']],
+    ['Pay {wu}{G}{1}.', ['1', 'g', 'wu']],
+    ['Pay {2g}{w}{1}.', ['1', 'w', '2g']],
+    ['Pay {g2}{w}{1}.', ['1', 'w', '2g']],
+    ['Add {w} {u}{1} or {g}, {b}{2}.', ['w', '1', 'u', 'g', '2', 'b']],
+    ['Pay {w}{t}{u}{1}{ut}{g}{2}.', ['w', 'tap', '1', 'u', 'untap', '2', 'g']],
+    ['Pay {w}{unknown}{u}{1}.', ['w', '1', 'u']],
+    ['Pay {w}\n{u}{1}.', ['w', '1', 'u']],
+  ])('sorts only adjacent mana runs when rendering %s', (line, expectedSymbols) => {
+    const markup = renderToStaticMarkup(<div>{injectForText(line, 'Test', [])}</div>);
+    const container = document.createElement('div');
+    container.innerHTML = markup;
+
+    expect(
+      Array.from(container.querySelectorAll('.ms'), icon =>
+        Array.from(icon.classList).find(className => /^ms-(?!cost|shadow)/.test(className)),
+      ),
+    ).toEqual(expectedSymbols.map(symbol => `ms-${symbol}`));
+    expect(container.textContent).toBe(line.replace(/\{(?!unknown\})[^}]+\}/g, ''));
+  });
+
+  it('leaves source text arrays and existing JSX unchanged while rendering sorted mana', () => {
+    const existing = <strong>Reminder</strong>;
+    const text = ['Pay {w}{u}{1}', existing];
+    const markup = renderToStaticMarkup(<div>{injectManaIcons(text, true)}</div>);
+
+    expect(text).toEqual(['Pay {w}{u}{1}', existing]);
+    expect(markup.indexOf('ms-1')).toBeLessThan(markup.indexOf('ms-w'));
+    expect(markup).toContain('<strong>Reminder</strong>');
+    expect(markup).toContain('ms-shadow');
+  });
+
   it('identifies card text lines that render with a bullet', () => {
     expect(isBulletText('* First item')).toBe(true);
     expect(isBulletText('  - Second item')).toBe(true);

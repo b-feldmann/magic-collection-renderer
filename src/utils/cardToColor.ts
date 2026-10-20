@@ -126,7 +126,7 @@ export const getColor = (
         break;
       default:
         if (cost === 'x' || cost === 'X') colorDict.x.push(cost);
-        else if (cost.match(/\d{1,2}/)) colorDict.colorless.push(cost);
+        else if (/^\d+$/.test(cost)) colorDict.colorless.push(cost);
         else colorDict.rest.push(cost);
         break;
     }

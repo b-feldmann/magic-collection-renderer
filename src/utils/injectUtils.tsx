@@ -2,6 +2,7 @@ import React from 'react';
 // @ts-ignore
 import { Mana } from '../components/Mana/Mana';
 import MechanicInterface from '../interfaces/MechanicInterface';
+import { getColor } from './cardToColor';
 
 const BULLET_PREFIX = /^\s*(?:\*|-(?!-))\s*/;
 
@@ -201,6 +202,14 @@ const MANA_SYMBOL_CONFIG: ManaSymbolConfig[] = [
   })),
 ];
 
+// Tap/untap and unrecognized tokens separate mana runs, just like ordinary text.
+const CONSECUTIVE_MANA_SYMBOLS = new RegExp(
+  `(?:${MANA_SYMBOL_CONFIG.filter(({ symbol }) => symbol !== 'tap' && symbol !== 'untap')
+    .map(({ toReplace }) => toReplace.source)
+    .join('|')}){2,}`,
+  'g',
+);
+
 export const injectManaIcons = (
   text: string | JSX.Element | (string | JSX.Element)[],
   shadow?: boolean,
@@ -210,7 +219,13 @@ export const injectManaIcons = (
     toInject: <Mana symbol={symbol} cost={cost} shadow={shadow} />,
   }));
 
-  return injectWithConfig(text, config);
+  const orderedText = (Array.isArray(text) ? text : [text]).map(part =>
+    typeof part === 'string'
+      ? part.replace(CONSECUTIVE_MANA_SYMBOLS, run => getColor(run).orderedCost)
+      : part,
+  );
+
+  return injectWithConfig(orderedText, config);
 };
 
 /**
