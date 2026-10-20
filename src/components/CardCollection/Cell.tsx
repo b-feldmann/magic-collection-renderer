@@ -59,12 +59,8 @@ const Cell = ({
 }: CellProps) => {
   const index = columnIndex + rowIndex * columnCount;
   const card = cards[index];
-  const { dispatch, annotationAccessor, currentUser } = useContext(Store);
-  const hasUnreadComments = useUnreadComments(
-    currentUser.uuid,
-    card?.uuid || '',
-    card ? annotationAccessor[card.uuid] : undefined,
-  );
+  const { dispatch, annotationAccessor } = useContext(Store);
+  const hasUnreadComments = useUnreadComments(card ? annotationAccessor[card.uuid] : undefined);
   useEffect(() => {
     if (!card) return;
     if (isLoadingCover(card.front.cover)) getImage(dispatch, card, 0);

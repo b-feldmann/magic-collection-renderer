@@ -74,21 +74,54 @@ export const getUser = (dispatch: (value: Action) => void) => {
     .catch(() => {});
 };
 
+// The API replaces the entire user document. Serialize writes per user and
+// apply each change to the preceding response rather than a stale UI snapshot.
+const pendingUserUpdates = new Map<
+  string,
+  { latest: UserInterface; request: Promise<UserInterface> }
+>();
+
+const queueUserUpdate = (
+  dispatch: (value: Action) => void,
+  currentUser: UserInterface,
+  update: (user: UserInterface) => UserInterface | undefined,
+) => {
+  const queue = pendingUserUpdates.get(currentUser.uuid) || {
+    latest: currentUser,
+    request: Promise.resolve(currentUser),
+  };
+  const base = queue.request.catch(() => queue.latest);
+  const request = base.then(async user => {
+    const updated = update(user);
+    if (!updated) return user;
+    const result = await axios.put(MIDDLEWARE_ENDPOINT, {
+      user: updated,
+      accessKey: getAccessToken(),
+    });
+    queue.latest = result.data.user;
+    dispatch({
+      type: UserActionType.UpdateUser,
+      payload: { user: result.data.user },
+    });
+    return result.data.user as UserInterface;
+  });
+  queue.request = request;
+  pendingUserUpdates.set(currentUser.uuid, queue);
+  return request.finally(() => {
+    if (queue.request === request) {
+      pendingUserUpdates.delete(currentUser.uuid);
+    }
+  });
+};
+
 export const addLastSeenVersion = (
   dispatch: (value: Action) => void,
   version: number,
   currentUser: UserInterface,
 ) => {
-  const updated = { ...currentUser, lastSeenVersion: version };
-  axios
-    .put(MIDDLEWARE_ENDPOINT, { user: updated, accessKey: getAccessToken() })
-    .then(result => {
-      dispatch({
-        type: UserActionType.UpdateUser,
-        payload: { user: result.data.user },
-      });
-    })
-    .catch(() => {});
+  queueUserUpdate(dispatch, currentUser, user => ({ ...user, lastSeenVersion: version })).catch(
+    () => {},
+  );
 };
 
 export const addSeenCard = (
@@ -96,16 +129,23 @@ export const addSeenCard = (
   cardUuid: string,
   currentUser: UserInterface,
 ) => {
-  if (currentUser.seenCards.some(uuid => uuid === cardUuid)) return;
+  queueUserUpdate(dispatch, currentUser, user => {
+    if (user.seenCards.includes(cardUuid)) return;
+    return { ...user, seenCards: [...user.seenCards, cardUuid] };
+  }).catch(() => {});
+};
 
-  const updated = { ...currentUser, seenCards: [...currentUser.seenCards, cardUuid] };
-  axios
-    .put(MIDDLEWARE_ENDPOINT, { user: updated, accessKey: getAccessToken() })
-    .then(result => {
-      dispatch({
-        type: UserActionType.UpdateUser,
-        payload: { user: result.data.user },
-      });
-    })
-    .catch(() => {});
+export const addSeenComments = async (
+  dispatch: (value: Action) => void,
+  commentUuids: string[],
+  currentUser: UserInterface,
+) => {
+  if (currentUser.uuid === UNKNOWN_CREATOR.uuid) return;
+  return queueUserUpdate(dispatch, currentUser, user => {
+    const seenComments = new Set(user.seenComments || []);
+    const previousSize = seenComments.size;
+    commentUuids.forEach(uuid => seenComments.add(uuid));
+    if (seenComments.size === previousSize) return;
+    return { ...user, seenComments: [...seenComments] };
+  });
 };

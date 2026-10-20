@@ -88,7 +88,7 @@ const BigCardRenderModal = ({
   const userNameByUuid = useMemo(() => new Map(user.map(u => [u.uuid, u.name])), [user]);
 
   const annotations = annotationAccessor[card.uuid] || [];
-  useUnreadComments(currentUser.uuid, card.uuid, annotations, visible);
+  useUnreadComments(annotations, visible);
 
   // Mark the back face so card renderers suppress front-only chrome
   // (e.g. the mana cost) on it, matching CardCollection's Cell.
