@@ -42,6 +42,13 @@
 .modalCardViewWrapper {
   width: 0 !important;
   height: 0 !important;
+  // Preserve the old collection-centred anchor without narrowing the
+  // full-screen click-catching wrapper.
+  left: calc(100vw / 24 * 3 - 4px + (100vw / 24 * 21 / 24 * 18 + 4px) / 2 - 50vw);
+
+  @media only screen and (max-width: 900px) {
+    left: 0;
+  }
   //overflow: hidden !important;
 }
 
