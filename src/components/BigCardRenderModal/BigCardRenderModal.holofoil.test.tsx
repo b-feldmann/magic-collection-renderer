@@ -81,6 +81,28 @@ describe('BigCardRenderModal Trainer Gallery holofoil', () => {
     ).toHaveLength(2);
   });
 
+  it('renders mobile cards without holofoil layers or pointer highlights', () => {
+    const { container } = render(
+      <BigCardRenderModal
+        card={{ ...card, favorite: true }}
+        mobile
+        visible
+        hide={() => {}}
+        collectionNumber={1}
+        collectionSize={1}
+      />,
+    );
+    const wrapper = screen.getByTestId('rendered-card').parentElement as HTMLElement;
+
+    expect(screen.getByRole('img', { name: 'Favorite card' })).toBeVisible();
+    expect(
+      container.querySelectorAll(`.${holofoilStyles.shine}, .${holofoilStyles.glare}`),
+    ).toHaveLength(0);
+    fireEvent.pointerMove(wrapper, { clientX: 75, clientY: 50 });
+    expect(wrapper.style.getPropertyValue('--pointer-x')).toBe('');
+    expect(wrapper).not.toHaveClass(holofoilStyles.isActive);
+  });
+
   it('shows a heart on a favorited card model', () => {
     render(
       <BigCardRenderModal

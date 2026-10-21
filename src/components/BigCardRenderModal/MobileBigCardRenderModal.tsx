@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useEffectEvent, useRef, useState } from 'react';
 import { Button, Modal } from 'antd';
 
 import CardInterface from '../../interfaces/CardInterface';
@@ -32,6 +32,61 @@ const MobileBigCardRenderModal = ({
   variantNavigation,
   children,
 }: MobileBigCardRenderModalProps) => {
+  const closeFromHistory = useEffectEvent(hide);
+  const historySession = useRef<{ id: string; active: boolean; backPending: boolean } | null>(null);
+
+  useEffect(() => {
+    if (!visible) return;
+    const session = (historySession.current ??= {
+      id: crypto.randomUUID(),
+      active: false,
+      backPending: false,
+    });
+    session.active = true;
+    const pushModalEntry = () => {
+      // Keep the URL and any existing page state; Back consumes only this entry.
+      window.history.pushState({ ...window.history.state, mobileCardModal: session.id }, '');
+    };
+    if (window.history.state?.mobileCardModal !== session.id) {
+      session.backPending = false;
+      pushModalEntry();
+    }
+    const onPopState = () => {
+      if (session.backPending) {
+        session.backPending = false;
+        // A new opening can arrive before the previous dismissal's async Back.
+        // Restore its entry rather than closing the newly opened modal.
+        if (session.active) pushModalEntry();
+        return;
+      }
+      if (session.active && window.history.state?.mobileCardModal !== session.id) {
+        session.active = false;
+        closeFromHistory();
+      }
+    };
+    window.addEventListener('popstate', onPopState);
+    return () => {
+      session.active = false;
+      window.removeEventListener('popstate', onPopState);
+      // Defer to let StrictMode's effect replay reuse the same entry. A normal
+      // dismissal/unmount consumes it, but a native Back must not go back twice.
+      queueMicrotask(() => {
+        if (
+          !session.active &&
+          !session.backPending &&
+          window.history.state?.mobileCardModal === session.id
+        ) {
+          session.backPending = true;
+          window.history.back();
+        }
+      });
+    };
+  }, [visible]);
+
+  const closeOnBackgroundClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (event.target === event.currentTarget) hide();
+  };
+
   const [faceSelection, setFaceSelection] = useState({ uuid: card.uuid, visible, showBack: false });
   const newSession = faceSelection.uuid !== card.uuid || faceSelection.visible !== visible;
   if (newSession) {
@@ -65,11 +120,12 @@ const MobileBigCardRenderModal = ({
     >
       <div
         className={styles.mobilePositioner}
+        onClick={closeOnBackgroundClick}
         style={{
           width: modalMaxWidth,
         }}
       >
-        <div className={styles.mobileFaces}>
+        <div className={styles.mobileFaces} onClick={closeOnBackgroundClick}>
           <div
             key={card.uuid}
             className={styles.mobileCard}
@@ -89,7 +145,12 @@ const MobileBigCardRenderModal = ({
           </div>
         </div>
         {(card.back || variantNavigation) && (
-          <div className={styles.mobileCardControls} role="group" aria-label="Card controls">
+          <div
+            className={styles.mobileCardControls}
+            role="group"
+            aria-label="Card controls"
+            onClick={closeOnBackgroundClick}
+          >
             {card.back && (
               <Button
                 aria-label="Show other face"
