@@ -80,7 +80,7 @@ const Cell = ({
   return (
     <div className={styles.cardBox} style={style} {...ariaAttributes}>
       {isNew && <GlowingStar />}
-      {!mobile && hasUnreadComments && (
+      {hasUnreadComments && (
         <span
           className={styles.newComments}
           role="img"

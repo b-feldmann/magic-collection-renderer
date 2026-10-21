@@ -335,13 +335,20 @@ describe('new-comment indicator', () => {
     expect(axios.put).not.toHaveBeenCalled();
   });
 
-  it('does not show the bubble on mobile', () => {
-    render(view(makeStore(), false, true));
-    expect(bubble()).not.toBeInTheDocument();
+  it('shows unread comments on mobile and clears the bubble after opening the card', async () => {
+    const value = makeStore();
+    const { rerender } = render(view(value, false, true));
+    expect(bubble()).toBeVisible();
+    rerender(view(value, true, true));
+    await waitFor(() => expect(bubble()).not.toBeInTheDocument());
+    expect(savedUsers.get('reader')?.seenComments).toEqual(['comment-1']);
   });
 
-  it('does not show a bubble on cards without comments', () => {
-    render(view({ ...makeStore(), annotationAccessor: {} }));
-    expect(bubble()).not.toBeInTheDocument();
-  });
+  it.each([false, true])(
+    'does not show a bubble on cards without comments (mobile: %s)',
+    mobile => {
+      render(view({ ...makeStore(), annotationAccessor: {} }, false, mobile));
+      expect(bubble()).not.toBeInTheDocument();
+    },
+  );
 });

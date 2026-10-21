@@ -486,7 +486,7 @@ const App: React.FC = () => {
       <BigCardRenderModal
         onSelectVariant={switchCardVariant}
         card={getCard(filteredCollection, cardViewId)}
-        visible={showCardModal}
+        visible={showCardModal && cards.some(card => card.uuid === cardViewId)}
         hide={() => setShowCardModal(false)}
         collectionNumber={
           filteredCollection.findIndex((o: CardInterface) => o.uuid === cardViewId) + 1

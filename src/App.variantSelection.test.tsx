@@ -184,6 +184,37 @@ describe.each([
     expect(screen.getByRole('dialog')).toBeVisible();
   });
 
+  it.each(['a', 'b'])('closes the modal when the viewed card %s is deleted', id => {
+    const { rerender } = showApp();
+    fireEvent.click(screen.getByRole('button', { name: 'Open a' }));
+    if (id === 'b') {
+      fireEvent.click(screen.getByRole('button', { name: 'Modal next variant' }));
+    }
+    expect(screen.getByRole('dialog')).toBeVisible();
+
+    rerender(
+      <Store.Provider value={{ ...store, cards: store.cards.filter(card => card.uuid !== id) }}>
+        <Component />
+      </Store.Provider>,
+    );
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it('keeps the modal open when a different card is deleted', () => {
+    const { rerender } = showApp();
+    fireEvent.click(screen.getByRole('button', { name: 'Open a' }));
+
+    rerender(
+      <Store.Provider value={{ ...store, cards: [a] }}>
+        <Component />
+      </Store.Provider>,
+    );
+
+    expect(screen.getByRole('dialog')).toBeVisible();
+    expect(screen.getByLabelText('Viewed card')).toHaveTextContent('a');
+  });
+
   it.each(['collection', 'modal'])(
     'protects a fresh edit before its preview debounce during a %s switch',
     async origin => {
