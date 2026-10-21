@@ -550,6 +550,29 @@ updateLog.push({
   ],
 });
 
+updateLog.push({
+  version: '3.4.0',
+  title: 'Card Rating',
+  content: [
+    {
+      type: ChangeLogFeatureType.Added,
+      feature: 'You can now put a card back into the Draft Pile',
+    },
+    {
+      type: ChangeLogFeatureType.Changed,
+      feature: 'Mobile Rating',
+      description:
+        'You can now rate cards and write comment on mobile devices. Please try that out.',
+    },
+    {
+      type: ChangeLogFeatureType.Changed,
+      feature: 'Current tab is stored in the browser.',
+      description:
+        'If you leave the page on the rating pile and come back later you will start there as well.',
+    },
+  ],
+});
+
 //
 // updateLog.push({
 //   version: '1.1.3',

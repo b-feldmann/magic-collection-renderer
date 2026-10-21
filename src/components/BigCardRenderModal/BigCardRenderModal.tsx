@@ -13,7 +13,7 @@ import AnnotationList from '../AnnotationList/AnnotationList';
 import { createAnnotation } from '../../actions/annotationActions';
 import { CardState } from '../../interfaces/enums';
 import { updateCard } from '../../actions/cardActions';
-import { NEEDED_LIKES_TO_APPROVE, CARD_WIDTH, CARD_HEIGHT } from '../../utils/constants';
+import { CARD_WIDTH, CARD_HEIGHT } from '../../utils/constants';
 import MobileBigCardRenderModal from './MobileBigCardRenderModal';
 import RotateToMouse from '../RotateToMouse/RotateToMouse';
 import TrainerGalleryHolofoil from './TrainerGalleryHolofoil';
@@ -100,19 +100,6 @@ const BigCardRenderModal = ({
     });
 
   const { width, height } = useWindowDimensions();
-  if (mobile)
-    return (
-      <MobileBigCardRenderModal
-        card={card}
-        visible={visible}
-        hide={hide}
-        collectionNumber={collectionNumber}
-        collectionSize={collectionSize}
-        width={width}
-        height={height}
-        variantNavigation={variantNavigation}
-      />
-    );
 
   const rowLayout = faces.length === 2;
 
@@ -135,8 +122,14 @@ const BigCardRenderModal = ({
   const annotationHeight = rowLayout ? modalMaxHeight - cardHeight + hEditorSpace : cardHeight;
 
   const updateState = (newState: CardState) => {
-    const updatedCard = { ...card };
-    updatedCard.meta.state = newState;
+    const updatedCard = {
+      ...card,
+      meta: {
+        ...card.meta,
+        state: newState,
+        ...(newState === CardState.Draft ? { likes: [], dislikes: [] } : {}),
+      },
+    };
     updateCard(dispatch, updatedCard).catch(() => {});
   };
 
@@ -150,30 +143,24 @@ const BigCardRenderModal = ({
   const liked = card.meta.likes.includes(currentUser.uuid);
   const disliked = !liked && card.meta.dislikes.includes(currentUser.uuid);
 
+  // Half the collection's users, excluding the creator, rounded up.
+  const requiredLikes = Math.ceil(Math.max(user.length - 1, 0) / 2);
   const neededLikesCount = Math.max(
-    NEEDED_LIKES_TO_APPROVE - card.meta.likes.length + card.meta.dislikes.length,
+    requiredLikes - card.meta.likes.length + card.meta.dislikes.length,
     0,
   );
 
-  const like = () => {
-    if (liked) return;
-
-    const updatedCard = { ...card };
-    if (disliked) {
-      updatedCard.meta.dislikes = updatedCard.meta.dislikes.filter(o => o !== currentUser.uuid);
-    }
-    updatedCard.meta.likes.push(currentUser.uuid);
-    updateCard(dispatch, updatedCard).catch(() => {});
-  };
-
-  const dislike = () => {
-    if (disliked) return;
-
-    const updatedCard = { ...card };
-    if (liked) {
-      updatedCard.meta.likes = updatedCard.meta.likes.filter(o => o !== currentUser.uuid);
-    }
-    updatedCard.meta.dislikes.push(currentUser.uuid);
+  const toggleRating = (rating: 'likes' | 'dislikes') => {
+    const alreadySelected = card.meta[rating].includes(currentUser.uuid);
+    const updatedCard = {
+      ...card,
+      meta: {
+        ...card.meta,
+        likes: card.meta.likes.filter(uuid => uuid !== currentUser.uuid),
+        dislikes: card.meta.dislikes.filter(uuid => uuid !== currentUser.uuid),
+      },
+    };
+    if (!alreadySelected) updatedCard.meta[rating].push(currentUser.uuid);
     updateCard(dispatch, updatedCard).catch(() => {});
   };
 
@@ -182,13 +169,21 @@ const BigCardRenderModal = ({
 
   const rateView = (
     <div>
-      <span onClick={like} style={{ cursor: 'pointer' }}>
+      <span
+        className={styles.ratingVote}
+        onClick={() => toggleRating('likes')}
+        style={{ cursor: 'pointer' }}
+      >
         <Tooltip title={userUuidToNames(card.meta.likes)}>
           <AntIcon type="like" theme={liked ? 'filled' : 'outlined'} />
         </Tooltip>
         <span style={{ paddingLeft: 4 }}>{card.meta.likes.length}</span>
       </span>
-      <span onClick={dislike} style={{ paddingLeft: 8, cursor: 'pointer' }}>
+      <span
+        className={styles.ratingVote}
+        onClick={() => toggleRating('dislikes')}
+        style={{ paddingLeft: 8, cursor: 'pointer' }}
+      >
         <Tooltip title={userUuidToNames(card.meta.dislikes)}>
           <AntIcon type="dislike" theme={disliked ? 'filled' : 'outlined'} />
         </Tooltip>
@@ -196,14 +191,21 @@ const BigCardRenderModal = ({
       </span>
       <span>
         <Button
-          disabled={neededLikesCount > 0}
+          disabled={user.length === 0 || neededLikesCount > 0}
           className={styles.stateButton}
           ghost={neededLikesCount === 0}
           danger
           size="small"
           onClick={() => updateState(CardState.Approved)}
         >
-          {`Approve!${neededLikesCount > 0 ? ` (need ${neededLikesCount} more likes)` : ''}`}
+          {`Approve!${neededLikesCount > 0 ? ` (need ${neededLikesCount} more)` : ''}`}
+        </Button>
+        <Button
+          className={styles.stateButton}
+          size="small"
+          onClick={() => updateState(CardState.Draft)}
+        >
+          Return to Draft
         </Button>
       </span>
     </div>
@@ -213,6 +215,38 @@ const BigCardRenderModal = ({
   if (card.meta.state === CardState.Draft) view = null;
   if (card.meta.state === CardState.Rate) view = rateView;
   // view = rateView;
+
+  const annotationList = (
+    <AnnotationList
+      key={card.uuid}
+      split={!mobile && rowLayout}
+      annotations={annotations}
+      headerExtra={releaseForRatingButton}
+      createAnnotation={(content, author) => createAnnotation(dispatch, content, author, card.uuid)}
+    >
+      {view != null ? (
+        <Card size="small" variant="borderless" className={styles.cardComment}>
+          {view}
+        </Card>
+      ) : null}
+    </AnnotationList>
+  );
+
+  if (mobile)
+    return (
+      <MobileBigCardRenderModal
+        card={card}
+        visible={visible}
+        hide={hide}
+        collectionNumber={collectionNumber}
+        collectionSize={collectionSize}
+        width={width}
+        height={height}
+        variantNavigation={variantNavigation}
+      >
+        {annotationList}
+      </MobileBigCardRenderModal>
+    );
 
   return (
     <Modal
@@ -276,21 +310,7 @@ const BigCardRenderModal = ({
             height: `${annotationHeight}px`,
           }}
         >
-          <AnnotationList
-            key={card.uuid}
-            split={rowLayout}
-            annotations={annotations}
-            headerExtra={releaseForRatingButton}
-            createAnnotation={(content, author) =>
-              createAnnotation(dispatch, content, author, card.uuid)
-            }
-          >
-            {view != null ? (
-              <Card size="small" variant="borderless" className={styles.cardComment}>
-                {view}
-              </Card>
-            ) : null}
-          </AnnotationList>
+          {annotationList}
         </div>
       </div>
     </Modal>

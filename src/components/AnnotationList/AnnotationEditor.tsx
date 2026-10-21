@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Button, Input, Popover } from 'antd';
 
 import 'emoji-mart/css/emoji-mart.css';
@@ -18,7 +18,7 @@ interface AnnotationEditorProps {
   defaultContent?: string;
   defaultAuthor?: UserInterface;
   submitting: boolean;
-  onSubmit: (content: string, author: UserInterface) => void;
+  onSubmit: (content: string, author: UserInterface) => Promise<boolean>;
 }
 
 const AnnotationEditor = ({
@@ -34,12 +34,11 @@ const AnnotationEditor = ({
   // compute it during render instead of mirroring it into state via an effect.
   const author = defaultAuthor || currentUser || UNKNOWN_CREATOR;
 
-  // Clear the textarea once a submit round-trip completes.
-  useEffect(() => {
-    if (!submitting) {
-      setContent('');
+  const handleSubmit = async () => {
+    if (await onSubmit(content, author)) {
+      setContent(current => (current === content ? '' : current));
     }
-  }, [submitting]);
+  };
 
   const onEmoji = (emoji: BaseEmoji) => {
     setContent(content + emoji.native);
@@ -79,7 +78,7 @@ const AnnotationEditor = ({
         className={styles.button}
         htmlType="submit"
         loading={submitting}
-        onClick={() => onSubmit(content, author)}
+        onClick={handleSubmit}
         type="primary"
       >
         Add Comment

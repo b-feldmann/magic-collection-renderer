@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Listy } from 'antd';
 
 import Comment from '../Comment/Comment';
@@ -14,7 +14,7 @@ import UserInterface from '../../interfaces/UserInterface';
 
 interface AnnotationListProps {
   annotations: AnnotationInterface[];
-  createAnnotation: (content: string, author: UserInterface) => void;
+  createAnnotation: (content: string, author: UserInterface) => Promise<boolean>;
   // Optional action (e.g. the Release-for-Rating button) shown at the right
   // edge of the list header.
   headerExtra?: React.ReactNode;
@@ -31,12 +31,14 @@ const AnnotationList = ({
 }: AnnotationListProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (content: string, author: UserInterface) => {
+  const handleSubmit = async (content: string, author: UserInterface) => {
     setIsSubmitting(true);
-    createAnnotation(content, author);
+    try {
+      return await createAnnotation(content, author);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
-
-  useEffect(() => setIsSubmitting(false), [annotations]);
 
   return (
     <div className={styles.container} style={{ flexDirection: split ? 'row-reverse' : 'column' }}>

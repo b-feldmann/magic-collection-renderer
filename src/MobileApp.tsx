@@ -32,6 +32,7 @@ import {
   shouldShowUserSelect,
 } from './actions/userActions';
 import { UNKNOWN_CREATOR } from './utils/constants';
+import useActiveCardTab from './utils/useActiveCardTab';
 
 const { Search } = Input;
 const { confirm } = Modal;
@@ -49,6 +50,7 @@ const MobileApp: React.FC = () => {
   const [cardViewId, setCardViewId] = useState<string>(NO_CARD);
   const [showCardModal, setShowCardModal] = useState<boolean>(false);
   const [cardNameFilter, setCardNameFilter] = useState<string>('');
+  const [activeTabKey, setActiveTabKey] = useActiveCardTab();
 
   const { cards, newUuid, dispatch, annotationAccessor, user, currentUser } =
     useContext<StoreType>(Store);
@@ -204,7 +206,8 @@ const MobileApp: React.FC = () => {
       <Row className={styles.fullHeight}>
         <Col span={collectionSpan} className={styles.collection}>
           <Tabs
-            defaultActiveKey="tab-key-Card Drafts / Idea Dump"
+            activeKey={activeTabKey}
+            onChange={setActiveTabKey}
             className={styles.tabs}
             items={cardTabs.map(tabObj => ({
               key: `tab-key-${tabObj.name}`,

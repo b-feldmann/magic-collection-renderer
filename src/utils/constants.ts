@@ -20,7 +20,5 @@ export const EDIT_TIME_OFFSET = 600;
 // auto-save only fires once edits have settled.
 export const EDIT_SAVE_OFFSET = 2000;
 
-export const NEEDED_LIKES_TO_APPROVE = 4;
-
 // Name of the user allowed to delete cards.
 export const BJENNWARE = 'BJennWare';

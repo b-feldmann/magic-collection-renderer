@@ -1,13 +1,13 @@
-import React from 'react';
-import { Modal } from 'antd';
+import React, { useState } from 'react';
+import { Button, Modal } from 'antd';
 
 import CardInterface from '../../interfaces/CardInterface';
 import CardFaceInterface from '../../interfaces/CardFaceInterface';
 import styles from './BigCardRenderModal.module.scss';
 import { NonMemoCardRender as CardRender } from '../TemplatingCardRender/index';
 import { CARD_WIDTH, CARD_HEIGHT } from '../../utils/constants';
-import TrainerGalleryHolofoil from './TrainerGalleryHolofoil';
 import FavoriteHeart from '../FavoriteHeart/FavoriteHeart';
+import AntIcon from '../AntIcon/AntIcon';
 
 interface MobileBigCardRenderModalProps {
   card: CardInterface;
@@ -18,6 +18,7 @@ interface MobileBigCardRenderModalProps {
   width: number;
   height: number;
   variantNavigation?: React.ReactNode;
+  children?: React.ReactNode;
 }
 
 const MobileBigCardRenderModal = ({
@@ -29,17 +30,19 @@ const MobileBigCardRenderModal = ({
   width,
   height,
   variantNavigation,
+  children,
 }: MobileBigCardRenderModalProps) => {
-  // Mark the back face so card renderers suppress front-only chrome
-  // (e.g. the mana cost) on it, matching CardCollection's Cell.
-  const faces: CardFaceInterface[] = [card.front];
-  if (card.back)
-    faces.push({
-      ...card.back,
-      backFace: true,
-    });
-
-  const portrait = height > width;
+  const [faceSelection, setFaceSelection] = useState({ uuid: card.uuid, visible, showBack: false });
+  const newSession = faceSelection.uuid !== card.uuid || faceSelection.visible !== visible;
+  if (newSession) {
+    setFaceSelection({ uuid: card.uuid, visible, showBack: false });
+  }
+  // Match the collection: render only the selected face and suppress front-only
+  // chrome (such as the mana cost) when showing the back.
+  const face: CardFaceInterface =
+    !newSession && faceSelection.showBack && card.back
+      ? { ...card.back, backFace: true }
+      : card.front;
 
   const wOffset = 40;
   const hOffset = variantNavigation ? 72 : 30;
@@ -49,17 +52,7 @@ const MobileBigCardRenderModal = ({
   const modalMaxWidth = width - wOffset;
   const modalMaxHeight = height - hOffset;
 
-  let modalWidth = Math.min(modalMaxWidth, modalMaxHeight * dimFactor);
-  let cardWidth = modalWidth;
-
-  if (faces.length === 2) {
-    if (portrait) {
-      modalWidth = Math.min(modalMaxWidth, modalMaxHeight * dimFactor * 0.5);
-      cardWidth = modalWidth;
-    } else {
-      modalWidth = Math.min(modalMaxWidth, modalMaxHeight * dimFactor * 2);
-    }
-  }
+  const cardWidth = Math.min(modalMaxWidth, modalMaxHeight * dimFactor);
 
   return (
     <Modal
@@ -73,27 +66,43 @@ const MobileBigCardRenderModal = ({
       <div
         className={styles.mobilePositioner}
         style={{
-          width: modalWidth,
+          width: modalMaxWidth,
         }}
       >
-        <div className={styles.mobileFaces} style={{ flexDirection: portrait ? 'column' : 'row' }}>
-          {faces.map((face, index) => (
-            <TrainerGalleryHolofoil key={`${card.uuid}-${index}`} cardWidth={cardWidth}>
-              <CardRender
-                containerWidth={cardWidth}
-                {...face}
-                cardID={card.uuid}
-                creator={card.creator.name}
-                rarity={card.rarity}
-                manaCost={card.manaCost}
-                collectionNumber={collectionNumber}
-                collectionSize={collectionSize}
-              />
-              <FavoriteHeart favorite={card.favorite} />
-            </TrainerGalleryHolofoil>
-          ))}
+        <div className={styles.mobileFaces}>
+          <div
+            key={card.uuid}
+            className={styles.mobileCard}
+            style={{ width: cardWidth, borderRadius: (cardWidth / CARD_WIDTH) * 60 }}
+          >
+            <CardRender
+              containerWidth={cardWidth}
+              {...face}
+              cardID={card.uuid}
+              creator={card.creator.name}
+              rarity={card.rarity}
+              manaCost={card.manaCost}
+              collectionNumber={collectionNumber}
+              collectionSize={collectionSize}
+            />
+            <FavoriteHeart favorite={card.favorite} />
+          </div>
         </div>
-        {variantNavigation}
+        {(card.back || variantNavigation) && (
+          <div className={styles.mobileCardControls} role="group" aria-label="Card controls">
+            {card.back && (
+              <Button
+                aria-label="Show other face"
+                icon={<AntIcon type="swap" />}
+                onClick={() =>
+                  setFaceSelection(selection => ({ ...selection, showBack: !selection.showBack }))
+                }
+              />
+            )}
+            {variantNavigation}
+          </div>
+        )}
+        <div className={`${styles.annotationView} ${styles.mobileAnnotations}`}>{children}</div>
       </div>
     </Modal>
   );

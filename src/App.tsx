@@ -41,6 +41,7 @@ import {
 } from './actions/userActions';
 import { UNKNOWN_CREATOR } from './utils/constants';
 import { matchesSelectedTags } from './utils/cardTagFilter';
+import useActiveCardTab from './utils/useActiveCardTab';
 
 const { Search } = Input;
 const { confirm } = Modal;
@@ -66,7 +67,6 @@ const CARD_TABS: { name: string; filter: (o: CardInterface) => boolean }[] = [
 ];
 
 const tabKey = (name: string) => `tab-key-${name}`;
-const DEFAULT_TAB_KEY = tabKey('Card Drafts / Idea Dump');
 
 export const openMechanicEditor = (
   closeCardModal: (visible: boolean) => void,
@@ -107,7 +107,7 @@ const App: React.FC = () => {
 
   const [colSpanSetting, setColSpanSetting] = useState<number>(-1);
 
-  const [activeTabKey, setActiveTabKey] = useState<string>(DEFAULT_TAB_KEY);
+  const [activeTabKey, setActiveTabKey] = useActiveCardTab();
 
   const { cards, newUuid, dispatch, annotationAccessor, user, currentUser, tags } =
     useContext<StoreType>(Store);

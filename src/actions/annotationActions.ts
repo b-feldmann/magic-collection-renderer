@@ -32,18 +32,24 @@ export const createAnnotation = (
 ) => {
   const args = { accessKey: getAccessToken(), content, author: author.uuid, cardReference };
 
-  axios
+  return axios
     .post(MIDDLEWARE_ENDPOINT, args)
     .then(result => {
-      return dispatch({
+      if (result.status !== 200 || !result.data?.annotation) {
+        staticAntd.message.error('Failed creating a new comment :(');
+        return false;
+      }
+      dispatch({
         type: AnnotationActionType.CreateAnnotation,
         payload: {
           annotation: result.data.annotation,
         },
       });
+      return true;
     })
     .catch(_error => {
       staticAntd.message.error('Failed creating a new comment :(');
+      return false;
     });
 };
 

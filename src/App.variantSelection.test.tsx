@@ -125,7 +125,10 @@ const store: StoreType = {
   dispatch: vi.fn(),
 };
 
-beforeEach(() => vi.mocked(Modal.confirm).mockClear());
+beforeEach(() => {
+  vi.mocked(Modal.confirm).mockClear();
+  localStorage.removeItem('mtg-funset:ActiveCardTab:v1');
+});
 
 describe.each([
   ['desktop', App],
@@ -137,6 +140,32 @@ describe.each([
         <Component />
       </Store.Provider>,
     );
+
+  it.each(['All', 'Card Drafts / Idea Dump', 'Cards to Rate', 'Approved Cards'])(
+    'remembers the %s tab after remounting',
+    tab => {
+      const { unmount } = showApp();
+      fireEvent.click(screen.getByRole('tab', { name: /^All/ }));
+      fireEvent.click(screen.getByRole('tab', { name: new RegExp(tab) }));
+      expect(localStorage.getItem('mtg-funset:ActiveCardTab:v1')).toBe(`tab-key-${tab}`);
+      unmount();
+
+      showApp();
+      expect(screen.getByRole('tab', { name: new RegExp(tab) })).toHaveAttribute(
+        'aria-selected',
+        'true',
+      );
+    },
+  );
+
+  it('falls back to Card Drafts when the saved tab is invalid', () => {
+    localStorage.setItem('mtg-funset:ActiveCardTab:v1', 'tab-key-removed');
+    showApp();
+    expect(screen.getByRole('tab', { name: /Card Drafts/ })).toHaveAttribute(
+      'aria-selected',
+      'true',
+    );
+  });
 
   it('selects a collection variant in the editor without opening a hidden modal', () => {
     showApp();
