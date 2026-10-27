@@ -51,6 +51,19 @@ describe('updateMechanic', () => {
     expect(createTag).toHaveBeenCalledWith(expect.any(Function), 'Test');
   });
 
+  it('reports successful persistence after updating the store', async () => {
+    const mechanic = makeMechanic('uuid-1');
+    const dispatch = vi.fn();
+    vi.mocked(axios.put).mockResolvedValue({ data: { mechanic } });
+    expect(await updateMechanic(dispatch, mechanic)).toBe(true);
+    expect(dispatch).toHaveBeenCalledWith(expect.objectContaining({ payload: { mechanic } }));
+  });
+
+  it('reports failed persistence so the editor can retry', async () => {
+    vi.mocked(axios.put).mockRejectedValue(new Error('offline'));
+    expect(await updateMechanic(() => {}, makeMechanic('uuid-1'))).toBe(false);
+  });
+
   it('creates a tag when creating a mechanic with a non-empty returned name', async () => {
     const mechanic = makeMechanic('uuid-1');
     vi.mocked(axios.post).mockResolvedValue({ data: { mechanic } });

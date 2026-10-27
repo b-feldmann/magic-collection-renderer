@@ -1,0 +1,406 @@
+.popover {
+  max-width: calc(100vw - 24px);
+}
+
+// A left/right popover cannot fit beside its trigger on a phone-width viewport.
+@media (max-width: 660px) {
+  .popover {
+    position: fixed;
+    top: 16px !important;
+    right: auto !important;
+    bottom: auto !important;
+    left: 12px !important;
+
+    :global(.ant-popover-arrow) {
+      display: none;
+    }
+  }
+}
+
+.helpTrigger {
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  color: inherit;
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid #3e6249;
+    outline-offset: 3px;
+  }
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.guide {
+  container-type: inline-size;
+  display: flex;
+  flex-direction: column;
+  width: min(620px, calc(100vw - 24px));
+  max-height: calc(100dvh - 32px);
+  color: #4c594d;
+  background: #fff;
+  font-size: 14px;
+  line-height: 1.5;
+
+  &,
+  * {
+    box-sizing: border-box;
+  }
+
+  button {
+    font: inherit;
+    cursor: pointer;
+  }
+
+  button:focus-visible,
+  summary:focus-visible,
+  [tabindex]:focus-visible {
+    outline: 2px solid #3e6249;
+    outline-offset: -3px;
+  }
+
+  code {
+    color: #63715e;
+    font-family: 'SFMono-Regular', Consolas, monospace;
+    font-size: 12px;
+    overflow-wrap: anywhere;
+    user-select: text;
+  }
+}
+
+.header {
+  flex: 0 0 auto;
+  padding: 24px 30px 0;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  h2 {
+    margin: 0;
+    color: #2c3530;
+    font-size: 26px;
+    font-weight: 650;
+    letter-spacing: -0.5px;
+    line-height: 1.2;
+  }
+}
+
+.close {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  color: #7e8978;
+  background: transparent;
+
+  span {
+    font-size: 26px;
+    line-height: 1;
+  }
+  &:hover {
+    background: #f2f5ee;
+  }
+}
+
+.intro {
+  margin: 12px 0 0;
+  color: #7b8676;
+  line-height: 1.6;
+}
+
+.content {
+  min-height: 0;
+  padding: 0 30px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.section {
+  padding: 24px 0;
+  border-bottom: 1px solid #e6eae2;
+
+  &:last-child {
+    border-bottom: 0;
+  }
+}
+
+.sectionHeading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+
+  h3 {
+    margin: 0;
+    color: #374b38;
+    font-size: 19px;
+    font-weight: 650;
+    letter-spacing: -0.2px;
+  }
+
+  > span {
+    color: #84917c;
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.manaGrid,
+.common,
+.advancedGrid,
+.loyalty {
+  display: grid;
+  gap: 8px;
+}
+
+.manaGrid {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+.common {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 14px;
+}
+.advancedGrid {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+.loyalty {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.symbol,
+.token {
+  min-width: 0;
+  border: 1px solid #e1e6dc;
+  border-radius: 11px;
+  color: #4c594d;
+  background: #fff;
+  transition:
+    background 0.15s,
+    border-color 0.15s;
+
+  &:hover {
+    border-color: #9aaf92;
+    background: #f2f5ee;
+  }
+}
+
+.symbol {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 83px;
+  padding: 10px 3px;
+
+  :global(.ms) {
+    font-size: 24px;
+  }
+}
+
+.token {
+  display: grid;
+  grid-template-columns: 23px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 11px;
+  min-height: 47px;
+  padding: 12px;
+  text-align: left;
+
+  :global(.ms) {
+    color: #596653;
+    font-size: 19px;
+  }
+}
+
+.symbolName {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.advanced {
+  margin-top: 16px;
+
+  summary {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-radius: 4px;
+    color: #53654c;
+    cursor: pointer;
+    list-style: none;
+
+    &::-webkit-details-marker {
+      display: none;
+    }
+    &::before {
+      content: '›';
+      color: #8a987f;
+      font-size: 22px;
+      line-height: 16px;
+    }
+  }
+
+  &[open] > summary::before {
+    transform: rotate(90deg);
+  }
+}
+
+.advancedGroup {
+  margin-top: 16px;
+
+  .symbol {
+    min-height: 70px;
+    gap: 10px;
+  }
+}
+
+.label {
+  margin: 0 0 10px;
+  color: #7e8978;
+  font-size: 13px;
+}
+.loyalty .symbol {
+  min-height: 77px;
+}
+.loyalty :global(.ms) {
+  color: #61725a;
+  font-size: 28px;
+}
+.hint {
+  margin: 12px 0 0;
+  color: #818c79;
+  font-size: 12px;
+  line-height: 1.6;
+}
+.hint code {
+  font-size: 11px;
+}
+
+.nameTip {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 16px;
+  padding: 12px 14px;
+  border: 1px solid #e5eadd;
+  border-radius: 11px;
+  background: #f7f9f4;
+  font-size: 13px;
+
+  > code {
+    padding: 0 5px;
+    color: #3e6249;
+    font-size: 19px;
+  }
+  p {
+    margin: 0;
+    line-height: 1.6;
+  }
+}
+
+.mechanics {
+  overflow: hidden;
+  border: 1px solid #e1e6dc;
+  border-radius: 11px;
+}
+.mechanic {
+  padding: 13px 15px;
+  border-bottom: 1px solid #e9ede5;
+
+  &:last-child {
+    border-bottom: 0;
+  }
+  p {
+    margin: 8px 0 0;
+    color: #7a8673;
+    font-size: 12px;
+    line-height: 1.6;
+  }
+}
+
+.mechanicHeading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+
+  > code {
+    padding: 5px 7px;
+    border-radius: 5px;
+    color: #466044;
+    background: #f1f4ed;
+  }
+  > span {
+    color: #87917f;
+    font-size: 11px;
+  }
+}
+
+.footer {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 8px;
+  padding: 17px 30px;
+  border-top: 1px solid #e6eae2;
+  color: #7e8978;
+  background: #fafbf8;
+  font-size: 12px;
+}
+
+.dot {
+  flex-shrink: 0;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #80a186;
+}
+
+@container (max-width: 480px) {
+  .header {
+    padding: 20px 20px 0;
+  }
+  .content {
+    padding: 0 20px;
+  }
+  .footer {
+    padding: 16px 20px;
+  }
+  .titleRow h2 {
+    font-size: 25px;
+  }
+  .manaGrid {
+    gap: 5px;
+  }
+  .symbol {
+    min-height: 76px;
+  }
+  .token {
+    grid-template-columns: 23px minmax(0, 1fr);
+    gap: 8px;
+  }
+  .token code {
+    grid-column: 1 / -1;
+  }
+  .symbolName {
+    font-size: 13px;
+  }
+  .mechanicHeading > span {
+    display: none;
+  }
+}

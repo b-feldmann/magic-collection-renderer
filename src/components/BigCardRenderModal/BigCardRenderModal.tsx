@@ -118,19 +118,49 @@ const BigCardRenderModal = ({
   const dimFactor = CARD_WIDTH / CARD_HEIGHT;
 
   const modalMaxWidth = (width / 100) * 62.5 - wOffset;
-  // Use the collection band between the sidebars, with 16px outer gutters.
-  // Keep card sizing unchanged and give the reclaimed space to comments.
-  const desktopViewWidth = (width > 900 ? width * (21 / 24) * (18 / 24) : width) - 32;
+  // Match App.module.scss's fixed sidebar/editor widths and their outer gaps.
+  // Only the left sidebar is hidden below 900px; the desktop editor remains.
+  const sidebarSpace = width >= 900 ? 288 + 16 : 0;
+  const editorSpace = 516 + 16;
+  const desktopViewWidth = Math.max(0, width - sidebarSpace - editorSpace - 32);
   const modalMaxHeight = height - hOffset - hEditorSpace;
-  const modalSingleCardWidth = Math.min(modalMaxWidth, modalMaxHeight * dimFactor);
-  const modalDoubleCardWidth = Math.min(modalMaxWidth, modalMaxHeight * dimFactor * 2);
+  // Reserve room for comments beside a single face, while keeping the previous
+  // card size on wide screens. Both faces of a double-faced card share the band.
+  const singleFaceSpace = Math.max(0, desktopViewWidth - 16);
+  const modalSingleCardWidth = Math.max(
+    0,
+    Math.min(
+      modalMaxWidth,
+      modalMaxHeight * dimFactor,
+      singleFaceSpace - Math.min(320, singleFaceSpace * 0.4),
+    ),
+  );
+  const modalDoubleCardWidth = Math.max(
+    0,
+    Math.min(modalMaxWidth, modalMaxHeight * dimFactor * 2, desktopViewWidth),
+  );
 
-  const singleCardWidth = faces.length === 2 ? modalDoubleCardWidth / 2 : modalSingleCardWidth;
-  const fullCardWidth = faces.length === 2 ? modalDoubleCardWidth : modalSingleCardWidth;
+  // Decide from the side-by-side size so enlarging the card after stacking
+  // cannot cause the layout to flip back on the next render.
+  const stackSingleCard = !rowLayout && modalSingleCardWidth / dimFactor <= height / 2;
+  const stackedLayout = rowLayout || stackSingleCard;
+  // Keep 16px viewport gutters and account for the variant controls above chat.
+  // Reserve half the screen for chat before assigning the remaining card space.
+  const stackedAvailableHeight = Math.max(0, height - 32 - (variantNavigation ? 40 : 0));
+  const stackedCardMaxHeight = Math.max(0, stackedAvailableHeight - height / 2 - 16);
+  const responsiveSingleCardWidth = stackSingleCard
+    ? Math.max(0, Math.min(modalMaxWidth, desktopViewWidth, stackedCardMaxHeight * dimFactor))
+    : modalSingleCardWidth;
+  const singleCardWidth = rowLayout ? modalDoubleCardWidth / 2 : responsiveSingleCardWidth;
+  const fullCardWidth = rowLayout ? modalDoubleCardWidth : responsiveSingleCardWidth;
   const cardHeight = singleCardWidth / dimFactor;
 
-  const annotationWidth = rowLayout ? singleCardWidth * 2 : desktopViewWidth - singleCardWidth - 16;
-  const annotationHeight = rowLayout ? modalMaxHeight - cardHeight + hEditorSpace : cardHeight;
+  const annotationWidth = stackedLayout ? fullCardWidth : desktopViewWidth - singleCardWidth - 16;
+  const annotationHeight = stackSingleCard
+    ? Math.max(height / 2, stackedAvailableHeight - cardHeight - 16)
+    : rowLayout
+      ? Math.max(0, height - hOffset - cardHeight)
+      : cardHeight;
 
   const updateState = (newState: CardState) => {
     const updatedCard = {
@@ -266,6 +296,7 @@ const BigCardRenderModal = ({
   return (
     <Modal
       className={styles.modalCardViewWrapper}
+      style={{ left: (sidebarSpace - editorSpace) / 2 }}
       wrapClassName="card-view"
       classNames={{ mask: 'card-view' }}
       title={`View ${card.name}`}
@@ -276,8 +307,8 @@ const BigCardRenderModal = ({
       <div
         className={styles.view}
         style={{
-          width: rowLayout ? fullCardWidth : desktopViewWidth,
-          flexDirection: rowLayout ? 'column' : 'row',
+          width: stackedLayout ? fullCardWidth : desktopViewWidth,
+          flexDirection: stackedLayout ? 'column' : 'row',
         }}
       >
         <div

@@ -1,8 +1,20 @@
 import React, { useState } from 'react';
 import { ConfigProvider } from 'antd';
 import { fireEvent, render, screen } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import EditField from './EditField';
+
+const device = vi.hoisted(() => ({ isMobile: false }));
+vi.mock('react-device-detect', async importOriginal => ({
+  ...(await importOriginal<typeof import('react-device-detect')>()),
+  get isMobile() {
+    return device.isMobile;
+  },
+}));
+
+beforeEach(() => {
+  device.isMobile = false;
+});
 
 if (!window.matchMedia) {
   window.matchMedia = (media: string) => ({
@@ -89,11 +101,27 @@ describe('Card Text symbol toolbar', () => {
     expect(textarea.selectionEnd).toBe(3);
   });
 
-  it('opens the existing code guide from an explicitly named button', async () => {
+  it('opens the redesigned code guide without changing the card text', async () => {
     render(<Harness />);
     fireEvent.click(screen.getByRole('button', { name: 'Symbol guide' }));
-    expect(await screen.findByText('Icon & Mechanic Codes')).toBeInTheDocument();
-    expect(screen.getByText('{0} - {20}')).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Symbol guide' })).toBeInTheDocument();
+    expect(screen.getByText('{0} – {20}')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Copy Tap: {t}' }));
+    expect(screen.getByRole('textbox', { name: 'Card Text' })).toHaveValue('');
+    expect(screen.getByLabelText('Stored lines')).toHaveTextContent('[""]');
+  });
+
+  it('hides the guide link on mobile while retaining quick inserts and manual code entry', () => {
+    device.isMobile = true;
+    render(<Harness />);
+    expect(screen.queryByRole('button', { name: 'Symbol guide' })).not.toBeInTheDocument();
+    for (const name of ['Tap', 'Mana', 'Generic']) {
+      fireEvent.click(screen.getByRole('button', { name }));
+    }
+    const textarea = screen.getByRole('textbox', { name: 'Card Text' });
+    expect(textarea).toHaveValue('{t}{u}{1}');
+    fireEvent.change(textarea, { target: { value: '{ut}' } });
+    expect(screen.getByLabelText('Stored lines')).toHaveTextContent('["{ut}"]');
   });
 
   it('disables insertion and guide actions with the rest of the editor', () => {

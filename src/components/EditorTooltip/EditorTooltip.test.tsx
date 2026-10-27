@@ -1,72 +1,118 @@
 import React from 'react';
-import { act } from 'react';
-import { createRoot } from 'react-dom/client';
+import { act, fireEvent, render as renderComponent, screen, waitFor } from '@testing-library/react';
+import Button from 'antd/es/button';
+import ConfigProvider from 'antd/es/config-provider';
 import { describe, expect, it } from 'vitest';
-
 import EditorTooltip from './EditorTooltip';
 
-(globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
+globalThis.ResizeObserver ??= class {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+};
 
-// jsdom does not implement ResizeObserver, which antd's Popover requires.
-class ResizeObserverStub {
-  observe(): void {}
-
-  unobserve(): void {}
-
-  disconnect(): void {}
-}
-globalThis.ResizeObserver ??= ResizeObserverStub as unknown as typeof ResizeObserver;
-
-// jsdom does not implement matchMedia, which antd's responsiveObserver needs.
-globalThis.matchMedia ??= ((query: string) => ({
+window.matchMedia ??= (media: string) => ({
   matches: false,
-  media: query,
+  media,
   onchange: null,
-  addListener: () => {},
-  removeListener: () => {},
-  addEventListener: () => {},
-  removeEventListener: () => {},
+  addListener() {},
+  removeListener() {},
+  addEventListener() {},
+  removeEventListener() {},
   dispatchEvent: () => false,
-})) as unknown as typeof globalThis.matchMedia;
+});
+
+function ExplicitGuide() {
+  return (
+    <EditorTooltip className="">
+      <Button>Symbol guide</Button>
+    </EditorTooltip>
+  );
+}
+
+function render(ui: React.ReactNode) {
+  // jsdom cannot finish CSS animations; keep real popover behavior without motion.
+  return renderComponent(
+    <ConfigProvider theme={{ token: { motion: false } }}>{ui}</ConfigProvider>,
+  );
+}
 
 describe('EditorTooltip', () => {
-  // Regression: mana-font composes two-color hybrid symbols (e.g. `{rg}`) from
-  // two half-glyphs, and the positioning/sizing rules for that composite exist
-  // only for elements carrying BOTH `ms-cost` and `ms-<hybrid>` classes. The
-  // card renderer (`injectManaIcons`) always passes `cost`, so hybrids render
-  // correctly there; the tooltip must do the same or the halves overlap into
-  // a garbled glyph.
-  it('renders mana-cost mode for every mana symbol, including hybrids like {rg}', async () => {
-    const container = document.createElement('div');
-    document.body.appendChild(container);
-    const root = createRoot(container);
+  it('opens the approved guide from the editor button', async () => {
+    render(<ExplicitGuide />);
+    fireEvent.click(screen.getByRole('button', { name: 'Symbol guide' }));
+    await waitFor(() =>
+      expect(screen.getByRole('heading', { name: 'Symbol guide' })).toBeVisible(),
+    );
+    expect(screen.getByRole('heading', { name: 'Mana & Actions' })).toBeVisible();
+    expect(screen.queryByRole('searchbox')).not.toBeInTheDocument();
+  });
 
-    await act(async () => {
-      root.render(<EditorTooltip className="" />);
-    });
+  it.each(['close button', 'Escape'])(
+    'dismisses using %s and restores focus to the trigger',
+    async method => {
+      render(<ExplicitGuide />);
+      const trigger = screen.getByRole('button', { name: 'Symbol guide' });
+      act(() => trigger.focus());
+      fireEvent.click(trigger);
+      const close = await screen.findByRole('button', { name: 'Close symbol guide' });
+      fireEvent.keyDown(trigger, { key: 'Tab' });
+      expect(close).toHaveFocus();
+      if (method === 'close button') fireEvent.click(close);
+      else fireEvent.keyDown(close, { key: 'Escape' });
+      await waitFor(() =>
+        expect(screen.queryByRole('heading', { name: 'Symbol guide' })).not.toBeInTheDocument(),
+      );
+      expect(trigger).toHaveFocus();
+    },
+  );
 
-    await act(async () => {
-      const trigger = container.querySelector('.anticon-question-circle')!;
-      expect(trigger).not.toBeNull();
-      trigger.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
-      trigger.dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }));
-      trigger.dispatchEvent(new PointerEvent('pointerenter', { bubbles: true }));
-    });
+  it('opens the legacy help trigger on hover', async () => {
+    render(<EditorTooltip className="" />);
+    fireEvent.mouseEnter(screen.getByRole('button', { name: 'Symbol guide' }));
+    await waitFor(() =>
+      expect(screen.getByRole('heading', { name: 'Symbol guide' })).toBeVisible(),
+    );
+  });
 
-    // Popover opens after the default mouseEnterDelay (100ms) plus animation.
-    await act(async () => {
-      await new Promise(resolve => setTimeout(resolve, 500));
-    });
+  it('supports legacy keyboard focus, moving into the guide, and dismissal without reopening', async () => {
+    render(<EditorTooltip className="" />);
+    const trigger = screen.getByRole('button', { name: 'Symbol guide' });
+    act(() => trigger.focus());
+    const close = await screen.findByRole('button', { name: 'Close symbol guide' });
+    fireEvent.keyDown(trigger, { key: 'Tab' });
+    expect(close).toHaveFocus();
+    await waitFor(() =>
+      expect(screen.getByRole('heading', { name: 'Symbol guide' })).toBeVisible(),
+    );
+    fireEvent.keyDown(close, { key: 'Escape' });
+    await waitFor(() =>
+      expect(screen.queryByRole('heading', { name: 'Symbol guide' })).not.toBeInTheDocument(),
+    );
+    expect(trigger).toHaveFocus();
+  });
 
-    const manaIcons = Array.from(document.body.querySelectorAll('i.ms'));
-    const hybridSymbols = ['wu', 'wb', 'ub', 'ur', 'br', 'bg', 'rg', 'rw', 'gw', 'gu'];
-    hybridSymbols.forEach(symbol => {
-      const icon = manaIcons.find(el => el.classList.contains(`ms-${symbol}`));
-      expect(icon, `symbol {${symbol}} missing from tooltip`).toBeDefined();
-      expect(icon?.classList.contains('ms-cost'), `{${symbol}} missing ms-cost class`).toBe(true);
-    });
+  // mana-font's two-color halves require ms-cost to position correctly.
+  it('renders every hybrid in mana-cost mode', async () => {
+    render(<ExplicitGuide />);
+    fireEvent.click(screen.getByRole('button', { name: 'Symbol guide' }));
+    fireEvent.click(await screen.findByText('Hybrid & Phyrexian Mana'));
+    for (const symbol of ['wu', 'wb', 'ub', 'ur', 'br', 'bg', 'rg', 'rw', 'gw', 'gu']) {
+      const button = screen.getByRole('button', { name: `Copy Two-color hybrid: {${symbol}}` });
+      expect(button.querySelector(`.ms-${symbol}`)).toHaveClass('ms-cost');
+    }
+  });
 
-    root.unmount();
-    container.remove();
+  it('disables the legacy help action with the editor', () => {
+    render(
+      <ConfigProvider componentDisabled>
+        <EditorTooltip className="" />
+      </ConfigProvider>,
+    );
+    const trigger = screen.getByRole('button', { name: 'Symbol guide' });
+    expect(trigger).toBeDisabled();
+    fireEvent.mouseEnter(trigger);
+    fireEvent.click(trigger);
+    expect(screen.queryByRole('heading', { name: 'Symbol guide' })).not.toBeInTheDocument();
   });
 });

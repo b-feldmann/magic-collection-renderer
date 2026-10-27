@@ -123,6 +123,7 @@ const AnnotationReactions = ({ annotation }: { annotation: AnnotationInterface }
           );
         })}
       <Popover
+        classNames={{ root: styles.emojiPopover }}
         trigger="click"
         placement="top"
         open={open}

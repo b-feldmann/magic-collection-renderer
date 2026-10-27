@@ -1,9 +1,9 @@
 import React, { useContext, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
-import { Badge, Button, Card, Col, Input, Modal, Result, Row, Select, Tabs } from 'antd';
+import { Badge, Card, Col, Input, Modal, Result, Row, Select, Tabs } from 'antd';
 import sortBy from 'lodash/sortBy';
 
 import CardInterface from './interfaces/CardInterface';
-import AntIcon from './components/AntIcon/AntIcon';
+import CollectionActions from './components/CollectionActions/CollectionActions';
 import { CardState } from './interfaces/enums';
 import CardCollection from './components/CardCollection/CardCollection';
 import { getVariantGroups, withLatestVariantIds } from './utils/cardVariants';
@@ -20,6 +20,7 @@ import { createCard, EMPTY_CARD, refreshCollection } from './actions/cardActions
 
 import { hasAccessToken, updateAccessToken } from './utils/accessService';
 import { getMechanics } from './actions/mechanicActions';
+import MechanicModal from './components/MechanicModal/MechanicModal';
 import { getTags } from './actions/tagActions';
 import ChangeLogModal from './components/ChangeLogModal/ChangeLogModal';
 import BigCardRenderModal from './components/BigCardRenderModal/BigCardRenderModal';
@@ -50,6 +51,7 @@ const MobileApp: React.FC = () => {
   const [cardViewId, setCardViewId] = useState<string>(NO_CARD);
   const [showCardModal, setShowCardModal] = useState<boolean>(false);
   const [showCardEditor, setShowCardEditor] = useState(false);
+  const [mechanicsVisible, setMechanicsVisible] = useState(false);
   const [cardNameFilter, setCardNameFilter] = useState<string>('');
   const [activeTabKey, setActiveTabKey] = useActiveCardTab();
 
@@ -290,6 +292,7 @@ const MobileApp: React.FC = () => {
         </Card>
       </div>
       <Row
+        wrap={false}
         className={`${styles.app} ${
           currentUser.uuid === UNKNOWN_CREATOR.uuid ? styles.unauthenticated : styles.authenticated
         }`}
@@ -299,41 +302,21 @@ const MobileApp: React.FC = () => {
         </Col>
         <div className={styles.mobileControls}>
           <CollectionFilterControls collection={cards} setNameFilter={setCardNameFilter} />
-          <Button
-            aria-label="New card"
-            icon={<AntIcon type="plus" />}
-            type="primary"
-            onClick={() => createCard(dispatch, currentUser)}
-            className={styles.fullWidth}
-          >
-            New card
-          </Button>
-          <Button
-            icon={<AntIcon type="reload" />}
-            type="primary"
-            onClick={refresh}
-            className={styles.fullWidth}
-          >
-            Reload Collection
-          </Button>
-          <Button
-            icon={<AntIcon type="swap" />}
-            onClick={() =>
-              confirm({
-                title: 'Switch user?',
-                okText: 'Yes, switch user',
-                cancelText: 'Cancel',
-                onOk() {
-                  setCurrentUser(dispatch, UNKNOWN_CREATOR);
-                },
-              })
-            }
-            className={styles.fullWidth}
-          >
-            Switch User
-          </Button>
+          <CollectionActions
+            mobile
+            currentUser={currentUser}
+            users={user}
+            onCreate={() => createCard(dispatch, currentUser)}
+            onEditMechanics={() => {
+              setShowCardModal(false);
+              setMechanicsVisible(true);
+            }}
+            onSwitchUser={nextUser => setCurrentUser(dispatch, nextUser)}
+            onReload={refresh}
+          />
         </div>
       </Row>
+      <MechanicModal visible={mechanicsVisible} setVisible={setMechanicsVisible} />
       <BigCardRenderModal
         onSelectVariant={switchCardVariant}
         mobile

@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Checkbox, Input, Row, Slider } from 'antd';
-import { CardType, ColorType, mapEnum, RarityType } from '../../interfaces/enums';
+import { Checkbox, Input, Slider } from 'antd';
+import { CardType, ColorType, RarityType } from '../../interfaces/enums';
 
 import styles from './styles.module.scss';
 import CardInterface from '../../interfaces/CardInterface';
@@ -8,7 +8,7 @@ import cardToColor from '../../utils/cardToColor';
 import { UNKNOWN_CREATOR } from '../../utils/constants';
 import Mana from '../Mana/Mana.tsx';
 import { getAvailableCardTags, getInitialTagFilterState } from '../../utils/cardTagFilter';
-import { getRarityIcon } from '../TemplatingCardRender/assetLoader';
+import FilterScrollRegion from './FilterScrollRegion';
 
 export interface CollectionFilterInterface {
   colors: CheckBoxGroupInterface;
@@ -24,6 +24,7 @@ interface CollectionFilterControlsInterface {
   collection: CardInterface[];
   availableTags?: string[];
   setNameFilter: (filter: string) => void;
+  sortControls?: React.ReactNode;
 }
 
 export interface CheckBoxGroupInterface {
@@ -37,21 +38,66 @@ interface CardCountStats {
 // Keep the optional tag list stable so the tag-state effect can settle.
 const EMPTY_AVAILABLE_TAGS: string[] = [];
 
+const createEnumInitState = (values: string[]): CheckBoxGroupInterface =>
+  Object.fromEntries(values.map(value => [value, true]));
+
+const FilterSection = ({
+  title,
+  number,
+  children,
+}: React.PropsWithChildren<{ title: string; number: number }>) => (
+  <section className={styles.filterSection} aria-label={title}>
+    <div className={styles.sectionHeading}>
+      <h3>{title}</h3>
+      <span aria-hidden="true">{String(number).padStart(2, '0')}</span>
+    </div>
+    {children}
+  </section>
+);
+
+const FilterOption = ({
+  label,
+  category,
+  count,
+  checked,
+  onChange,
+  icon,
+}: {
+  label: string;
+  category: string;
+  count: number;
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+  icon?: React.ReactNode;
+}) => (
+  <Checkbox
+    className={styles.filterOption}
+    aria-label={`${label} ${category}`}
+    checked={checked}
+    onChange={event => onChange(event.target.checked)}
+  >
+    {icon && (
+      <span className={styles.optionIcon} aria-hidden="true">
+        {icon}
+      </span>
+    )}
+    <span className={styles.optionLabel} title={label}>
+      {label}
+    </span>
+    <span className={styles.optionCount}>{count}</span>
+  </Checkbox>
+);
+
 const CollectionFilterControls = ({
   setCollectionColSpan,
   setCollectionFilter,
   collection,
   availableTags = EMPTY_AVAILABLE_TAGS,
   setNameFilter,
+  sortControls,
 }: CollectionFilterControlsInterface) => {
-  const createEnumInitState = (values: string[]): CheckBoxGroupInterface => {
-    const group: CheckBoxGroupInterface = {};
-    values.forEach((value: string) => {
-      group[value] = true;
-    });
-    return group;
-  };
-
+  const [nameFilter, setNameFilterValue] = useState('');
+  const [cardsPerRow, setCardsPerRow] = useState(0);
   const [shownCardTypes, setShownCardTypes] = useState<CheckBoxGroupInterface>(() =>
     createEnumInitState(Object.values(CardType)),
   );
@@ -185,139 +231,202 @@ const CollectionFilterControls = ({
       });
   }, [shownColors, shownRarities, shownCardTypes, shownCreators, shownTags, setCollectionFilter]);
 
-  const spanMarks = {
-    0: 'Auto',
-    1: '1',
-    2: '2',
-    3: '3',
-    4: '4',
-    5: '5',
-    6: '6',
-    7: '7',
-    8: '8',
+  const hasChanges =
+    nameFilter !== '' ||
+    (!!setCollectionFilter &&
+      ([shownCardTypes, shownColors, shownRarities, shownCreators].some(group =>
+        Object.values(group).some(value => !value),
+      ) ||
+        Object.values(shownTags).some(Boolean)));
+
+  const resetFilters = () => {
+    setNameFilterValue('');
+    setNameFilter('');
+    setShownCardTypes(createEnumInitState(Object.values(CardType)));
+    setShownColors(createEnumInitState(Object.values(ColorType)));
+    setShownRarities(createEnumInitState(Object.values(RarityType)));
+    setShownCreators(createEnumInitState(creatorList.map(({ uuid }) => uuid)));
+    setShownTags(getInitialTagFilterState(tagList.map(({ name }) => name)));
   };
+
+  const firstSectionNumber = sortControls ? 2 : 1;
 
   return (
     <div className={styles.controls}>
-      <Row>
-        <div className={styles.controlItem}>
-          <h4>Filter by name</h4>
-          <Input placeholder="Card Name" allowClear onChange={e => setNameFilter(e.target.value)} />
-        </div>
+      <div className={styles.header}>
+        <h2>Filters</h2>
+        <button
+          type="button"
+          className={styles.resetButton}
+          disabled={!hasChanges}
+          onClick={resetFilters}
+        >
+          Reset all
+        </button>
+      </div>
+      <FilterScrollRegion>
+        <Input
+          className={styles.search}
+          aria-label="Filter by card name"
+          placeholder="Search card names…"
+          prefix={
+            <svg
+              viewBox="0 0 24 24"
+              width="16"
+              height="16"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              aria-hidden="true"
+            >
+              <circle cx="10.5" cy="10.5" r="6.5" />
+              <path d="m16 16 4 4" />
+            </svg>
+          }
+          value={nameFilter}
+          allowClear
+          onChange={event => {
+            setNameFilterValue(event.target.value);
+            setNameFilter(event.target.value);
+          }}
+        />
+        {sortControls && (
+          <FilterSection title="Sort & order" number={1}>
+            {sortControls}
+          </FilterSection>
+        )}
+        {setCollectionFilter && (
+          <>
+            <FilterSection title="Card types" number={firstSectionNumber}>
+              <div className={styles.filterOptionGrid}>
+                {Object.values(CardType)
+                  .filter(key => cardCountStats[key] > 0)
+                  .map(key => (
+                    <FilterOption
+                      key={key}
+                      label={key}
+                      category="type"
+                      count={cardCountStats[key]}
+                      checked={shownCardTypes[key]}
+                      onChange={checked =>
+                        updateEnumState(key, checked, shownCardTypes, setShownCardTypes)
+                      }
+                    />
+                  ))}
+              </div>
+            </FilterSection>
+            <FilterSection title="Colors" number={firstSectionNumber + 1}>
+              <div className={styles.filterOptionGrid} data-testid="color-filter-grid">
+                {Object.values(ColorType)
+                  .filter(key => cardCountStats[key] > 0)
+                  .map(key => (
+                    <FilterOption
+                      key={key}
+                      label={key[0].toUpperCase() + key.slice(1)}
+                      category="color"
+                      count={cardCountStats[key]}
+                      checked={shownColors[key]}
+                      onChange={checked =>
+                        updateEnumState(key, checked, shownColors, setShownColors)
+                      }
+                      icon={
+                        colorTypeToSymbol(key) ? (
+                          <Mana cost symbol={colorTypeToSymbol(key)!} shadow={false} />
+                        ) : (
+                          <span>✧</span>
+                        )
+                      }
+                    />
+                  ))}
+              </div>
+            </FilterSection>
+            <FilterSection title="Rarity" number={firstSectionNumber + 2}>
+              <div className={styles.filterOptionGrid} data-testid="rarity-filter-grid">
+                {Object.values(RarityType)
+                  .filter(key => cardCountStats[key] > 0)
+                  .map(key => (
+                    <FilterOption
+                      key={key}
+                      label={key}
+                      category="rarity"
+                      count={cardCountStats[key]}
+                      checked={shownRarities[key]}
+                      onChange={checked =>
+                        updateEnumState(key, checked, shownRarities, setShownRarities)
+                      }
+                    />
+                  ))}
+              </div>
+            </FilterSection>
+            <details className={styles.disclosure}>
+              <summary>
+                <span>Creators</span>
+                <span className={styles.groupCount}>{creatorList.length}</span>
+              </summary>
+              <div className={styles.secondaryOptions}>
+                {creatorList.map(({ uuid, name, count }) => (
+                  <FilterOption
+                    key={uuid}
+                    label={uuid === UNKNOWN_CREATOR.uuid ? 'Unknown' : name}
+                    category="creator"
+                    count={count}
+                    checked={shownCreators[uuid] !== false}
+                    onChange={checked =>
+                      updateEnumState(uuid, checked, shownCreators, setShownCreators)
+                    }
+                  />
+                ))}
+                {creatorList.length === 0 && (
+                  <p className={styles.emptyGroup}>No creators in this collection.</p>
+                )}
+              </div>
+            </details>
+            <details className={styles.disclosure}>
+              <summary>
+                <span>Tags</span>
+                <span className={styles.groupCount}>{tagList.length}</span>
+              </summary>
+              <div className={styles.secondaryOptions}>
+                {tagList.map(({ name, count }) => (
+                  <FilterOption
+                    key={name}
+                    label={name}
+                    category="tag"
+                    count={count}
+                    checked={shownTags[name] === true}
+                    onChange={checked => updateEnumState(name, checked, shownTags, setShownTags)}
+                  />
+                ))}
+                {tagList.length === 0 && (
+                  <p className={styles.emptyGroup}>No tags in this collection.</p>
+                )}
+              </div>
+            </details>
+          </>
+        )}
         {setCollectionColSpan && (
-          <div className={styles.controlItem}>
-            <h4>Cards per row</h4>
+          <details className={`${styles.disclosure} ${styles.displaySettings}`}>
+            <summary>
+              <span>Display settings</span>
+            </summary>
+            <div className={styles.densityHeading}>
+              <span>Cards per row</span>
+              <output>{cardsPerRow === 0 ? 'Auto' : cardsPerRow}</output>
+            </div>
             <Slider
-              defaultValue={0}
-              marks={spanMarks}
+              ariaLabelForHandle="Cards per row"
+              value={cardsPerRow}
+              marks={{ 0: 'Auto', 2: '2', 4: '4', 6: '6', 8: '8' }}
               step={1}
               included={false}
               min={0}
               max={8}
-              onAfterChange={value => updateColSpan(value)}
+              onChange={setCardsPerRow}
+              onChangeComplete={updateColSpan}
             />
-          </div>
+          </details>
         )}
-        {setCollectionFilter && (
-          <div>
-            <div className={styles.controlItem}>
-              <h4>Shown Card Types</h4>
-              {mapEnum(CardType, (key: string) =>
-                cardCountStats[key] === 0 ? null : (
-                  <Checkbox
-                    key={`collection-filter-controls-checkbox-cardmaintype-${key}`}
-                    checked={shownCardTypes[key]}
-                    onChange={e =>
-                      updateEnumState(key, e.target.checked, shownCardTypes, setShownCardTypes)
-                    }
-                  >
-                    {`${key} (${cardCountStats[key]})`}
-                  </Checkbox>
-                ),
-              )}
-            </div>
-            <div className={styles.controlItem}>
-              <h4>Shown Colors</h4>
-              <div className={styles.filterOptionGrid} data-testid="color-filter-grid">
-                {Object.values(ColorType).map((key: string) => {
-                  if (cardCountStats[key] === 0) return null;
-                  return (
-                    <Checkbox
-                      key={`collection-filter-controls-checkbox-color-${key}`}
-                      checked={shownColors[key]}
-                      onChange={e =>
-                        updateEnumState(key, e.target.checked, shownColors, setShownColors)
-                      }
-                    >
-                      {colorTypeToSymbol(key) ? (
-                        <Mana cost={true} symbol={colorTypeToSymbol(key)!} shadow={false} />
-                      ) : (
-                        key
-                      )}
-                      {` (${cardCountStats[key]})`}
-                    </Checkbox>
-                  );
-                })}
-              </div>
-            </div>
-            <div className={styles.controlItem}>
-              <h4>Shown Rarities</h4>
-              <div className={styles.filterOptionGrid} data-testid="rarity-filter-grid">
-                {mapEnum(RarityType, (key: string) =>
-                  cardCountStats[key] === 0 ? null : (
-                    <Checkbox
-                      key={`collection-filter-controls-checkbox-rarity-${key}`}
-                      aria-label={`${key} rarity`}
-                      checked={shownRarities[key]}
-                      onChange={e =>
-                        updateEnumState(key, e.target.checked, shownRarities, setShownRarities)
-                      }
-                    >
-                      <span className={styles.rarityOptionContent}>
-                        <img
-                          src={getRarityIcon(key as RarityType)}
-                          alt=""
-                          width={24}
-                          height={24}
-                          className={styles.rarityIcon}
-                        />
-                        <span>{` (${cardCountStats[key]})`}</span>
-                      </span>
-                    </Checkbox>
-                  ),
-                )}
-              </div>
-            </div>
-            <div className={styles.controlItem}>
-              <h4>Shown Creators</h4>
-              {creatorList.map(({ uuid, name, count }) => (
-                <Checkbox
-                  key={`collection-filter-controls-checkbox-creator-${uuid}`}
-                  checked={shownCreators[uuid] !== false}
-                  onChange={e =>
-                    updateEnumState(uuid, e.target.checked, shownCreators, setShownCreators)
-                  }
-                >
-                  {`${uuid === UNKNOWN_CREATOR.uuid ? 'Unknown' : name} (${count})`}
-                </Checkbox>
-              ))}
-            </div>
-            <div className={styles.controlItem}>
-              <h4>Shown Tags</h4>
-              {tagList.map(({ name, count }) => (
-                <Checkbox
-                  key={`collection-filter-controls-checkbox-tag-${name}`}
-                  checked={shownTags[name] !== false}
-                  onChange={e => updateEnumState(name, e.target.checked, shownTags, setShownTags)}
-                >
-                  {`${name} (${count})`}
-                </Checkbox>
-              ))}
-            </div>
-            <span> </span>
-          </div>
-        )}
-      </Row>
+      </FilterScrollRegion>
     </div>
   );
 };

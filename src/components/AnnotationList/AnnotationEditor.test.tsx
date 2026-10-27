@@ -2,6 +2,7 @@ import React from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeAll, expect, it, vi } from 'vitest';
 import AnnotationEditor from './AnnotationEditor';
+import styles from './Annotations.module.scss';
 import {
   pasteCommentText,
   prepareCommentInputTests,
@@ -25,6 +26,7 @@ it('opens the comment picker on the left and replaces the remembered text select
   trigger.focus();
   fireEvent.click(trigger);
   const choose = await screen.findByRole('button', { name: 'Choose fire emoji' });
+  expect(choose.closest('.ant-popover')).toHaveClass(styles.emojiPopover);
   await waitFor(() =>
     expect(choose.closest('.ant-popover')).toHaveClass('ant-popover-placement-left'),
   );

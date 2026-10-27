@@ -1,17 +1,84 @@
-import React, { useContext } from 'react';
-import { Button, Modal, Typography, Table } from 'antd';
+import React, { useContext, useId, useRef, useState } from 'react';
+import Button from 'antd/es/button';
+import Input from 'antd/es/input';
+import Modal from 'antd/es/modal';
+import PlusOutlined from '@ant-design/icons/PlusOutlined';
 
 import sortBy from 'lodash/sortBy';
 import { Store, StoreType } from '../../store';
 import { createMechanic, updateMechanic } from '../../actions/mechanicActions';
 import MechanicInterface from '../../interfaces/MechanicInterface';
+import editorStyles from '../CardEditor/styles.module.scss';
+import styles from './styles.module.scss';
 
-const { Column } = Table;
-const { Paragraph } = Typography;
+const MechanicFields = ({ mechanic, index }: { mechanic: MechanicInterface; index: number }) => {
+  const { cards, dispatch } = useContext<StoreType>(Store);
+  const [edits, setEdits] = useState<Partial<Pick<MechanicInterface, 'name' | 'description'>>>({});
+  const draft = { ...mechanic, ...edits };
+  const submitted = useRef<MechanicInterface | null>(null);
+  const id = useId();
 
-interface RecordProps extends MechanicInterface {
-  key: string;
-}
+  const save = async () => {
+    if (
+      (draft.name === mechanic.name && draft.description === mechanic.description) ||
+      (draft.name === submitted.current?.name &&
+        draft.description === submitted.current?.description)
+    ) {
+      return;
+    }
+    // Keep both edits together even if the previous request has not updated the store yet.
+    submitted.current = draft;
+    const saved = await updateMechanic(dispatch, draft, cards);
+    if (submitted.current === draft) submitted.current = null;
+    if (saved) {
+      // Drop acknowledged overrides only; typing during the request must stay intact.
+      setEdits(current => {
+        const next = { ...current };
+        if (next.name === draft.name) delete next.name;
+        if (next.description === draft.description) delete next.description;
+        return next;
+      });
+    }
+  };
+
+  return (
+    <section className={styles.mechanic} aria-labelledby={`${id}-heading`}>
+      <div className={editorStyles.sectionHeading}>
+        <h3 id={`${id}-heading`}>{draft.name || 'New mechanic'}</h3>
+        <span>{String(index + 1).padStart(2, '0')}</span>
+      </div>
+      <div className={styles.fields}>
+        <div>
+          <label className={editorStyles.label} htmlFor={`${id}-name`}>
+            Name
+          </label>
+          <Input
+            id={`${id}-name`}
+            value={draft.name}
+            placeholder="e.g. Flying"
+            onChange={event => setEdits(current => ({ ...current, name: event.target.value }))}
+            onBlur={save}
+          />
+        </div>
+        <div>
+          <label className={editorStyles.label} htmlFor={`${id}-description`}>
+            Description
+          </label>
+          <Input.TextArea
+            id={`${id}-description`}
+            value={draft.description}
+            placeholder="Describe how this mechanic works…"
+            autoSize={{ minRows: 2, maxRows: 8 }}
+            onChange={event =>
+              setEdits(current => ({ ...current, description: event.target.value }))
+            }
+            onBlur={save}
+          />
+        </div>
+      </div>
+    </section>
+  );
+};
 
 const MechanicModal = ({
   visible,
@@ -21,63 +88,47 @@ const MechanicModal = ({
   setVisible: (key: boolean) => void;
 }) => {
   const { mechanics, cards, dispatch } = useContext<StoreType>(Store);
-
-  const handleNameChange = (name: string, record: RecordProps) => {
-    const { key, ...rest } = record;
-    updateMechanic(dispatch, { ...rest, name }, cards);
-  };
-
-  const handleDescriptionChange = (description: string, record: RecordProps) => {
-    const { key, ...rest } = record;
-    updateMechanic(dispatch, { ...rest, description }, cards);
-  };
-
-  const sortedMechanics: RecordProps[] = sortBy(mechanics, [o => o.uuid]).map(mechanic => ({
-    ...mechanic,
-    key: mechanic.uuid,
-  }));
+  const sortedMechanics = sortBy(mechanics, [o => o.uuid]);
 
   return (
     <Modal
-      width="90%"
+      className={styles.modal}
+      width={760}
       title="Edit Mechanics"
       open={visible}
-      onOk={() => setVisible(false)}
+      centered
+      destroyOnHidden
       onCancel={() => setVisible(false)}
+      footer={
+        <div className={styles.footer}>
+          <span className={editorStyles.autosaveNote}>Changes save when you leave a field</span>
+          <Button onClick={() => setVisible(false)}>Done</Button>
+        </div>
+      }
     >
-      <Table dataSource={sortedMechanics} pagination={false} scroll={{ y: '55vh' }}>
-        <Column
-          title="Name"
-          dataIndex="name"
-          key="name"
-          width="30%"
-          render={(name: string, record: RecordProps) => (
-            <Paragraph editable={{ onChange: (value: string) => handleNameChange(value, record) }}>
-              {name}
-            </Paragraph>
-          )}
-        />
-        <Column
-          title="Description"
-          dataIndex="description"
-          key="description"
-          width="70%"
-          render={(description: string, record: RecordProps) => (
-            <Paragraph
-              editable={{ onChange: (value: string) => handleDescriptionChange(value, record) }}
-            >
-              {description}
-            </Paragraph>
-          )}
-        />
-      </Table>
-      <Button
-        style={{ width: '100%' }}
-        type="primary"
-        onClick={() => createMechanic(dispatch, cards)}
-      >
-        Add Mechanic
-      </Button>
+      <div className={styles.body}>
+        <p className={styles.intro}>
+          Define the keywords and abilities that bring your cards to life.
+        </p>
+        {sortedMechanics.length === 0 ? (
+          <div className={styles.empty}>
+            <h3>No mechanics yet</h3>
+            <p>Add your first mechanic to give it a name and description.</p>
+          </div>
+        ) : (
+          sortedMechanics.map((mechanic, index) => (
+            <MechanicFields key={mechanic.uuid} mechanic={mechanic} index={index} />
+          ))
+        )}
+        <Button
+          className={styles.addButton}
+          icon={<PlusOutlined />}
+          block
+          onClick={() => createMechanic(dispatch, cards)}
+        >
+          Add Mechanic
+        </Button>
+      </div>
     </Modal>
   );
 };

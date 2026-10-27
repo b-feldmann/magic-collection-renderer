@@ -1,44 +1,305 @@
-// A plain flowing section inside the sidebar card (desktop) or the mobile
-// controls card. The surrounding card owns the background, radius and shadow;
-// scrolling is handled by the sidebar's scroll region.
 .controls {
-  width: 100%;
-  padding: 0 8px;
-}
-
-.controlItem {
-  width: 100%;
-}
-
-.controlItem > * {
-  display: block;
-  margin-left: 8px;
-  margin-top: 4px;
-}
-
-// antd 6 renders the checkbox box (.ant-checkbox) as `display: block` and relies on
-// the wrapper's flex context (`align-self: center; flex: none`) for alignment. The
-// `display: block` rule above breaks that context and stacks the box above its label.
-// Use block-level flex so each checkbox still sits on its own line while the box and
-// label stay aligned on a single row.
-.controlItem > :global(.ant-checkbox-wrapper) {
   display: flex;
-  margin-inline-start: 8px;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  min-width: 0;
+  width: 100%;
+  color: #49584b;
 }
 
-.rarityIcon {
-  object-fit: contain;
-  vertical-align: middle;
-}
-
-.rarityOptionContent {
-  display: inline-flex;
+.header {
+  display: flex;
   align-items: center;
-  gap: 4px;
+  justify-content: space-between;
+  flex: none;
+  padding: 19px 20px 13px;
+
+  h2 {
+    margin: 0;
+    color: #2c3530;
+    font-size: 23px;
+    font-weight: 650;
+    letter-spacing: -0.7px;
+  }
+}
+
+.resetButton {
+  border: 0;
+  background: none;
+  color: #3e6248;
+  padding: 5px 0;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+
+  &:disabled {
+    color: #a0aa9b;
+    cursor: default;
+  }
+}
+
+.scrollWrapper {
+  position: relative;
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 0;
+
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 10px;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 160ms ease;
+  }
+
+  &::before {
+    top: 0;
+    background: linear-gradient(to bottom, rgba(45, 65, 42, 0.09), transparent);
+  }
+  &::after {
+    bottom: 0;
+    background: linear-gradient(to top, rgba(45, 65, 42, 0.09), transparent);
+  }
+}
+
+.hasTopShadow::before,
+.hasBottomShadow::after {
+  opacity: 1;
+}
+
+.scrollRegion {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: #d3dccb transparent;
+}
+
+.scrollContent {
+  padding: 0 20px 2px;
+}
+
+.search:global(.ant-input-affix-wrapper) {
+  min-height: 38px;
+  padding: 6px 11px;
+  border: 1px solid #dce2d8;
+  border-radius: 10px;
+  box-shadow: none;
+  font-size: 13px;
+
+  :global(.ant-input-prefix) {
+    margin-inline-end: 9px;
+    color: #8b9785;
+  }
+  input {
+    color: #49584b;
+  }
+  input::placeholder {
+    color: #9ba595;
+  }
+  &:hover,
+  &:focus-within {
+    border-color: #8da483;
+  }
+}
+
+.filterSection {
+  padding: 14px 0;
+  border-bottom: 1px solid #e9ede5;
+}
+.sectionHeading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+
+  h3 {
+    margin: 0;
+    color: #374b38;
+    font-size: 15px;
+    font-weight: 650;
+    letter-spacing: -0.25px;
+  }
+  > span {
+    color: #85917e;
+    font-size: 10px;
+    letter-spacing: 1px;
+  }
 }
 
 .filterOptionGrid {
   display: grid;
-  grid-template-columns: repeat(2, max-content);
-  gap: 4px 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 5px;
+}
+
+.filterOption:global(.ant-checkbox-wrapper) {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  min-height: 30px;
+  margin: 0;
+  padding: 5px 7px;
+  border: 1px solid #e6e9e2;
+  border-radius: 8px;
+  background: #fff;
+  color: #49584b;
+  font-size: 11px;
+  line-height: 18px;
+
+  &:has(input:checked) {
+    background: #f6f8f3;
+    border-color: #e8ede2;
+  }
+  &:hover {
+    border-color: #a9b9a1;
+  }
+  :global(.ant-checkbox) {
+    flex: none;
+    align-self: center;
+    width: 13px;
+    height: 13px;
+    border-radius: 3px;
+  }
+  :global(.ant-checkbox-checked) {
+    background: #3e6248;
+    border-color: #3e6248;
+  }
+  :global(.ant-checkbox)::after {
+    top: 5.5px;
+    inset-inline-start: 2.25px;
+    width: 4px;
+    height: 7px;
+  }
+  :global(.ant-checkbox-label) {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    min-width: 0;
+    gap: 5px;
+    padding-inline: 5px 0;
+  }
+}
+
+.optionLabel {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.optionCount {
+  flex: none;
+  margin-left: auto;
+  color: #7d8b73;
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+}
+.optionIcon {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  flex: none;
+  width: 15px;
+  font-size: 12px;
+}
+
+.disclosure {
+  padding: 12px 0;
+  border-bottom: 1px solid #e9ede5;
+
+  summary {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    list-style: none;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 550;
+  }
+  summary::-webkit-details-marker {
+    display: none;
+  }
+  summary::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    margin: 0 3px 0 1px;
+    border-right: 1.5px solid #7e8a76;
+    border-bottom: 1.5px solid #7e8a76;
+    transform: rotate(-45deg);
+  }
+  &[open] summary::before {
+    transform: rotate(45deg);
+  }
+}
+
+.groupCount {
+  margin-left: auto;
+  padding: 2px 6px;
+  border-radius: 5px;
+  background: #f1f4ed;
+  color: #7d8b73;
+  font-size: 10px;
+  font-weight: 400;
+}
+.secondaryOptions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 5px;
+  margin-top: 10px;
+}
+.emptyGroup {
+  margin: 0;
+  color: #85917e;
+  font-size: 11px;
+}
+.displaySettings {
+  padding-bottom: 22px;
+  border-bottom: 0;
+  summary {
+    color: #788570;
+    font-size: 13px;
+    font-weight: 500;
+  }
+  :global(.ant-slider-mark-text) {
+    color: #85917e;
+    font-size: 10px;
+  }
+  :global(.ant-slider-handle)::after {
+    box-shadow: 0 0 0 2px #3e6248;
+  }
+}
+.densityHeading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 16px 0 10px;
+  font-size: 12px;
+}
+.densityHeading output {
+  padding: 3px 7px;
+  border-radius: 5px;
+  background: #eff3ea;
+  color: #5a7253;
+  font-size: 11px;
+}
+
+.controls :is(button, summary, input, [tabindex]):focus-visible {
+  outline: 2px solid #3e6248;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scrollWrapper::before,
+  .scrollWrapper::after {
+    transition: none;
+  }
 }

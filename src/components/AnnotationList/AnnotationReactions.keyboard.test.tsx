@@ -6,6 +6,7 @@ import Annotation from './Annotation';
 import { Store } from '../../store';
 import { UNKNOWN_CREATOR } from '../../utils/constants';
 import AnnotationInterface from '../../interfaces/AnnotationInterface';
+import styles from './Annotations.module.scss';
 
 vi.mock('axios', () => ({ default: { put: vi.fn() } }));
 vi.mock('../../utils/staticAntd', () => ({ staticAntd: { message: { error: vi.fn() } } }));
@@ -74,6 +75,7 @@ it('focuses the real picker search on opening and restores the trigger on Escape
     return element;
   });
   const search = picker.shadowRoot?.querySelector('input') as HTMLInputElement;
+  expect(picker.closest('.ant-popover')).toHaveClass(styles.emojiPopover);
   expect(search).toBeInTheDocument();
   await waitFor(() => expect(picker.shadowRoot?.activeElement).toBe(search));
   await act(async () => {

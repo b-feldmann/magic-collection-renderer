@@ -1,7 +1,7 @@
 import React, { useContext, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
-import { Button, Col, Input, Modal, Row, Select, Tabs, Badge, Card, Result } from 'antd';
+import { Col, Input, Modal, Row, Select, Tabs, Badge, Card, Result } from 'antd';
 import sortCardsBy from 'lodash/sortBy';
-import AntIcon from './components/AntIcon/AntIcon';
+import CollectionActions from './components/CollectionActions/CollectionActions';
 
 import fileDownload from 'js-file-download';
 
@@ -384,100 +384,62 @@ const App: React.FC = () => {
         }`}
       >
         <Col span={3} className={styles.sidebarCol}>
-          <div className={styles.sidebar}>
-            <div className={styles.sortControls}>
-              <h3>Sort Collection By</h3>
-              <div className={styles.sortRow}>
-                <Select
-                  className={styles.sortSelect}
-                  size="small"
-                  // @ts-ignore
-                  value={sortBy || SortByType.Color}
-                  // @ts-ignore
-                  onChange={(newSortByValue: SortByType) => setSortBy(newSortByValue)}
-                  aria-label="Primary sort"
-                  options={(Object.keys(SortByType) as (keyof typeof SortByType)[]).map(d => ({
-                    key: `collection-sort-primary-${d}`,
-                    value: SortByType[d],
-                    label: SortByType[d],
-                  }))}
-                />
-                <Select
-                  className={styles.sortSelect}
-                  size="small"
-                  // @ts-ignore
-                  value={secondarySortBy || SortByType.Name}
-                  // @ts-ignore
-                  onChange={(newSortByValue: SortByType) => setSecondarySortBy(newSortByValue)}
-                  aria-label="Secondary sort"
-                  options={(Object.keys(SortByType) as (keyof typeof SortByType)[]).map(d => ({
-                    key: `collection-sort-secondary-${d}`,
-                    value: SortByType[d],
-                    label: SortByType[d],
-                  }))}
-                />
-              </div>
-            </div>
-            <div className={styles.sidebarScroll}>
-              <CollectionFilterControls
-                collection={tabCollection}
-                setCollectionColSpan={setColSpanSetting}
-                setCollectionFilter={setCollectionFilter}
-                availableTags={tags || []}
-                setNameFilter={setCardNameFilter}
-              />
-            </div>
-            <div className={styles.desktopControls}>
-              <Button
-                icon={<AntIcon type="edit" />}
-                onClick={() => openMechanicEditor(setShowCardModal, setMechanicsVisible)}
-                style={{ width: '100%' }}
-                type="primary"
-              >
-                Edit Mechanics
-              </Button>
-              <Button
-                icon={<AntIcon type="plus" />}
-                type="primary"
-                onClick={() => createCard(dispatch, currentUser)}
-                className={styles.fullWidth}
-              >
-                Add Card
-              </Button>
-              <Button
-                icon={<AntIcon type="download" />}
-                type="primary"
-                onClick={() => downloadCollectionAsJson(filteredCollection)}
-                className={styles.halfWidth}
-              >
-                JSON
-              </Button>
-              <Button
-                icon={<AntIcon type="reload" />}
-                type="primary"
-                onClick={refresh}
-                className={styles.halfWidth}
-              >
-                Reload
-              </Button>
-              <Button
-                icon={<AntIcon type="swap" />}
-                onClick={() =>
-                  confirm({
-                    title: 'Switch user?',
-                    okText: 'Yes, switch user',
-                    cancelText: 'Cancel',
-                    onOk() {
-                      setCurrentUser(dispatch, UNKNOWN_CREATOR);
-                    },
-                  })
-                }
-                className={styles.fullWidth}
-              >
-                Switch User
-              </Button>
-            </div>
-          </div>
+          <aside className={styles.sidebar} aria-label="Collection sidebar">
+            <CollectionFilterControls
+              collection={tabCollection}
+              setCollectionColSpan={setColSpanSetting}
+              setCollectionFilter={setCollectionFilter}
+              availableTags={tags}
+              setNameFilter={setCardNameFilter}
+              sortControls={
+                <div className={styles.sortRow}>
+                  <div className={styles.sortField}>
+                    <label htmlFor="collection-primary-sort">Sort by</label>
+                    <Select
+                      id="collection-primary-sort"
+                      className={styles.sortSelect}
+                      // @ts-ignore
+                      value={sortBy || SortByType.Color}
+                      // @ts-ignore
+                      onChange={(newSortByValue: SortByType) => setSortBy(newSortByValue)}
+                      aria-label="Primary sort"
+                      options={(Object.keys(SortByType) as (keyof typeof SortByType)[]).map(d => ({
+                        key: `collection-sort-primary-${d}`,
+                        value: SortByType[d],
+                        label: SortByType[d],
+                      }))}
+                    />
+                  </div>
+                  <div className={styles.sortField}>
+                    <label htmlFor="collection-secondary-sort">Then by</label>
+                    <Select
+                      id="collection-secondary-sort"
+                      className={styles.sortSelect}
+                      // @ts-ignore
+                      value={secondarySortBy || SortByType.Name}
+                      // @ts-ignore
+                      onChange={(newSortByValue: SortByType) => setSecondarySortBy(newSortByValue)}
+                      aria-label="Secondary sort"
+                      options={(Object.keys(SortByType) as (keyof typeof SortByType)[]).map(d => ({
+                        key: `collection-sort-secondary-${d}`,
+                        value: SortByType[d],
+                        label: SortByType[d],
+                      }))}
+                    />
+                  </div>
+                </div>
+              }
+            />
+            <CollectionActions
+              currentUser={currentUser}
+              users={user}
+              onCreate={() => createCard(dispatch, currentUser)}
+              onEditMechanics={() => openMechanicEditor(setShowCardModal, setMechanicsVisible)}
+              onSwitchUser={nextUser => setCurrentUser(dispatch, nextUser)}
+              onDownload={() => downloadCollectionAsJson(filteredCollection)}
+              onReload={refresh}
+            />
+          </aside>
         </Col>
         <Col span={21} className={styles.contentCol}>
           {createGrid(filteredCollection)}

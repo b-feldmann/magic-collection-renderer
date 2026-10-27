@@ -80,19 +80,21 @@ export const updateMechanic = (
   // so drop them.
   delete (parsed as Record<string, unknown>)._id;
   delete (parsed as Record<string, unknown>).__v;
-  axios
+  return axios
     .put(request, { mechanic: parsed, accessKey: getAccessToken() })
     .then(result => {
       if (result.data.mechanic.name.trim()) createTag(dispatch, result.data.mechanic.name);
       syncCardsWithMechanic(dispatch, cards, result.data.mechanic);
-      return dispatch({
+      dispatch({
         type: MechanicActionType.UpdateMechanic,
         payload: {
           mechanic: result.data.mechanic,
         },
       });
+      return true;
     })
     .catch(_error => {
       staticAntd.message.error("Could'nt update mechanic");
+      return false;
     });
 };

@@ -598,6 +598,14 @@ updateLog.push({
       feature: 'Redesigned filter interface',
     },
     {
+      type: ChangeLogFeatureType.Changed,
+      feature: 'Redesigned symbol guide interface',
+    },
+    {
+      type: ChangeLogFeatureType.Changed,
+      feature: 'Redesigned mechanic editor interface',
+    },
+    {
       type: ChangeLogFeatureType.Fixed,
       feature: 'Card rating state now instantly stored',
       description:

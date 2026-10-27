@@ -1,6 +1,7 @@
 import React, { useLayoutEffect, useRef } from 'react';
 import { Button, Input } from 'antd';
 import type { TextAreaRef } from 'antd/es/input/TextArea';
+import { isMobile } from 'react-device-detect';
 import EditorTooltip from '../EditorTooltip';
 import styles from './styles.module.scss';
 
@@ -46,11 +47,13 @@ const CardTextInput = ({ id, name, value, onChange }: CardTextInputProps) => {
         <label className={styles.label} htmlFor={id}>
           {name}
         </label>
-        <EditorTooltip className={styles.symbolGuide}>
-          <Button type="link" size="small">
-            Symbol guide <span aria-hidden="true">↗</span>
-          </Button>
-        </EditorTooltip>
+        {!isMobile && (
+          <EditorTooltip className={styles.symbolGuide}>
+            <Button type="link" size="small">
+              Symbol guide <span aria-hidden="true">↗</span>
+            </Button>
+          </EditorTooltip>
+        )}
       </div>
       <div className={styles.textToolbar} role="group" aria-label={`${name} symbols`}>
         {SYMBOLS.map(symbol => (

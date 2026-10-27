@@ -171,7 +171,7 @@
 
 .view {
   display: flex;
-  transform: translateX(-50%);
+  transform: translate(-50%, -50%);
   // Let the rotated card (RotateToMouse) extend past the modal body without
   // being clipped or generating scrollbars.
   overflow: visible !important;
@@ -187,13 +187,9 @@
 .modalCardViewWrapper {
   width: 0 !important;
   height: 0 !important;
-  // Preserve the old collection-centred anchor without narrowing the
-  // full-screen click-catching wrapper.
-  left: calc(100vw / 24 * 3 + (100vw / 24 * 21 / 24 * 18) / 2 - 50vw);
-
-  @media only screen and (max-width: 900px) {
-    left: 0;
-  }
+  top: 50vh;
+  // The component centres the panel in the space between the fixed sidebars.
+  // The click-catching wrapper remains full-screen.
   //overflow: hidden !important;
 }
 

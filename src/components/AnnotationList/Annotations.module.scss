@@ -174,9 +174,11 @@
   max-width: calc(100vw - 48px);
 
   :global(em-emoji-picker) {
-    display: block;
+    // Preserve Emoji Mart's flex host so only the emoji grid scrolls.
+    display: flex;
     height: 435px;
-    max-height: 435px;
+    min-height: 0;
+    max-height: min(435px, calc(100dvh - 48px));
     overflow: hidden;
     max-width: 100%;
   }
@@ -293,6 +295,18 @@
 }
 
 @media (max-width: 480px) {
+  .emojiPopover {
+    // Ant Design sets the trigger-aligned horizontal position inline.
+    left: 50vw !important;
+    right: auto !important;
+    translate: -50% 0;
+    max-width: calc(100vw - 24px);
+
+    :global(.ant-popover-arrow) {
+      display: none;
+    }
+  }
+
   .list {
     padding: 16px 0;
   }

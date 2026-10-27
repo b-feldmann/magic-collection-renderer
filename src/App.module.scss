@@ -6,8 +6,8 @@ $muse-card-radius: 12px;
 // small screens and stop them growing unbounded on ultrawide displays. The
 // collection area is offset to match these exact widths (see .sidebarCol /
 // .collection below) so there's never a gap or overlap at any viewport width.
-$sidebar-width: clamp(220px, calc(100vw / 24 * 3 - 16px), 220px);
-$editor-width: clamp(510px, calc(100vw / 24 * 21 / 24 * 6 - 16px), 510px);
+$sidebar-width: 288px;
+$editor-width: clamp(516px, calc(100vw / 24 * 21 / 24 * 6 - 16px), 516px);
 
 .app {
   display: flex;
@@ -43,18 +43,12 @@ $editor-width: clamp(510px, calc(100vw / 24 * 21 / 24 * 6 - 16px), 510px);
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    padding: 16px;
+    padding: 0;
     background: #fff;
-    border-radius: $muse-card-radius;
+    border: 1px solid #e3e8de;
+    border-radius: 20px;
     box-shadow: $muse-card-shadow;
-  }
-
-  // Scrollable middle region for the (potentially long) filter list.
-  .sidebarScroll {
-    flex: 1 1 auto;
-    min-height: 0;
-    overflow-y: auto;
-    margin: 12px -8px;
+    overflow: hidden;
   }
 
   // While the card-view modal is open its full-viewport mask darkens the page
@@ -68,8 +62,11 @@ $editor-width: clamp(510px, calc(100vw / 24 * 21 / 24 * 6 - 16px), 510px);
 
   .collectionWrapper {
     height: 100%;
-    flex-grow: 1;
-    flex-basis: 0;
+    width: 100%;
+    flex: 1 1 0;
+    min-height: 0;
+    min-width: 0;
+    max-width: none;
   }
 
   // The outer sidebar column no longer relies on antd's `span` percentage.
@@ -128,33 +125,20 @@ $editor-width: clamp(510px, calc(100vw / 24 * 21 / 24 * 6 - 16px), 510px);
 
   .mobileControls {
     background: #fff;
-    width: 100vw;
-    padding: 0 8px 8px;
-    border-radius: $muse-card-radius;
+    flex: none;
+    width: 100%;
+    padding: 0;
+    border: 1px solid #e3e8de;
+    border-radius: 20px;
     box-shadow: $muse-card-shadow;
+    overflow: hidden;
 
     @media only screen and (min-width: 600px) {
-      justify-content: center;
       display: flex;
       flex-direction: column;
-      height: 100vh;
-      width: 25vw;
+      height: 100dvh;
+      width: clamp(220px, 25vw, 288px);
     }
-  }
-
-  @media only screen and (max-width: 900px) {
-    .mobileControls > div {
-      div:first-child {
-        margin: -4px -8px;
-      }
-    }
-  }
-
-  // Action buttons now live at the bottom of the unified sidebar card.
-  .desktopControls {
-    flex: none;
-    padding-top: 12px;
-    border-top: 1px solid #f0f0f0;
   }
 
   .fullWidth {
@@ -171,23 +155,36 @@ $editor-width: clamp(510px, calc(100vw / 24 * 21 / 24 * 6 - 16px), 510px);
     height: 100%;
   }
 
-  .sortControls {
-    flex: none;
-  }
-
   .sortSelect {
-    flex: 1;
+    width: 100%;
     min-width: 0;
+
+    &:global(.ant-select) {
+      height: 36px;
+      font-size: 12px;
+      border-color: #dce2d8;
+      border-radius: 9px;
+      box-shadow: none;
+    }
+    :global(.ant-select-content) {
+      color: #53604e;
+    }
   }
 
   .sortRow {
-    display: flex;
-    gap: 8px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
 
-    // On smaller screens the narrow sidebar can't fit both selects side by
-    // side, so stack them vertically instead.
-    @media only screen and (max-width: 1750px) {
-      flex-direction: column;
+  .sortField {
+    min-width: 0;
+    label {
+      display: block;
+      margin-bottom: 6px;
+      color: #49584b;
+      font-size: 11px;
+      font-weight: 550;
     }
   }
 }

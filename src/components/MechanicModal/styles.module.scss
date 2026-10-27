@@ -1,0 +1,141 @@
+.modal {
+  :global(.ant-modal-container) {
+    padding: 0;
+    overflow: hidden;
+    border-radius: 16px;
+    background: #fff;
+  }
+
+  :global(.ant-modal-header) {
+    margin: 0;
+    padding: 20px 56px 0 24px;
+    background: #fff;
+  }
+
+  :global(.ant-modal-title) {
+    color: #26332f;
+    font-size: 24px;
+    font-weight: 650;
+    letter-spacing: -0.4px;
+  }
+
+  :global(.ant-modal-close) {
+    top: 20px;
+    right: 20px;
+    color: #76847b;
+  }
+
+  :global(.ant-modal-footer) {
+    margin: 0;
+  }
+
+  :global(.ant-input) {
+    padding: 7px 11px;
+    border-color: #dfe5de;
+    border-radius: 8px;
+    color: #405344;
+    font-size: 14px;
+
+    &::placeholder {
+      color: #9ba69c;
+    }
+
+    &:hover {
+      border-color: #93ad98;
+    }
+
+    &:focus {
+      border-color: #65a182;
+      box-shadow: 0 0 0 2px #65a1821a;
+    }
+  }
+}
+
+.body {
+  max-height: 65vh;
+  padding: 0 24px 16px;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+}
+
+.intro {
+  margin: 6px 0 2px;
+  color: #75836e;
+  font-size: 13px;
+}
+
+.mechanic {
+  padding: 12px 0;
+  border-bottom: 1px solid #edf0eb;
+
+  h3 {
+    overflow-wrap: anywhere;
+  }
+}
+
+.fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+  gap: 12px;
+}
+
+.addButton {
+  height: 36px;
+  margin-top: 12px;
+  border: 1px dashed #cdd9ca;
+  border-radius: 9px;
+  background: #fafbf8;
+  color: #4f7b5d;
+  box-shadow: none;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 24px;
+  border-top: 1px solid #e5ebe1;
+  background: #fcfdfb;
+
+  :global(.ant-btn) {
+    border-color: #dce4d7;
+    border-radius: 8px;
+    color: #405344;
+    box-shadow: none;
+  }
+}
+
+.empty {
+  padding: 20px 16px 8px;
+  text-align: center;
+  color: #75836e;
+
+  h3 {
+    margin: 0 0 8px;
+    color: #294632;
+  }
+
+  p {
+    margin: 0;
+  }
+}
+
+@media (max-width: 600px) {
+  .modal :global(.ant-modal-header) {
+    padding-left: 20px;
+  }
+
+  .body {
+    padding-inline: 20px;
+  }
+
+  .fields {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .footer {
+    padding-inline: 20px;
+  }
+}

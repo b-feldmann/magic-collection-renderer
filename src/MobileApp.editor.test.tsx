@@ -134,10 +134,10 @@ afterEach(async () => {
 });
 
 describe('mobile card editing flow', () => {
-  it('renders the New card control at the same compact size as the other mobile controls', () => {
+  it('renders the Create card control at the same compact size as the other mobile controls', () => {
     render(<Example />);
 
-    expect(screen.getByRole('button', { name: 'New card' })).not.toHaveClass('ant-btn-lg');
+    expect(screen.getByRole('button', { name: 'Create card' })).not.toHaveClass('ant-btn-lg');
   });
 
   it('opens existing cards with editing collapsed and exposes the real editor on demand', () => {
@@ -224,7 +224,7 @@ describe('mobile card editing flow', () => {
 
   it('creates a card for the current user and opens its editor automatically', async () => {
     render(<Example />);
-    fireEvent.click(screen.getByRole('button', { name: 'New card' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Create card' }));
     const editor = await screen.findByRole('region', { name: 'Card editor' });
     expect(axios.post).toHaveBeenCalledWith('http://localhost:8080/cards', {
       accessKey: 'token',
@@ -238,7 +238,7 @@ describe('mobile card editing flow', () => {
   it('does not open a placeholder editor when creating a card fails', async () => {
     vi.mocked(axios.post).mockRejectedValue(new Error('Offline'));
     render(<Example />);
-    fireEvent.click(screen.getByRole('button', { name: 'New card' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Create card' }));
     await act(async () => {});
     expect(axios.post).toHaveBeenCalledOnce();
     expect(screen.queryByRole('region', { name: 'Card editor' })).not.toBeInTheDocument();

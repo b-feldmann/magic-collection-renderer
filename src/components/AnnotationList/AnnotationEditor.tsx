@@ -66,6 +66,7 @@ const AnnotationEditor = ({
       <EmojiCommentInput ref={input} value={content} onChange={setContent} />
       <div className={styles.editorActions}>
         <Popover
+          classNames={{ root: styles.emojiPopover }}
           trigger="click"
           placement="left"
           open={pickerOpen}
