@@ -303,7 +303,6 @@ const MobileApp: React.FC = () => {
             aria-label="New card"
             icon={<AntIcon type="plus" />}
             type="primary"
-            size="large"
             onClick={() => createCard(dispatch, currentUser)}
             className={styles.fullWidth}
           >

@@ -134,6 +134,12 @@ afterEach(async () => {
 });
 
 describe('mobile card editing flow', () => {
+  it('renders the New card control at the same compact size as the other mobile controls', () => {
+    render(<Example />);
+
+    expect(screen.getByRole('button', { name: 'New card' })).not.toHaveClass('ant-btn-lg');
+  });
+
   it('opens existing cards with editing collapsed and exposes the real editor on demand', () => {
     render(<Example />);
     openCard();

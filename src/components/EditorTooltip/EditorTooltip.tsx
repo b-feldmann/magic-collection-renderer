@@ -7,6 +7,7 @@ import { Mana } from '../Mana/Mana';
 
 interface EditorTooltip {
   className: string;
+  children?: React.ReactNode;
 }
 
 const columns = [
@@ -190,9 +191,10 @@ const mechanicContent = (
   />
 );
 
-const EditorTooltip: React.FC<EditorTooltip> = props => (
+const EditorTooltip: React.FC<EditorTooltip> = ({ className, children }) => (
   <Popover
-    {...props}
+    className={className}
+    trigger={children ? 'click' : 'hover'}
     content={
       <div style={{ maxWidth: 480 }}>
         {content}
@@ -207,7 +209,7 @@ const EditorTooltip: React.FC<EditorTooltip> = props => (
     placement="left"
     title="Icon & Mechanic Codes"
   >
-    <AntIcon type="question-circle" />
+    {children || <AntIcon type="question-circle" />}
   </Popover>
 );
 

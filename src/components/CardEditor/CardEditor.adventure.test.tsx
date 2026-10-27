@@ -83,7 +83,8 @@ const renderEditor = (card: CardInterface, saveTmpCard = () => {}) =>
     </Store.Provider>,
   );
 
-const adventureDivider = (): HTMLElement | null => document.querySelector('.ant-divider');
+const adventureDivider = (): HTMLElement | null =>
+  screen.queryByRole('heading', { name: 'Adventure' });
 
 const fieldWrapper = (label: string): HTMLElement => {
   const el = screen.getByText(label).closest('span') as HTMLElement;

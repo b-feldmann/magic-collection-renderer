@@ -172,16 +172,32 @@ describe('getCrown', () => {
     expect(highResOf(artefactCombo)).toBe(highResOf(combo));
   });
 
-  it('still uses the artefact crown for a mono-color or 3+ color artifact', () => {
-    const mono = getCrown(ColorType.Colorless, false, false, true, false, [ColorType.White]);
+  it('uses the matching color crown for a mono-color artifact but keeps artifact crowns otherwise', () => {
+    const monoArtifact = getCrown(ColorType.White, false, false, true, false, [ColorType.White]);
+    const mono = getCrown(ColorType.White, false, false, false, false, [ColorType.White]);
     const many = getCrown(ColorType.Colorless, false, false, true, false, [
       ColorType.White,
       ColorType.Blue,
       ColorType.Black,
     ]);
     const artefact = getCrown(ColorType.Colorless, false, false, true, false, []);
-    expect(highResOf(mono)).toBe(highResOf(artefact));
+    expect(highResOf(monoArtifact)).toBe(highResOf(mono));
     expect(highResOf(many)).toBe(highResOf(artefact));
+  });
+});
+
+describe('getPt', () => {
+  it.each([ColorType.White, ColorType.Blue, ColorType.Black, ColorType.Red, ColorType.Green])(
+    'uses the %s power/toughness image for a single-color artifact',
+    color => {
+      expect(getPt(color, true)).toBe(getPt(color));
+    },
+  );
+
+  it('keeps artifact and vehicle power/toughness images for colorless and multicolor artifacts', () => {
+    expect(getPt(ColorType.Colorless, true)).not.toBe(getPt(ColorType.Colorless));
+    expect(getPt(ColorType.Gold, true)).toBe(getPt(ColorType.Gold));
+    expect(getPt(ColorType.White, true, true)).not.toBe(getPt(ColorType.White));
   });
 });
 

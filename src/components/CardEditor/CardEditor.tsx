@@ -1,5 +1,8 @@
-import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { Button, ConfigProvider, Flex, Modal, Row } from 'antd';
+import React, { useContext, useEffect, useId, useMemo, useRef, useState } from 'react';
+import { Button, ConfigProvider, Dropdown, Flex, Modal, theme } from 'antd';
+import EllipsisOutlined from '@ant-design/icons/EllipsisOutlined';
+import StarFilled from '@ant-design/icons/StarFilled';
+import StarOutlined from '@ant-design/icons/StarOutlined';
 import cloneDeep from 'lodash/cloneDeep';
 import isEqual from 'lodash/isEqual';
 import dayjs from 'dayjs';
@@ -20,6 +23,7 @@ import {
   RarityType,
 } from '../../interfaces/enums';
 import EditField from './EditField';
+import ArtworkUpload from './ArtworkUpload';
 import { MUTUALLY_EXCLUSIVE_CARD_TYPES, resolveExclusiveCardTypes } from '../../utils/cardTypes';
 import { getAutomaticCardTags, getCardTags, updateCardTags } from '../../utils/cardTags';
 import { createTag } from '../../actions/tagActions';
@@ -47,6 +51,28 @@ const NO_CARD = '-1';
 // The set-themed Alternate Art showcases (ELD, more to come) are
 // adventure-only.
 const ALTERNATE_ART_STYLES: string[] = [CardArtStyles.EldAlternateArt];
+
+const ESSENTIAL_FIELD_KEYS = [
+  'name',
+  'nickname',
+  'manaCost',
+  'rarity',
+  'cardTypes',
+  'cardSubTypes',
+  'basicLandType',
+  'tokenColors',
+  'colorIdentity',
+  'legendary',
+  'vehicle',
+  'cardStats',
+];
+const ARTWORK_FIELD_KEYS = ['cover', 'coverFit', 'artStyle'];
+const ORGANIZATION_FIELD_KEYS = ['tags', 'creator'];
+const GROUPED_FIELD_KEYS = new Set([
+  ...ESSENTIAL_FIELD_KEYS,
+  ...ARTWORK_FIELD_KEYS,
+  ...ORGANIZATION_FIELD_KEYS,
+]);
 
 // Card types that exist in the data model but must not be offered in the
 // Card Types multi-select.
@@ -234,6 +260,8 @@ interface InputConfigInterface {
     | 'bool'
     | 'divider';
   name: string;
+  placeholder?: string;
+  optional?: boolean;
   pairedFieldKey?: string;
   data?: { key: string; value: string }[];
   disabledKeys?: string[];
@@ -254,6 +282,8 @@ const CardEditor: React.FC<CardEditorInterface> = ({
   saveTmpCard: savePreview,
   onDraftChange,
 }: CardEditorInterface) => {
+  const editorId = useId();
+  const { token } = theme.useToken();
   const saveTmpCard = (draft: CardInterface | null) => {
     const current = draft ? withLatestMetadata(draft, collectionRef.current) : null;
     onDraftChange?.(current);
@@ -621,14 +651,28 @@ const CardEditor: React.FC<CardEditorInterface> = ({
       key: 'tags',
       type: 'multi-select',
       name: 'Tags',
+      placeholder: 'Add tags…',
       data: tagOptions,
       allowCreate: true,
       nonRemovableValues: automaticTags,
       width: 100,
     },
-    { key: 'name', type: 'input', name: 'Card Name', width: hasNickname() ? 50 : 100 },
-    { key: 'nickname', type: 'input', name: 'Nickname', width: hasNickname() ? 50 : 0 },
-    { key: 'cover', type: 'upload-input', name: 'Cover (URL)', width: 50 },
+    { key: 'name', type: 'input', name: 'Card Name', width: 50 },
+    {
+      key: 'nickname',
+      type: 'input',
+      name: 'Nickname',
+      width: hasNickname() ? 50 : 0,
+      placeholder: 'An alternate name',
+      optional: true,
+    },
+    {
+      key: 'cover',
+      type: 'upload-input',
+      name: 'Cover (URL)',
+      width: 50,
+      placeholder: 'https://…',
+    },
     {
       key: 'coverFit',
       type: 'select',
@@ -700,20 +744,36 @@ const CardEditor: React.FC<CardEditorInterface> = ({
       name: 'Card Types',
       data: cardTypeOptions,
       disabledKeys: exclusiveDisabledKeys,
-      width: 100,
+      width: 50,
     },
-    { key: 'cardSubTypes', type: 'input', name: 'Card Sub Types', width: 100 },
+    {
+      key: 'cardSubTypes',
+      type: 'input',
+      name: 'Card Sub Types',
+      width: 50,
+      placeholder: 'e.g. Human Wizard',
+      optional: true,
+    },
     {
       key: 'cardText',
       type: isPlaneswalker() ? 'split-list' : 'text-list',
       name: 'Card Text',
       width: 100,
     },
-    { key: 'flavourText', type: 'area', name: 'Flavour Text', width: isPlaneswalker() ? 0 : 100 },
+    {
+      key: 'flavourText',
+      type: 'area',
+      name: 'Flavour Text',
+      width: isPlaneswalker() ? 0 : 100,
+      placeholder: 'Every card has a story…',
+      optional: true,
+    },
     {
       key: 'flavourAuthor',
       type: 'input',
       name: 'Flavour Text Author',
+      placeholder: 'Who said it?',
+      optional: true,
       width: isPlaneswalker() ? 0 : 100,
     },
     {
@@ -751,7 +811,13 @@ const CardEditor: React.FC<CardEditorInterface> = ({
         ),
         width: 100,
       },
-      { key: 'cover', type: 'upload-input', name: 'Cover (URL)', width: 50 },
+      {
+        key: 'cover',
+        type: 'upload-input',
+        name: 'Cover (URL)',
+        width: 50,
+        placeholder: 'https://…',
+      },
       {
         key: 'coverFit',
         type: 'select',
@@ -836,90 +902,157 @@ const CardEditor: React.FC<CardEditorInterface> = ({
       .catch(() => {});
   };
 
+  const visibleConfig = inputConfig.filter(config => config.width !== 0);
+  const fieldsFor = (keys: string[]) =>
+    keys.flatMap(key => visibleConfig.filter(config => config.key === key));
+  const sections = [
+    { key: 'essentials', name: 'The essentials', fields: fieldsFor(ESSENTIAL_FIELD_KEYS) },
+    {
+      key: 'abilities',
+      name: 'Words & abilities',
+      fields: visibleConfig.filter(config => !GROUPED_FIELD_KEYS.has(config.key)),
+    },
+    { key: 'artwork', name: 'Artwork & frame', fields: fieldsFor(ARTWORK_FIELD_KEYS) },
+  ].filter(section => section.fields.length > 0);
+  const renderField = (config: InputConfigInterface) => (
+    <div
+      key={config.key}
+      data-field-key={config.key}
+      className={styles.field}
+      style={{ gridColumn: config.width === 50 ? 'span 1' : 'span 2' }}
+    >
+      <EditField
+        fieldKey={config.key}
+        type={config.type}
+        pairedFieldKey={config.pairedFieldKey}
+        data={config.data}
+        disabledKeys={config.disabledKeys}
+        name={config.name}
+        placeholder={config.placeholder}
+        optional={config.optional}
+        allowCreate={config.allowCreate}
+        nonRemovableValues={config.nonRemovableValues}
+        saveValue={saveValue}
+        getValue={getValue}
+      />
+    </div>
+  );
+
+  const backFaceItems = card.back
+    ? [
+        {
+          key: 'switch-face',
+          label: editBack ? 'Edit Front Face' : 'Edit Back Face',
+          onClick: () => setEditBack(!editBack),
+        },
+        { key: 'delete-back', label: 'Delete Back Face', danger: true, onClick: deleteBackFace },
+      ]
+    : [{ key: 'add-back', label: 'Add Back Face', onClick: addBackFace }];
+
   return (
-    <ConfigProvider componentDisabled={creatingVariant}>
+    <ConfigProvider
+      componentDisabled={creatingVariant}
+      theme={{
+        token: {
+          colorPrimary: '#2e6347',
+          colorText: '#35463b',
+          colorBorder: '#dfe5de',
+          colorBgContainer: '#ffffff',
+          borderRadius: 8,
+          borderRadiusSM: 8,
+          fontSize: Math.max(13, token.fontSizeSM),
+          fontSizeSM: Math.max(13, token.fontSizeSM),
+          controlHeight: Math.max(34, token.controlHeight),
+          controlHeightSM: Math.max(34, token.controlHeightSM),
+        },
+        components: {
+          Input: { paddingBlock: 7, paddingBlockSM: 7 },
+          Button: {
+            controlHeightSM: Math.max(32, token.controlHeightSM),
+            fontSizeSM: Math.max(12, token.fontSizeSM),
+          },
+        },
+      }}
+    >
       <div className={styles.editor}>
         <canvas id="cover-resize-canvas" className={styles.canvas} />
-        <Row>
-          <div className={`${styles.fullField} ${styles.actionField}`}>
-            <Flex className={styles.smallButtonGroup} wrap gap={4}>
-              {canFavoriteCard && (
-                <Button size="small" onClick={toggleFavorite}>
-                  {tmpCard.favorite ? 'Unmark as favorite' : 'Mark as favorite'}
-                </Button>
-              )}
+        <header className={styles.editorHeader}>
+          <h2>Card editor</h2>
+          <Flex className={styles.headerActions} wrap gap={6}>
+            {canFavoriteCard && (
               <Button
+                type="text"
                 size="small"
-                aria-label="Create Variant"
-                onClick={createVariant}
+                className={tmpCard.favorite ? styles.favoriteActive : undefined}
+                aria-label={tmpCard.favorite ? 'Unmark as favorite' : 'Mark as favorite'}
+                title={tmpCard.favorite ? 'Unmark as favorite' : 'Mark as favorite'}
+                aria-pressed={!!tmpCard.favorite}
+                icon={tmpCard.favorite ? <StarFilled /> : <StarOutlined />}
+                onClick={toggleFavorite}
+              />
+            )}
+            <Dropdown
+              trigger={['click']}
+              disabled={creatingVariant}
+              menu={{
+                items: [
+                  { key: 'variant', label: 'Create Variant', onClick: () => void createVariant() },
+                  ...backFaceItems,
+                ],
+              }}
+            >
+              <Button
+                type="text"
+                size="small"
+                aria-label="More card actions"
+                title="More card actions"
                 loading={creatingVariant}
-              >
-                Create Variant
-              </Button>
-              {card.back && editBack && (
-                <Button size="small" onClick={() => setEditBack(false)}>
-                  <span>Edit Front Face</span>
-                </Button>
-              )}
-              {card.back && !editBack && (
-                <Button size="small" onClick={() => setEditBack(true)}>
-                  <span>Edit Back Face</span>
-                </Button>
-              )}
-              {card.back && (
-                <Button size="small" onClick={deleteBackFace} danger>
-                  <span>Delete Back Face</span>
-                </Button>
-              )}
-              {!card.back && (
-                <Button size="small" onClick={addBackFace}>
-                  Add Back Face
-                </Button>
-              )}
-            </Flex>
-          </div>
-        </Row>
-        <Row>
-          {inputConfig.map(config => {
-            const style: any = {};
-            if (config.width === 0) style.display = 'none';
-            if (config.width) style.width = `${config.width}%`;
-            return (
-              <div
-                key={`card-editor-key:${config.key}`}
-                className={config.width ? styles.partialField : styles.fullField}
-                style={style}
-              >
-                <EditField
-                  fieldKey={config.key}
-                  type={config.type}
-                  pairedFieldKey={config.pairedFieldKey}
-                  data={config.data}
-                  disabledKeys={config.disabledKeys}
-                  name={config.name}
-                  allowCreate={config.allowCreate}
-                  nonRemovableValues={config.nonRemovableValues}
-                  saveValue={saveValue}
-                  getValue={getValue}
-                />
+                icon={<EllipsisOutlined />}
+              />
+            </Dropdown>
+          </Flex>
+        </header>
+        <div className={styles.formBody}>
+          {sections.map((section, index) => (
+            <section
+              key={section.key}
+              className={styles.section}
+              aria-labelledby={`${editorId}-${section.key}`}
+            >
+              <div className={styles.sectionHeading}>
+                <h3 id={`${editorId}-${section.key}`}>{section.name}</h3>
+                <span aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
               </div>
-            );
-          })}
-        </Row>
-        <Row>
-          <div className={`${styles.fullField} ${styles.actionField}`}>
-            <Flex className={styles.buttonGroup} wrap gap={4}>
-              <Button size="small" disabled={!contentChanged} onClick={undoChanges} danger>
-                <span>Undo Changes</span>
+              <div className={styles.fields}>
+                {section.key === 'artwork' && (
+                  <ArtworkUpload onChange={value => saveValue('cover', value)} />
+                )}
+                {section.fields.map(renderField)}
+              </div>
+            </section>
+          ))}
+          <details className={styles.organization}>
+            <summary>Organization &amp; credits</summary>
+            <div className={styles.fields}>
+              {fieldsFor(ORGANIZATION_FIELD_KEYS).map(renderField)}
+            </div>
+          </details>
+        </div>
+        <footer className={styles.footer}>
+          <span className={styles.autosaveNote}>
+            <span className={styles.autosaveText}>Changes save automatically</span>
+          </span>
+          <Flex className={styles.footerActions} wrap="nowrap" gap={8}>
+            <Button size="small" disabled={!contentChanged} onClick={undoChanges}>
+              Undo Changes
+            </Button>
+            {canDeleteCard && (
+              <Button size="small" onClick={confirmDeleteCard} danger>
+                Delete Card
               </Button>
-              {canDeleteCard && (
-                <Button size="small" onClick={confirmDeleteCard} danger>
-                  <span>Delete Card</span>
-                </Button>
-              )}
-            </Flex>
-          </div>
-        </Row>
+            )}
+          </Flex>
+        </footer>
       </div>
     </ConfigProvider>
   );

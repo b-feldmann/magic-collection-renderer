@@ -22,6 +22,32 @@ const Harness = ({ initialValue = '7/7', name = 'Power/Toughness' }) => {
 };
 
 describe('EditField power/toughness', () => {
+  it('uses two individually labeled fields without a slash input between them', () => {
+    render(<Harness initialValue="2/3" />);
+    const group = screen.getByRole('group', { name: 'Power / Toughness' });
+    const power = within(group).getByRole('textbox', { name: 'Power' }) as HTMLInputElement;
+    const toughness = within(group).getByRole('textbox', { name: 'Toughness' }) as HTMLInputElement;
+    expect(group.querySelectorAll('input')).toHaveLength(2);
+    expect(power.labels).toHaveLength(1);
+    expect(toughness.labels).toHaveLength(1);
+    expect(power.labels![0]).toHaveTextContent('Power');
+    expect(toughness.labels![0]).toHaveTextContent('Toughness');
+    expect(power.id).not.toBe(toughness.id);
+  });
+
+  it('keeps label associations unique when main and level stats render together', () => {
+    render(
+      <>
+        <Harness initialValue="2/3" />
+        <Harness initialValue="4/5" />
+      </>,
+    );
+    const powers = screen.getAllByRole('textbox', { name: 'Power' }) as HTMLInputElement[];
+    expect(powers[0].id).not.toBe(powers[1].id);
+    expect(powers[0].labels).toHaveLength(1);
+    expect(powers[1].labels).toHaveLength(1);
+  });
+
   it('groups separately named inputs and preserves the other stat when editing', () => {
     render(<Harness />);
 

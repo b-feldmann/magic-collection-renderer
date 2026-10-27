@@ -82,8 +82,7 @@ const renderEditor = (card: CardInterface, saveTmpCard = () => {}) =>
     </Store.Provider>,
   );
 
-// The editor renders hidden fields too (display:none), so all queries are
-// scoped to the wrapper of the visible "Card Types" label.
+// Scope selection queries to the Card Types control.
 const typeField = (): HTMLElement => screen.getByText('Card Types').closest('span') as HTMLElement;
 
 const openTypeSelect = () => {
@@ -120,12 +119,10 @@ describe('CardEditor - hidden card types', () => {
     openTypeSelect();
 
     const titles = optionTitles();
-    expect(titles).toContain(CardType.Omen);
     expect(titles).not.toContain('Split Card');
     expect(titles).not.toContain(CardType.Aftermath);
-    // The option list is virtualized (~10 rows) and Prepared sorts below the
-    // initial window, so it is brought into view by typing it into the
-    // select's search filter first (see typeOption).
+    // Search rather than depending on how many rows fit in the virtual viewport.
+    expect(typeOption(CardType.Omen)).not.toBeNull();
     expect(typeOption(CardType.Prepared)).not.toBeNull();
   });
 
@@ -173,7 +170,7 @@ describe('CardEditor - hidden card types', () => {
 
 // --- Omen section (mirrors the Adventure section tests) ---
 
-const omenDivider = (): HTMLElement | null => document.querySelector('.ant-divider');
+const omenDivider = (): HTMLElement | null => screen.queryByRole('heading', { name: 'Omen' });
 
 const fieldWrapper = (label: string): HTMLElement => {
   const el = screen.getByText(label).closest('span') as HTMLElement;

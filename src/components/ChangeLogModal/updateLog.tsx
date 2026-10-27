@@ -574,8 +574,8 @@ updateLog.push({
 });
 
 updateLog.push({
-  version: '3.5.0',
-  title: 'Mobile Editing',
+  version: '4.0.0',
+  title: 'Desktop / Mobile Redesign',
   content: [
     {
       type: ChangeLogFeatureType.Added,
@@ -588,6 +588,14 @@ updateLog.push({
     {
       type: ChangeLogFeatureType.Changed,
       feature: 'Redesigned chat interface',
+    },
+    {
+      type: ChangeLogFeatureType.Changed,
+      feature: 'Redesigned card editor interface',
+    },
+    {
+      type: ChangeLogFeatureType.Changed,
+      feature: 'Redesigned filter interface',
     },
     {
       type: ChangeLogFeatureType.Fixed,

@@ -1067,7 +1067,9 @@ export const getPt = (
   if (isLand) {
     return PtLBorderless;
   }
-  if (isArtefact) {
+  // Mono-colored artifacts use their color's PT asset. Preserve artifact
+  // assets for colorless/multicolor artifacts and the dedicated vehicle asset.
+  if (isArtefact && (color === ColorType.Colorless || color === ColorType.Gold || isVehicle)) {
     if (color === ColorType.Gold) {
       if (isBorderless) {
         return isVehicle ? PtVBorderless : PtMBorderless;
@@ -2114,14 +2116,16 @@ export const getCrown = (
     return getTwoColorCrown(colors, isFullart, isNickname);
   }
 
-  if (isArtefact) {
+  const crownColor = isArtefact && colors.length === 1 ? colors[0] : color;
+
+  if (isArtefact && colors.length !== 1) {
     if (isNickname) return { highRes: CrownArtefactNickname, lowRes: CrownArtefactNicknameLowRes };
     return isFullart
       ? { highRes: CrownArtefactFloating, lowRes: CrownArtefactFloatingLowRes }
       : { highRes: CrownArtefact, lowRes: CrownArtefactLowRes };
   }
 
-  switch (color) {
+  switch (crownColor) {
     case ColorType.White:
       if (isNickname) return { highRes: CrownWhiteNickname, lowRes: CrownWhiteNicknameLowRes };
       return isFullart

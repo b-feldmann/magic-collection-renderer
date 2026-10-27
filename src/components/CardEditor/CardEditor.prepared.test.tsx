@@ -128,7 +128,8 @@ const selectCardType = async (typeLabel: string) => {
 
 // --- Prepared section (mirrors the Adventure/Omen section tests) ---
 
-const preparedDivider = (): HTMLElement | null => document.querySelector('.ant-divider');
+const preparedDivider = (): HTMLElement | null =>
+  screen.queryByRole('heading', { name: 'Prepared' });
 
 const fieldWrapper = (label: string): HTMLElement => {
   const el = screen.getByText(label).closest('span') as HTMLElement;

@@ -81,7 +81,7 @@ describe('CardEditor - Vehicle (artifact + vehicle flag)', () => {
     expect(screen.getByText('Toughness')).toBeVisible();
   });
 
-  it('shows the Vehicle checkbox for an artifact creature', () => {
+  it('shows the Vehicle switch for an artifact creature', () => {
     render(
       <Store.Provider value={mockStoreValue}>
         <CardEditor
@@ -101,17 +101,17 @@ describe('CardEditor - Vehicle (artifact + vehicle flag)', () => {
       </Store.Provider>,
     );
 
-    expect(screen.getByText('Power')).not.toBeVisible();
-    expect(screen.getByText('Toughness')).not.toBeVisible();
+    expect(screen.queryByText('Power')).not.toBeInTheDocument();
+    expect(screen.queryByText('Toughness')).not.toBeInTheDocument();
   });
 
-  it('CONTROL: a Creature hides the Vehicle checkbox', () => {
+  it('CONTROL: a Creature hides the Vehicle switch', () => {
     render(
       <Store.Provider value={mockStoreValue}>
         <CardEditor card={makeCard([CardType.Creature])} saveTmpCard={() => {}} />
       </Store.Provider>,
     );
 
-    expect(screen.getByText('Vehicle?')).not.toBeVisible();
+    expect(screen.queryByText('Vehicle?')).not.toBeInTheDocument();
   });
 });

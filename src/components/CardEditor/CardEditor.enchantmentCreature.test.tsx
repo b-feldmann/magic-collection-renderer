@@ -90,7 +90,7 @@ describe('CardEditor - Enchantment Creature main type', () => {
       </Store.Provider>,
     );
 
-    expect(screen.getByText('Power')).not.toBeVisible();
-    expect(screen.getByText('Toughness')).not.toBeVisible();
+    expect(screen.queryByText('Power')).not.toBeInTheDocument();
+    expect(screen.queryByText('Toughness')).not.toBeInTheDocument();
   });
 });

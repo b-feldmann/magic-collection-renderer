@@ -186,10 +186,10 @@ const reducer: React.Reducer<State, Action> = (state, action) => {
       };
     case AnnotationActionType.CreateAnnotation:
       annotationAccessor = { ...state.annotationAccessor };
-      if (!state.annotationAccessor[action.payload.annotation.cardReference]) {
-        annotationAccessor[action.payload.annotation.cardReference] = [action.payload.annotation];
-      } else
-        annotationAccessor[action.payload.annotation.cardReference].push(action.payload.annotation);
+      annotationAccessor[action.payload.annotation.cardReference] = [
+        ...(state.annotationAccessor[action.payload.annotation.cardReference] || []),
+        action.payload.annotation,
+      ];
 
       return {
         ...state,

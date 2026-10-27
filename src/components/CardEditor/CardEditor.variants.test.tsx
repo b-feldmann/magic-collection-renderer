@@ -53,6 +53,11 @@ const typeName = (value: string) => {
   fireEvent.change(input, { target: { value } });
 };
 
+const clickMenuAction = (name: string) => {
+  fireEvent.click(screen.getByRole('button', { name: 'More card actions' }));
+  fireEvent.click(screen.getByRole('menuitem', { name }));
+};
+
 describe('editor variant creation', () => {
   beforeEach(() => {
     vi.useFakeTimers();
@@ -114,7 +119,7 @@ describe('editor variant creation', () => {
     },
   );
 
-  it('places variant creation beside favorite and back-face actions', () => {
+  it('places variant creation and back-face actions in the header menu beside favorite', () => {
     const card = makeCard();
     render(
       <Store.Provider value={makeStore([card])}>
@@ -122,27 +127,30 @@ describe('editor variant creation', () => {
       </Store.Provider>,
     );
     const group = screen.getByRole('button', { name: 'Mark as favorite' }).parentElement;
-    expect(screen.getByRole('button', { name: 'Add Back Face' }).parentElement).toBe(group);
-    expect(screen.getByRole('button', { name: 'Create Variant' }).parentElement).toBe(group);
+    expect(screen.getByRole('button', { name: 'More card actions' }).parentElement).toBe(group);
+    fireEvent.click(screen.getByRole('button', { name: 'More card actions' }));
+    expect(screen.getByRole('menuitem', { name: 'Add Back Face' }).parentElement).toBe(
+      screen.getByRole('menuitem', { name: 'Create Variant' }).parentElement,
+    );
   });
 
-  it.each(['Mark as favorite', 'Undo Changes'])(
-    'allows the action row containing %s to wrap',
-    buttonName => {
-      const card = {
-        ...makeCard(),
-        back: { name: 'Back', cardTypes: [], cardText: [] },
-      };
-      render(
-        <Store.Provider value={makeStore([card])}>
-          <CardEditor card={card} saveTmpCard={() => {}} />
-        </Store.Provider>,
-      );
+  it.each([
+    ['Mark as favorite', 'wrap'],
+    ['Undo Changes', 'nowrap'],
+  ])('uses %s action-row wrapping of %s', (buttonName, flexWrap) => {
+    const card = {
+      ...makeCard(),
+      back: { name: 'Back', cardTypes: [], cardText: [] },
+    };
+    render(
+      <Store.Provider value={makeStore([card])}>
+        <CardEditor card={card} saveTmpCard={() => {}} />
+      </Store.Provider>,
+    );
 
-      const group = screen.getByRole('button', { name: buttonName }).parentElement;
-      expect(group).toHaveStyle({ display: 'flex', flexWrap: 'wrap' });
-    },
-  );
+    const group = screen.getByRole('button', { name: buttonName }).parentElement;
+    expect(group).toHaveStyle({ display: 'flex', flexWrap });
+  });
 
   it('cancels discarded preview and autosave timers when another variant is selected', async () => {
     const card = makeCard();
@@ -214,7 +222,7 @@ describe('editor variant creation', () => {
           <CardEditor card={card} saveTmpCard={() => {}} onDraftChange={onDraftChange} />
         </Store.Provider>,
       );
-      fireEvent.click(screen.getByRole('button', { name: action }));
+      clickMenuAction(action);
       typeName('Newer draft');
       await act(async () => {
         finishSave(undefined);
@@ -245,7 +253,7 @@ describe('editor variant creation', () => {
     );
     typeName('New draft');
     await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: 'Create Variant' }));
+      clickMenuAction('Create Variant');
     });
     expect(createCardVariant).toHaveBeenCalledWith(
       expect.any(Function),
@@ -256,13 +264,13 @@ describe('editor variant creation', () => {
       store.cards,
       store.currentUser,
     );
-    expect(screen.getByRole('button', { name: /Create Variant/ })).toBeDisabled();
-    fireEvent.click(screen.getByRole('button', { name: /Create Variant/ }));
+    expect(screen.getByRole('button', { name: 'More card actions' })).toBeDisabled();
+    fireEvent.click(screen.getByRole('button', { name: 'More card actions' }));
     expect(createCardVariant).toHaveBeenCalledTimes(1);
     await act(async () => {
       finish();
     });
-    expect(screen.getByRole('button', { name: 'Create Variant' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'More card actions' })).toBeEnabled();
     expect(preview).toHaveBeenLastCalledWith(null);
     await act(async () => {
       vi.advanceTimersByTime(EDIT_SAVE_OFFSET + 100);
@@ -281,10 +289,10 @@ describe('editor variant creation', () => {
     );
     typeName('Keep this draft');
     await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: 'Create Variant' }));
+      clickMenuAction('Create Variant');
     });
     expect(screen.getByDisplayValue('Keep this draft')).toBeVisible();
-    expect(screen.getByRole('button', { name: 'Create Variant' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'More card actions' })).toBeEnabled();
     expect(preview).toHaveBeenLastCalledWith(expect.objectContaining({ name: 'Keep this draft' }));
   });
 
@@ -336,7 +344,7 @@ describe('editor variant creation', () => {
       vi.advanceTimersByTime(EDIT_SAVE_OFFSET + 100);
     });
     await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: 'Create Variant' }));
+      clickMenuAction('Create Variant');
     });
     expect(createCardVariant).not.toHaveBeenCalled();
     await act(async () => {

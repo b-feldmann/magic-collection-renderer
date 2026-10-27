@@ -160,7 +160,8 @@ describe('CardEditor - saving after adding a back face as the first action', () 
     render(<Harness initialCard={makeCard('card-2')} />);
 
     // First (and only) action after "creating": add a back face.
-    fireEvent.click(screen.getByText('Add Back Face'));
+    fireEvent.click(screen.getByRole('button', { name: 'More card actions' }));
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Add Back Face' }));
 
     // Let the updateCard round-trip resolve.
     await act(async () => {

@@ -90,7 +90,7 @@ describe('CardEditor - token colors', () => {
       </Store.Provider>,
     );
 
-    expect(screen.getByText('Token Colors')).not.toBeVisible();
+    expect(screen.queryByText('Token Colors')).not.toBeInTheDocument();
   });
 
   it('saves selected colors to the card face', async () => {

@@ -1,6 +1,6 @@
 import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 
 import CardEditor from './CardEditor';
@@ -77,12 +77,6 @@ const renderEditor = (card: CardInterface) =>
       <CardEditor card={card} saveTmpCard={() => {}} />
     </Store.Provider>,
   );
-
-const getLevelTextField = (label: string) =>
-  screen
-    .getAllByText(label)
-    .map(element => element.closest('span'))
-    .find(field => field?.querySelector('input[placeholder="Indicator"]')) as HTMLElement;
 
 describe('CardEditor - Evolution fields', () => {
   it('does not show level fields for other card types', () => {

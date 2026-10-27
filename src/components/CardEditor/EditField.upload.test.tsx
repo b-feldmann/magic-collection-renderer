@@ -1,9 +1,11 @@
 import React from 'react';
+import { ConfigProvider } from 'antd';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 
 import EditField from './EditField';
+import ArtworkUpload from './ArtworkUpload';
 
 // The real resize needs a browser canvas; pass the base64 straight through.
 vi.mock('../../utils/resizeImage', () => ({
@@ -32,19 +34,38 @@ const Harness = ({ initialCover = '' }: { initialCover?: string }) => {
   const [cover, setCover] = React.useState(initialCover);
 
   return (
-    <EditField
-      fieldKey="cover"
-      type="upload-input"
-      name="Cover (URL)"
-      getValue={() => cover}
-      saveValue={(_key, value) => setCover(value)}
-    />
+    <>
+      <ArtworkUpload onChange={setCover} />
+      <EditField
+        fieldKey="cover"
+        type="upload-input"
+        name="Cover (URL)"
+        getValue={() => cover}
+        saveValue={(_key, value) => setCover(value)}
+      />
+    </>
   );
 };
 
 const getUrlInput = () => document.querySelector('input[type="text"]');
 
 describe('EditField upload-input', () => {
+  it('uses the mockup choose-file action instead of an unlabeled icon-only trigger', () => {
+    render(<Harness />);
+    expect(screen.getByRole('button', { name: 'Choose file' })).toBeVisible();
+    expect(screen.getByText('Give your card a world')).toBeVisible();
+  });
+
+  it('disables file selection when the rest of the editor is disabled', () => {
+    render(
+      <ConfigProvider componentDisabled>
+        <Harness />
+      </ConfigProvider>,
+    );
+    expect(screen.getByRole('button', { name: 'Choose file' })).toBeDisabled();
+    expect(document.querySelector('input[type="file"]')).toBeDisabled();
+  });
+
   it('stores the file name together with the image data when picking a file', async () => {
     // Stub FileReader for a deterministic data URL; `onload` fires on the
     // next macrotask like the real implementation.
@@ -70,13 +91,19 @@ describe('EditField upload-input', () => {
         cover = value;
       },
     };
-    const { rerender } = render(<EditField {...props} />);
+    const fields = () => (
+      <>
+        <ArtworkUpload onChange={value => props.saveValue('cover', value)} />
+        <EditField {...props} />
+      </>
+    );
+    const { rerender } = render(fields());
 
     await act(async () => {
       pickFile('League_Infobox_Anivia.jpg');
       await flushAsyncUpload();
     });
-    rerender(<EditField {...props} />);
+    rerender(fields());
 
     expect(cover).toBe('base64:League_Infobox_Anivia.jpg|data:image/jpeg;base64,xx');
     vi.unstubAllGlobals();
@@ -87,6 +114,9 @@ describe('EditField upload-input', () => {
 
     // The file name is shown…
     expect(screen.getByText('League_Infobox_Anivia.jpg')).toBeInTheDocument();
+    expect(screen.getByRole('group', { name: 'Cover (URL)' })).toHaveTextContent(
+      'League_Infobox_Anivia.jpg',
+    );
     // …but the URL input is not editable for uploaded images.
     expect(getUrlInput()).not.toBeInTheDocument();
   });

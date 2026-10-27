@@ -1,12 +1,13 @@
-import { Button, Checkbox, Divider, Input, Listy, Radio, Select, Space, Tag, Upload } from 'antd';
+import { Button, Input, Listy, Radio, Select, Space, Switch, Tag } from 'antd';
 import { PaperClipOutlined } from '@ant-design/icons';
+import CrownOutlined from '@ant-design/icons/CrownOutlined';
 
 import AntIcon from '../AntIcon/AntIcon';
-import React from 'react';
+import React, { useId } from 'react';
 import styles from './styles.module.scss';
-import resizeImage from '../../utils/resizeImage';
 import { getCoverFileName, isUploadedCover } from '../../utils/cover';
 import EditorTooltip from '../EditorTooltip';
+import CardTextInput from './CardTextInput';
 
 const { TextArea } = Input;
 const InputGroup = Input.Group;
@@ -28,6 +29,8 @@ interface EditFieldInterface {
     | 'bool'
     | 'divider';
   name: string;
+  placeholder?: string;
+  optional?: boolean;
   pairedFieldKey?: string;
   data?: { key: string; value: string }[];
   disabledKeys?: string[];
@@ -39,6 +42,9 @@ interface EditFieldInterface {
 
 interface UploadInputInterface {
   fieldKey: string;
+  inputId: string;
+  name: string;
+  placeholder?: string;
   getValue: (key: string) => any;
   saveValue: (key: string, value: any) => void;
 }
@@ -46,43 +52,44 @@ interface UploadInputInterface {
 // The file name of an uploaded cover is persisted with the card value (see
 // utils/cover.ts), so it needs no local state and survives card switches and
 // reloads — unlike antd's internal Upload list, which leaked across cards.
-const UploadInput = ({ fieldKey, getValue, saveValue }: UploadInputInterface) => {
+const UploadInput = ({
+  fieldKey,
+  inputId,
+  name,
+  placeholder,
+  getValue,
+  saveValue,
+}: UploadInputInterface) => {
   const coverValue = getValue(fieldKey);
   const uploaded = isUploadedCover(coverValue);
   const fileName = getCoverFileName(coverValue);
 
   return (
-    <div className={styles.uploadWrapper}>
+    <div
+      className={styles.uploadWrapper}
+      role={uploaded ? 'group' : undefined}
+      aria-labelledby={uploaded ? `${inputId}-label` : undefined}
+    >
+      {uploaded ? (
+        <span id={`${inputId}-label`} className={styles.label}>
+          {name}
+        </span>
+      ) : (
+        <label className={styles.label} htmlFor={inputId}>
+          {name}
+        </label>
+      )}
       <div className={styles.uploadRow}>
-        {/* `showUploadList={false}`: antd's internal file list is uncontrolled
-            state that survives switching to another card and squishes the URL
-            input. The persisted file name is rendered below instead. */}
-        <Upload
-          showUploadList={false}
-          beforeUpload={(file: File) => {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = () => {
-              // The file name travels with the value; the image data is
-              // uploaded to the middleware on save (see cardActions).
-              if (typeof reader.result === 'string') {
-                resizeImage(reader.result, image => {
-                  saveValue(fieldKey, `base64:${file.name}|${image}`);
-                });
-              } else {
-                saveValue(fieldKey, `base64:${file.name}|${reader.result}`);
-              }
-            };
-            // Prevent antd from actually uploading; we handle the file locally.
-            return false;
-          }}
-        >
-          <Button shape="circle" icon={<AntIcon type="upload" />} size="small" danger />
-        </Upload>
-        {/* Uploaded covers have no URL to edit — the persisted file name is
-            shown below the row instead. */}
-        {!uploaded && (
+        {/* Uploaded covers have no editable URL. Render the persisted filename
+            instead of an uncontrolled Upload file list that leaks across cards. */}
+        {uploaded ? (
+          <span className={styles.uploadFileName}>
+            <PaperClipOutlined aria-hidden="true" /> {fileName || 'Uploaded Image'}
+          </span>
+        ) : (
           <Input
+            id={inputId}
+            placeholder={placeholder}
             className={styles.uploadInput}
             size="small"
             value={stripUploadValue(coverValue)}
@@ -99,11 +106,6 @@ const UploadInput = ({ fieldKey, getValue, saveValue }: UploadInputInterface) =>
           />
         ) : null}
       </div>
-      {uploaded && (
-        <span className={styles.uploadFileName}>
-          <PaperClipOutlined /> {fileName || 'Uploaded Image'}
-        </span>
-      )}
     </div>
   );
 };
@@ -117,10 +119,14 @@ const stripUploadValue = (value?: string) => {
 };
 
 const EditField = (props: EditFieldInterface) => {
+  const fieldId = useId();
+  const labelId = `${fieldId}-label`;
   const {
     type,
     fieldKey,
     name,
+    placeholder,
+    optional = false,
     pairedFieldKey,
     data,
     disabledKeys,
@@ -130,33 +136,35 @@ const EditField = (props: EditFieldInterface) => {
     saveValue,
   } = props;
 
+  const optionalId = optional ? `${fieldId}-optional` : undefined;
+  const inputLabel = (
+    <div className={styles.labelRow}>
+      <label className={styles.label} htmlFor={fieldId}>
+        {name}
+      </label>
+      {optional && (
+        <span id={optionalId} className={styles.optional}>
+          optional
+        </span>
+      )}
+    </div>
+  );
+
   // A purely presentational section header inside the field list (e.g. the
   // Adventure section). The title is rendered bigger and bold so it reads as
   // a section header rather than a field label.
   if (type === 'divider') {
-    return (
-      <span>
-        <Divider
-          titlePlacement="start"
-          plain
-          // orientationMargin 0 collapses the start rail so the title sits
-          // flush with the field's left edge instead of the default 5% indent.
-          orientationMargin={0}
-          styles={{
-            content: { fontSize: 18, fontWeight: 'bold', marginTop: 4, marginBottom: -20 },
-          }}
-        >
-          {name}
-        </Divider>
-      </span>
-    );
+    return <h3 className={styles.specialtyHeading}>{name}</h3>;
   }
 
   if (type === 'input') {
     return (
       <span>
-        <p className={styles.label}>{name}</p>
+        {inputLabel}
         <Input
+          id={fieldId}
+          placeholder={placeholder}
+          aria-describedby={optionalId}
           size="small"
           value={getValue(fieldKey)}
           onChange={e => saveValue(fieldKey, e.target.value)}
@@ -169,18 +177,20 @@ const EditField = (props: EditFieldInterface) => {
     const text = ((getValue(pairedFieldKey) as string[]) || []).join('\n');
 
     return (
-      <span>
-        <p className={styles.label}>
+      <span role="group" aria-labelledby={labelId}>
+        <p id={labelId} className={styles.label}>
           {name} <EditorTooltip className={styles.tooltip} />
         </p>
         <InputGroup compact>
           <Input
+            aria-label={`${name} indicator`}
             placeholder="Indicator"
             style={{ width: '20%' }}
             value={getValue(fieldKey) || ''}
             onChange={e => saveValue(fieldKey, e.target.value)}
           />
           <TextArea
+            aria-label={`${name} text`}
             placeholder="Card Text"
             style={{ width: '80%' }}
             value={text}
@@ -194,10 +204,14 @@ const EditField = (props: EditFieldInterface) => {
 
   if (type === 'upload-input') {
     return (
-      <span>
-        <p className={styles.label}>{name}</p>
-        <UploadInput fieldKey={fieldKey} getValue={getValue} saveValue={saveValue} />
-      </span>
+      <UploadInput
+        fieldKey={fieldKey}
+        inputId={fieldId}
+        name={name}
+        placeholder={placeholder}
+        getValue={getValue}
+        saveValue={saveValue}
+      />
     );
   }
 
@@ -207,44 +221,47 @@ const EditField = (props: EditFieldInterface) => {
     const [firstLabel, secondLabel] = name.split('/');
 
     return (
-      <span>
-        <p className={styles.label}>
-          <span>{firstLabel}</span> / <span>{secondLabel}</span>
-        </p>
-        <Space.Compact
-          block
-          size="small"
-          role="group"
-          aria-label={`${firstLabel} / ${secondLabel}`}
-          className={styles.splitInput}
-        >
+      <div
+        role="group"
+        aria-label={`${firstLabel} / ${secondLabel}`}
+        className={styles.statsInputs}
+      >
+        <div>
+          <label className={styles.label} htmlFor={`${fieldId}-first`}>
+            {firstLabel}
+          </label>
           <Input
-            aria-label={firstLabel}
+            id={`${fieldId}-first`}
+            size="small"
+            className={styles.statInput}
             value={splitArray[0]}
             onChange={e => saveValue(fieldKey, `${e.target.value}/${splitArray[1]}`)}
           />
+        </div>
+        <div>
+          <label className={styles.label} htmlFor={`${fieldId}-second`}>
+            {secondLabel}
+          </label>
           <Input
-            className={styles.splitInputSeparator}
-            value="/"
-            readOnly
-            tabIndex={-1}
-            aria-hidden="true"
-          />
-          <Input
-            aria-label={secondLabel}
+            id={`${fieldId}-second`}
+            size="small"
+            className={styles.statInput}
             value={splitArray[1]}
             onChange={e => saveValue(fieldKey, `${splitArray[0]}/${e.target.value}`)}
           />
-        </Space.Compact>
-      </span>
+        </div>
+      </div>
     );
   }
 
   if (type === 'area') {
     return (
       <span>
-        <p className={styles.label}>{name}</p>
+        {inputLabel}
         <TextArea
+          id={fieldId}
+          placeholder={placeholder}
+          aria-describedby={optionalId}
           value={getValue(fieldKey)}
           onChange={e => saveValue(fieldKey, e.target.value)}
           autoSize
@@ -256,13 +273,20 @@ const EditField = (props: EditFieldInterface) => {
   if (type === 'bool') {
     return (
       <div>
-        <div className={styles.label}>
-          <Checkbox
-            checked={getValue(fieldKey)}
-            onChange={e => saveValue(fieldKey, e.target.checked)}
-          >
+        <div className={styles.booleanField}>
+          <label id={labelId} htmlFor={fieldId} className={styles.booleanLabel}>
+            {fieldKey === 'legendary' && (
+              <CrownOutlined className={styles.legendaryIcon} aria-hidden="true" />
+            )}
             {name}
-          </Checkbox>
+          </label>
+          <Switch
+            id={fieldId}
+            size="small"
+            aria-labelledby={labelId}
+            checked={!!getValue(fieldKey)}
+            onChange={checked => saveValue(fieldKey, checked)}
+          />
         </div>
       </div>
     );
@@ -271,8 +295,11 @@ const EditField = (props: EditFieldInterface) => {
   if (type === 'select' && data) {
     return (
       <span>
-        <p className={styles.label}>{name}</p>
+        <label className={styles.label} htmlFor={fieldId}>
+          {name}
+        </label>
         <Select
+          id={fieldId}
           size="small"
           value={getValue(fieldKey)}
           onChange={(key: string) => saveValue(fieldKey, key)}
@@ -290,15 +317,18 @@ const EditField = (props: EditFieldInterface) => {
   if (type === 'multi-select' && data) {
     return (
       <span>
-        <p className={styles.label}>{name}</p>
+        <label className={styles.label} htmlFor={fieldId}>
+          {name}
+        </label>
         <Select
+          id={fieldId}
           size="small"
           mode={allowCreate ? 'tags' : 'multiple'}
           allowClear
           value={getValue(fieldKey) || []}
           onChange={(keys: string[]) => saveValue(fieldKey, keys)}
           style={{ width: '100%' }}
-          placeholder={allowCreate ? 'Add Tags' : 'Select Colors'}
+          placeholder={placeholder ?? (allowCreate ? 'Add Tags' : 'Select Colors')}
           tagRender={
             allowCreate
               ? props => (
@@ -325,8 +355,12 @@ const EditField = (props: EditFieldInterface) => {
   if (type === 'radio' && data) {
     return (
       <span>
-        <p className={styles.label}>{name}</p>
+        <span id={labelId} className={styles.label}>
+          {name}
+        </span>
         <Radio.Group
+          role="group"
+          aria-labelledby={labelId}
           buttonStyle="solid"
           value={getValue(fieldKey) || 'Regular'}
           onChange={e => saveValue(fieldKey, e.target.value)}
@@ -354,7 +388,7 @@ const EditField = (props: EditFieldInterface) => {
 
     return (
       <span>
-        <p className={styles.label}>
+        <p id={labelId} className={styles.label}>
           {name} <EditorTooltip className={styles.tooltip} />
         </p>
 
@@ -362,7 +396,7 @@ const EditField = (props: EditFieldInterface) => {
             per-item `actions`, and no `footer`, so those are recreated with
             markup + CSS. Items are wrapped with their index to provide a stable
             `rowKey` (values can repeat, e.g. blank instructions). */}
-        <div className={styles.listBordered}>
+        <div className={styles.listBordered} role="group" aria-labelledby={labelId}>
           <Listy<{ value: string; index: number }>
             rowKey="index"
             classNames={{ item: styles.listItem }}
@@ -375,6 +409,7 @@ const EditField = (props: EditFieldInterface) => {
                 <div className={styles.listItemContent}>
                   {type === 'list' ? (
                     <TextArea
+                      aria-label={`${name} instruction ${i + 1}`}
                       value={item}
                       onChange={e => {
                         const list = getValue(fieldKey);
@@ -386,6 +421,7 @@ const EditField = (props: EditFieldInterface) => {
                   ) : (
                     <InputGroup compact>
                       <Input
+                        aria-label={`${name} cost ${i + 1}`}
                         style={{ width: '20%' }}
                         value={split(item).cost}
                         onChange={e => {
@@ -395,6 +431,7 @@ const EditField = (props: EditFieldInterface) => {
                         }}
                       />
                       <TextArea
+                        aria-label={`${name} instruction ${i + 1}`}
                         style={{ width: '80%' }}
                         value={split(item).text}
                         onChange={e => {
@@ -445,21 +482,13 @@ const EditField = (props: EditFieldInterface) => {
   }
 
   if (type === 'text-list') {
-    // Every line in the text area maps 1:1 to a cardText element — including
-    // empty lines, which are stored as empty strings (round-trip stable).
-    const joined = ((getValue(fieldKey) as string[]) || []).join('\n');
-
     return (
-      <span>
-        <p className={styles.label}>
-          {name} <EditorTooltip className={styles.tooltip} />
-        </p>
-        <TextArea
-          value={joined}
-          onChange={e => saveValue(fieldKey, e.target.value.split('\n'))}
-          autoSize
-        />
-      </span>
+      <CardTextInput
+        id={fieldId}
+        name={name}
+        value={(getValue(fieldKey) as string[]) || []}
+        onChange={lines => saveValue(fieldKey, lines)}
+      />
     );
   }
 
