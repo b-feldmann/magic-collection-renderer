@@ -1,6 +1,6 @@
 import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import BigCardRenderModal from './BigCardRenderModal';
 import { Store, StoreType } from '../../store';
 import { EMPTY_CARD, updateCard } from '../../actions/cardActions';
@@ -9,6 +9,13 @@ import { getImage } from '../../actions/imageActions';
 import { UNKNOWN_CREATOR } from '../../utils/constants';
 import CardInterface from '../../interfaces/CardInterface';
 import { CardState } from '../../interfaces/enums';
+import {
+  pasteCommentText,
+  prepareCommentInputTests,
+  selectCommentRange,
+} from '../AnnotationList/emojiCommentInput.testUtils';
+
+beforeAll(prepareCommentInputTests);
 
 // Keep the real modal/interactions, but disable CSS transitions unsupported by jsdom.
 vi.mock('antd', async importOriginal => {
@@ -272,16 +279,16 @@ describe('mobile card face switching', () => {
     expect(controls).toContainElement(flip);
     expect(controls).toContainElement(screen.getByRole('group', { name: 'Card variants' }));
     expect(screen.getByRole('img', { name: 'swap' })).toBeVisible();
-    fireEvent.change(screen.getByPlaceholderText('Your comment'), {
-      target: { value: 'Comment draft stays while flipping' },
-    });
+    const field = screen.getByRole('textbox', { name: 'Your comment' });
+    await selectCommentRange(field, 0);
+    await pasteCommentText(field, 'Comment draft stays while flipping');
 
     fireEvent.click(flip);
     expect(screen.getByText('Back b')).toBeVisible();
     expect(screen.getByTestId('rendered-b')).toHaveAttribute('data-back-face', 'true');
     expect(screen.queryByText('Face b')).not.toBeInTheDocument();
     expect(screen.getByText('Comment b')).toBeVisible();
-    expect(screen.getByPlaceholderText('Your comment')).toHaveValue(
+    expect(screen.getByRole('textbox', { name: 'Your comment' }).textContent).toBe(
       'Comment draft stays while flipping',
     );
 
@@ -338,16 +345,16 @@ it.each([false, true])(
       screen.getByTestId('rendered-a').compareDocumentPosition(screen.getByText('Comment a')) &
         Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy();
-    fireEvent.change(screen.getByPlaceholderText('Your comment'), {
-      target: { value: 'Draft for a' },
-    });
+    const field = screen.getByRole('textbox', { name: 'Your comment' });
+    await selectCommentRange(field, 0);
+    await pasteCommentText(field, 'Draft for a');
     fireEvent.click(screen.getByRole('button', { name: 'Next variant' }));
     expect(screen.getByText('Comment b')).toBeVisible();
     expect(screen.queryByText('Comment a')).not.toBeInTheDocument();
-    expect(screen.getByPlaceholderText('Your comment')).toHaveValue('');
-    fireEvent.change(screen.getByPlaceholderText('Your comment'), {
-      target: { value: 'New b comment' },
-    });
+    const variantField = screen.getByRole('textbox', { name: 'Your comment' });
+    expect(variantField.textContent).toBe('');
+    await selectCommentRange(variantField, 0);
+    await pasteCommentText(variantField, 'New b comment');
     fireEvent.click(screen.getByRole('button', { name: 'Add Comment' }));
     expect(createAnnotation).toHaveBeenCalledWith(
       value.dispatch,

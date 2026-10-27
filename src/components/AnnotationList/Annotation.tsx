@@ -14,6 +14,7 @@ import styles from './Annotations.module.scss';
 import { Store, StoreType } from '../../store';
 import { injectManaIcons } from '../../utils/injectUtils';
 import AnnotationReactions from './AnnotationReactions';
+import { GoogleEmojiText } from './GoogleEmoji';
 
 interface AnnotationProps {
   annotation: AnnotationInterface;
@@ -48,7 +49,9 @@ const Annotation = ({ annotation }: AnnotationProps) => {
           return (
             <span key={i}>
               {i > 0 && <br />}
-              {injectManaIcons(item)}
+              {React.Children.map(injectManaIcons(item), (part, index) =>
+                typeof part === 'string' ? <GoogleEmojiText key={index} text={part} /> : part,
+              )}
             </span>
           );
         })}

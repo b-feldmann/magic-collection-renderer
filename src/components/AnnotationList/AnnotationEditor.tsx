@@ -1,18 +1,14 @@
-import React, { useContext, useState } from 'react';
-import { Button, Input, Popover } from 'antd';
-
-import 'emoji-mart/css/emoji-mart.css';
-import data from 'emoji-mart/data/apple.json';
-import { BaseEmoji, NimblePicker as Picker } from 'emoji-mart';
+import React, { useContext, useRef, useState } from 'react';
+import { Button, Popover } from 'antd';
 
 import EmojiIcon from '../EmojiIcon';
+import EmojiPicker from './AnnotationEmojiPicker';
+import EmojiCommentInput, { EmojiCommentInputHandle } from './EmojiCommentInput';
 
 import styles from './Annotations.module.scss';
 import { UNKNOWN_CREATOR } from '../../utils/constants';
 import UserInterface from '../../interfaces/UserInterface';
 import { Store, StoreType } from '../../store';
-
-const { TextArea } = Input;
 
 interface AnnotationEditorProps {
   defaultContent?: string;
@@ -30,6 +26,8 @@ const AnnotationEditor = ({
   const { currentUser } = useContext<StoreType>(Store);
 
   const [content, setContent] = useState(defaultContent);
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const input = useRef<EmojiCommentInputHandle>(null);
   // `author` is fully derived from props/context (never edited in the UI), so
   // compute it during render instead of mirroring it into state via an effect.
   const author = defaultAuthor || currentUser || UNKNOWN_CREATOR;
@@ -40,8 +38,9 @@ const AnnotationEditor = ({
     }
   };
 
-  const onEmoji = (emoji: BaseEmoji) => {
-    setContent(current => current + emoji.native);
+  const onEmoji = (emoji: { native: string }) => {
+    input.current?.insertEmoji(emoji.native);
+    setPickerOpen(false);
   };
 
   return (
@@ -64,21 +63,22 @@ const AnnotationEditor = ({
       {/*    </Select.Option> */}
       {/*  ))} */}
       {/* </Select> */}
-      <TextArea
-        autoSize={{ minRows: 2, maxRows: 5 }}
-        value={content}
-        onChange={e => setContent(e.target.value)}
-        placeholder="Your comment"
-      />
+      <EmojiCommentInput ref={input} value={content} onChange={setContent} />
       <div className={styles.editorActions}>
         <Popover
           trigger="click"
-          content={
-            <Picker onClick={onEmoji} data={data} showSkinTones={false} showPreview={false} />
-          }
+          placement="left"
+          open={pickerOpen}
+          onOpenChange={setPickerOpen}
+          content={<EmojiPicker onEmojiSelect={onEmoji} />}
         >
-          <button type="button" className={styles.editorEmoji} aria-label="Add emoji to comment">
-            <EmojiIcon emoji="smiley" set="apple" size={16} />
+          <button
+            type="button"
+            className={styles.editorEmoji}
+            aria-label="Add emoji to comment"
+            aria-expanded={pickerOpen}
+          >
+            <EmojiIcon size={16} />
           </button>
         </Popover>
         <Button

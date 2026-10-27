@@ -1,14 +1,13 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { Popover } from 'antd';
-import { BaseEmoji, NimblePicker as Picker } from 'emoji-mart';
-import data from 'emoji-mart/data/apple.json';
-import 'emoji-mart/css/emoji-mart.css';
 
 import AnnotationInterface from '../../interfaces/AnnotationInterface';
 import { Store } from '../../store';
 import { UNKNOWN_CREATOR } from '../../utils/constants';
 import { setAnnotationReaction } from '../../actions/annotationActions';
 import styles from './Annotations.module.scss';
+import EmojiPicker from './AnnotationEmojiPicker';
+import GoogleEmoji from './GoogleEmoji';
 
 const AnnotationReactions = ({ annotation }: { annotation: AnnotationInterface }) => {
   const { currentUser, user, dispatch } = useContext(Store);
@@ -17,6 +16,7 @@ const AnnotationReactions = ({ annotation }: { annotation: AnnotationInterface }
   const pending = useRef(false);
   const trigger = useRef<HTMLButtonElement>(null);
   const reactionArea = useRef<HTMLDivElement>(null);
+  const pickerContainer = useRef<HTMLDivElement>(null);
   const restoreFocus = useRef(false);
   const canReact =
     currentUser.uuid !== UNKNOWN_CREATOR.uuid &&
@@ -30,6 +30,34 @@ const AnnotationReactions = ({ annotation }: { annotation: AnnotationInterface }
       if (document.activeElement === reactionArea.current) trigger.current?.focus();
     }
   }, [saving]);
+
+  useEffect(() => {
+    if (!open) return;
+    let search: HTMLInputElement | null = null;
+    let pickerElement: Element | null = null;
+    const handleSearchKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.stopPropagation();
+        setOpen(false);
+        trigger.current?.focus();
+      }
+    };
+    document.addEventListener('keydown', handleSearchKeyDown, true);
+    const timer = window.setTimeout(() => {
+      pickerElement = pickerContainer.current?.querySelector('em-emoji-picker') ?? null;
+      search = pickerElement?.shadowRoot?.querySelector('input') ?? null;
+      if (!(search instanceof HTMLInputElement) || !pickerElement) return;
+      search.focus();
+      search.addEventListener('keydown', handleSearchKeyDown);
+      pickerElement.addEventListener('keydown', handleSearchKeyDown as EventListener);
+    });
+    return () => {
+      window.clearTimeout(timer);
+      document.removeEventListener('keydown', handleSearchKeyDown, true);
+      search?.removeEventListener('keydown', handleSearchKeyDown);
+      pickerElement?.removeEventListener('keydown', handleSearchKeyDown as EventListener);
+    };
+  }, [open]);
 
   const closePicker = () => {
     setOpen(false);
@@ -90,7 +118,7 @@ const AnnotationReactions = ({ annotation }: { annotation: AnnotationInterface }
               disabled={!canReact || saving}
               onClick={() => void toggleReaction(reaction.emoji)}
             >
-              <span aria-hidden="true">{reaction.emoji}</span> <span>{count}</span>
+              <GoogleEmoji emoji={reaction.emoji} /> <span>{count}</span>
             </button>
           );
         })}
@@ -100,17 +128,14 @@ const AnnotationReactions = ({ annotation }: { annotation: AnnotationInterface }
         open={open}
         onOpenChange={next => setOpen(canReact && !saving && next)}
         content={
-          <div role="dialog" aria-label="Choose a reaction" className={styles.reactionPicker}>
+          <div
+            ref={pickerContainer}
+            role="dialog"
+            aria-label="Choose a reaction"
+            className={styles.reactionPicker}
+          >
             {open ? (
-              <Picker
-                autoFocus
-                data={data}
-                onClick={(emoji: BaseEmoji) => void toggleReaction(emoji.native)}
-                showSkinTones={false}
-                showPreview={false}
-                perLine={7}
-                title="Choose a reaction"
-              />
+              <EmojiPicker onEmojiSelect={emoji => void toggleReaction(emoji.native)} />
             ) : null}
           </div>
         }

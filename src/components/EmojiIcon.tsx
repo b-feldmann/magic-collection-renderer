@@ -1,8 +1,9 @@
-import { Emoji, EmojiProps } from 'emoji-mart';
+import { SmileOutlined } from '@ant-design/icons';
 
-// emoji-mart v2's `Emoji` mutates its own props object to apply defaults,
-// which crashes with React 19 (element props are frozen in development).
-// Render it through this wrapper that passes a fresh props copy.
-const EmojiIcon = (props: EmojiProps) => Emoji({ ...props });
+interface EmojiIconProps {
+  size?: number;
+}
+
+const EmojiIcon = ({ size = 16 }: EmojiIconProps) => <SmileOutlined style={{ fontSize: size }} />;
 
 export default EmojiIcon;

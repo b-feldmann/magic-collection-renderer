@@ -906,13 +906,13 @@ const CardEditor: React.FC<CardEditorInterface> = ({
   const fieldsFor = (keys: string[]) =>
     keys.flatMap(key => visibleConfig.filter(config => config.key === key));
   const sections = [
-    { key: 'essentials', name: 'The essentials', fields: fieldsFor(ESSENTIAL_FIELD_KEYS) },
+    { key: 'essentials', name: 'The Essentials', fields: fieldsFor(ESSENTIAL_FIELD_KEYS) },
     {
       key: 'abilities',
-      name: 'Words & abilities',
+      name: 'Words & Abilities',
       fields: visibleConfig.filter(config => !GROUPED_FIELD_KEYS.has(config.key)),
     },
-    { key: 'artwork', name: 'Artwork & frame', fields: fieldsFor(ARTWORK_FIELD_KEYS) },
+    { key: 'artwork', name: 'Artwork & Frame', fields: fieldsFor(ARTWORK_FIELD_KEYS) },
   ].filter(section => section.fields.length > 0);
   const renderField = (config: InputConfigInterface) => (
     <div
@@ -977,7 +977,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
       <div className={styles.editor}>
         <canvas id="cover-resize-canvas" className={styles.canvas} />
         <header className={styles.editorHeader}>
-          <h2>Card editor</h2>
+          <h2>Card Editor</h2>
           <Flex className={styles.headerActions} wrap gap={6}>
             {canFavoriteCard && (
               <Button
@@ -1032,7 +1032,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
             </section>
           ))}
           <details className={styles.organization}>
-            <summary>Organization &amp; credits</summary>
+            <summary>Organization &amp; Credits</summary>
             <div className={styles.fields}>
               {fieldsFor(ORGANIZATION_FIELD_KEYS).map(renderField)}
             </div>

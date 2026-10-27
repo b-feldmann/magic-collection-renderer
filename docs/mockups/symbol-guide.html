@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Symbol guide · Design mockup</title>
+  <link rel="stylesheet" href="../../node_modules/mana-font/css/mana.css">
+  <style>
+    :root { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #4c594d; background: #e9ece7; font-synthesis: none; --green: #3e6249; --muted: #7e8978; --line: #e6eae2; }
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 36px 20px; }
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+    button:focus-visible, input:focus-visible, summary:focus-visible { outline: 2px solid #3e6249; outline-offset: 4px; }
+    .design-note { max-width: 620px; margin: 0 auto 18px; display: flex; justify-content: space-between; gap: 12px; font-size: 12px; color: #65715f; }
+    .design-note span:first-child { letter-spacing: .12em; text-transform: uppercase; font-weight: 600; }
+    .guide { max-width: 620px; margin: auto; background: white; border-radius: 20px; box-shadow: 0 16px 60px #3443310d; overflow: hidden; }
+    header { padding: 28px 30px 0; }
+    .title-row { display: flex; justify-content: space-between; align-items: center; }
+    h1 { font-size: 28px; line-height: 1.2; color: #2c3530; letter-spacing: -.5px; margin: 0; font-weight: 650; }
+    .close { border: 0; background: transparent; color: #7e8978; font-size: 26px; padding: 0 5px; line-height: 1; }
+    .intro { font-size: 14px; line-height: 1.6; margin: 12px 0 20px; color: #7b8676; }
+    main { padding: 0 30px; }
+    section { padding: 24px 0; border-bottom: 1px solid var(--line); }
+    section:last-child { border: 0; }
+    .section-heading { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    h2 { margin: 0; font-size: 19px; font-weight: 650; color: #374b38; letter-spacing: -.2px; }
+    .number { font-size: 12px; color: #84917c; font-variant-numeric: tabular-nums; }
+    .label { font-size: 13px; color: #7e8978; margin: 0 0 10px; }
+    .mana-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; }
+    .symbol { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; border: 1px solid #e1e6dc; border-radius: 11px; background: #fff; min-height: 83px; color: #4c594d; transition: background .15s, border-color .15s; }
+    .symbol:hover, .token:hover { background: #f2f5ee; border-color: #9aaf92; }
+    .symbol .ms { font-size: 24px; }
+    code { font-family: "SFMono-Regular", Consolas, monospace; font-size: 12px; color: #63715e; }
+    .common { margin-top: 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .token { border: 1px solid #e1e6dc; background: white; border-radius: 10px; display: flex; align-items: center; gap: 11px; padding: 12px; color: #4c594d; text-align: left; min-height: 47px; }
+    .token .ms { width: 23px; text-align: center; font-size: 19px; color: #596653; }
+    .token .name { font-size: 14px; flex: 1; }
+    details { margin-top: 16px; }
+    summary { cursor: pointer; font-size: 14px; color: #53654c; list-style: none; display: flex; align-items: center; gap: 8px; }
+    summary::before { content: '›'; font-size: 22px; line-height: 16px; color: #8a987f; }
+    details[open] > summary::before { transform: rotate(90deg); }
+    .advanced { margin-top: 16px; }
+    .advanced + .advanced { margin-top: 18px; }
+    .advanced .mana-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+    .advanced .symbol { min-height: 70px; gap: 10px; }
+    .loyalty { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+    .loyalty .symbol { min-height: 77px; }
+    .loyalty .ms { color: #61725a; font-size: 28px; }
+    .hint { color: #818c79; font-size: 12px; margin: 12px 0 0; line-height: 1.6; }
+    .hint code { font-size: 11px; }
+    .name-tip { border: 1px solid #e5eadd; border-radius: 11px; background: #f7f9f4; padding: 12px 14px; display: flex; align-items: center; gap: 14px; font-size: 13px; margin-bottom: 16px; }
+    .name-tip > code { color: var(--green); font-size: 19px; padding: 0 5px; }
+    .name-tip p { margin: 0; line-height: 1.6; }
+    .mechanics { border: 1px solid #e1e6dc; border-radius: 11px; overflow: hidden; }
+    .mechanic { padding: 13px 15px; border-bottom: 1px solid #e9ede5; }
+    .mechanic:last-child { border: 0; }
+    .mechanic-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+    .mechanic-head > code { font-size: 12px; background: #f1f4ed; border-radius: 5px; padding: 5px 7px; color: #466044; }
+    .mechanic-head span { font-size: 11px; color: #87917f; }
+    .mechanic p { font-size: 12px; line-height: 1.6; margin: 8px 0 0; color: #7a8673; }
+    footer { padding: 17px 30px; background: #fafbf8; border-top: 1px solid var(--line); display: flex; align-items: center; gap: 8px; font-size: 12px; color: #7e8978; }
+    .dot { width: 6px; height: 6px; border-radius: 50%; background: #80a186; flex-shrink: 0; }
+    .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #3e6249; color: white; border-radius: 10px; padding: 11px 18px; font-size: 13px; box-shadow: 0 4px 20px #0002; }
+    .toast:empty { display: none; }
+    [hidden] { display: none !important; }
+    @media (max-width: 480px) { body { padding: 16px 10px; } header { padding: 24px 20px 0; } main { padding: 0 20px; } footer { padding: 16px 20px; } h1 { font-size: 25px; } .mana-grid { gap: 5px; } .symbol { min-height: 76px; } .common { grid-template-columns: repeat(2, minmax(0, 1fr)); } .token { flex-wrap: wrap; gap: 8px; } .token .name { font-size: 13px; } .token code { flex-basis: 100%; } .mechanic-head span { display: none; } .design-note { font-size: 10px; } }
+  </style>
+</head>
+<body>
+  <div class="design-note"><span>Design exploration / 01</span><span>Companion to the Card editor</span></div>
+  <article class="guide" aria-label="Symbol guide mockup">
+    <header>
+      <div class="title-row"><h1>Symbol guide</h1><button class="close" type="button" aria-label="Close guide preview">×</button></div>
+      <p class="intro">A little shorthand. A lot of magic.<br>Use these codes in your card text and mana cost.</p>
+    </header>
+    <main>
+      <section>
+        <div class="section-heading"><h2>Mana & Actions</h2><span class="number">01</span></div>
+        <div class="mana-grid" id="colors"></div>
+        <div class="common" id="common"></div>
+        <details id="advanced"><summary>Hybrid & Phyrexian Mana</summary><div id="advanced-groups"></div></details>
+      </section>
+      <section>
+        <div class="section-heading"><h2>Loyalty</h2><span class="number">02</span></div>
+        <div class="loyalty" id="loyalty"></div>
+        <p class="hint">Replace <code>5</code> with a number or <code>x</code>, e.g. <code>{loy+x}</code>, <code>{loy-x}</code>, <code>{loyx}</code>.</p>
+      </section>
+      <section>
+        <div class="section-heading"><h2>Text & Mechanics</h2><span class="number">03</span></div>
+        <div class="name-tip" data-search="card name shorthand ~"><code>~</code><p><strong>Your card’s name, wherever you need it.</strong><br>Replaced with the card name when rendered.</p></div>
+        <div class="mechanics">
+          <div class="mechanic" data-search="mechanic reminder description [-MECHANIC]"><div class="mechanic-head"><code>[-MECHANIC]</code><span>Reminder only</span></div><p>Only the description, in italic parentheses. No name or cost.</p></div>
+          <div class="mechanic" data-search="mechanic cost reference [MECHANIC {2}]"><div class="mechanic-head"><code>[MECHANIC {2}]</code><span>Name + cost + reminder</span></div><p>The mechanic name, cost, and description. Your cost replaces <code>{ref}</code> in the description; numbers or mana symbols work.</p></div>
+          <div class="mechanic" data-search="mechanic name description [MECHANIC]"><div class="mechanic-head"><code>[MECHANIC]</code><span>Name + reminder</span></div><p>The mechanic name and description, with <code>{ref}</code> removed.</p></div>
+        </div>
+        <p class="hint">Replace <code>MECHANIC</code> with a mechanic from your collection.</p>
+      </section>
+    </main>
+    <footer><span class="dot"></span>Click a symbol to copy its code.</footer>
+  </article>
+  <div class="toast" role="status" aria-live="polite"></div>
+  <script>
+    // Standalone design prototype only; no connection to the application or its API.
+    const glyph = (symbol, loyalty) => {
+      const icon = document.createElement('i');
+      icon.className = `ms ms-${symbol} ${loyalty !== undefined ? `ms-loyalty-${loyalty}` : 'ms-cost'}`;
+      icon.setAttribute('aria-hidden', 'true');
+      return icon;
+    };
+    const symbolButton = (name, code, symbol, loyalty, copyCode = code) => {
+      const button = document.createElement('button');
+      button.type = 'button'; button.className = 'symbol'; button.dataset.search = `${name} ${code}`;
+      button.setAttribute('aria-label', `Copy ${name}: ${copyCode}`); button.title = `${name} · Copy ${copyCode}`;
+      const text = document.createElement('code'); text.textContent = code;
+      button.append(glyph(symbol, loyalty), text);
+      button.addEventListener('click', () => copy(copyCode));
+      return button;
+    };
+    let toastTimer;
+    async function copy(code) {
+      const toast = document.querySelector('.toast');
+      try { await navigator.clipboard.writeText(code); toast.textContent = `Copied ${code}`; }
+      catch { toast.textContent = `Code: ${code} — select and copy manually`; }
+      clearTimeout(toastTimer); toastTimer = setTimeout(() => { toast.textContent = ''; }, 2500);
+    }
+    [['White','w'],['Blue','u'],['Black','b'],['Red','r'],['Green','g'],['Colorless','c']].forEach(([name, symbol]) => {
+      document.querySelector('#colors').append(symbolButton(name, `{${symbol}}`, symbol));
+    });
+    [['Tap','{t}','tap'],['Untap','{ut}','untap'],['Generic mana','{0} – {20}','1'],['Variable mana','{x}{y}{z}','x']].forEach(([name, code, symbol]) => {
+      const copyCode = name === 'Generic mana' ? '{1}' : name === 'Variable mana' ? '{x}' : code;
+      const button = symbolButton(name, code, symbol, undefined, copyCode); button.className = 'token';
+      const label = document.createElement('span'); label.className = 'name'; label.textContent = name;
+      button.insertBefore(label, button.lastChild);
+      document.querySelector('#common').append(button);
+    });
+    const groups = [
+      ['Two-color hybrid', ['wu','wb','ub','ur','br','bg','rg','rw','gw','gu']],
+      ['Two-brid mana', ['2w','2u','2b','2r','2g']],
+      ['Phyrexian mana', ['wp','up','bp','rp','gp','p']]
+    ];
+    groups.forEach(([name, symbols]) => {
+      const group = document.createElement('div'); group.className = 'advanced';
+      const label = document.createElement('p'); label.className = 'label'; label.textContent = name;
+      const grid = document.createElement('div'); grid.className = 'mana-grid';
+      symbols.forEach(symbol => grid.append(symbolButton(name, `{${symbol}}`, symbol)));
+      group.append(label, grid); document.querySelector('#advanced-groups').append(group);
+    });
+    [['Gain loyalty','{loy+5}','loyalty-up',5],['Spend loyalty','{loy-5}','loyalty-down',5],['Zero loyalty','{loy0}','loyalty-zero',0],['Starting loyalty','{loy5}','loyalty-start',5]].forEach(args => document.querySelector('#loyalty').append(symbolButton(...args)));
+    document.querySelector('.close').addEventListener('click', () => {
+      document.querySelector('.toast').textContent = 'Design preview — the guide stays open for review.';
+      clearTimeout(toastTimer); toastTimer = setTimeout(() => { document.querySelector('.toast').textContent = ''; }, 2500);
+    });
+  </script>
+</body>
+</html>

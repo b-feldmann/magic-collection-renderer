@@ -85,9 +85,9 @@ describe('CardEditor compact layout', () => {
   it('groups editable fields into named sections without tabs or a manual save action', () => {
     renderEditor();
 
-    expect(screen.getByRole('heading', { name: 'Card editor', level: 2 })).toBeVisible();
+    expect(screen.getByRole('heading', { name: 'Card Editor', level: 2 })).toBeVisible();
 
-    for (const name of ['The essentials', 'Words & abilities', 'Artwork & frame']) {
+    for (const name of ['The Essentials', 'Words & Abilities', 'Artwork & Frame']) {
       expect(screen.getByRole('heading', { name })).toBeVisible();
       expect(screen.getByRole('region', { name })).toBeVisible();
     }
@@ -99,7 +99,7 @@ describe('CardEditor compact layout', () => {
 
   it('labels and pairs the six main fields in the approved reading order', () => {
     renderEditor();
-    const essentials = screen.getByRole('region', { name: 'The essentials' });
+    const essentials = screen.getByRole('region', { name: 'The Essentials' });
     const controls = [
       'Card Name',
       'Nickname',
@@ -158,7 +158,7 @@ describe('CardEditor compact layout', () => {
     'shows one full-width mockup upload panel above the artwork fields for %s',
     cardType => {
       renderEditor(makeCard([cardType]));
-      const artwork = screen.getByRole('region', { name: 'Artwork & frame' });
+      const artwork = screen.getByRole('region', { name: 'Artwork & Frame' });
       const panel = within(artwork).getByRole('group', { name: 'Give your card a world' });
       expect(within(panel).getByText('Upload artwork or paste a URL below')).toBeVisible();
       expect(within(panel).getByRole('button', { name: 'Choose file' })).toBeVisible();
@@ -176,7 +176,7 @@ describe('CardEditor compact layout', () => {
     const card = makeCard();
     card.tags = [];
     renderEditor(card);
-    fireEvent.click(screen.getByText('Organization & credits'));
+    fireEvent.click(screen.getByText('Organization & Credits'));
     expect(screen.getByText('Add tags…')).toBeVisible();
   });
 
@@ -264,14 +264,14 @@ describe('CardEditor compact layout', () => {
   it('retains organization edits across disclosure changes and supports undo', async () => {
     vi.useFakeTimers();
     renderEditor();
-    const disclosure = screen.getByText('Organization & credits').closest('details')!;
+    const disclosure = screen.getByText('Organization & Credits').closest('details')!;
     expect(disclosure).not.toHaveAttribute('open');
-    fireEvent.click(screen.getByText('Organization & credits'));
+    fireEvent.click(screen.getByText('Organization & Credits'));
     expect(screen.getByLabelText('Tags')).toBeVisible();
     fireEvent.mouseDown(screen.getByLabelText('Card Creator'));
     fireEvent.click(screen.getByText('Other creator'));
-    fireEvent.click(screen.getByText('Organization & credits'));
-    fireEvent.click(screen.getByText('Organization & credits'));
+    fireEvent.click(screen.getByText('Organization & Credits'));
+    fireEvent.click(screen.getByText('Organization & Credits'));
     expect(disclosure).toHaveTextContent('Other creator');
     expect(disclosure).toHaveTextContent('Collection');
     await act(async () => vi.advanceTimersByTime(EDIT_SAVE_OFFSET + 100));

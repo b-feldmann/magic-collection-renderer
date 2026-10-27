@@ -7,7 +7,7 @@ $muse-card-radius: 12px;
 // collection area is offset to match these exact widths (see .sidebarCol /
 // .collection below) so there's never a gap or overlap at any viewport width.
 $sidebar-width: clamp(220px, calc(100vw / 24 * 3 - 16px), 220px);
-$editor-width: clamp(520px, calc(100vw / 24 * 21 / 24 * 6 - 16px), 520px);
+$editor-width: clamp(510px, calc(100vw / 24 * 21 / 24 * 6 - 16px), 510px);
 
 .app {
   display: flex;
@@ -25,6 +25,8 @@ $editor-width: clamp(520px, calc(100vw / 24 * 21 / 24 * 6 - 16px), 520px);
     overflow: auto;
     position: fixed;
     width: $editor-width;
+    // This fixed panel must not inherit Col span={6}'s 25% width cap.
+    max-width: none;
     background: #fff;
     border-radius: $muse-card-radius;
     box-shadow: $muse-card-shadow;

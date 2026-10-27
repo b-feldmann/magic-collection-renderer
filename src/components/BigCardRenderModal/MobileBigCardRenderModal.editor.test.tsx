@@ -69,6 +69,7 @@ describe('mobile inline card editor', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Edit card' }));
     const preview = screen.getByText('Card preview');
     const editor = screen.getByRole('region', { name: 'Card editor' });
+    expect(screen.getByRole('heading', { name: 'Card Editor' })).toBeInTheDocument();
     const comments = screen.getByText('Card comments');
     expect(preview.compareDocumentPosition(editor) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(

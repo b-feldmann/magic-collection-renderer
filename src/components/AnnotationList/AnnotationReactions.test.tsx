@@ -20,9 +20,9 @@ if (!globalThis.ResizeObserver) {
 vi.mock('axios', () => ({ default: { put: vi.fn() } }));
 vi.mock('../../utils/staticAntd', () => ({ staticAntd: { message: { error: vi.fn() } } }));
 // The third-party picker is large; keep the actual Popover and reaction UI.
-vi.mock('emoji-mart', () => ({
-  NimblePicker: ({ onClick }: { onClick: (emoji: { native: string }) => void }) => (
-    <button onClick={() => onClick({ native: '🔥' })}>Choose fire emoji</button>
+vi.mock('@emoji-mart/react', () => ({
+  default: ({ onEmojiSelect }: { onEmojiSelect: (emoji: { native: string }) => void }) => (
+    <button onClick={() => onEmojiSelect({ native: '🔥' })}>Choose fire emoji</button>
   ),
 }));
 
@@ -69,6 +69,30 @@ it('renders author, timestamp, multiline content and a keyboard-accessible react
   await waitFor(() => expect(trigger).toHaveAttribute('aria-expanded', 'false'));
 });
 
+it('renders inline comment emoji with Google icons while preserving text, mana and line breaks', () => {
+  const { container } = mount({ ...comment, content: 'Hello 🔥{W}\n👍🏽 world' });
+  const fire = screen.getByRole('img', { name: '🔥' });
+  const thumb = screen.getByRole('img', { name: '👍🏽' });
+
+  expect(fire.style.backgroundImage).toContain('/google/sheets-256/64.png');
+  expect(fire).toHaveStyle({ backgroundPosition: '50% 3.3333333333333335%' });
+  expect(thumb).toHaveStyle({ backgroundPosition: '20% 90%' });
+  const content = container.querySelector('.mcr-comment-content');
+  expect(content).toHaveTextContent('Hello 🔥👍🏽 world');
+  expect(content?.querySelector('br')).not.toBeNull();
+  expect(content?.querySelector('.ms-w')).not.toBeNull();
+});
+
+it('renders joined emoji as one icon and leaves unknown emoji and HTML as plain text', () => {
+  const { container } = mount({ ...comment, content: '👨‍👩‍👧‍👦 🫩 <script>hello</script>' });
+
+  expect(screen.getAllByRole('img')).toHaveLength(1);
+  expect(screen.getByRole('img', { name: '👨‍👩‍👧‍👦' })).toBeInTheDocument();
+  const content = container.querySelector('.mcr-comment-content');
+  expect(content).toHaveTextContent('👨‍👩‍👧‍👦 🫩 <script>hello</script>');
+  expect(content?.querySelector('script')).toBeNull();
+});
+
 it('chooses an emoji and applies only the server-confirmed reaction', async () => {
   const saved = { ...comment, reactions: [{ emoji: '🔥', users: ['reader'] }] };
   vi.mocked(axios.put).mockResolvedValue({ status: 200, data: { annotation: saved } });
@@ -85,6 +109,28 @@ it('chooses an emoji and applies only the server-confirmed reaction', async () =
     expect.stringContaining('/comment-1/reactions'),
     expect.objectContaining({ userUuid: 'reader', emoji: '🔥', active: true }),
   );
+});
+
+it.each([
+  ['🔥', '50% 3.3333333333333335%'],
+  ['👍🏽', '20% 90%'],
+])('renders reaction %s from the bundled Google spritesheet', (emoji, position) => {
+  mount({ ...comment, reactions: [{ emoji, users: ['reader'] }] });
+  const badge = screen.getByRole('button', { name: `${emoji} 1 reaction` });
+  const icon = badge.querySelector<HTMLElement>('[aria-hidden="true"]');
+
+  expect(icon?.style.backgroundImage).toContain('/google/sheets-256/64.png');
+  expect(icon).toHaveStyle({
+    backgroundPosition: position,
+    backgroundSize: '6100% 6100%',
+  });
+  expect(icon?.textContent).toBe('');
+});
+
+it('keeps unsupported reaction emoji readable as text', () => {
+  mount({ ...comment, reactions: [{ emoji: 'not-an-emoji', users: ['reader'] }] });
+  const badge = screen.getByRole('button', { name: 'not-an-emoji 1 reaction' });
+  expect(badge).toHaveTextContent('not-an-emoji');
 });
 
 it('shows counts and own selection, removing only the selected emoji on click', async () => {

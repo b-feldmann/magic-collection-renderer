@@ -231,7 +231,7 @@ const MobileBigCardRenderModal = ({
           >
             <ConfigProvider theme={MOBILE_EDITOR_THEME}>
               <header className={styles.mobileEditorHeader}>
-                <h2>Card editor</h2>
+                <h2>Card Editor</h2>
               </header>
               {mobileEditor}
             </ConfigProvider>
