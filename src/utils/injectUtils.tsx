@@ -312,7 +312,7 @@ export const injectMechanics = (
         result.push(<span style={{ fontStyle: 'italic' }}>{`(${usedMechanic.description})`}</span>);
         return;
       }
-      const braces = i === lines.length - 1 && !!cleanedLine.match(/^\d{0,2}$|^(\{.{1,2}\})+$/);
+      const braces = i === lines.length - 1 && !!cleanedLine.match(/^\d*$|^(\{.{1,2}\})+$/);
       const injectedRef = usedMechanic.description.replace(/\{ref\}/g, cleanedLine);
       const parsedDescription = injectManaIcons(
         injectQuotationMarks(injectName(injectedRef, cardName)),

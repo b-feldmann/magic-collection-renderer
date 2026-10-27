@@ -611,19 +611,13 @@ updateLog.push({
       description:
         'Sometimes when you approved a card for rating and afterward changed the card, the card did switch back again to the card pile. This is now fixed.',
     },
+    {
+      type: ChangeLogFeatureType.Fixed,
+      feature: 'Mechanic rendering works now for normal numbers.',
+      description:
+        '[Mechanic {1}] replaces the {ref} with {1} and [Mechanic 1] replace the {ref} with 1.',
+    },
   ],
 });
-
-//
-// updateLog.push({
-//   version: '1.1.3',
-//   title: 'New Card Type Update',
-//   content: [
-//     {
-//       type: ChangeLogFeatureType.Added,
-//       description: 'Introduce Split Cards.'
-//     }
-//   ]
-// });
 
 export default updateLog;

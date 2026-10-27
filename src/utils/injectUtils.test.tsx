@@ -6,6 +6,21 @@ import MechanicInterface from '../interfaces/MechanicInterface';
 import { injectForText, injectManaIcons, isBulletText } from './injectUtils';
 
 describe('injectUtils', () => {
+  it.each(['1', '123'])('renders unbraced numeric mechanic refs such as %s', number => {
+    const mechanic: MechanicInterface = {
+      uuid: 'mechanic-1',
+      name: 'Surveil',
+      description: 'Draw {ref} cards.',
+    };
+    const markup = renderToStaticMarkup(
+      <p>{injectForText(`[Surveil ${number}]`, 'Test', [mechanic])}</p>,
+    );
+    const container = document.createElement('div');
+    container.innerHTML = markup;
+
+    expect(container.textContent).toBe(`Surveil ${number} (Draw ${number} cards.)`);
+  });
+
   it.each([
     ['Pay {w}{u}{1}.', ['1', 'w', 'u']],
     ['Pay {W}{R}{2}, then {G}{B}{X}.', ['2', 'r', 'w', 'x', 'b', 'g']],
