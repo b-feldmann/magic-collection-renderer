@@ -41,12 +41,15 @@ const AnnotationEditor = ({
   };
 
   const onEmoji = (emoji: BaseEmoji) => {
-    setContent(content + emoji.native);
+    setContent(current => current + emoji.native);
   };
 
   return (
     <div className={styles.editor}>
-      <h3>{`Author: ${author.name}`}</h3>
+      <div className={styles.editorHeader}>
+        <span>Leave a comment</span>
+        <span className={styles.editorAuthor}>{`Author: ${author.name}`}</span>
+      </div>
       {/* <Select */}
       {/*  size="small" */}
       {/*  value={author.uuid} */}
@@ -67,22 +70,27 @@ const AnnotationEditor = ({
         onChange={e => setContent(e.target.value)}
         placeholder="Your comment"
       />
-      <Popover
-        content={<Picker onClick={onEmoji} data={data} showSkinTones={false} showPreview={false} />}
-      >
-        <div>
-          <EmojiIcon emoji="smiley" set="apple" size={16} />
-        </div>
-      </Popover>
-      <Button
-        className={styles.button}
-        htmlType="submit"
-        loading={submitting}
-        onClick={handleSubmit}
-        type="primary"
-      >
-        Add Comment
-      </Button>
+      <div className={styles.editorActions}>
+        <Popover
+          trigger="click"
+          content={
+            <Picker onClick={onEmoji} data={data} showSkinTones={false} showPreview={false} />
+          }
+        >
+          <button type="button" className={styles.editorEmoji} aria-label="Add emoji to comment">
+            <EmojiIcon emoji="smiley" set="apple" size={16} />
+          </button>
+        </Popover>
+        <Button
+          className={styles.button}
+          htmlType="submit"
+          loading={submitting}
+          onClick={handleSubmit}
+          type="primary"
+        >
+          Add Comment
+        </Button>
+      </div>
     </div>
   );
 };

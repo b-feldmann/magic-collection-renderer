@@ -71,3 +71,43 @@ export const updateAnnotation = (
       staticAntd.message.error("Couldn't update comment");
     });
 };
+
+export const setAnnotationReaction = async (
+  dispatch: (value: Action) => void,
+  annotationUuid: string,
+  userUuid: string,
+  emoji: string,
+  active: boolean,
+): Promise<boolean> => {
+  try {
+    const result = await axios.put(
+      `${MIDDLEWARE_ENDPOINT}/${encodeURIComponent(annotationUuid)}/reactions`,
+      { accessKey: getAccessToken(), userUuid, emoji, active },
+    );
+    const annotation: AnnotationInterface | undefined = result.data?.annotation;
+    if (
+      result.status !== 200 ||
+      !annotation ||
+      annotation.uuid !== annotationUuid ||
+      typeof annotation.cardReference !== 'string' ||
+      typeof annotation.content !== 'string' ||
+      typeof annotation.author !== 'string' ||
+      typeof annotation.datetime !== 'number' ||
+      typeof annotation.edited !== 'boolean' ||
+      !Array.isArray(annotation.reactions) ||
+      !annotation.reactions.every(
+        reaction =>
+          typeof reaction?.emoji === 'string' &&
+          Array.isArray(reaction.users) &&
+          reaction.users.every(user => typeof user === 'string'),
+      )
+    ) {
+      throw new Error('Invalid reaction response');
+    }
+    dispatch({ type: AnnotationActionType.UpdateAnnotation, payload: { annotation } });
+    return true;
+  } catch {
+    staticAntd.message.error("Couldn't save reaction. Please try again.");
+    return false;
+  }
+};

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { Button, ConfigProvider, Flex, Modal, Row } from 'antd';
 import cloneDeep from 'lodash/cloneDeep';
 import isEqual from 'lodash/isEqual';
@@ -161,7 +161,7 @@ const getEvolutionSectionConfig = (includeStats: boolean): InputConfigInterface[
       key: 'level1Indicator',
       pairedFieldKey: 'level1Text',
       type: 'paired-text',
-      name: 'Level 1',
+      name: 'Level / Card Text',
       width: 100,
     },
   ];
@@ -169,7 +169,7 @@ const getEvolutionSectionConfig = (includeStats: boolean): InputConfigInterface[
     section1.push({
       key: 'level1Stats',
       type: 'split-input',
-      name: 'Level 1 Power/Level 1 Toughness',
+      name: 'Power/Toughness',
       width: 50,
     });
   }
@@ -179,7 +179,7 @@ const getEvolutionSectionConfig = (includeStats: boolean): InputConfigInterface[
       key: 'level2Indicator',
       pairedFieldKey: 'level2Text',
       type: 'paired-text',
-      name: 'Level 2',
+      name: 'Level / Card Text',
       width: 100,
     },
   ];
@@ -188,7 +188,7 @@ const getEvolutionSectionConfig = (includeStats: boolean): InputConfigInterface[
     section2.push({
       key: 'level2Stats',
       type: 'split-input',
-      name: 'Level 2 Power/Level 2 Toughness',
+      name: 'Power/Toughness',
       width: 50,
     });
   }
@@ -242,18 +242,26 @@ interface InputConfigInterface {
   width?: number;
 }
 
+// Rating status/votes are edited in the modal, not in this editor's draft.
+// Keep the editable comment while taking the remaining metadata from the store.
+const withLatestMetadata = (draft: CardInterface, cards: CardInterface[]): CardInterface => {
+  const latest = cards.find(card => card.uuid === draft.uuid);
+  return latest ? { ...draft, meta: { ...latest.meta, comment: draft.meta.comment } } : draft;
+};
+
 const CardEditor: React.FC<CardEditorInterface> = ({
   card = dummyCard,
   saveTmpCard: savePreview,
   onDraftChange,
 }: CardEditorInterface) => {
   const saveTmpCard = (draft: CardInterface | null) => {
-    onDraftChange?.(draft);
-    savePreview(draft);
+    const current = draft ? withLatestMetadata(draft, collectionRef.current) : null;
+    onDraftChange?.(current);
+    savePreview(current);
   };
   const [contentChanged, setContentChanged] = useState<boolean>(false);
   const [originalCard, setOriginalCard] = useState<CardInterface>(() => cloneDeep(card));
-  const [tmpCard, setTmpCard] = useState<CardInterface>(() => cloneDeep(card));
+  const [storedTmpCard, setTmpCard] = useState<CardInterface>(() => cloneDeep(card));
   // Transient debounce handles for the live preview (short) and the DB
   // auto-save (longer, only fires once edits have settled). Kept in refs so
   // updating them never triggers a re-render.
@@ -267,13 +275,19 @@ const CardEditor: React.FC<CardEditorInterface> = ({
   const inFlightSaves = useRef(new Set<Promise<unknown>>());
 
   const { dispatch, user, mechanics, tags, currentUser, cards } = useContext<StoreType>(Store);
+  const tmpCard = useMemo(() => withLatestMetadata(storedTmpCard, cards), [storedTmpCard, cards]);
   const collectionRef = useRef(cards);
   collectionRef.current = cards;
 
   const saveEditorSnapshot = (snapshot: CardInterface): Promise<unknown> => {
     const saving = updateCard(
       dispatch,
-      cloneDeep(withLatestVariantIds(snapshot, collectionRef.current)),
+      cloneDeep(
+        withLatestMetadata(
+          withLatestVariantIds(snapshot, collectionRef.current),
+          collectionRef.current,
+        ),
+      ),
     );
     inFlightSaves.current.add(saving);
     saving.then(
@@ -603,7 +617,6 @@ const CardEditor: React.FC<CardEditorInterface> = ({
         })),
       width: 100,
     },
-    { key: 'name', type: 'input', name: 'Card Name', width: hasNickname() ? 50 : 100 },
     {
       key: 'tags',
       type: 'multi-select',
@@ -613,6 +626,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
       nonRemovableValues: automaticTags,
       width: 100,
     },
+    { key: 'name', type: 'input', name: 'Card Name', width: hasNickname() ? 50 : 100 },
     { key: 'nickname', type: 'input', name: 'Nickname', width: hasNickname() ? 50 : 0 },
     { key: 'cover', type: 'upload-input', name: 'Cover (URL)', width: 50 },
     {

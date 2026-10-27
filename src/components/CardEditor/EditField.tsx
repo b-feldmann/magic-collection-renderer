@@ -204,25 +204,38 @@ const EditField = (props: EditFieldInterface) => {
   if (type === 'split-input') {
     const splitArray = getValue(fieldKey) ? getValue(fieldKey).split('/') : ['', ''];
     if (splitArray.length < 2) splitArray.push('');
+    const [firstLabel, secondLabel] = name.split('/');
 
     return (
       <span>
-        <div className={styles.splitInput}>
-          <p className={styles.label}>{name.split('/')[0]}</p>
+        <p className={styles.label}>
+          <span>{firstLabel}</span> / <span>{secondLabel}</span>
+        </p>
+        <Space.Compact
+          block
+          size="small"
+          role="group"
+          aria-label={`${firstLabel} / ${secondLabel}`}
+          className={styles.splitInput}
+        >
           <Input
-            size="small"
+            aria-label={firstLabel}
             value={splitArray[0]}
             onChange={e => saveValue(fieldKey, `${e.target.value}/${splitArray[1]}`)}
           />
-        </div>
-        <div className={styles.splitInput}>
-          <p className={styles.label}>{name.split('/')[1]}</p>
           <Input
-            size="small"
+            className={styles.splitInputSeparator}
+            value="/"
+            readOnly
+            tabIndex={-1}
+            aria-hidden="true"
+          />
+          <Input
+            aria-label={secondLabel}
             value={splitArray[1]}
             onChange={e => saveValue(fieldKey, `${splitArray[0]}/${e.target.value}`)}
           />
-        </div>
+        </Space.Compact>
       </span>
     );
   }

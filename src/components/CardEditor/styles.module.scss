@@ -13,8 +13,18 @@
 }
 
 .splitInput {
-  display: inline-block;
-  width: 50%;
+  > input {
+    flex: 1;
+    min-width: 0;
+    width: 0;
+  }
+
+  > .splitInputSeparator {
+    flex: 0 0 28px;
+    text-align: center;
+    padding-inline: 0;
+    pointer-events: none;
+  }
 }
 
 .partialField {
@@ -117,6 +127,11 @@
   align-items: center;
   gap: 4px;
   width: 100%;
+
+  :global(.ant-upload-wrapper),
+  > :global(.ant-btn) {
+    flex-shrink: 0;
+  }
 }
 
 // As a bare flex item the input can shrink below its width (even to zero)

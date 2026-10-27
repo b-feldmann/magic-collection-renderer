@@ -37,6 +37,24 @@ vi.mock('../TemplatingCardRender/assetLoader', () => ({
 }));
 
 describe('CollectionFilterControls rarity filters', () => {
+  it('renders without an update loop when mobile omits availableTags', () => {
+    // Stop a regression at React's first warning rather than hanging the runner.
+    const consoleError = vi.spyOn(console, 'error').mockImplementation((message, ...args) => {
+      if (String(message).includes('Maximum update depth exceeded')) {
+        throw new Error(String(message));
+      }
+      console.warn(message, ...args);
+    });
+    try {
+      expect(() =>
+        render(<CollectionFilterControls collection={[]} setNameFilter={vi.fn()} />),
+      ).not.toThrow();
+      expect(screen.getByText('Filter by name')).toBeInTheDocument();
+    } finally {
+      consoleError.mockRestore();
+    }
+  });
+
   it('shows rarity icons and counts without rarity names', () => {
     const availableTags: string[] = [];
     const collection = [

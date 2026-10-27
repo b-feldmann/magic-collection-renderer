@@ -573,6 +573,31 @@ updateLog.push({
   ],
 });
 
+updateLog.push({
+  version: '3.5.0',
+  title: 'Mobile Editing',
+  content: [
+    {
+      type: ChangeLogFeatureType.Added,
+      feature: 'It is now possible to create and edit cards on mobile devices.',
+    },
+    {
+      type: ChangeLogFeatureType.Added,
+      feature: 'You can react to comments ❤️.',
+    },
+    {
+      type: ChangeLogFeatureType.Changed,
+      feature: 'Redesigned chat interface',
+    },
+    {
+      type: ChangeLogFeatureType.Fixed,
+      feature: 'Card rating state now instantly stored',
+      description:
+        'Sometimes when you approved a card for rating and afterward changed the card, the card did switch back again to the card pile. This is now fixed.',
+    },
+  ],
+});
+
 //
 // updateLog.push({
 //   version: '1.1.3',

@@ -5,4 +5,5 @@ export default interface AnnotationInterface {
   content: string;
   cardReference: string;
   edited: boolean;
+  reactions?: { emoji: string; users: string[] }[];
 }

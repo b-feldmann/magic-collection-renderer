@@ -16,7 +16,7 @@ import './card-modal.scss';
 import './ant-tabs.scss';
 
 import CollectionFilterControls from './components/CollectionFilterControls/CollectionFilterControls';
-import { EMPTY_CARD, refreshCollection } from './actions/cardActions';
+import { createCard, EMPTY_CARD, refreshCollection } from './actions/cardActions';
 
 import { hasAccessToken, updateAccessToken } from './utils/accessService';
 import { getMechanics } from './actions/mechanicActions';
@@ -49,6 +49,7 @@ const MobileApp: React.FC = () => {
   const [cardEditId, setCardEditId] = useState<string>(NO_CARD);
   const [cardViewId, setCardViewId] = useState<string>(NO_CARD);
   const [showCardModal, setShowCardModal] = useState<boolean>(false);
+  const [showCardEditor, setShowCardEditor] = useState(false);
   const [cardNameFilter, setCardNameFilter] = useState<string>('');
   const [activeTabKey, setActiveTabKey] = useActiveCardTab();
 
@@ -103,14 +104,15 @@ const MobileApp: React.FC = () => {
 
   const getCardUndefined = (collection: CardInterface[], uuid: string) => cardByUuid.get(uuid);
 
-  const viewCard = (id: string) => {
+  const viewCard = (id: string, edit = false) => {
     setCardViewId(id);
+    setShowCardEditor(edit);
     setShowCardModal(true);
   };
 
-  const openCardInEditor = (id: string, oldCardName: string) => {
+  const openCardInEditor = (id: string, oldCardName: string, edit = false) => {
     if (id === cardEditId) {
-      viewCard(id);
+      viewCard(id, edit);
       return;
     }
 
@@ -125,23 +127,23 @@ const MobileApp: React.FC = () => {
           pendingDraftRef.current = null;
           setTmpCard(null);
           setCardEditId(id);
-          viewCard(id);
+          viewCard(id, edit);
         },
         onCancel() {
-          viewCard(cardEditId);
+          viewCard(cardEditId, showCardEditor);
         },
       });
     } else {
       setCardEditId(id);
-      viewCard(id);
+      viewCard(id, edit);
     }
   };
 
   useEffect(() => {
     if (newUuid) {
       addSeenCard(dispatch, newUuid, currentUser);
-      if (cardEditId === NO_CARD) openCardInEditor(newUuid, '');
-      else openCardInEditor(newUuid, getCard(filteredCollection, cardEditId).name);
+      if (cardEditId === NO_CARD) openCardInEditor(newUuid, '', true);
+      else openCardInEditor(newUuid, getCard(filteredCollection, cardEditId).name, true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [newUuid]);
@@ -165,6 +167,7 @@ const MobileApp: React.FC = () => {
     const select = () => {
       setCardEditId(id);
       setCardViewId(id);
+      setShowCardEditor(false);
     };
     const pendingDraft = pendingDraftRef.current || tmpCard;
     if (pendingDraft && id !== cardEditId) {
@@ -184,7 +187,6 @@ const MobileApp: React.FC = () => {
 
   const createGrid = (collection: CardInterface[]) => {
     const collectionSpan = 24;
-    const editorSpan = 0;
 
     const cardTabs = [
       { name: 'All', filter: () => true },
@@ -244,15 +246,6 @@ const MobileApp: React.FC = () => {
             }))}
           />
         </Col>
-        <Col span={editorSpan} className={styles.editor}>
-          <CardEditor
-            card={getCardUndefined(collection, cardEditId)}
-            saveTmpCard={setTmpCard}
-            onDraftChange={draft => {
-              pendingDraftRef.current = draft;
-            }}
-          />
-        </Col>
       </Row>
     );
   };
@@ -307,6 +300,16 @@ const MobileApp: React.FC = () => {
         <div className={styles.mobileControls}>
           <CollectionFilterControls collection={cards} setNameFilter={setCardNameFilter} />
           <Button
+            aria-label="New card"
+            icon={<AntIcon type="plus" />}
+            type="primary"
+            size="large"
+            onClick={() => createCard(dispatch, currentUser)}
+            className={styles.fullWidth}
+          >
+            New card
+          </Button>
+          <Button
             icon={<AntIcon type="reload" />}
             type="primary"
             onClick={refresh}
@@ -337,7 +340,22 @@ const MobileApp: React.FC = () => {
         mobile
         card={getCard(filteredCollection, cardViewId)}
         visible={showCardModal && cards.some(card => card.uuid === cardViewId)}
-        hide={() => setShowCardModal(false)}
+        hide={() => {
+          setShowCardModal(false);
+          setShowCardEditor(false);
+        }}
+        mobileEditor={
+          <CardEditor
+            card={getCardUndefined(filteredCollection, cardEditId)}
+            saveTmpCard={setTmpCard}
+            onDraftChange={draft => {
+              pendingDraftRef.current = draft;
+            }}
+          />
+        }
+        mobileEditorOpen={showCardEditor}
+        onEditCard={() => setShowCardEditor(true)}
+        onHideEditor={() => setShowCardEditor(false)}
         collectionNumber={
           filteredCollection.findIndex((o: CardInterface) => o.uuid === cardViewId) + 1
         }

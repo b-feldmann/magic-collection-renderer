@@ -34,11 +34,14 @@ interface CardCountStats {
   [key: string]: number;
 }
 
+// Keep the optional tag list stable so the tag-state effect can settle.
+const EMPTY_AVAILABLE_TAGS: string[] = [];
+
 const CollectionFilterControls = ({
   setCollectionColSpan,
   setCollectionFilter,
   collection,
-  availableTags = [],
+  availableTags = EMPTY_AVAILABLE_TAGS,
   setNameFilter,
 }: CollectionFilterControlsInterface) => {
   const createEnumInitState = (values: string[]): CheckBoxGroupInterface => {
