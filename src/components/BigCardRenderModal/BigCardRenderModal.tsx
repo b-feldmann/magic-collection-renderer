@@ -31,6 +31,10 @@ interface BigCardRenderModalProps {
   collectionSize: number;
   mobile?: boolean;
   onSelectVariant?: (id: string) => void;
+  mobileEditor?: React.ReactNode;
+  mobileEditorOpen?: boolean;
+  onEditCard?: () => void;
+  onHideEditor?: () => void;
 }
 
 const BigCardRenderModal = ({
@@ -41,6 +45,10 @@ const BigCardRenderModal = ({
   collectionSize,
   mobile,
   onSelectVariant,
+  mobileEditor,
+  mobileEditorOpen,
+  onEditCard,
+  onHideEditor,
 }: BigCardRenderModalProps) => {
   const { annotationAccessor, currentUser, user, dispatch, cards } = useContext<StoreType>(Store);
   const family = useMemo(() => getVariantFamily(openedCard, cards), [openedCard, cards]);
@@ -110,6 +118,9 @@ const BigCardRenderModal = ({
   const dimFactor = CARD_WIDTH / CARD_HEIGHT;
 
   const modalMaxWidth = (width / 100) * 62.5 - wOffset;
+  // Use the collection band between the sidebars, with 16px outer gutters.
+  // Keep card sizing unchanged and give the reclaimed space to comments.
+  const desktopViewWidth = (width > 900 ? width * (21 / 24) * (18 / 24) : width) - 32;
   const modalMaxHeight = height - hOffset - hEditorSpace;
   const modalSingleCardWidth = Math.min(modalMaxWidth, modalMaxHeight * dimFactor);
   const modalDoubleCardWidth = Math.min(modalMaxWidth, modalMaxHeight * dimFactor * 2);
@@ -118,7 +129,7 @@ const BigCardRenderModal = ({
   const fullCardWidth = faces.length === 2 ? modalDoubleCardWidth : modalSingleCardWidth;
   const cardHeight = singleCardWidth / dimFactor;
 
-  const annotationWidth = rowLayout ? singleCardWidth * 2 : modalMaxWidth - singleCardWidth;
+  const annotationWidth = rowLayout ? singleCardWidth * 2 : desktopViewWidth - singleCardWidth - 16;
   const annotationHeight = rowLayout ? modalMaxHeight - cardHeight + hEditorSpace : cardHeight;
 
   const updateState = (newState: CardState) => {
@@ -243,6 +254,10 @@ const BigCardRenderModal = ({
         width={width}
         height={height}
         variantNavigation={variantNavigation}
+        mobileEditor={mobileEditor}
+        mobileEditorOpen={mobileEditorOpen}
+        onEditCard={onEditCard}
+        onHideEditor={onHideEditor}
       >
         {annotationList}
       </MobileBigCardRenderModal>
@@ -261,7 +276,7 @@ const BigCardRenderModal = ({
       <div
         className={styles.view}
         style={{
-          width: rowLayout ? fullCardWidth : modalMaxWidth,
+          width: rowLayout ? fullCardWidth : desktopViewWidth,
           flexDirection: rowLayout ? 'column' : 'row',
         }}
       >

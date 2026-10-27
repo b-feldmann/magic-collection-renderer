@@ -2,20 +2,37 @@
   display: flex;
   flex-direction: column;
   height: 100%;
+  min-height: 0;
+  gap: 16px;
+  color: #262626;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.flexWrapper,
+.composerWrapper {
+  background: white;
+  border: 1px solid #e8e8e8;
+  border-radius: 12px;
+  box-shadow: 0 20px 27px rgba(0, 0, 0, 0.05);
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
 }
 
 .flexWrapper {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 20px 27px rgba(0, 0, 0, 0.05);
-  overflow: auto;
   flex-basis: 0;
   flex-grow: 1;
 }
 
 .list {
   background: white;
-  padding: 12px;
+  padding: 24px;
+
+  :global(.ant-listy-item) {
+    padding: 0;
+    border: 0;
+  }
 }
 
 // Replaces the antd List `header`, which `Listy` does not provide. The comment
@@ -25,31 +42,185 @@
   justify-content: space-between;
   align-items: center;
   gap: 8px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid rgba(5, 5, 5, 0.06);
-  font-weight: 500;
-  color: #141414;
+  flex-wrap: wrap;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #f0f0f0;
+  font-weight: 600;
 }
 
 .entry {
-  //margin-left: -12px;
+  padding: 12px 0 8px;
+  border-bottom: 1px solid #f0f0f0;
+  outline: none;
 
-  span {
-    color: rgb(102, 102, 102);
+  &:focus-visible {
+    outline: 2px solid #91caff;
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  :global(.mcr-comment-head) {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    row-gap: 2px;
+  }
+
+  :global(.mcr-comment-main) {
+    min-width: 0;
+  }
+
+  :global(.mcr-comment-content) {
+    margin: 4px 0 6px;
+    color: #666;
+    overflow-wrap: anywhere;
+  }
+
+  &:hover .addReaction,
+  &:focus-within .addReaction,
+  &[data-reactions-visible='true'] .addReaction {
+    opacity: 1;
+  }
+
+  &:hover .reactions,
+  &:focus-within .reactions,
+  &[data-reactions-visible='true'] .reactions {
+    min-height: 26px;
+    height: auto;
+    overflow: visible;
+  }
+}
+
+.reactions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-height: 26px;
+
+  &:not(:has(.reaction)) {
+    min-height: 0;
+    height: 0;
+    overflow: hidden;
+  }
+
+  // The picker is portaled, so its focused search is outside the comment.
+  &:has(.addReaction[aria-expanded='true']) {
+    min-height: 26px;
+    height: auto;
+    overflow: visible;
+  }
+}
+
+.reaction,
+.addReaction,
+.editorEmoji {
+  font: inherit;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid #1677ff;
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    cursor: default;
+  }
+}
+
+.reaction {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 26px;
+  border: 1px solid #ddd;
+  border-radius: 16px;
+  background: #fafafa;
+  color: #666;
+  padding: 2px 10px;
+
+  &:hover:not(:disabled) {
+    border-color: #91caff;
+    background: #f0f5ff;
+  }
+}
+
+.selectedReaction {
+  border-color: #91caff;
+  background: #e6f4ff;
+  color: #1677ff;
+}
+
+.addReaction {
+  opacity: 0;
+  border: 1px dashed #c5c5c5;
+  border-radius: 16px;
+  background: white;
+  height: 26px;
+  padding: 0 10px;
+  color: #666;
+  transition: opacity 120ms;
+
+  &[aria-expanded='true'] {
+    opacity: 1;
+  }
+}
+
+.reactionPicker {
+  max-width: calc(100vw - 48px);
+
+  :global(.emoji-mart) {
+    border: 0;
+    max-width: 100%;
   }
 }
 
 .editor {
-  background: white;
-  border-radius: 12px;
-  padding: 12px;
-  margin-top: -16px;
+  padding: 24px;
 
   // Match the editor/sidebar field fill so the comment textarea stands out
   // against the white card instead of blending in.
   :global(.ant-input) {
     background-color: #f5f6fa;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 14px;
   }
+}
+
+.editorHeader {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 4px 12px;
+  margin-bottom: 12px;
+  font-weight: 500;
+}
+
+.editorAuthor {
+  color: #999;
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.editorActions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.editorEmoji {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px dashed #c5c5c5;
+  border-radius: 16px;
+  background: white;
 }
 
 .fullWidth {
@@ -57,9 +228,22 @@
 }
 
 .button {
-  width: 100%;
+  border-radius: 8px;
 }
 
 .button > * {
   color: white !important;
+}
+
+@media (hover: none) {
+  .addReaction {
+    opacity: 1;
+  }
+}
+
+@media (max-width: 480px) {
+  .list,
+  .editor {
+    padding: 16px;
+  }
 }

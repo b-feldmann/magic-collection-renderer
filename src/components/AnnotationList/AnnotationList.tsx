@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import { Listy } from 'antd';
 
-import Comment from '../Comment/Comment';
-
 import sortBy from 'lodash/sortBy';
 
 import AnnotationInterface from '../../interfaces/AnnotationInterface';
@@ -42,7 +40,7 @@ const AnnotationList = ({
 
   return (
     <div className={styles.container} style={{ flexDirection: split ? 'row-reverse' : 'column' }}>
-      <div className={split ? styles.flexWrapper : ''}>{children}</div>
+      {children ? <div className={split ? styles.flexWrapper : ''}>{children}</div> : null}
       <div className={styles.flexWrapper}>
         {/* `List` is deprecated in antd 6; `Listy` has no `header`, so it is
             rendered separately above the list. */}
@@ -58,11 +56,8 @@ const AnnotationList = ({
           />
         </div>
       </div>
-      <div className={split ? styles.flexWrapper : ''}>
-        <Comment
-          className={styles.entry}
-          content={<AnnotationEditor onSubmit={handleSubmit} submitting={isSubmitting} />}
-        />
+      <div className={split ? styles.flexWrapper : styles.composerWrapper}>
+        <AnnotationEditor onSubmit={handleSubmit} submitting={isSubmitting} />
       </div>
     </div>
   );

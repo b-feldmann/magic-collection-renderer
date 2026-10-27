@@ -5,6 +5,7 @@ import CardEditor from './CardEditor';
 import { createCardVariant, EMPTY_CARD, updateCard } from '../../actions/cardActions';
 import { Store, StoreType } from '../../store';
 import { UNKNOWN_CREATOR, EDIT_SAVE_OFFSET } from '../../utils/constants';
+import { CardState } from '../../interfaces/enums';
 
 vi.mock('../../actions/cardActions', async importOriginal => ({
   ...(await importOriginal<typeof import('../../actions/cardActions')>()),
@@ -67,6 +68,51 @@ describe('editor variant creation', () => {
     render(<CardEditor saveTmpCard={() => {}} />);
     expect(screen.queryByRole('button', { name: 'Create Variant' })).not.toBeInTheDocument();
   });
+
+  it.each(['before release', 'after release', 'undo'])(
+    'preserves rating metadata when editing %s',
+    async timing => {
+      const card = makeCard();
+      const preview = vi.fn();
+      const onDraftChange = vi.fn();
+      const { rerender } = render(
+        <Store.Provider value={makeStore([card])}>
+          <CardEditor card={card} saveTmpCard={preview} onDraftChange={onDraftChange} />
+        </Store.Provider>,
+      );
+      if (timing !== 'after release') typeName('Unsaved edit');
+      const released = {
+        ...card,
+        meta: { ...card.meta, state: CardState.Rate, likes: ['voter'], dislikes: ['other'] },
+      };
+      rerender(
+        <Store.Provider value={makeStore([released])}>
+          <CardEditor card={released} saveTmpCard={preview} onDraftChange={onDraftChange} />
+        </Store.Provider>,
+      );
+      if (timing === 'after release') typeName('Unsaved edit');
+      if (timing === 'undo') fireEvent.click(screen.getByRole('button', { name: 'Undo Changes' }));
+      await act(async () => {
+        vi.advanceTimersByTime(EDIT_SAVE_OFFSET + 100);
+      });
+      expect(updateCard).toHaveBeenLastCalledWith(
+        expect.any(Function),
+        expect.objectContaining({
+          name: timing === 'undo' ? 'Original' : 'Unsaved edit',
+          meta: expect.objectContaining({
+            state: CardState.Rate,
+            likes: ['voter'],
+            dislikes: ['other'],
+          }),
+        }),
+      );
+      if (timing !== 'undo') {
+        expect(preview).toHaveBeenCalledWith(
+          expect.objectContaining({ meta: expect.objectContaining({ state: CardState.Rate }) }),
+        );
+      }
+    },
+  );
 
   it('places variant creation beside favorite and back-face actions', () => {
     const card = makeCard();

@@ -88,3 +88,22 @@ it('keeps the draft when HTTP 200 has no created comment', async () => {
   expect(field).toHaveValue('My comment');
   expect(actions).toEqual([]);
 });
+
+it('keeps header actions and comments while providing an accessible matching composer', () => {
+  render(
+    <AnnotationList
+      annotations={[annotation]}
+      createAnnotation={async () => true}
+      headerExtra={<button>Release for rating</button>}
+    >
+      <div>Card preview</div>
+    </AnnotationList>,
+  );
+  expect(screen.getByText('1 comments')).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Release for rating' })).toBeInTheDocument();
+  expect(screen.getByText('Card preview')).toBeInTheDocument();
+  expect(screen.getByText('My comment')).toBeInTheDocument();
+  expect(screen.getByText('Leave a comment')).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Add emoji to comment' })).toBeInTheDocument();
+  expect(screen.getByPlaceholderText('Your comment')).toBeInTheDocument();
+});

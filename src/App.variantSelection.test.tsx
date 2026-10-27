@@ -34,16 +34,19 @@ vi.mock('./components/BigCardRenderModal/BigCardRenderModal', () => ({
     visible,
     hide,
     onSelectVariant,
+    mobileEditor,
   }: {
     card: CardInterface;
     visible: boolean;
     hide: () => void;
     onSelectVariant?: (id: string) => void;
+    mobileEditor?: React.ReactNode;
   }) => (
     <div role="dialog" hidden={!visible}>
       <output aria-label="Viewed card">{card.uuid}</output>
       <button onClick={() => onSelectVariant?.('b')}>Modal next variant</button>
       <button onClick={hide}>Close card modal</button>
+      {mobileEditor}
     </div>
   ),
 }));
@@ -246,7 +249,7 @@ describe.each([
     async origin => {
       showApp();
       fireEvent.click(screen.getByRole('button', { name: 'Open a' }));
-      // Mobile keeps the editor mounted in a zero-width column; exercise its state callback too.
+      // Exercise the editor callback even while the mobile panel is collapsed.
       fireEvent.click(screen.getByRole('button', { name: 'Edit draft', hidden: true }));
       if (origin === 'collection')
         fireEvent.click(screen.getByRole('button', { name: 'Close card modal' }));
