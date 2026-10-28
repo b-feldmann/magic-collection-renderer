@@ -649,11 +649,18 @@ updateLog.push({
   content: [
     {
       type: ChangeLogFeatureType.Changed,
-      feature: 'Variants now share a comment thread',
+      feature: 'Variants now share one comment thread',
+      description:
+        'Comments from every variant appear together. If a variant is deleted, its comments remain with the surviving variants.',
     },
     {
       type: ChangeLogFeatureType.Changed,
-      feature: 'When moving one variant to the Rate pile both variants get moved',
+      feature: 'Moving one variant moves the whole family between the Draft and Rate piles',
+    },
+    {
+      type: ChangeLogFeatureType.Changed,
+      feature:
+        'Variants created from cards in the Rate pile or Approved pile start in the same pile.',
     },
     {
       type: ChangeLogFeatureType.Added,

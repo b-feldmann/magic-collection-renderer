@@ -6,7 +6,7 @@ import CardInterface from './interfaces/CardInterface';
 import CollectionActions from './components/CollectionActions/CollectionActions';
 import { CardState } from './interfaces/enums';
 import CardCollection from './components/CardCollection/CardCollection';
-import { getVariantGroups, withLatestVariantIds } from './utils/cardVariants';
+import { getNextVariantId, getVariantGroups, withLatestVariantIds } from './utils/cardVariants';
 import CardEditor from './components/CardEditor/CardEditor';
 
 import { Store, StoreType } from './store';
@@ -187,6 +187,16 @@ const MobileApp: React.FC = () => {
     } else select();
   };
 
+  const handleCardDeleted = (uuid: string) => {
+    const nextVariantId = getNextVariantId(uuid, mergedCollection);
+    if (!nextVariantId) return;
+    pendingDraftRef.current = null;
+    setTmpCard(null);
+    setCardEditId(nextVariantId);
+    setCardViewId(nextVariantId);
+    setShowCardModal(true);
+  };
+
   const createGrid = (collection: CardInterface[]) => {
     const collectionSpan = 24;
 
@@ -330,6 +340,7 @@ const MobileApp: React.FC = () => {
           <CardEditor
             card={getCardUndefined(filteredCollection, cardEditId)}
             saveTmpCard={setTmpCard}
+            onCardDeleted={handleCardDeleted}
             onDraftChange={draft => {
               pendingDraftRef.current = draft;
             }}

@@ -55,13 +55,16 @@ vi.mock('./components/CardEditor/CardEditor', () => ({
     card,
     saveTmpCard,
     onDraftChange,
+    onCardDeleted,
   }: {
     card?: CardInterface;
     saveTmpCard: (card: CardInterface | null) => void;
     onDraftChange?: (card: CardInterface | null) => void;
+    onCardDeleted?: (uuid: string) => void;
   }) => (
     <div>
       <output aria-label="Edited card">{card?.uuid || 'none'}</output>
+      <button onClick={() => card && onCardDeleted?.(card.uuid)}>Delete current card</button>
       <button onClick={() => card && saveTmpCard({ ...card, name: 'Unsaved draft' })}>
         Edit draft
       </button>
@@ -184,6 +187,23 @@ describe.each([
     fireEvent.click(screen.getByRole('button', { name: 'Modal next variant' }));
     expect(screen.getByLabelText('Edited card')).toHaveTextContent('b');
     expect(screen.getByLabelText('Viewed card')).toHaveTextContent('b');
+    expect(screen.getByRole('dialog')).toBeVisible();
+  });
+
+  it.each([
+    ['a', 'b'],
+    ['b', 'a'],
+  ])('selects surviving variant %s after deleting variant %s', (deletedId, expectedId) => {
+    showApp();
+    fireEvent.click(screen.getByRole('button', { name: 'Open a' }));
+    if (deletedId === 'b') {
+      fireEvent.click(screen.getByRole('button', { name: 'Modal next variant' }));
+    }
+
+    fireEvent.click(screen.getByRole('button', { name: 'Delete current card', hidden: true }));
+
+    expect(screen.getByLabelText('Edited card')).toHaveTextContent(expectedId);
+    expect(screen.getByLabelText('Viewed card')).toHaveTextContent(expectedId);
     expect(screen.getByRole('dialog')).toBeVisible();
   });
 

@@ -46,6 +46,7 @@ interface CardEditorInterface {
   saveTmpCard: (card: CardInterface | null) => void;
   // Immediate draft tracking, separate from the debounced collection preview.
   onDraftChange?: (card: CardInterface | null) => void;
+  onCardDeleted?: (uuid: string) => void;
 }
 
 const NO_CARD = '-1';
@@ -318,10 +319,12 @@ const CardEditor: React.FC<CardEditorInterface> = ({
   card = dummyCard,
   saveTmpCard: savePreview,
   onDraftChange,
+  onCardDeleted,
 }: CardEditorInterface) => {
   const editorId = useId();
   const { token } = theme.useToken();
-  const { dispatch, user, mechanics, tags, currentUser, cards } = useContext<StoreType>(Store);
+  const { dispatch, user, mechanics, tags, currentUser, cards, annotationAccessor } =
+    useContext<StoreType>(Store);
   const serverCard = cards.find(savedCard => savedCard.uuid === card.uuid);
   const selectedServerCard = serverCard || card;
   const saveTmpCard = (draft: CardInterface | null) => {
@@ -577,7 +580,13 @@ const CardEditor: React.FC<CardEditorInterface> = ({
         saveGenRef.current += 1;
         await Promise.all([...inFlightSaves.current]);
         saveTmpCard(null);
-        return deleteCard(dispatch, card.uuid, collectionRef.current);
+        await deleteCard(
+          dispatch,
+          card.uuid,
+          collectionRef.current,
+          annotationAccessor[card.uuid] || [],
+        );
+        onCardDeleted?.(card.uuid);
       },
     });
   };

@@ -244,7 +244,7 @@ describe('new-comment indicator', () => {
     expect(bubble()).toBeVisible();
   });
 
-  it('marks a variant read only after its modal navigation is confirmed', async () => {
+  it('marks the shared family thread read when any variant is opened', async () => {
     const otherCard = { ...card, uuid: 'other-variant', variantIds: [card.uuid] };
     const value = makeStore();
     value.cards = [{ ...card, variantIds: [otherCard.uuid] }, otherCard];
@@ -270,12 +270,14 @@ describe('new-comment indicator', () => {
       </UserStore>
     );
     const { rerender } = render(variantView(value.cards[0]));
-    await waitFor(() => expect(savedUsers.get('reader')?.seenComments).toEqual(['comment-1']));
-    expect(bubble()).toBeVisible();
+    await waitFor(() =>
+      expect(savedUsers.get('reader')?.seenComments).toEqual(['comment-1', 'variant-comment']),
+    );
+    expect(bubble()).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Next variant' }));
     expect(requestSelection).toHaveBeenCalledWith(otherCard.uuid);
-    expect(bubble()).toBeVisible();
-    expect(savedUsers.get('reader')?.seenComments).toEqual(['comment-1']);
+    expect(bubble()).not.toBeInTheDocument();
+    expect(savedUsers.get('reader')?.seenComments).toEqual(['comment-1', 'variant-comment']);
     rerender(variantView(otherCard));
     await waitFor(() => expect(bubble()).not.toBeInTheDocument());
     expect(savedUsers.get('reader')?.seenComments).toEqual(['comment-1', 'variant-comment']);

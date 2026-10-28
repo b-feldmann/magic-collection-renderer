@@ -18,7 +18,7 @@ import MobileBigCardRenderModal from './MobileBigCardRenderModal';
 import RotateToMouse from '../RotateToMouse/RotateToMouse';
 import TrainerGalleryHolofoil from './TrainerGalleryHolofoil';
 import FavoriteHeart from '../FavoriteHeart/FavoriteHeart';
-import { getVariantFamily } from '../../utils/cardVariants';
+import { getVariantAnnotations, getVariantFamily } from '../../utils/cardVariants';
 import { getImage } from '../../actions/imageActions';
 import { isLoadingCover } from '../../utils/cover';
 import useUnreadComments from '../../useUnreadComments';
@@ -95,7 +95,7 @@ const BigCardRenderModal = ({
   // O(1) uuid -> name lookups instead of an O(n) `_.find` per uuid.
   const userNameByUuid = useMemo(() => new Map(user.map(u => [u.uuid, u.name])), [user]);
 
-  const annotations = annotationAccessor[card.uuid] || [];
+  const annotations = getVariantAnnotations(family, annotationAccessor);
   useUnreadComments(annotations, visible);
 
   // Mark the back face so card renderers suppress front-only chrome
@@ -163,15 +163,18 @@ const BigCardRenderModal = ({
       : cardHeight;
 
   const updateState = (newState: CardState) => {
-    const updatedCard = {
-      ...card,
-      meta: {
-        ...card.meta,
-        state: newState,
-        ...(newState === CardState.Draft ? { likes: [], dislikes: [] } : {}),
-      },
-    };
-    updateCard(dispatch, updatedCard).catch(() => {});
+    const targets = newState === CardState.Draft || newState === CardState.Rate ? family : [card];
+    targets.forEach(target => {
+      const updatedCard = {
+        ...target,
+        meta: {
+          ...target.meta,
+          state: newState,
+          ...(newState === CardState.Draft ? { likes: [], dislikes: [] } : {}),
+        },
+      };
+      updateCard(dispatch, updatedCard).catch(() => {});
+    });
   };
 
   const releaseForRatingButton =
@@ -261,7 +264,9 @@ const BigCardRenderModal = ({
       split={!mobile && rowLayout}
       annotations={annotations}
       headerExtra={releaseForRatingButton}
-      createAnnotation={(content, author) => createAnnotation(dispatch, content, author, card.uuid)}
+      createAnnotation={(content, author) =>
+        createAnnotation(dispatch, content, author, family[0]?.uuid || card.uuid)
+      }
     >
       {view != null ? (
         <Card size="small" variant="borderless" className={styles.cardComment}>

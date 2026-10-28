@@ -72,6 +72,30 @@ export const updateAnnotation = (
     });
 };
 
+export const persistAnnotation = async (
+  annotation: AnnotationInterface,
+): Promise<AnnotationInterface> => {
+  const parsed = { ...annotation };
+  delete (parsed as Record<string, unknown>)._id;
+  delete (parsed as Record<string, unknown>).__v;
+  const result = await axios.put(MIDDLEWARE_ENDPOINT, {
+    annotation: parsed,
+    accessKey: getAccessToken(),
+  });
+  const saved = result.data?.annotation as AnnotationInterface | undefined;
+  if (
+    !saved ||
+    saved.uuid !== annotation.uuid ||
+    saved.cardReference !== annotation.cardReference
+  ) {
+    throw new Error('Invalid annotation update response');
+  }
+  const normalized = { ...saved };
+  delete (normalized as Record<string, unknown>)._id;
+  delete (normalized as Record<string, unknown>).__v;
+  return normalized;
+};
+
 export const setAnnotationReaction = async (
   dispatch: (value: Action) => void,
   annotationUuid: string,

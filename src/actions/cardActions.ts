@@ -4,7 +4,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import isEqual from 'lodash/isEqual';
 
 import dayjs from 'dayjs';
-import { Action, CardActionType } from '../reducer';
+import { Action, AnnotationActionType, CardActionType } from '../reducer';
 import { CardType, CardState, RarityType } from '../interfaces/enums';
 
 import CardInterface from '../interfaces/CardInterface';
@@ -13,7 +13,9 @@ import { getVariantFamily, withLatestVariantIds } from '../utils/cardVariants';
 import { getAccessToken, deleteAccessToken } from '../utils/accessService';
 import { UNKNOWN_CREATOR } from '../utils/constants';
 import UserInterface from '../interfaces/UserInterface';
+import AnnotationInterface from '../interfaces/AnnotationInterface';
 import { createImage, getImage } from './imageActions';
+import { persistAnnotation } from './annotationActions';
 import { staticAntd } from '../utils/staticAntd';
 import {
   getCoverFileName,
@@ -352,7 +354,7 @@ export const createCardVariant = (
       copy.creator = cloneDeep(creator);
       copy.favorite = false;
       copy.loading = false;
-      copy.meta = EMPTY_CARD().meta;
+      copy.meta = { ...EMPTY_CARD().meta, state: storedSource.meta.state };
       copy.variantIds = family.map(card => card.uuid);
 
       // Image records belong to the source ID, not to the loading-cover string.
@@ -399,6 +401,7 @@ export const deleteCard = (
   dispatch: (value: Action) => void,
   uuid: string,
   cards: CardInterface[] = [],
+  annotations: AnnotationInterface[] = [],
 ): Promise<void> => {
   const snapshot = cloneDeep(cards);
   return mutateCards(dispatch, async state => {
@@ -407,7 +410,16 @@ export const deleteCard = (
     const family = target ? getVariantFamily(target, collection) : [];
     const attempted: CardInterface[] = [];
     const saved: CardInterface[] = [];
+    const movedAnnotations: { original: AnnotationInterface; updated: AnnotationInterface }[] = [];
     try {
+      const survivingCard = family.find(member => member.uuid !== uuid);
+      if (survivingCard) {
+        for (const annotation of annotations.filter(item => item.cardReference === uuid)) {
+          const updated = { ...annotation, cardReference: survivingCard.uuid };
+          movedAnnotations.push({ original: annotation, updated });
+          movedAnnotations[movedAnnotations.length - 1].updated = await persistAnnotation(updated);
+        }
+      }
       for (const member of family) {
         if (member.uuid === uuid) continue;
         attempted.push(member);
@@ -422,11 +434,17 @@ export const deleteCard = (
       state.saved.delete(uuid);
       state.deleted.add(uuid);
       saved.forEach(card => dispatch({ type: CardActionType.UpdateCard, payload: { card } }));
+      movedAnnotations.forEach(({ updated }) =>
+        dispatch({ type: AnnotationActionType.UpdateAnnotation, payload: { annotation: updated } }),
+      );
       dispatch({ type: CardActionType.DeleteCard, payload: { uuid } });
     } catch (error) {
       const restored = await restoreCards(attempted);
+      const annotationsRestored = await Promise.allSettled(
+        movedAnnotations.map(({ original }) => persistAnnotation(original)),
+      ).then(results => results.every(result => result.status === 'fulfilled'));
       staticAntd.message.error(
-        restored
+        restored && annotationsRestored
           ? 'Could not delete the card. Refresh the collection before trying again.'
           : 'Deletion recovery was incomplete. Refresh the collection before editing further.',
       );

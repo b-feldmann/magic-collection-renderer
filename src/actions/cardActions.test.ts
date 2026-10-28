@@ -29,7 +29,7 @@ import {
 } from './cardActions';
 import { createImage } from './imageActions';
 import { staticAntd } from '../utils/staticAntd';
-import { CardActionType } from '../reducer';
+import { AnnotationActionType, CardActionType } from '../reducer';
 import CardInterface from '../interfaces/CardInterface';
 import { CardType, CardState, RarityType } from '../interfaces/enums';
 import { UNKNOWN_CREATOR } from '../utils/constants';
@@ -116,6 +116,25 @@ describe('card variant persistence', () => {
       ['b', ['a', 'new']],
     ]);
   });
+
+  it.each([CardState.Rate, CardState.Approved])(
+    'creates a variant in the source workflow status (%s) without copying votes',
+    async state => {
+      const source = {
+        ...makeCard('source'),
+        meta: { ...makeCard('source').meta, state, likes: ['voter'], dislikes: ['other-voter'] },
+      };
+
+      await createCardVariant(vi.fn(), source, [source], UNKNOWN_CREATOR);
+
+      expect(writes()[0].meta).toMatchObject({
+        state,
+        likes: [],
+        dislikes: [],
+        comment: '',
+      });
+    },
+  );
 
   it('copies uploaded data on both faces under the new ID and preserves filenames', async () => {
     const source = makeCard('source');
@@ -376,6 +395,47 @@ describe('card variant persistence', () => {
       payload: { uuid: 'b' },
     });
     expect(a.variantIds).toEqual(['b']);
+  });
+
+  it('moves comments off a deleted variant without replacing Mongo metadata', async () => {
+    const a = { ...makeCard('a'), variantIds: ['b'] };
+    const b = { ...makeCard('b'), variantIds: ['a'] };
+    const comment = {
+      uuid: 'comment-b',
+      datetime: 1,
+      author: 'author',
+      content: 'Keep this comment',
+      cardReference: 'b',
+      edited: false,
+      _id: 'mongo-comment-id',
+      __v: 1,
+    };
+    vi.mocked(axios.put).mockImplementation(async (url, body) => {
+      if (String(url).endsWith('/annotations')) {
+        return { data: { annotation: (body as { annotation: typeof comment }).annotation } };
+      }
+      return { data: { card: (body as { card: CardInterface }).card } };
+    });
+    const dispatch = vi.fn();
+    const expectedComment = {
+      uuid: 'comment-b',
+      datetime: 1,
+      author: 'author',
+      content: 'Keep this comment',
+      cardReference: 'a',
+      edited: false,
+    };
+
+    await deleteCard(dispatch, 'b', [a, b], [comment]);
+
+    expect(axios.put).toHaveBeenCalledWith(
+      expect.stringContaining('/annotations'),
+      expect.objectContaining({ annotation: expectedComment, accessKey: 'test-token' }),
+    );
+    expect(dispatch).toHaveBeenCalledWith({
+      type: AnnotationActionType.UpdateAnnotation,
+      payload: { annotation: expectedComment },
+    });
   });
 
   it.each(['cleanup', 'delete'])(

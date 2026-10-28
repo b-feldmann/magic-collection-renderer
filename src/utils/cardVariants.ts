@@ -1,4 +1,6 @@
 import CardInterface from '../interfaces/CardInterface';
+import AnnotationInterface from '../interfaces/AnnotationInterface';
+import AnnotationAccessorInterface from '../interfaces/AnnotationAccessorInterface';
 
 // Editor drafts may predate family changes; membership belongs to the latest store.
 export const withLatestVariantIds = (
@@ -49,3 +51,25 @@ export const getVariantGroups = (
 
 export const getVariantFamily = (card: CardInterface, cards: CardInterface[]): CardInterface[] =>
   getVariantGroups([card], cards)[0];
+
+export const getNextVariantId = (cardUuid: string, cards: CardInterface[]): string | undefined => {
+  const card = cards.find(member => member.uuid === cardUuid);
+  if (!card) return undefined;
+  const family = getVariantFamily(card, cards);
+  if (family.length < 2) return undefined;
+  const index = family.findIndex(member => member.uuid === cardUuid);
+  return family[(index + 1) % family.length].uuid;
+};
+
+export const getVariantAnnotations = (
+  family: CardInterface[],
+  annotationAccessor: AnnotationAccessorInterface,
+): AnnotationInterface[] => {
+  const annotations = new Map<string, AnnotationInterface>();
+  family.forEach(card =>
+    (annotationAccessor[card.uuid] || []).forEach(annotation =>
+      annotations.set(annotation.uuid, annotation),
+    ),
+  );
+  return [...annotations.values()];
+};

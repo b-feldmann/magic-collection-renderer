@@ -196,16 +196,16 @@ const reducer: React.Reducer<State, Action> = (state, action) => {
         annotationAccessor,
       };
     case AnnotationActionType.UpdateAnnotation:
-      annotationAccessor = { ...state.annotationAccessor };
-      if (!state.annotationAccessor[action.payload.annotation.cardReference]) {
-        annotationAccessor[action.payload.annotation.cardReference] = [action.payload.annotation];
-      } else
-        annotationAccessor[action.payload.annotation.cardReference] = [
-          ...annotationAccessor[action.payload.annotation.cardReference].filter(
-            annotation => annotation.uuid !== action.payload.annotation.uuid,
-          ),
-          action.payload.annotation,
-        ];
+      annotationAccessor = Object.fromEntries(
+        Object.entries(state.annotationAccessor).map(([cardReference, annotations]) => [
+          cardReference,
+          annotations.filter(annotation => annotation.uuid !== action.payload.annotation.uuid),
+        ]),
+      );
+      annotationAccessor[action.payload.annotation.cardReference] = [
+        ...(annotationAccessor[action.payload.annotation.cardReference] || []),
+        action.payload.annotation,
+      ];
 
       return {
         ...state,

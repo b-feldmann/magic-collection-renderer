@@ -326,7 +326,7 @@ describe('mobile card face switching', () => {
 });
 
 it.each([false, true])(
-  'binds comments, comment drafts and workflow actions to the displayed variant (mobile: %s)',
+  'shows the shared family comments and creates a comment on one family card (mobile: %s)',
   async mobile => {
     const value = store();
     render(
@@ -342,6 +342,7 @@ it.each([false, true])(
       </Store.Provider>,
     );
     await waitFor(() => expect(screen.getByText('Comment a')).toBeVisible());
+    expect(screen.getByText('Comment b')).toBeVisible();
     expect(
       screen.getByTestId('rendered-a').compareDocumentPosition(screen.getByText('Comment a')) &
         Node.DOCUMENT_POSITION_FOLLOWING,
@@ -351,7 +352,7 @@ it.each([false, true])(
     await pasteCommentText(field, 'Draft for a');
     fireEvent.click(screen.getByRole('button', { name: 'Next variant' }));
     expect(screen.getByText('Comment b')).toBeVisible();
-    expect(screen.queryByText('Comment a')).not.toBeInTheDocument();
+    expect(screen.getByText('Comment a')).toBeVisible();
     const variantField = screen.getByRole('textbox', { name: 'Your comment' });
     expect(variantField.textContent).toBe('');
     await selectCommentRange(variantField, 0);
@@ -361,14 +362,41 @@ it.each([false, true])(
       value.dispatch,
       'New b comment',
       UNKNOWN_CREATOR,
-      'b',
+      'a',
     );
     fireEvent.click(screen.getByRole('button', { name: 'Release for Rating!' }));
     expect(updateCard).toHaveBeenCalledWith(value.dispatch, expect.objectContaining({ uuid: 'b' }));
   },
 );
 
-it('returns the displayed rating variant to Draft and clears ratings without mutating the original', async () => {
+it.each([false, true])('releases every variant to rating together (mobile: %s)', async mobile => {
+  const value = store();
+  render(
+    <Store.Provider value={value}>
+      <BigCardRenderModal
+        card={a}
+        mobile={mobile}
+        visible
+        hide={() => {}}
+        collectionNumber={1}
+        collectionSize={2}
+      />
+    </Store.Provider>,
+  );
+
+  fireEvent.click(await screen.findByRole('button', { name: 'Release for Rating!' }));
+
+  expect(updateCard).toHaveBeenCalledWith(value.dispatch, {
+    ...a,
+    meta: { ...a.meta, state: CardState.Rate },
+  });
+  expect(updateCard).toHaveBeenCalledWith(value.dispatch, {
+    ...b,
+    meta: { ...b.meta, state: CardState.Rate },
+  });
+});
+
+it('returns every variant to Draft and clears ratings without mutating originals', async () => {
   const ratingCard = {
     ...b,
     meta: { ...b.meta, state: CardState.Rate, likes: ['user-1'], dislikes: ['user-2'] },
@@ -388,6 +416,10 @@ it('returns the displayed rating variant to Draft and clears ratings without mut
   fireEvent.click(await screen.findByRole('button', { name: 'Next variant' }));
   fireEvent.click(screen.getByRole('button', { name: 'Return to Draft' }));
 
+  expect(updateCard).toHaveBeenCalledWith(value.dispatch, {
+    ...a,
+    meta: { ...a.meta, state: CardState.Draft, likes: [], dislikes: [] },
+  });
   expect(updateCard).toHaveBeenCalledWith(value.dispatch, {
     ...ratingCard,
     meta: { ...ratingCard.meta, state: CardState.Draft, likes: [], dislikes: [] },

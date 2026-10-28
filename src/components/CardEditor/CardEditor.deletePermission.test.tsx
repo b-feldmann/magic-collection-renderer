@@ -1,7 +1,8 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
+import { Modal } from 'antd';
 
 import CardEditor from './CardEditor';
 import { Store, StoreType } from '../../store';
@@ -65,7 +66,11 @@ const makeCard = (creator: typeof UNKNOWN_CREATOR): CardInterface => ({
   },
 });
 
-const renderEditor = (currentUser: typeof UNKNOWN_CREATOR, card: CardInterface) => {
+const renderEditor = (
+  currentUser: typeof UNKNOWN_CREATOR,
+  card: CardInterface,
+  onCardDeleted?: (uuid: string) => void,
+) => {
   const mockStoreValue: StoreType = {
     cards: [],
     mechanics: [],
@@ -77,7 +82,7 @@ const renderEditor = (currentUser: typeof UNKNOWN_CREATOR, card: CardInterface) 
 
   render(
     <Store.Provider value={mockStoreValue}>
-      <CardEditor card={card} saveTmpCard={() => {}} />
+      <CardEditor card={card} saveTmpCard={() => {}} onCardDeleted={onCardDeleted} />
     </Store.Provider>,
   );
 };
@@ -103,5 +108,23 @@ describe('CardEditor - delete permission', () => {
     renderEditor(bjennware, makeCard(SOMEONE_ELSE));
 
     expect(screen.getByText('Delete Card')).toBeVisible();
+  });
+
+  it('notifies the parent after the selected card has been deleted', async () => {
+    const onCardDeleted = vi.fn();
+    let confirmation: Parameters<typeof Modal.confirm>[0] | undefined;
+    const confirm = vi.spyOn(Modal, 'confirm').mockImplementation(options => {
+      confirmation = options;
+      return { destroy: vi.fn(), update: vi.fn() };
+    });
+    renderEditor(user, makeCard(user), onCardDeleted);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Delete Card' }));
+    await act(async () => {
+      await confirmation?.onOk?.();
+    });
+
+    expect(onCardDeleted).toHaveBeenCalledWith('card-1');
+    confirm.mockRestore();
   });
 });

@@ -14,6 +14,7 @@ import { getImage } from '../../actions/imageActions';
 import { isLoadingCover } from '../../utils/cover';
 import MessageFilled from '@ant-design/icons/MessageFilled';
 import useUnreadComments from '../../useUnreadComments';
+import { getVariantAnnotations } from '../../utils/cardVariants';
 
 export interface CellData {
   columnCount: number;
@@ -60,14 +61,16 @@ const Cell = ({
   const index = columnIndex + rowIndex * columnCount;
   const card = cards[index];
   const { dispatch, annotationAccessor } = useContext(Store);
-  const hasUnreadComments = useUnreadComments(card ? annotationAccessor[card.uuid] : undefined);
+  const family = card ? variantGroups?.[index] || [card] : [];
+  const hasUnreadComments = useUnreadComments(
+    card ? getVariantAnnotations(family, annotationAccessor) : undefined,
+  );
   useEffect(() => {
     if (!card) return;
     if (isLoadingCover(card.front.cover)) getImage(dispatch, card, 0);
     if (isLoadingCover(card.back?.cover)) getImage(dispatch, card, 1);
   }, [card, dispatch]);
   if (!card) return <div style={style} {...ariaAttributes} />;
-  const family = variantGroups?.[index] || [card];
   const variantIndex = family.findIndex(member => member.uuid === card.uuid);
 
   const isNew = !seenCardUuids[card.uuid];

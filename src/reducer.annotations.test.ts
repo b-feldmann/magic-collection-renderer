@@ -68,4 +68,22 @@ describe('creating comments in the store', () => {
     expect(next.annotationAccessor['card-1']).toEqual([annotation]);
     expect(state.annotationAccessor).toEqual({});
   });
+
+  it('moves an updated comment out of its previous card when its reference changes', () => {
+    const comment = { ...existing, cardReference: 'card-2' };
+    const movedComment = { ...comment, cardReference: 'card-1' };
+    const state = {
+      ...initialState(),
+      annotationAccessor: { 'card-1': [], 'card-2': [comment] },
+    };
+
+    const next = reducer(state, {
+      type: AnnotationActionType.UpdateAnnotation,
+      payload: { annotation: movedComment },
+    });
+
+    expect(next.annotationAccessor['card-1']).toEqual([movedComment]);
+    expect(next.annotationAccessor['card-2']).toEqual([]);
+    expect(state.annotationAccessor['card-2']).toEqual([comment]);
+  });
 });
