@@ -313,6 +313,48 @@
   }
 }
 
+.textFormatting {
+  margin-bottom: 16px;
+
+  h4 {
+    margin: 0 0 10px;
+    color: #53654c;
+    font-size: 14px;
+    font-weight: 650;
+  }
+}
+
+.formattingRows {
+  overflow: hidden;
+  border: 1px solid #e1e6dc;
+  border-radius: 11px;
+}
+
+.formattingRow {
+  display: grid;
+  grid-template-columns: minmax(90px, 0.7fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  padding: 8px 14px;
+  border-bottom: 1px solid #e9ede5;
+
+  &:last-child {
+    border-bottom: 0;
+  }
+
+  > span {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+}
+
+.formattingLabel {
+  color: #87917f;
+  font-size: 11px;
+}
+
 .mechanics {
   overflow: hidden;
   border: 1px solid #e1e6dc;

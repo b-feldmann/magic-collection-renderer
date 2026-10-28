@@ -93,7 +93,7 @@ const CardTextInput = ({ id, name, value, onChange, manaColors }: CardTextInputP
       </div>
       <div className={styles.textToolbar} role="group" aria-label={`${name} symbols`}>
         {symbols.map((symbol, index) => (
-          <React.Fragment key={symbol.name}>
+          <React.Fragment key={symbol.key}>
             {index > 0 && (
               <span
                 className={`${styles.symbolToolbarDivider} ${styles.symbolToolbarSeparator}`}

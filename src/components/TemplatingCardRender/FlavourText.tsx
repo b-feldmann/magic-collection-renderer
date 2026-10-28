@@ -16,9 +16,9 @@ const FlavourText = ({ name, flavourText = '', flavourAuthor }: FlavourTextProps
   return (
     <div className={styles.flavour}>
       <div className={styles.flavourSeparator} />
-      {flavourAuthor
-        ? `“${injectForFlavour(flavourText, name)}”`
-        : injectForFlavour(flavourText, name)}
+      {flavourAuthor ? '“' : null}
+      {injectForFlavour(flavourText, name)}
+      {flavourAuthor ? '”' : null}
       {flavourAuthor && (
         <span>
           <br />

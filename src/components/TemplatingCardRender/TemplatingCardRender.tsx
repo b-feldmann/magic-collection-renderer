@@ -70,6 +70,7 @@ import {
   getTypePart,
 } from './assetLoader';
 import { injectForText, injectManaIcons, isBulletText } from '../../utils/injectUtils';
+import { formatCardText } from '../../utils/formatCardText';
 import { getCoverImageSrc } from '../../utils/cover';
 import ImageLoader from '../ImageLoader/ImageLoader';
 import getCoverFitClass from './getCoverFitClass';
@@ -532,7 +533,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
               SCSS for the measured coordinates); each part only appears when
               its data is set. */}
           {isAdventure && adventureName ? (
-            <div className={styles.adventureName}>{adventureName}</div>
+            <div className={styles.adventureName}>{formatCardText(adventureName)}</div>
           ) : null}
           {isAdventure && adventureCost ? (
             <div className={styles.adventureCost}>
@@ -540,7 +541,9 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
             </div>
           ) : null}
           {isAdventure && adventureType ? (
-            <div className={styles.adventureTypeLine}>{`${adventureType} – Adventure`}</div>
+            <div className={styles.adventureTypeLine}>
+              {formatCardText(`${adventureType} – Adventure`)}
+            </div>
           ) : null}
           {isAdventure && adventureText && adventureText.length > 0 ? (
             <div className={styles.adventureText}>
@@ -570,14 +573,16 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
               shares the adventure frame geometry (their measured rules-left
               masks align), so the adventure SCSS classes are reused for the
               box positions; each part only appears when its data is set. */}
-          {isOmen && omenName ? <div className={styles.omenName}>{omenName}</div> : null}
+          {isOmen && omenName ? (
+            <div className={styles.omenName}>{formatCardText(omenName)}</div>
+          ) : null}
           {isOmen && omenCost ? (
             <div className={styles.omenCost}>
               {injectManaIcons(getColor(omenCost).orderedCost, true)}
             </div>
           ) : null}
           {isOmen && omenType ? (
-            <div className={styles.omenTypeLine}>{`${omenType} – Omen`}</div>
+            <div className={styles.omenTypeLine}>{formatCardText(`${omenType} – Omen`)}</div>
           ) : null}
           {isOmen && omenText && omenText.length > 0 ? (
             <div className={styles.omenText}>
@@ -610,7 +615,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
               appears when its data is set. The type line renders the plain
               prepareType — no "– Prepared" suffix (user decision). */}
           {isPrepared && prepareName ? (
-            <div className={styles.prepareName}>{prepareName}</div>
+            <div className={styles.prepareName}>{formatCardText(prepareName)}</div>
           ) : null}
           {isPrepared && prepareCost ? (
             <div className={styles.prepareCost}>
@@ -618,7 +623,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
             </div>
           ) : null}
           {isPrepared && prepareType ? (
-            <div className={styles.prepareTypeLine}>{`${prepareType}`}</div>
+            <div className={styles.prepareTypeLine}>{formatCardText(prepareType)}</div>
           ) : null}
           {isPrepared && prepareText && prepareText.length > 0 ? (
             <div className={styles.prepareText}>
@@ -794,13 +799,13 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
             style={titleWidth !== undefined ? { width: `${titleWidth}px` } : undefined}
           >
             <TextResize defaultFontSize={75} maxFontSize={75} minFontSize={40}>
-              {name}
+              {formatCardText(name)}
             </TextResize>
           </div>
-          {isNickname && <div className={styles.nicknameText}>{nickname}</div>}
+          {isNickname && <div className={styles.nicknameText}>{formatCardText(nickname)}</div>}
           <div className={`${styles.type} ${isToken ? styles.tokenType : ''}`}>
             <TextResize defaultFontSize={67} maxFontSize={67} minFontSize={38}>
-              {formatTypeLine(cardRenderProps as unknown as CardFaceInterface)}
+              {formatCardText(formatTypeLine(cardRenderProps as unknown as CardFaceInterface))}
             </TextResize>
           </div>
 

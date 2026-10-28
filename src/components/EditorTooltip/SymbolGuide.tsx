@@ -204,6 +204,66 @@ const SymbolGuide = ({ onClose }: { onClose: () => void }): React.JSX.Element =>
               Replaced with the card name when rendered.
             </p>
           </div>
+          <div className={styles.textFormatting}>
+            <h4>Text Formatting &amp; Shortcuts</h4>
+            <div className={styles.formattingRows}>
+              <div className={styles.formattingRow}>
+                <code>*text*</code>
+                <span>
+                  <strong>text</strong>
+                  <span className={styles.formattingLabel}>Bold</span>
+                </span>
+              </div>
+              <div className={styles.formattingRow}>
+                <code>_text_</code>
+                <span>
+                  <em>text</em>
+                  <span className={styles.formattingLabel}>Italic</span>
+                </span>
+              </div>
+              <div className={styles.formattingRow}>
+                <code>~text~</code>
+                <span>
+                  <s>text</s>
+                  <span className={styles.formattingLabel}>Strikethrough</span>
+                </span>
+              </div>
+              <div className={styles.formattingRow}>
+                <code>"text"</code>
+                <span>
+                  “text”<span className={styles.formattingLabel}>Smart punctuation</span>
+                </span>
+              </div>
+              <div className={styles.formattingRow}>
+                <code>...</code>
+                <span>
+                  …<span className={styles.formattingLabel}>Smart punctuation</span>
+                </span>
+              </div>
+              <div className={styles.formattingRow}>
+                <code>--</code>
+                <span>
+                  —Indented paragraph
+                  <span className={styles.formattingLabel}>Em dash</span>
+                </span>
+              </div>
+              <div className={styles.formattingRow}>
+                <code>* first item</code>
+                <span>
+                  • first item
+                  <span className={styles.formattingLabel}>Bullet point</span>
+                </span>
+              </div>
+              <div className={styles.formattingRow}>
+                <code>- second item</code>
+                <span>
+                  • second item
+                  <span className={styles.formattingLabel}>Bullet point</span>
+                </span>
+              </div>
+            </div>
+            <p className={styles.hint}>Original text is kept unchanged.</p>
+          </div>
           <div className={styles.mechanics}>
             {MECHANICS.map(mechanic => (
               <div className={styles.mechanic} key={mechanic.code}>

@@ -32,6 +32,7 @@ import {
   getRarityIcon,
 } from './assetLoader';
 import { injectForText, injectManaIcons } from '../../utils/injectUtils';
+import { formatCardText } from '../../utils/formatCardText';
 import ImageLoader from '../ImageLoader/ImageLoader';
 import PlaneswalkerRulesBackground from './PlaneswalkerRulesBackground';
 import { getAbilityLineLayouts } from './planeswalkerGeometry';
@@ -201,16 +202,18 @@ const PlaneswalkerCardRender = (cardRender: PlaneswalkerCardRenderProps) => {
             style={titleWidth !== undefined ? { width: `${titleWidth}px` } : undefined}
           >
             <TextResize defaultFontSize={75} maxFontSize={75} minFontSize={40}>
-              {name}
+              {formatCardText(name)}
             </TextResize>
           </div>
           {isNickname && nicknamePlate ? (
-            <div className={`${styles.nicknameText} ${styles.nicknameText}`}>{nickname}</div>
+            <div className={`${styles.nicknameText} ${styles.nicknameText}`}>
+              {formatCardText(nickname)}
+            </div>
           ) : null}
 
           <div className={styles.type}>
             <TextResize defaultFontSize={67} maxFontSize={67} minFontSize={38}>
-              {formatTypeLine(cardRender as unknown as CardFaceInterface)}
+              {formatCardText(formatTypeLine(cardRender as unknown as CardFaceInterface))}
             </TextResize>
           </div>
 

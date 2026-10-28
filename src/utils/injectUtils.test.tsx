@@ -3,9 +3,87 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it, vi } from 'vitest';
 
 import MechanicInterface from '../interfaces/MechanicInterface';
-import { injectForText, injectManaIcons, isBulletText } from './injectUtils';
+import { injectForFlavour, injectForText, injectManaIcons, isBulletText } from './injectUtils';
 
 describe('injectUtils', () => {
+  it.each([
+    ['*Bold*', '<strong>Bold</strong>'],
+    ['_Italic_', '<em>Italic</em>'],
+    ['~Deleted~', '<s>Deleted</s>'],
+    ['*Bold _and italic_*', '<strong>Bold <em>and italic</em></strong>'],
+    ['*Bold* _italic_ ~deleted~', '<strong>Bold</strong> <em>italic</em> <s>deleted</s>'],
+    ['**Literal** __literal__', '**Literal** __literal__'],
+    ['Unmatched *marker', 'Unmatched *marker'],
+    ['2 * 3 = 6', '2 * 3 = 6'],
+  ])('renders single-marker formatting in rules and flavour: %s', (input, expected) => {
+    expect(renderToStaticMarkup(<p>{injectForText(input, 'Test', [])}</p>)).toBe(
+      `<p>${expected}</p>`,
+    );
+    expect(renderToStaticMarkup(<p>{injectForFlavour(input, 'Test')}</p>)).toBe(
+      `<p>${expected}</p>`,
+    );
+  });
+
+  it('preserves bullets and name references alongside formatted mana', () => {
+    const markup = renderToStaticMarkup(
+      <p>{injectForText('* *Pay {w}* then ~ deals ~damage~.', 'Test', [])}</p>,
+    );
+    const container = document.createElement('div');
+    container.innerHTML = markup;
+    expect(container.textContent).toBe('• Pay  then Test deals damage.');
+    expect(container.querySelector('strong .ms-w')).not.toBeNull();
+    expect(container.querySelector('s')?.textContent).toBe('damage');
+    expect(isBulletText('*Bold*')).toBe(false);
+    expect(isBulletText('**Literal**')).toBe(false);
+  });
+
+  it('renders formatted card names in name references without changing saved text', () => {
+    const line = '~ attacks.';
+    const name = '*Hero* "Name"...';
+    const markup = renderToStaticMarkup(<p>{injectForText(line, name, [])}</p>);
+    expect(markup).toBe('<p><strong>Hero</strong> “Name”… attacks.</p>');
+    expect(line).toBe('~ attacks.');
+    expect(name).toBe('*Hero* "Name"...');
+  });
+
+  it.each(['[Scry -]', '[Scry 1]'])(
+    'renders formatting and smart punctuation in expanded mechanics: %s',
+    input => {
+      const container = document.createElement('div');
+      container.innerHTML = renderToStaticMarkup(
+        <p>
+          {injectForText(input, 'Hero', [
+            { uuid: 'scry', name: 'Scry', description: '*Look* at "this"...' },
+          ])}
+        </p>,
+      );
+      expect(container.querySelector('strong')?.textContent).toBe('Look');
+      expect(container.textContent).toContain('Look at “this”…');
+    },
+  );
+
+  it('keeps HTML-like user input as text', () => {
+    const container = document.createElement('div');
+    container.innerHTML = renderToStaticMarkup(
+      <p>{injectForText('*<img src=x onerror=alert(1)>*', 'Test', [])}</p>,
+    );
+    expect(container.querySelector('img')).toBeNull();
+    expect(container.querySelector('strong')?.textContent).toBe('<img src=x onerror=alert(1)>');
+  });
+
+  it.each([
+    ['He said "Hello" and "Goodbye"...', 'He said “Hello” and “Goodbye”…'],
+    ["It's 'magic'...", 'It’s ‘magic’…'],
+    ['"*Hello*" and _"goodbye"_...', '“Hello” and “goodbye”…'],
+    ['Already “curly” and …', 'Already “curly” and …'],
+  ])('renders smart punctuation without losing text: %s', (input, expected) => {
+    for (const content of [injectForText(input, 'Test', []), injectForFlavour(input, 'Test')]) {
+      const container = document.createElement('div');
+      container.innerHTML = renderToStaticMarkup(<p>{content}</p>);
+      expect(container.textContent).toBe(expected);
+    }
+  });
+
   it.each(['1', '123'])('renders unbraced numeric mechanic refs such as %s', number => {
     const mechanic: MechanicInterface = {
       uuid: 'mechanic-1',

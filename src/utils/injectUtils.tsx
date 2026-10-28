@@ -3,8 +3,9 @@ import React from 'react';
 import { Mana } from '../components/Mana/Mana';
 import MechanicInterface from '../interfaces/MechanicInterface';
 import { getColor } from './cardToColor';
+import { formatCardText, smartPunctuation } from './formatCardText';
 
-const BULLET_PREFIX = /^\s*(?:\*|-(?!-))\s*/;
+const BULLET_PREFIX = /^\s*(?:\*(?=\s)|-(?!-))\s*/;
 
 export const isBulletText = (line: string) => BULLET_PREFIX.test(line);
 
@@ -12,15 +13,15 @@ export const injectForText = (line: string, cardName: string, mechanics: Mechani
   const bulletPrefix = line.match(BULLET_PREFIX);
   const text = bulletPrefix ? `• ${line.slice(bulletPrefix[0].length)}` : line;
 
-  return injectQuotationMarks(
+  return formatCardText(text, part =>
     injectManaIcons(
-      injectName(injectMechanics(injectLongDash(text), mechanics, cardName), cardName),
+      injectName(injectMechanics(injectLongDash(part), mechanics, cardName), cardName),
     ),
   );
 };
 
 export const injectForFlavour = (line: string, cardName: string) => {
-  return injectQuotationMarks(injectName(line, cardName));
+  return formatCardText(line, part => injectName(part, cardName));
 };
 
 interface InjectFunc {
@@ -260,17 +261,14 @@ export const injectPlaneswalkerIcons = (text: string | JSX.Element | (string | J
 export const injectName = (text: string | JSX.Element | (string | JSX.Element)[], name: string) => {
   return injectWithConfig(text, {
     toReplace: /~/,
-    toInject: name,
+    toInject: <>{formatCardText(name)}</>,
   });
 };
 
 export const injectQuotationMarks = (text: string | JSX.Element | (string | JSX.Element)[]) => {
-  return injectWithConfig(text, {
-    toReplace: /"(.*)"/,
-    // toInject: '“”'
-    toInject: '“',
-    toInjectClose: '”',
-  });
+  return (Array.isArray(text) ? text : [text]).map(part =>
+    typeof part === 'string' ? smartPunctuation(part) : part,
+  );
 };
 
 export const injectLongDash = (text: string | JSX.Element | (string | JSX.Element)[]) => {
@@ -294,7 +292,7 @@ export const injectMechanics = (
       return;
     }
 
-    const lines = elem.split(/(\[.*\])/).filter(line => line.length > 0 && !line.match(/^\s*$/));
+    const lines = elem.split(/(\[.*\])/).filter(line => line.length > 0);
     lines.forEach((line, i) => {
       if (line.indexOf('[') === -1 || line.indexOf(']') === -1) {
         result.push(line);
@@ -308,15 +306,15 @@ export const injectMechanics = (
         return;
       }
       const cleanedLine = line.replace(usedMechanic.name, '').replace(/\[|\]|\s*/g, '');
+      const injectedRef = usedMechanic.description.replace(/\{ref\}/g, cleanedLine);
+      const parsedDescription = formatCardText(injectedRef, part =>
+        injectManaIcons(injectName(part, cardName)),
+      );
       if (cleanedLine === '-') {
-        result.push(<span style={{ fontStyle: 'italic' }}>{`(${usedMechanic.description})`}</span>);
+        result.push(<span style={{ fontStyle: 'italic' }}>({parsedDescription})</span>);
         return;
       }
       const braces = i === lines.length - 1 && !!cleanedLine.match(/^\d*$|^(\{.{1,2}\})+$/);
-      const injectedRef = usedMechanic.description.replace(/\{ref\}/g, cleanedLine);
-      const parsedDescription = injectManaIcons(
-        injectQuotationMarks(injectName(injectedRef, cardName)),
-      );
       if (braces) {
         result.push(`${usedMechanic.name} ${cleanedLine} (`);
         result.push(<span style={{ fontStyle: 'italic' }}>{parsedDescription}</span>);

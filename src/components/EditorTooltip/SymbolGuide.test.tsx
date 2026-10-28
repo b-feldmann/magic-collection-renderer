@@ -56,6 +56,35 @@ describe('SymbolGuide', () => {
     expect(screen.getByText('MECHANIC — text')).toBeInTheDocument();
   });
 
+  it('documents text formatting markers and smart punctuation', () => {
+    render(<SymbolGuide onClose={() => {}} />);
+
+    expect(
+      screen.getByRole('heading', { name: 'Text Formatting & Shortcuts' }),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Text Formatting' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Text Shortcuts' })).not.toBeInTheDocument();
+    for (const marker of ['*text*', '_text_', '~text~', '"text"', '...']) {
+      expect(screen.getByText(marker, { selector: 'code' })).toBeInTheDocument();
+    }
+    expect(screen.getByText('Bold')).toBeInTheDocument();
+    expect(screen.getByText('Italic')).toBeInTheDocument();
+    expect(screen.getByText('Strikethrough')).toBeInTheDocument();
+    expect(screen.getAllByText('Smart punctuation')).toHaveLength(2);
+    expect(screen.getByText(/Original text is kept unchanged/)).toBeInTheDocument();
+  });
+
+  it('documents em-dash and bullet-list shortcuts', () => {
+    render(<SymbolGuide onClose={() => {}} />);
+
+    expect(screen.getByText('--', { selector: 'code' })).toBeInTheDocument();
+    expect(screen.getByText('* first item', { selector: 'code' })).toBeInTheDocument();
+    expect(screen.getByText('- second item', { selector: 'code' })).toBeInTheDocument();
+    expect(screen.getByText('—Indented paragraph')).toBeInTheDocument();
+    expect(screen.getByText('• first item')).toBeInTheDocument();
+    expect(screen.getByText('• second item')).toBeInTheDocument();
+  });
+
   it('makes every advanced code available through a native expandable summary', () => {
     render(<SymbolGuide onClose={() => {}} />);
     const summary = screen.getByText('Hybrid & Phyrexian Mana');

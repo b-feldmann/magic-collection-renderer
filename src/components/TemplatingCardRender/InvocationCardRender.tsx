@@ -21,6 +21,7 @@ import {
   getRarityIcon,
 } from './assetLoader';
 import { injectForText, injectManaIcons } from '../../utils/injectUtils';
+import { formatCardText } from '../../utils/formatCardText';
 import ImageLoader from '../ImageLoader/ImageLoader';
 import parseStats from '../../utils/parseStats';
 import parseCollectionNumber from '../../utils/parseCollectionNumber';
@@ -116,9 +117,9 @@ const InvocationCardRender = (cardRender: InvocationCardRenderProps) => {
 
           <ImageLoader src={getRarityIcon(RarityType.Common)} alt="" className={styles.rarity} />
 
-          <div className={styles.title}>{name}</div>
+          <div className={styles.title}>{formatCardText(name)}</div>
           <div className={styles.type}>
-            {formatTypeLine(cardRender as unknown as CardFaceInterface)}
+            {formatCardText(formatTypeLine(cardRender as unknown as CardFaceInterface))}
           </div>
 
           <div className={styles.text}>

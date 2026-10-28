@@ -643,4 +643,25 @@ updateLog.push({
   ],
 });
 
+updateLog.push({
+  version: '4.1.0',
+  title: 'Variants Synchronization',
+  content: [
+    {
+      type: ChangeLogFeatureType.Changed,
+      feature: 'Variants now share a comment thread',
+    },
+    {
+      type: ChangeLogFeatureType.Changed,
+      feature: 'When moving one variant to the Rate pile both variants get moved',
+    },
+    {
+      type: ChangeLogFeatureType.Added,
+      feature: 'Inline text formatting and smart punctuation',
+      description:
+        'Use *text* for bold, _text_ for italic, and ~text~ for strikethrough in card titles, types, rules, and flavour text. Straight quotes and three dots render as curly quotes and an ellipsis; your saved text stays unchanged.',
+    },
+  ],
+});
+
 export default updateLog;

@@ -100,6 +100,34 @@ describe('Card Text symbol toolbar', () => {
     expect(onChange).toHaveBeenCalledWith(['{g}']);
   });
 
+  it('keeps Mana buttons uniquely keyed when identity has multiple colors', () => {
+    const onChange = vi.fn();
+    const renderInput = (manaColors: ColorType[]) => (
+      <ConfigProvider>
+        <CardTextInput
+          id="card-text"
+          name="Card Text"
+          value={[]}
+          onChange={onChange}
+          manaColors={manaColors}
+        />
+      </ConfigProvider>
+    );
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      const { rerender } = render(renderInput([ColorType.Red]));
+      rerender(renderInput([ColorType.Green, ColorType.White]));
+
+      const duplicateKeyWarning = consoleError.mock.calls.some(args =>
+        args.some(message => typeof message === 'string' && message.includes('same key')),
+      );
+      expect(duplicateKeyWarning).toBe(false);
+    } finally {
+      consoleError.mockRestore();
+    }
+  });
+
   it('falls back to the blue Mana symbol when there is no color identity', () => {
     const onChange = vi.fn();
     render(
