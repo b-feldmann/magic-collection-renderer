@@ -12,7 +12,7 @@ import useWindowDimensions from '../../useWindowDimensions';
 import AnnotationList from '../AnnotationList/AnnotationList';
 import { createAnnotation } from '../../actions/annotationActions';
 import { CardState } from '../../interfaces/enums';
-import { updateCard } from '../../actions/cardActions';
+import { updateCard, updateCardRating } from '../../actions/cardActions';
 import { CARD_WIDTH, CARD_HEIGHT } from '../../utils/constants';
 import MobileBigCardRenderModal from './MobileBigCardRenderModal';
 import RotateToMouse from '../RotateToMouse/RotateToMouse';
@@ -193,44 +193,42 @@ const BigCardRenderModal = ({
 
   const toggleRating = (rating: 'likes' | 'dislikes') => {
     const alreadySelected = card.meta[rating].includes(currentUser.uuid);
-    const updatedCard = {
-      ...card,
-      meta: {
-        ...card.meta,
-        likes: card.meta.likes.filter(uuid => uuid !== currentUser.uuid),
-        dislikes: card.meta.dislikes.filter(uuid => uuid !== currentUser.uuid),
-      },
-    };
-    if (!alreadySelected) updatedCard.meta[rating].push(currentUser.uuid);
-    updateCard(dispatch, updatedCard).catch(() => {});
+    const nextRating = alreadySelected ? null : rating === 'likes' ? 'like' : 'dislike';
+    updateCardRating(dispatch, card.uuid, currentUser.uuid, nextRating).catch(() => {});
   };
 
   const userUuidToNames = (uuids: string[]) =>
     uuids.map(uuid => userNameByUuid.get(uuid) || '').join(', ');
 
   const rateView = (
-    <div>
-      <span
-        className={styles.ratingVote}
-        onClick={() => toggleRating('likes')}
-        style={{ cursor: 'pointer' }}
-      >
+    <div className={styles.ratingPanel} role="group" aria-label="Card rating">
+      <div className={styles.ratingVotes}>
         <Tooltip title={userUuidToNames(card.meta.likes)}>
-          <AntIcon type="like" theme={liked ? 'filled' : 'outlined'} />
+          <button
+            type="button"
+            className={styles.ratingVote}
+            aria-label={`Like (${card.meta.likes.length})`}
+            aria-pressed={liked}
+            onClick={() => toggleRating('likes')}
+          >
+            <AntIcon type="like" theme={liked ? 'filled' : 'outlined'} />
+            <span>{card.meta.likes.length}</span>
+          </button>
         </Tooltip>
-        <span style={{ paddingLeft: 4 }}>{card.meta.likes.length}</span>
-      </span>
-      <span
-        className={styles.ratingVote}
-        onClick={() => toggleRating('dislikes')}
-        style={{ paddingLeft: 8, cursor: 'pointer' }}
-      >
         <Tooltip title={userUuidToNames(card.meta.dislikes)}>
-          <AntIcon type="dislike" theme={disliked ? 'filled' : 'outlined'} />
+          <button
+            type="button"
+            className={`${styles.ratingVote} ${styles.ratingVoteDislike}`}
+            aria-label={`Dislike (${card.meta.dislikes.length})`}
+            aria-pressed={disliked}
+            onClick={() => toggleRating('dislikes')}
+          >
+            <AntIcon type="dislike" theme={disliked ? 'filled' : 'outlined'} />
+            <span>{card.meta.dislikes.length}</span>
+          </button>
         </Tooltip>
-        <span style={{ paddingLeft: 4 }}>{card.meta.dislikes.length}</span>
-      </span>
-      <span>
+      </div>
+      <div className={styles.ratingActions}>
         <Button
           disabled={user.length === 0 || neededLikesCount > 0}
           className={styles.stateButton}
@@ -248,11 +246,11 @@ const BigCardRenderModal = ({
         >
           Return to Draft
         </Button>
-      </span>
+      </div>
     </div>
   );
 
-  let view: ReactElement | null = <div />;
+  let view: ReactElement | null = null;
   if (card.meta.state === CardState.Draft) view = null;
   if (card.meta.state === CardState.Rate) view = rateView;
   // view = rateView;

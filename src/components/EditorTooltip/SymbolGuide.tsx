@@ -67,6 +67,16 @@ const MECHANICS = [
       </>
     ),
   },
+  {
+    code: '[MECHANIC text]',
+    label: 'Name + dash + text reference',
+    description: (
+      <>
+        A text reference renders after an em dash, e.g. <code>MECHANIC — text</code>, followed by
+        the description.
+      </>
+    ),
+  },
 ] as const;
 
 function SymbolButton({

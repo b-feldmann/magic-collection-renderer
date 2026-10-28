@@ -73,6 +73,21 @@ describe('compact collection filters', () => {
     );
   });
 
+  it('renders the gold color filter with a gold circle icon', () => {
+    render(
+      <CollectionFilterControls
+        collection={[{ ...first, manaCost: '{w}{u}' }]}
+        setCollectionFilter={vi.fn()}
+        setNameFilter={vi.fn()}
+      />,
+    );
+
+    const goldOption = screen.getByRole('checkbox', { name: 'Gold color' }).closest('label')!;
+    expect(within(goldOption).getByTestId('gold-filter-icon')).toHaveStyle({
+      backgroundColor: '#eed66b',
+    });
+  });
+
   it('starts secondary groups collapsed and makes their real options available on expansion', () => {
     render(
       <CollectionFilterControls

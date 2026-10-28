@@ -3,6 +3,10 @@
 @import 'tailwindcss';
 
 @layer base {
+  :root {
+    --form-control-text-color: #1e241f;
+  }
+
   body {
     background: #f0f2f5;
     font-family:

@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import CardEditor from './CardEditor';
 import { createCardVariant, EMPTY_CARD, updateCard } from '../../actions/cardActions';
 import { Store, StoreType } from '../../store';
+import CardInterface from '../../interfaces/CardInterface';
 import { UNKNOWN_CREATOR, EDIT_SAVE_OFFSET } from '../../utils/constants';
 import { CardState } from '../../interfaces/enums';
 
@@ -34,7 +35,7 @@ if (!globalThis.ResizeObserver) {
   };
 }
 
-const makeCard = () => ({
+const makeCard = (): CardInterface => ({
   ...EMPTY_CARD(),
   uuid: 'source',
   name: 'Original',
@@ -323,6 +324,45 @@ describe('editor variant creation', () => {
     expect(updateCard).toHaveBeenLastCalledWith(
       expect.any(Function),
       expect.objectContaining({ name: 'Original', variantIds: ['new-variant'] }),
+    );
+  });
+
+  it('receives newer server fields while preserving and saving the local draft', async () => {
+    const card = makeCard();
+    const { rerender } = render(
+      <Store.Provider value={makeStore([card])}>
+        <CardEditor card={card} saveTmpCard={() => {}} />
+      </Store.Provider>,
+    );
+    typeName('Local draft');
+
+    const updatedByAnotherEditor = {
+      ...card,
+      name: 'Remote title',
+      manaCost: '{U}',
+      front: { ...card.front, name: 'Remote title', cardText: ['Remote rules text'] },
+    };
+    rerender(
+      <Store.Provider value={makeStore([updatedByAnotherEditor])}>
+        <CardEditor card={updatedByAnotherEditor} saveTmpCard={() => {}} />
+      </Store.Provider>,
+    );
+
+    expect(screen.getByLabelText('Mana Cost')).toHaveValue('{U}');
+    expect(screen.getByLabelText('Card Name')).toHaveValue('Local draft');
+    await act(async () => {
+      vi.advanceTimersByTime(EDIT_SAVE_OFFSET + 100);
+    });
+    expect(updateCard).toHaveBeenLastCalledWith(
+      expect.any(Function),
+      expect.objectContaining({
+        name: 'Local draft',
+        manaCost: '{U}',
+        front: expect.objectContaining({
+          name: 'Local draft',
+          cardText: ['Remote rules text'],
+        }),
+      }),
     );
   });
 

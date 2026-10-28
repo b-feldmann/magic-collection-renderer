@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('axios', () => ({
-  default: { get: vi.fn(), post: vi.fn(), put: vi.fn(), delete: vi.fn() },
+  default: { get: vi.fn(), post: vi.fn(), put: vi.fn(), patch: vi.fn(), delete: vi.fn() },
 }));
 
 vi.mock('./imageActions', () => ({
@@ -19,7 +19,14 @@ vi.mock('../utils/accessService', () => ({
 }));
 
 import axios from 'axios';
-import { createCardVariant, deleteCard, refreshCollection, updateCard } from './cardActions';
+import {
+  createCardVariant,
+  deleteCard,
+  refreshCard,
+  refreshCollection,
+  updateCard,
+  updateCardRating,
+} from './cardActions';
 import { createImage } from './imageActions';
 import { staticAntd } from '../utils/staticAntd';
 import { CardActionType } from '../reducer';
@@ -50,6 +57,7 @@ describe('card variant persistence', () => {
     vi.mocked(axios.post).mockReset();
     vi.mocked(axios.get).mockReset();
     vi.mocked(axios.put).mockReset();
+    vi.mocked(axios.patch).mockReset();
     vi.mocked(axios.delete).mockReset();
     vi.mocked(createImage).mockReset();
     vi.mocked(axios.post).mockResolvedValue({ data: { card: makeCard('new') } });
@@ -222,6 +230,14 @@ describe('card variant persistence', () => {
       front: { ...source.front, cover: 'base64:art.png|modal-art' },
       meta: { ...source.meta, state: CardState.Rate },
     };
+    vi.mocked(axios.patch).mockResolvedValueOnce({
+      data: {
+        card: {
+          ...modalDraft,
+          front: { ...modalDraft.front, cover: 'loading:art.png', cardMainType: 'Creature' },
+        },
+      },
+    });
     const dispatch = vi.fn();
     const modalSave = updateCard(dispatch, modalDraft);
     await vi.waitFor(() => expect(createImage).toHaveBeenCalled());
@@ -254,6 +270,11 @@ describe('card variant persistence', () => {
               resolve({ data: { card: (body as { card: CardInterface }).card } });
           }),
       );
+    vi.mocked(axios.patch).mockResolvedValueOnce({
+      data: {
+        card: { ...source, variantIds: ['new'], meta: { ...source.meta, state: CardState.Rate } },
+      },
+    });
     const dispatch = vi.fn();
     const creation = createCardVariant(dispatch, source, [source], UNKNOWN_CREATOR);
     await vi.waitFor(() => expect(axios.put).toHaveBeenCalledTimes(2));
@@ -263,11 +284,16 @@ describe('card variant persistence', () => {
     });
     finishFamilyWrite(undefined);
     await Promise.all([creation, modalSave]);
-    const savedSource = writes()
-      .filter(card => card.uuid === 'source')
-      .slice(-1)[0];
-    expect(savedSource.variantIds).toEqual(['new']);
-    expect(savedSource.meta.state).toBe(CardState.Rate);
+    expect(axios.patch).toHaveBeenCalledWith(
+      expect.stringContaining('/cards/source'),
+      expect.objectContaining({ set: { 'meta.state': CardState.Rate }, unset: [] }),
+    );
+    expect(dispatch.mock.calls.slice(-1)[0]?.[0]).toMatchObject({
+      type: CardActionType.UpdateCard,
+      payload: {
+        card: { uuid: 'source', variantIds: ['new'], meta: { state: CardState.Rate } },
+      },
+    });
   });
 
   it('never overwrites original uploaded art while persisting or rolling back family links', async () => {
@@ -317,6 +343,9 @@ describe('card variant persistence', () => {
     vi.mocked(axios.get).mockResolvedValueOnce({
       data: { cards: [{ ...source, variantIds: ['remote'] }] },
     });
+    vi.mocked(axios.patch).mockResolvedValueOnce({
+      data: { card: { ...source, variantIds: ['remote'] } },
+    });
     refreshCollection(dispatch);
     await vi.waitFor(() =>
       expect(dispatch).toHaveBeenCalledWith(
@@ -324,7 +353,16 @@ describe('card variant persistence', () => {
       ),
     );
     await updateCard(dispatch, source);
-    expect(writes().slice(-1)[0].variantIds).toEqual(['remote']);
+    expect(axios.patch).toHaveBeenLastCalledWith(
+      expect.stringContaining('/cards/source'),
+      expect.objectContaining({
+        set: expect.not.objectContaining({ variantIds: expect.anything() }),
+      }),
+    );
+    expect(dispatch.mock.calls.slice(-1)[0]?.[0]).toMatchObject({
+      type: CardActionType.UpdateCard,
+      payload: { card: { variantIds: ['remote'] } },
+    });
   });
 
   it('persists deletion cleanup and leaves a single ordinary member', async () => {
@@ -359,29 +397,98 @@ describe('card variant persistence', () => {
 describe('updateCard', () => {
   beforeEach(() => {
     vi.mocked(axios.put).mockReset();
+    vi.mocked(axios.patch).mockReset();
   });
 
-  it('does not send the Mongo-internal _id field in the update payload', async () => {
-    // A freshly-created card held in memory from the POST response carries
-    // Mongo's `_id`. Sending it back makes replaceOne reject the update with
-    // "immutable field '_id' was found to have been altered".
+  it('sends only changed fields and reconciles the complete server card', async () => {
+    const card = makeCard('card-to-patch');
+    const dispatch = vi.fn();
+    const mergedCard = {
+      ...card,
+      front: { ...card.front, name: 'Edited name' },
+      meta: { ...card.meta, likes: ['remote-voter'] },
+    };
+    vi.mocked(axios.get).mockResolvedValueOnce({ data: { cards: [card] } });
+    vi.mocked(axios.put).mockResolvedValueOnce({ data: { card: mergedCard } });
+    vi.mocked(axios.patch).mockResolvedValueOnce({ data: { card: mergedCard } });
+
+    refreshCollection(dispatch);
+    await vi.waitFor(() =>
+      expect(dispatch).toHaveBeenCalledWith(
+        expect.objectContaining({ type: CardActionType.BulkReadCard }),
+      ),
+    );
+    await updateCard(dispatch, {
+      ...card,
+      front: { ...card.front, name: 'Edited name' },
+    });
+
+    expect(axios.patch).toHaveBeenCalledWith(expect.stringContaining('/cards/card-to-patch'), {
+      accessKey: 'test-token',
+      set: { 'front.cardMainType': 'Creature', 'front.name': 'Edited name' },
+      unset: [],
+    });
+    expect(axios.put).not.toHaveBeenCalled();
+    expect(dispatch).toHaveBeenLastCalledWith({
+      type: CardActionType.UpdateCard,
+      payload: { card: mergedCard },
+    });
+  });
+
+  it('does not send Mongo-internal fields when there is no cached baseline', async () => {
     const card = {
       ...makeCard('uuid-1'),
       _id: '6abd7b0f36b7ed300aee2ac6',
       __v: 0,
     } as CardInterface;
-
-    vi.mocked(axios.put).mockResolvedValue({ data: { card: makeCard('uuid-1') } });
+    vi.mocked(axios.put).mockResolvedValueOnce({ data: { card: makeCard('uuid-1') } });
+    vi.mocked(axios.patch).mockResolvedValue({ data: { card: makeCard('uuid-1') } });
 
     await updateCard(() => {}, card);
 
-    expect(axios.put).toHaveBeenCalledTimes(1);
-    const body = vi.mocked(axios.put).mock.calls[0][1] as { card: Record<string, unknown> };
+    expect(axios.patch).toHaveBeenCalledTimes(1);
+    const body = vi.mocked(axios.patch).mock.calls[0][1] as {
+      set: Record<string, unknown>;
+    };
+    expect(body.set.uuid).toBeUndefined();
+    expect(body.set._id).toBeUndefined();
+    expect(body.set.__v).toBeUndefined();
+  });
 
-    // The identifier the app actually uses must still be present...
-    expect(body.card.uuid).toBe('uuid-1');
-    // ...but the immutable Mongo fields must be stripped.
-    expect(body.card._id).toBeUndefined();
-    expect(body.card.__v).toBeUndefined();
+  it('sends a rating intent and reconciles the complete server card', async () => {
+    const dispatch = vi.fn();
+    const card = {
+      ...makeCard('card-to-rate'),
+      meta: { ...makeCard('card-to-rate').meta, likes: ['voter-1'] },
+    };
+    vi.mocked(axios.put).mockResolvedValueOnce({ data: { card } });
+
+    await updateCardRating(dispatch, 'card-to-rate', 'voter-1', 'like');
+
+    expect(axios.put).toHaveBeenCalledWith(expect.stringContaining('/cards/card-to-rate/rating'), {
+      accessKey: 'test-token',
+      userUuid: 'voter-1',
+      rating: 'like',
+    });
+    expect(dispatch).toHaveBeenCalledWith({
+      type: CardActionType.UpdateCard,
+      payload: { card },
+    });
+  });
+
+  it('fetches and publishes the latest version of one card', async () => {
+    const dispatch = vi.fn();
+    const latest = { ...makeCard('card-to-refresh'), name: 'Latest name' };
+    vi.mocked(axios.get).mockResolvedValueOnce({ data: { card: latest } });
+
+    await refreshCard(dispatch, 'card-to-refresh');
+
+    expect(axios.get).toHaveBeenCalledWith(expect.stringContaining('/cards/card-to-refresh'), {
+      params: { accessKey: 'test-token' },
+    });
+    expect(dispatch).toHaveBeenCalledWith({
+      type: CardActionType.UpdateCard,
+      payload: { card: latest },
+    });
   });
 });

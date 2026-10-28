@@ -99,7 +99,7 @@
     color: #8b9785;
   }
   input {
-    color: #49584b;
+    color: var(--form-control-text-color);
   }
   input::placeholder {
     color: #9ba595;
@@ -108,6 +108,12 @@
   &:focus-within {
     border-color: #8da483;
   }
+}
+
+.controls :global(.ant-select-content),
+.controls :global(.ant-select-selection-item),
+.controls :global(.ant-select-input) {
+  color: var(--form-control-text-color);
 }
 
 .filterSection {
@@ -150,8 +156,8 @@
   border: 1px solid #e6e9e2;
   border-radius: 8px;
   background: #fff;
-  color: #49584b;
-  font-size: 11px;
+  color: var(--form-control-text-color);
+  font-size: 11.8px;
   line-height: 18px;
 
   &:has(input:checked) {
@@ -211,6 +217,12 @@
   font-size: 12px;
 }
 
+.goldColorDot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+}
+
 .disclosure {
   padding: 12px 0;
   border-bottom: 1px solid #e9ede5;
@@ -264,11 +276,6 @@
 .displaySettings {
   padding-bottom: 22px;
   border-bottom: 0;
-  summary {
-    color: #788570;
-    font-size: 13px;
-    font-weight: 500;
-  }
   :global(.ant-slider-mark-text) {
     color: #85917e;
     font-size: 10px;

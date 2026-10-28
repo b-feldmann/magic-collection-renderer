@@ -49,6 +49,13 @@ describe('SymbolGuide', () => {
     }
   });
 
+  it('shows the em dash used when rendering a mechanic with a text reference', () => {
+    render(<SymbolGuide onClose={() => {}} />);
+
+    expect(screen.getByText('[MECHANIC text]')).toBeInTheDocument();
+    expect(screen.getByText('MECHANIC — text')).toBeInTheDocument();
+  });
+
   it('makes every advanced code available through a native expandable summary', () => {
     render(<SymbolGuide onClose={() => {}} />);
     const summary = screen.getByText('Hybrid & Phyrexian Mana');

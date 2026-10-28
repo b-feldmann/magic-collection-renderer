@@ -620,4 +620,27 @@ updateLog.push({
   ],
 });
 
+updateLog.push({
+  version: '4.0.1',
+  title: 'Concurrent Editing Patch',
+  content: [
+    {
+      type: ChangeLogFeatureType.Added,
+      feature: 'Card reload button that fetches the newest card changes',
+    },
+    {
+      type: ChangeLogFeatureType.Fixed,
+      feature: 'Concurrent card ratings are now preserved',
+      description:
+        'Votes from different people no longer overwrite each other when they rate the same card.',
+    },
+    {
+      type: ChangeLogFeatureType.Changed,
+      feature: 'Card edits now save only the fields that changed',
+      description:
+        'This preserves other updates and refreshes your local copy and open editor. Unsaved edits stay in place.',
+    },
+  ],
+});
+
 export default updateLog;

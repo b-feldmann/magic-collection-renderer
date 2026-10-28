@@ -330,7 +330,13 @@ const CollectionFilterControls = ({
                         updateEnumState(key, checked, shownColors, setShownColors)
                       }
                       icon={
-                        colorTypeToSymbol(key) ? (
+                        key === ColorType.Gold ? (
+                          <span
+                            className={styles.goldColorDot}
+                            data-testid="gold-filter-icon"
+                            style={{ backgroundColor: '#eed66b' }}
+                          />
+                        ) : colorTypeToSymbol(key) ? (
                           <Mana cost symbol={colorTypeToSymbol(key)!} shadow={false} />
                         ) : (
                           <span>✧</span>

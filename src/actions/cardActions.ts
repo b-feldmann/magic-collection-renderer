@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import axios from 'axios';
 import cloneDeep from 'lodash/cloneDeep';
+import isEqual from 'lodash/isEqual';
 
 import dayjs from 'dayjs';
 import { Action, CardActionType } from '../reducer';
@@ -143,9 +144,7 @@ export const createCard = (dispatch: (value: Action) => void, creator: UserInter
   });
 };
 
-// Keep multi-card operations private until every write has succeeded.
-const persistCard = async (updated: CardInterface, uploadImages = true): Promise<CardInterface> => {
-  const request = `${MIDDLEWARE_ENDPOINT}/cards`;
+const prepareCard = async (updated: CardInterface, uploadImages = true): Promise<CardInterface> => {
   const parsed = { ...updated };
   // `_id`/`__v` are Mongo-internal fields that ride along on cards held in
   // memory from the server (notably freshly POST-created ones). Sending them
@@ -178,9 +177,93 @@ const persistCard = async (updated: CardInterface, uploadImages = true): Promise
     parsed.back.cover = toLoadingCover(name);
   }
 
+  return parsed;
+};
+
+// Keep multi-card operations private until every write has succeeded.
+const persistCard = async (updated: CardInterface, uploadImages = true): Promise<CardInterface> => {
+  const request = `${MIDDLEWARE_ENDPOINT}/cards`;
+  const parsed = await prepareCard(updated, uploadImages);
   const result = await axios.put(request, { card: parsed, accessKey: getAccessToken() });
   return result.data.card;
 };
+
+interface CardChanges {
+  set: Record<string, unknown>;
+  unset: string[];
+}
+
+const isPlainObject = (value: unknown): value is Record<string, unknown> =>
+  value !== null && typeof value === 'object' && Object.getPrototypeOf(value) === Object.prototype;
+
+const diffCard = (previous: CardInterface | undefined, next: CardInterface): CardChanges => {
+  const changes: CardChanges = { set: {}, unset: [] };
+  const ignoredPaths = new Set([
+    'uuid',
+    '_id',
+    '__v',
+    'loading',
+    'meta.likes',
+    'meta.dislikes',
+    'meta.lastUpdated',
+  ]);
+
+  const visit = (before: unknown, after: unknown, path: string) => {
+    if (ignoredPaths.has(path)) return;
+    if (
+      path === '' ||
+      (isPlainObject(before) && isPlainObject(after)) ||
+      (before === undefined && isPlainObject(after))
+    ) {
+      const previousObject = isPlainObject(before) ? before : {};
+      const nextObject = isPlainObject(after) ? after : {};
+      const keys = new Set([...Object.keys(previousObject), ...Object.keys(nextObject)]);
+      keys.forEach(key => {
+        const childPath = path ? `${path}.${key}` : key;
+        visit(previousObject[key], nextObject[key], childPath);
+      });
+      return;
+    }
+    if (after === undefined) {
+      if (before !== undefined) changes.unset.push(path);
+      return;
+    }
+    if (!isEqual(before, after)) changes.set[path] = after;
+  };
+
+  visit(previous, next, '');
+  return changes;
+};
+
+const publishCard = (dispatch: Dispatch, state: CardMutations, card: CardInterface) => {
+  rememberCard(state, card);
+  // `loading`/`loading:<name>` covers point at the images collection.
+  if (isLoadingCover(card.front.cover)) {
+    getImage(dispatch, card, 0);
+  }
+  if (card.back && isLoadingCover(card.back.cover)) {
+    getImage(dispatch, card, 1);
+  }
+  return dispatch({
+    type: CardActionType.UpdateCard,
+    payload: { card },
+  });
+};
+
+export const refreshCard = (dispatch: Dispatch, cardUuid: string): Promise<CardInterface> =>
+  mutateCards(dispatch, async state => {
+    if (state.deleted.has(cardUuid)) throw new Error('This card has been deleted');
+    const result = await axios.get(`${MIDDLEWARE_ENDPOINT}/cards/${cardUuid}`, {
+      params: { accessKey: getAccessToken() },
+    });
+    const card = result.data.card as CardInterface | undefined;
+    if (!card) throw new Error(`Card ${cardUuid} was not found`);
+    publishCard(dispatch, state, card);
+    return card;
+  }).catch(error => {
+    staticAntd.message.error("Could'nt reload the card");
+    throw error;
+  });
 
 export const updateCard = (
   dispatch: (value: Action) => void,
@@ -190,28 +273,39 @@ export const updateCard = (
   return mutateCards(dispatch, async state => {
     if (state.deleted.has(snapshot.uuid)) throw new Error('This card has been deleted');
     const latest = state.saved.get(snapshot.uuid);
-    const card = await persistCard(latest ? withLatestVariantIds(snapshot, [latest]) : snapshot);
-    rememberCard(state, card);
-    // `loading`/`loading:<name>` covers point at the images collection.
-    if (isLoadingCover(card.front.cover)) {
-      getImage(dispatch, card, 0);
-    }
-    if (card.back) {
-      if (isLoadingCover(card.back.cover)) {
-        getImage(dispatch, card, 1);
-      }
-    }
-    return dispatch({
-      type: CardActionType.UpdateCard,
-      payload: {
-        card,
-      },
+    const draft = latest ? withLatestVariantIds(snapshot, [latest]) : snapshot;
+    const prepared = await prepareCard(draft);
+    const { set, unset } = diffCard(latest, prepared);
+    const result = await axios.patch(`${MIDDLEWARE_ENDPOINT}/cards/${snapshot.uuid}`, {
+      accessKey: getAccessToken(),
+      set,
+      unset,
     });
+    return publishCard(dispatch, state, result.data.card);
   }).catch(error => {
     staticAntd.message.error("Could'nt update the card");
     throw error;
   });
 };
+
+export const updateCardRating = (
+  dispatch: (value: Action) => void,
+  cardUuid: string,
+  userUuid: string,
+  rating: 'like' | 'dislike' | null,
+): Promise<unknown> =>
+  mutateCards(dispatch, async state => {
+    if (state.deleted.has(cardUuid)) throw new Error('This card has been deleted');
+    const result = await axios.put(`${MIDDLEWARE_ENDPOINT}/cards/${cardUuid}/rating`, {
+      accessKey: getAccessToken(),
+      userUuid,
+      rating,
+    });
+    return publishCard(dispatch, state, result.data.card);
+  }).catch(error => {
+    staticAntd.message.error("Could'nt update the card");
+    throw error;
+  });
 
 const removeCard = (uuid: string) =>
   axios.delete(`${MIDDLEWARE_ENDPOINT}/cards/${uuid}`, { params: { accessKey: getAccessToken() } });

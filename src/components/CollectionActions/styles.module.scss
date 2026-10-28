@@ -29,14 +29,14 @@
   border: 1px solid #e3e9dc;
   border-radius: 8px;
   background: #f7f9f4;
-  color: #52664c;
+  color: var(--form-control-text-color);
   box-shadow: none;
   font-size: 11px;
   &:hover,
   &:focus-visible {
     background: #edf2e7;
     border-color: #a9b9a1;
-    color: #3e6248;
+    color: var(--form-control-text-color);
   }
 }
 .accountRow {
@@ -60,7 +60,6 @@
   font-weight: 650;
 }
 .userPicker {
-  position: relative;
   flex: 1;
   min-width: 0;
   label {
@@ -69,35 +68,25 @@
     font-size: 9px;
     line-height: 1.4;
   }
-  select {
-    appearance: none;
-    width: 100%;
-    border: none;
-    border-radius: 4px;
-    padding: 1px 18px 2px 0;
-    background: transparent;
-    color: #4a5b44;
-    font: inherit;
-    font-size: 12px;
-    font-weight: 550;
-    cursor: pointer;
-    text-overflow: ellipsis;
+}
+.userSelect:global(.ant-select) {
+  width: 100%;
+  color: #4a5b44;
+  font-size: 12px;
+  font-weight: 550;
+  cursor: pointer;
+  :global(.ant-select-selector) {
+    min-height: 24px;
+    padding: 0 !important;
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
   }
-  &::after {
-    content: '';
-    position: absolute;
-    top: 17px;
-    right: 4px;
-    width: 6px;
-    height: 6px;
-    border-right: 1px solid #8c9983;
-    border-bottom: 1px solid #8c9983;
-    transform: rotate(45deg);
-    pointer-events: none;
+  :global(.ant-select-selection-item) {
+    padding-inline-end: 18px;
   }
-  select:focus-visible {
-    outline: 2px solid #3e6248;
-    outline-offset: 2px;
+  :global(.ant-select-arrow) {
+    color: #8c9983;
   }
 }
 .moreActions:global(.ant-btn) {
@@ -105,6 +94,69 @@
   width: 26px;
   height: 26px;
   color: #788570;
+}
+
+.switchUserModal {
+  :global(.ant-modal-content) {
+    padding: 26px 28px 24px;
+    border: 1px solid #e4ebdf;
+    border-radius: 18px;
+    box-shadow: 0 18px 48px rgba(19, 49, 29, 0.18);
+  }
+
+  :global(.ant-modal-confirm-body-icon) {
+    display: grid;
+    width: 40px;
+    height: 40px;
+    margin-inline-end: 16px;
+    place-items: center;
+    border-radius: 12px;
+    background: #edf5eb;
+    color: #26714a;
+    font-size: 18px;
+  }
+
+  :global(.ant-modal-confirm-body-icon .anticon) {
+    color: inherit;
+  }
+
+  :global(.ant-modal-confirm-body .ant-modal-confirm-title) {
+    color: #17251b;
+    font-size: 18px;
+    font-weight: 650;
+  }
+
+  :global(.ant-modal-confirm-body .ant-modal-confirm-content) {
+    margin-block-start: 8px;
+    color: #68786a;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  :global(.ant-modal-confirm-btns) {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 24px;
+  }
+
+  :global(.ant-modal-confirm-btns .ant-btn) {
+    min-width: 94px;
+    height: 38px;
+    border-radius: 10px;
+    font-weight: 600;
+  }
+
+  :global(.ant-modal-confirm-btns .ant-btn-primary) {
+    border: 0;
+    background: linear-gradient(310deg, #14532d, #26714a);
+    box-shadow: 0 3px 8px rgba(20, 83, 45, 0.2);
+
+    &:hover {
+      background: linear-gradient(310deg, #0c3b21, #14532d);
+    }
+  }
 }
 
 .mobile {
@@ -123,12 +175,9 @@
     margin-top: 8px;
     padding-top: 8px;
   }
-  .userPicker select {
+  .userSelect:global(.ant-select) {
     min-height: 30px;
     font-size: 13px;
-  }
-  .userPicker::after {
-    top: 23px;
   }
   .moreActions:global(.ant-btn) {
     width: 44px;

@@ -66,16 +66,27 @@
   flex-shrink: 0;
 
   .ratingVote {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+    height: 44px;
     min-width: 44px;
     min-height: 44px;
   }
 
   .stateButton {
-    margin-top: 8px;
+    height: 44px;
     min-height: 44px;
+  }
+
+  .ratingPanel {
+    justify-content: center;
+  }
+
+  .ratingActions {
+    justify-content: center;
+
+    :global(.ant-btn) {
+      height: 44px;
+      min-height: 44px;
+    }
   }
 }
 
@@ -162,11 +173,98 @@
   background: #fff;
   color: #141414;
   border-radius: 12px;
-  box-shadow: 0 20px 27px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 12px 28px rgba(19, 33, 54, 0.1);
+}
+
+.ratingPanel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  min-width: 0;
+}
+
+.ratingVotes,
+.ratingActions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.ratingVotes {
+  flex-shrink: 0;
+}
+
+.ratingVote {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  width: auto;
+  min-width: 40px;
+  height: 26px;
+  min-height: 26px;
+  padding: 0 9px;
+  border: 1px solid #e3e7ed;
+  border-radius: 11px;
+  background: #f7f8fa;
+  color: #465160;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease,
+    transform 160ms ease;
+
+  &:hover {
+    border-color: #cbd3de;
+    background: #f0f3f7;
+  }
+
+  &:active {
+    transform: translateY(1px);
+  }
+
+  &:focus-visible {
+    outline: 3px solid rgba(54, 112, 232, 0.3);
+    outline-offset: 2px;
+  }
+
+  &[aria-pressed='true'] {
+    border-color: #b9d8c5;
+    background: #edf7f0;
+    color: #287344;
+  }
+}
+
+.ratingVoteDislike[aria-pressed='true'] {
+  border-color: #f0c4c2;
+  background: #fff1f0;
+  color: #b63832;
+}
+
+.ratingActions {
+  justify-content: flex-end;
+
+  :global(.ant-btn) {
+    height: 24px;
+    min-height: 24px;
+    padding-inline: 10px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+  }
 }
 
 .stateButton {
-  margin-left: 8px;
+  margin: 0;
+  height: 24px;
+  min-height: 24px;
 }
 
 .view {

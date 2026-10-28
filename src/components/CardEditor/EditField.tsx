@@ -1,16 +1,21 @@
 import { Button, Input, Listy, Radio, Select, Space, Switch, Tag } from 'antd';
 import { PaperClipOutlined } from '@ant-design/icons';
 import CrownOutlined from '@ant-design/icons/CrownOutlined';
+import DownOutlined from '@ant-design/icons/DownOutlined';
 
 import AntIcon from '../AntIcon/AntIcon';
 import React, { useId } from 'react';
 import styles from './styles.module.scss';
 import { getCoverFileName, isUploadedCover } from '../../utils/cover';
+import { ColorType, RarityType } from '../../interfaces/enums';
+import { getRarityIcon } from '../TemplatingCardRender/assetLoader';
+import { injectManaIcons } from '../../utils/injectUtils';
 import EditorTooltip from '../EditorTooltip';
 import CardTextInput from './CardTextInput';
 
 const { TextArea } = Input;
 const InputGroup = Input.Group;
+const RARITY_ICON_STYLE: React.CSSProperties = { width: 20, height: 20 };
 
 interface EditFieldInterface {
   fieldKey: string;
@@ -36,6 +41,7 @@ interface EditFieldInterface {
   disabledKeys?: string[];
   allowCreate?: boolean;
   nonRemovableValues?: string[];
+  manaColors?: ColorType[];
   getValue: (key: string) => any;
   saveValue: (key: string, value: any) => void;
 }
@@ -158,6 +164,9 @@ const EditField = (props: EditFieldInterface) => {
   }
 
   if (type === 'input') {
+    const value = getValue(fieldKey) || '';
+    const manaPreview = fieldKey === 'manaCost' ? injectManaIcons(value) : undefined;
+
     return (
       <span>
         {inputLabel}
@@ -166,7 +175,15 @@ const EditField = (props: EditFieldInterface) => {
           placeholder={placeholder}
           aria-describedby={optionalId}
           size="small"
-          value={getValue(fieldKey)}
+          className={fieldKey === 'manaCost' ? styles.manaCostInput : undefined}
+          value={value}
+          suffix={
+            fieldKey === 'manaCost' ? (
+              <span className={styles.manaCostPreview} aria-hidden="true">
+                {manaPreview}
+              </span>
+            ) : undefined
+          }
           onChange={e => saveValue(fieldKey, e.target.value)}
         />
       </span>
@@ -293,6 +310,9 @@ const EditField = (props: EditFieldInterface) => {
   }
 
   if (type === 'select' && data) {
+    const selectedRarity = fieldKey === 'rarity' ? (getValue(fieldKey) as RarityType) : undefined;
+    const rarityIcon = selectedRarity ? getRarityIcon(selectedRarity) : undefined;
+
     return (
       <span>
         <label className={styles.label} htmlFor={fieldId}>
@@ -304,6 +324,36 @@ const EditField = (props: EditFieldInterface) => {
           value={getValue(fieldKey)}
           onChange={(key: string) => saveValue(fieldKey, key)}
           style={{ width: '100%' }}
+          suffixIcon={
+            fieldKey === 'rarity' ? (
+              <span className={styles.raritySelectSuffix}>
+                <DownOutlined />
+                {rarityIcon ? (
+                  <img
+                    src={rarityIcon}
+                    alt=""
+                    className={styles.raritySelectIcon}
+                    style={RARITY_ICON_STYLE}
+                  />
+                ) : null}
+              </span>
+            ) : undefined
+          }
+          optionRender={
+            fieldKey === 'rarity'
+              ? option => (
+                  <span className={styles.rarityOption}>
+                    <img
+                      src={getRarityIcon(option.value as RarityType)}
+                      alt=""
+                      className={styles.raritySelectIcon}
+                      style={RARITY_ICON_STYLE}
+                    />
+                    {option.label}
+                  </span>
+                )
+              : undefined
+          }
           options={data.map(d => ({
             key: `${fieldKey} + ${d.key}`,
             value: d.key,
@@ -488,6 +538,7 @@ const EditField = (props: EditFieldInterface) => {
         name={name}
         value={(getValue(fieldKey) as string[]) || []}
         onChange={lines => saveValue(fieldKey, lines)}
+        manaColors={props.manaColors}
       />
     );
   }

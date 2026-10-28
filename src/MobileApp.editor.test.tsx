@@ -125,6 +125,15 @@ beforeEach(() => {
   vi.mocked(axios.put).mockImplementation(async (_url, data) => ({
     data: { card: (data as { card: CardInterface }).card },
   }));
+  vi.mocked(axios.patch).mockResolvedValue({
+    data: {
+      card: {
+        ...a,
+        name: 'Edited on mobile',
+        front: { ...a.front, name: 'Edited on mobile' },
+      },
+    },
+  });
 });
 
 afterEach(async () => {
@@ -162,9 +171,11 @@ describe('mobile card editing flow', () => {
     expect(screen.queryByRole('region', { name: 'Card editor' })).not.toBeInTheDocument();
     await waitFor(
       () =>
-        expect(axios.put).toHaveBeenCalledWith(
-          'http://localhost:8080/cards',
-          expect.objectContaining({ card: expect.objectContaining({ name: 'Edited on mobile' }) }),
+        expect(axios.patch).toHaveBeenCalledWith(
+          'http://localhost:8080/cards/a',
+          expect.objectContaining({
+            set: expect.objectContaining({ name: 'Edited on mobile' }),
+          }),
         ),
       { timeout: 3500 },
     );

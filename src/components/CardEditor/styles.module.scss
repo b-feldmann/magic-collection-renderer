@@ -28,6 +28,7 @@
 
   :global(.ant-input) {
     min-height: var(--ant-control-height-sm, 34px);
+    color: var(--form-control-text-color);
   }
 
   :global(input.ant-input) {
@@ -80,6 +81,12 @@
 
   :global(.ant-select-selection-item) {
     min-width: 0;
+    color: var(--form-control-text-color);
+  }
+
+  :global(.ant-select-content),
+  :global(.ant-select-input) {
+    color: var(--form-control-text-color);
   }
 
   :global(.ant-btn) {
@@ -178,6 +185,34 @@
   min-width: 0;
   font-size: 13px;
   cursor: pointer;
+}
+
+.raritySelectSuffix {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.rarityOption {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.raritySelectIcon {
+  display: block;
+  object-fit: contain;
+}
+
+.manaCostPreview {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  white-space: nowrap;
+}
+
+.manaCostInput:global(.ant-input-affix-wrapper) {
+  padding-block: 0;
 }
 
 .specialtyHeading {
@@ -403,10 +438,38 @@
   border-radius: 8px 8px 0 0;
   background: #f9faf8;
 
+  button {
+    color: #455a4b !important;
+  }
+
   :global(.ant-btn) {
     padding-inline: 6px;
-    color: #65765f;
+    color: var(--form-control-text-color);
   }
+}
+
+.toolbarSymbol {
+  position: relative;
+  top: -2px;
+}
+
+.symbolToolbarDivider {
+  flex: 0 0 1px;
+  width: 1px;
+  align-self: stretch;
+  height: auto;
+  margin-block: -4px;
+  margin-inline: auto 4px;
+  background: #e9ede5;
+}
+
+.symbolToolbarSeparator {
+  margin-inline: 0;
+}
+
+.textToolbar .symbolGuide {
+  padding-inline: 0;
+  color: #4f7b5d;
 }
 
 .rulesTextArea:global(.ant-input) {

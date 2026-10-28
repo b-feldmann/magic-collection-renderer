@@ -97,6 +97,11 @@ beforeEach(() => {
 });
 
 describe('modern collection sidebar', () => {
+  it('right-aligns switch-user confirmation actions', () => {
+    const css = compile(resolve('src/components/CollectionActions/styles.module.scss')).css;
+    expect(css).toContain('justify-content: flex-end');
+  });
+
   it('keeps create and mechanics actions outside the scrolling filters', () => {
     showApp();
     const filters = screen.getByRole('region', { name: 'Collection filters' });
@@ -113,18 +118,34 @@ describe('modern collection sidebar', () => {
   it('switches to a real user only after confirmation and leaves cancellation unchanged', async () => {
     showApp();
     const selector = screen.getByRole('combobox', { name: 'Switch current user' });
-    expect(selector).toHaveValue('benjamin');
-    expect(within(selector).queryByRole('option', { name: 'ADMIN' })).not.toBeInTheDocument();
-    fireEvent.change(selector, { target: { value: 'alex' } });
-    expect(Modal.confirm).toHaveBeenCalledWith(expect.objectContaining({ title: 'Switch user?' }));
+    expect(selector.closest('.ant-select')).toBeInTheDocument();
+    expect(selector.closest('.ant-select')).toHaveTextContent('Benjamin');
+    fireEvent.mouseDown(selector);
+    expect(
+      await screen.findByText('Alex', { selector: '.ant-select-item-option-content' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText('ADMIN', { selector: '.ant-select-item-option-content' }),
+    ).not.toBeInTheDocument();
+    fireEvent.click(screen.getByText('Alex', { selector: '.ant-select-item-option-content' }));
+    expect(Modal.confirm).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: 'Switch user?',
+        content: 'You’ll switch the active collection to Alex.',
+        className: expect.any(String),
+      }),
+    );
     expect(setCurrentUser).not.toHaveBeenCalled();
-    expect(selector).toHaveValue('benjamin');
+    expect(selector.closest('.ant-select')).toHaveTextContent('Benjamin');
     const cancelled = vi.mocked(Modal.confirm).mock.lastCall![0];
     await act(async () => {
       await cancelled.onCancel?.();
     });
     expect(setCurrentUser).not.toHaveBeenCalled();
-    fireEvent.change(selector, { target: { value: 'alex' } });
+    fireEvent.mouseDown(selector);
+    fireEvent.click(
+      await screen.findByText('Alex', { selector: '.ant-select-item-option-content' }),
+    );
     const confirmed = vi.mocked(Modal.confirm).mock.lastCall![0];
     await act(async () => {
       await confirmed.onOk?.();
@@ -219,10 +240,17 @@ describe('matching mobile collection actions', () => {
   it('uses confirmed user switching without exposing the administrative account', async () => {
     showMobile();
     const selector = screen.getByRole('combobox', { name: 'Switch current user' });
-    expect(within(selector).queryByRole('option', { name: 'ADMIN' })).not.toBeInTheDocument();
-    fireEvent.change(selector, { target: { value: 'alex' } });
+    expect(selector.closest('.ant-select')).toBeInTheDocument();
+    fireEvent.mouseDown(selector);
+    expect(
+      await screen.findByText('Alex', { selector: '.ant-select-item-option-content' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText('ADMIN', { selector: '.ant-select-item-option-content' }),
+    ).not.toBeInTheDocument();
+    fireEvent.click(screen.getByText('Alex', { selector: '.ant-select-item-option-content' }));
     expect(setCurrentUser).not.toHaveBeenCalled();
-    expect(selector).toHaveValue('benjamin');
+    expect(selector.closest('.ant-select')).toHaveTextContent('Benjamin');
     await act(async () => {
       await vi.mocked(Modal.confirm).mock.lastCall![0].onOk?.();
     });

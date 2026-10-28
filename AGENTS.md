@@ -42,6 +42,12 @@ hit `http://localhost:8080`; in production (`import.meta.env.PROD`) they use rel
   `src/components/TextResize` (instead of `react-resize-text`).
 - **Electron**: `main` is `src/electron-starter.js`; Vite `base: './'` keeps asset paths relative.
 
+## UI test scope
+
+Do not write tests for every individual styling detail or assert pixel-exact values (for example,
+that an icon is exactly 16px rather than 20px). These checks are unnecessary and brittle. Focus UI
+tests on behavior, semantics, accessibility, and meaningful layout outcomes instead.
+
 # React Best Practices
 
 **Version 1.0.0**  

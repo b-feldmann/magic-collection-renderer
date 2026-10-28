@@ -42,11 +42,13 @@ const MechanicFields = ({ mechanic, index }: { mechanic: MechanicInterface; inde
   };
 
   return (
-    <section className={styles.mechanic} aria-labelledby={`${id}-heading`}>
-      <div className={editorStyles.sectionHeading}>
+    <article className={styles.mechanic} aria-labelledby={`${id}-index ${id}-heading`}>
+      <header className={styles.mechanicHeader}>
+        <span className={styles.number} id={`${id}-index`}>
+          {String(index + 1).padStart(2, '0')}
+        </span>
         <h3 id={`${id}-heading`}>{draft.name || 'New mechanic'}</h3>
-        <span>{String(index + 1).padStart(2, '0')}</span>
-      </div>
+      </header>
       <div className={styles.fields}>
         <div>
           <label className={editorStyles.label} htmlFor={`${id}-name`}>
@@ -68,7 +70,7 @@ const MechanicFields = ({ mechanic, index }: { mechanic: MechanicInterface; inde
             id={`${id}-description`}
             value={draft.description}
             placeholder="Describe how this mechanic works…"
-            autoSize={{ minRows: 2, maxRows: 8 }}
+            autoSize={{ minRows: 1, maxRows: 8 }}
             onChange={event =>
               setEdits(current => ({ ...current, description: event.target.value }))
             }
@@ -76,7 +78,7 @@ const MechanicFields = ({ mechanic, index }: { mechanic: MechanicInterface; inde
           />
         </div>
       </div>
-    </section>
+    </article>
   );
 };
 
@@ -93,7 +95,7 @@ const MechanicModal = ({
   return (
     <Modal
       className={styles.modal}
-      width={760}
+      width={920}
       title="Edit Mechanics"
       open={visible}
       centered
@@ -120,14 +122,16 @@ const MechanicModal = ({
             <MechanicFields key={mechanic.uuid} mechanic={mechanic} index={index} />
           ))
         )}
-        <Button
-          className={styles.addButton}
-          icon={<PlusOutlined />}
-          block
-          onClick={() => createMechanic(dispatch, cards)}
-        >
-          Add Mechanic
-        </Button>
+        <article className={styles.newMechanic} aria-label="Add a mechanic">
+          <Button
+            className={styles.addButton}
+            icon={<PlusOutlined />}
+            block
+            onClick={() => createMechanic(dispatch, cards)}
+          >
+            Add Mechanic
+          </Button>
+        </article>
       </div>
     </Modal>
   );

@@ -108,6 +108,16 @@ describe('MechanicModal', () => {
     expect(updateMechanic).not.toHaveBeenCalled();
   });
 
+  it('separates mechanics into numbered cards and a distinct add card', () => {
+    renderModal([mechanic, { ...mechanic, uuid: 'mechanic-2', name: 'Trample' }]);
+
+    expect(screen.getByRole('article', { name: '01 Flying' })).toBeInTheDocument();
+    expect(screen.getByRole('article', { name: '02 Trample' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('article', { name: 'Add a mechanic' }).querySelector('button'),
+    ).toHaveAccessibleName(/add mechanic/i);
+  });
+
   it('retries a failed save when the unchanged draft loses focus again', async () => {
     vi.mocked(updateMechanic).mockResolvedValueOnce(false);
     renderModal();

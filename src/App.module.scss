@@ -167,7 +167,7 @@ $editor-width: clamp(516px, calc(100vw / 24 * 21 / 24 * 6 - 16px), 516px);
       box-shadow: none;
     }
     :global(.ant-select-content) {
-      color: #53604e;
+      color: var(--form-control-text-color);
     }
   }
 

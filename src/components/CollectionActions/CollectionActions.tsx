@@ -2,11 +2,13 @@ import React, { useId } from 'react';
 import Button from 'antd/es/button';
 import Dropdown from 'antd/es/dropdown';
 import Modal from 'antd/es/modal';
+import Select from 'antd/es/select';
 import PlusOutlined from '@ant-design/icons/PlusOutlined';
 import EditOutlined from '@ant-design/icons/EditOutlined';
 import DownloadOutlined from '@ant-design/icons/DownloadOutlined';
 import ReloadOutlined from '@ant-design/icons/ReloadOutlined';
 import EllipsisOutlined from '@ant-design/icons/EllipsisOutlined';
+import SwapOutlined from '@ant-design/icons/SwapOutlined';
 import UserInterface from '../../interfaces/UserInterface';
 import styles from './styles.module.scss';
 
@@ -75,31 +77,32 @@ const CollectionActions = ({
         </span>
         <div className={styles.userPicker}>
           <label htmlFor={userId}>Current user</label>
-          <select
+          <Select
             id={userId}
+            className={styles.userSelect}
             aria-label="Switch current user"
             title={currentUser.name}
             value={currentUser.uuid}
-            onChange={event => {
-              const nextUser = availableUsers.find(user => user.uuid === event.target.value);
+            onChange={(uuid: string) => {
+              const nextUser = availableUsers.find(user => user.uuid === uuid);
               if (!nextUser || nextUser.uuid === currentUser.uuid) return;
               Modal.confirm({
                 title: 'Switch user?',
+                content: `You’ll switch the active collection to ${nextUser.name}.`,
+                icon: <SwapOutlined />,
+                className: styles.switchUserModal,
                 okText: 'Yes, switch user',
                 cancelText: 'Cancel',
                 onOk: () => onSwitchUser(nextUser),
               });
             }}
-          >
-            {!availableUsers.some(user => user.uuid === currentUser.uuid) && (
-              <option value={currentUser.uuid}>{currentUser.name}</option>
-            )}
-            {availableUsers.map(user => (
-              <option key={user.uuid} value={user.uuid}>
-                {user.name}
-              </option>
-            ))}
-          </select>
+            options={[
+              ...(!availableUsers.some(user => user.uuid === currentUser.uuid)
+                ? [{ value: currentUser.uuid, label: currentUser.name }]
+                : []),
+              ...availableUsers.map(user => ({ value: user.uuid, label: user.name })),
+            ]}
+          />
         </div>
         <Dropdown trigger={['click']} menu={{ items }}>
           <Button

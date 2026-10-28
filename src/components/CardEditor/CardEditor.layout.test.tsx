@@ -1,5 +1,5 @@
 import React from 'react';
-import { act, fireEvent, render, screen, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import CardEditor from './CardEditor';
 import type CardInterface from '../../interfaces/CardInterface';
@@ -7,6 +7,8 @@ import { CardArtStyles, CardState, CardType, RarityType } from '../../interfaces
 import { Store, StoreType } from '../../store';
 import { EDIT_SAVE_OFFSET, UNKNOWN_CREATOR } from '../../utils/constants';
 import { updateCard } from '../../actions/cardActions';
+import { getRarityIcon } from '../TemplatingCardRender/assetLoader';
+import styles from './styles.module.scss';
 
 vi.mock('../../actions/cardActions', () => ({
   updateCard: vi.fn(() => Promise.resolve()),
@@ -118,6 +120,67 @@ describe('CardEditor compact layout', () => {
       expect(control.closest('[data-field-key]')).toHaveStyle({ gridColumn: 'span 1' });
     }
     expect(controls[2].parentElement?.querySelector('.mana')).toBeNull();
+  });
+
+  it('shows the selected rarity icon in the rarity dropdown suffix', () => {
+    const card = makeCard();
+    card.rarity = RarityType.Rare;
+    renderEditor(card);
+    const raritySelect = screen.getByLabelText('Rarity');
+
+    const icon = raritySelect.closest('.ant-select')?.querySelector('.ant-select-suffix img');
+    expect(icon).toHaveAttribute('src', getRarityIcon(RarityType.Rare));
+  });
+
+  it('does not show a rarity icon when the dropdown has no selection', () => {
+    const card = makeCard();
+    card.rarity = '' as RarityType;
+    renderEditor(card);
+
+    expect(
+      screen
+        .getByLabelText('Rarity')
+        .closest('.ant-select')
+        ?.querySelector('.ant-select-suffix img'),
+    ).not.toBeInTheDocument();
+  });
+
+  it('shows each rarity icon inside its matching dropdown option', async () => {
+    renderEditor();
+    const raritySelect = screen.getByLabelText('Rarity').closest('.ant-select') as HTMLElement;
+    fireEvent.mouseDown(raritySelect);
+
+    await waitFor(() => {
+      expect(
+        document.querySelectorAll('.ant-select-dropdown .ant-select-item-option'),
+      ).toHaveLength(Object.values(RarityType).length);
+    });
+
+    for (const rarity of Object.values(RarityType)) {
+      const option = Array.from(
+        document.querySelectorAll('.ant-select-dropdown .ant-select-item-option'),
+      ).find(element => element.textContent === rarity);
+      const icon = option?.querySelector('img');
+      expect(icon).toHaveAttribute('src', getRarityIcon(rarity));
+    }
+  });
+
+  it('renders and updates the mana cost symbols in the input suffix', () => {
+    renderEditor();
+    const manaCost = screen.getByLabelText('Mana Cost');
+    const suffix = () =>
+      manaCost.closest('.ant-input-affix-wrapper')?.querySelector('.ant-input-suffix');
+
+    expect(manaCost.closest('.ant-input-affix-wrapper')).toHaveClass(styles.manaCostInput);
+    expect(suffix()?.querySelectorAll('.ms-cost')).toHaveLength(2);
+    expect(suffix()?.querySelector('.ms-2')).toBeInTheDocument();
+    expect(suffix()?.querySelector('.ms-u')).toBeInTheDocument();
+
+    fireEvent.change(manaCost, { target: { value: '{3}{R}' } });
+
+    expect(suffix()?.querySelectorAll('.ms-cost')).toHaveLength(2);
+    expect(suffix()?.querySelector('.ms-3')).toBeInTheDocument();
+    expect(suffix()?.querySelector('.ms-r')).toBeInTheDocument();
   });
 
   it('retains half-width card name when its art style has no nickname', () => {

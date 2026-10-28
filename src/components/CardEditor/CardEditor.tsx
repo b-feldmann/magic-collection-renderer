@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { Button, ConfigProvider, Dropdown, Flex, Modal, theme } from 'antd';
 import EllipsisOutlined from '@ant-design/icons/EllipsisOutlined';
+import ReloadOutlined from '@ant-design/icons/ReloadOutlined';
 import StarFilled from '@ant-design/icons/StarFilled';
 import StarOutlined from '@ant-design/icons/StarOutlined';
 import cloneDeep from 'lodash/cloneDeep';
@@ -29,9 +30,10 @@ import { getAutomaticCardTags, getCardTags, updateCardTags } from '../../utils/c
 import { createTag } from '../../actions/tagActions';
 
 import CardFaceInterface from '../../interfaces/CardFaceInterface';
-import { createCardVariant, deleteCard, updateCard } from '../../actions/cardActions';
+import { createCardVariant, deleteCard, refreshCard, updateCard } from '../../actions/cardActions';
 import { withLatestVariantIds } from '../../utils/cardVariants';
 import { Store, StoreType } from '../../store';
+import cardToColor from '../../utils/cardToColor';
 import {
   BJENNWARE,
   EDIT_SAVE_OFFSET,
@@ -277,6 +279,41 @@ const withLatestMetadata = (draft: CardInterface, cards: CardInterface[]): CardI
   return latest ? { ...draft, meta: { ...latest.meta, comment: draft.meta.comment } } : draft;
 };
 
+const isPlainRecord = (value: unknown): value is Record<string, unknown> =>
+  value !== null && typeof value === 'object' && Object.getPrototypeOf(value) === Object.prototype;
+
+// Apply server changes to fields the user has not edited. If both the server
+// and the local draft changed the same field, keep the user's draft.
+const mergeCardDraft = (base: unknown, draft: unknown, incoming: unknown): unknown => {
+  if (isEqual(draft, base)) return cloneDeep(incoming);
+  if (isEqual(incoming, base)) return cloneDeep(draft);
+
+  const values = [base, draft, incoming];
+  if (
+    values.some(isPlainRecord) &&
+    values.every(value => value === undefined || isPlainRecord(value))
+  ) {
+    const baseRecord = isPlainRecord(base) ? base : {};
+    const draftRecord = isPlainRecord(draft) ? draft : {};
+    const incomingRecord = isPlainRecord(incoming) ? incoming : {};
+    const keys = new Set([
+      ...Object.keys(baseRecord),
+      ...Object.keys(draftRecord),
+      ...Object.keys(incomingRecord),
+    ]);
+    const merged: Record<string, unknown> = {};
+    keys.forEach(key => {
+      const value = mergeCardDraft(baseRecord[key], draftRecord[key], incomingRecord[key]);
+      if (value !== undefined || Object.prototype.hasOwnProperty.call(incomingRecord, key)) {
+        merged[key] = value;
+      }
+    });
+    return merged;
+  }
+
+  return cloneDeep(draft);
+};
+
 const CardEditor: React.FC<CardEditorInterface> = ({
   card = dummyCard,
   saveTmpCard: savePreview,
@@ -284,14 +321,25 @@ const CardEditor: React.FC<CardEditorInterface> = ({
 }: CardEditorInterface) => {
   const editorId = useId();
   const { token } = theme.useToken();
+  const { dispatch, user, mechanics, tags, currentUser, cards } = useContext<StoreType>(Store);
+  const serverCard = cards.find(savedCard => savedCard.uuid === card.uuid);
+  const selectedServerCard = serverCard || card;
   const saveTmpCard = (draft: CardInterface | null) => {
     const current = draft ? withLatestMetadata(draft, collectionRef.current) : null;
     onDraftChange?.(current);
     savePreview(current);
   };
   const [contentChanged, setContentChanged] = useState<boolean>(false);
-  const [originalCard, setOriginalCard] = useState<CardInterface>(() => cloneDeep(card));
-  const [storedTmpCard, setTmpCard] = useState<CardInterface>(() => cloneDeep(card));
+  const [originalCard, setOriginalCard] = useState<CardInterface>(() =>
+    cloneDeep(selectedServerCard),
+  );
+  const [storedTmpCard, setStoredTmpCard] = useState<CardInterface>(() => cloneDeep(card));
+  const draftRef = useRef<CardInterface>(cloneDeep(card));
+  const syncedCardRef = useRef<CardInterface>(cloneDeep(selectedServerCard));
+  const setTmpCard = (draft: CardInterface) => {
+    draftRef.current = draft;
+    setStoredTmpCard(draft);
+  };
   // Transient debounce handles for the live preview (short) and the DB
   // auto-save (longer, only fires once edits have settled). Kept in refs so
   // updating them never triggers a re-render.
@@ -301,10 +349,11 @@ const CardEditor: React.FC<CardEditorInterface> = ({
 
   const [editBack, setEditBack] = useState<boolean>(false);
   const [creatingVariant, setCreatingVariant] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const creatingVariantRef = useRef(false);
+  const refreshingRef = useRef(false);
   const inFlightSaves = useRef(new Set<Promise<unknown>>());
 
-  const { dispatch, user, mechanics, tags, currentUser, cards } = useContext<StoreType>(Store);
   const tmpCard = useMemo(() => withLatestMetadata(storedTmpCard, cards), [storedTmpCard, cards]);
   const collectionRef = useRef(cards);
   collectionRef.current = cards;
@@ -325,6 +374,18 @@ const CardEditor: React.FC<CardEditorInterface> = ({
       () => inFlightSaves.current.delete(saving),
     );
     return saving;
+  };
+
+  const scheduleEditorSave = () => {
+    if (saveTimerId.current) clearTimeout(saveTimerId.current);
+    const saveGen = ++saveGenRef.current;
+    saveTimerId.current = setTimeout(() => {
+      saveEditorSnapshot(cloneDeep(draftRef.current))
+        .then(() => {
+          if (saveGen === saveGenRef.current) saveTmpCard(null);
+        })
+        .catch(() => {});
+    }, EDIT_SAVE_OFFSET);
   };
 
   const createVariant = async () => {
@@ -483,20 +544,10 @@ const CardEditor: React.FC<CardEditorInterface> = ({
 
     if (timerId.current) clearTimeout(timerId.current);
     timerId.current = setTimeout(() => {
-      saveTmpCard(newTmpCard);
+      saveTmpCard(cloneDeep(draftRef.current));
     }, EDIT_TIME_OFFSET);
 
-    if (saveTimerId.current) clearTimeout(saveTimerId.current);
-    const saveGen = ++saveGenRef.current;
-    saveTimerId.current = setTimeout(() => {
-      saveEditorSnapshot(newTmpCard)
-        .then(() => {
-          // Only clear the "unsaved changes" marker if no newer edits are
-          // pending; otherwise the parent would drop them from its preview.
-          if (saveGen === saveGenRef.current) saveTmpCard(null);
-        })
-        .catch(() => {});
-    }, EDIT_SAVE_OFFSET);
+    scheduleEditorSave();
   };
 
   const undoChanges = () => {
@@ -546,6 +597,49 @@ const CardEditor: React.FC<CardEditorInterface> = ({
     saveEditorSnapshot(updatedCard).catch(() => {});
   };
 
+  const reloadCard = async () => {
+    if (refreshingRef.current) return;
+    refreshingRef.current = true;
+    setRefreshing(true);
+    if (timerId.current) clearTimeout(timerId.current);
+    timerId.current = null;
+    if (saveTimerId.current) clearTimeout(saveTimerId.current);
+    saveTimerId.current = null;
+    saveGenRef.current += 1;
+
+    try {
+      await Promise.allSettled([...inFlightSaves.current]);
+      const latestCard = await refreshCard(dispatch, card.uuid);
+      syncedCardRef.current = cloneDeep(latestCard);
+      setOriginalCard(cloneDeep(latestCard));
+      setTmpCard(cloneDeep(latestCard));
+      setEditBack(false);
+      saveTmpCard(null);
+      setContentChanged(false);
+    } catch {
+      // The action reports the failure. Keep the current draft so the user can retry.
+    } finally {
+      refreshingRef.current = false;
+      setRefreshing(false);
+    }
+  };
+
+  const confirmReloadCard = () => {
+    if (refreshingRef.current) return;
+    if (!contentChanged) {
+      void reloadCard();
+      return;
+    }
+
+    Modal.confirm({
+      title: 'Discard unsaved changes?',
+      content: 'Reloading this card will replace your edits with the latest saved version.',
+      okText: 'Reload card',
+      cancelText: 'Keep editing',
+      onOk: reloadCard,
+    });
+  };
+
   useEffect(() => {
     if (
       isEqual(originalCard, tmpCard) &&
@@ -564,11 +658,44 @@ const CardEditor: React.FC<CardEditorInterface> = ({
     saveGenRef.current += 1;
     setEditBack(false);
     setTmpCard(cloneDeep(card));
-    setOriginalCard(cloneDeep(card));
+    setOriginalCard(cloneDeep(selectedServerCard));
+    syncedCardRef.current = cloneDeep(selectedServerCard);
     saveTmpCard(null);
     setContentChanged(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [card.uuid]);
+
+  useEffect(() => {
+    if (!serverCard) return;
+    const previousServerCard = syncedCardRef.current;
+    if (previousServerCard.uuid !== serverCard.uuid || isEqual(previousServerCard, serverCard))
+      return;
+
+    const mergedDraft = withLatestMetadata(
+      mergeCardDraft(previousServerCard, draftRef.current, serverCard) as CardInterface,
+      [serverCard],
+    );
+    syncedCardRef.current = cloneDeep(serverCard);
+    setOriginalCard(cloneDeep(serverCard));
+    setTmpCard(mergedDraft);
+
+    if (isEqual(mergedDraft, serverCard)) {
+      if (timerId.current) clearTimeout(timerId.current);
+      timerId.current = null;
+      if (saveTimerId.current) clearTimeout(saveTimerId.current);
+      saveTimerId.current = null;
+      saveGenRef.current += 1;
+      saveTmpCard(null);
+      setContentChanged(false);
+    } else {
+      setContentChanged(true);
+      saveTmpCard(mergedDraft);
+      // Server responses and image hydration are not edits. Any existing
+      // user-initiated autosave reads draftRef, so it already sees this merge.
+    }
+    // These callbacks are intentionally captured from the render for this card update.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [serverCard]);
 
   // Cancel any pending debounced preview/save if the editor unmounts.
   useEffect(
@@ -934,6 +1061,11 @@ const CardEditor: React.FC<CardEditorInterface> = ({
         nonRemovableValues={config.nonRemovableValues}
         saveValue={saveValue}
         getValue={getValue}
+        manaColors={
+          config.type === 'text-list'
+            ? cardToColor(getCurrentFace(tmpCard), tmpCard.manaCost).allColors
+            : undefined
+        }
       />
     </div>
   );
@@ -991,6 +1123,16 @@ const CardEditor: React.FC<CardEditorInterface> = ({
                 onClick={toggleFavorite}
               />
             )}
+            <Button
+              type="text"
+              size="small"
+              aria-label="Reload card from server"
+              title="Reload card from server"
+              loading={refreshing}
+              disabled={creatingVariant}
+              icon={<ReloadOutlined />}
+              onClick={confirmReloadCard}
+            />
             <Dropdown
               trigger={['click']}
               disabled={creatingVariant}

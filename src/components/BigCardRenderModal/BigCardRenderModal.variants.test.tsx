@@ -3,7 +3,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import BigCardRenderModal from './BigCardRenderModal';
 import { Store, StoreType } from '../../store';
-import { EMPTY_CARD, updateCard } from '../../actions/cardActions';
+import { EMPTY_CARD, updateCard, updateCardRating } from '../../actions/cardActions';
 import { createAnnotation } from '../../actions/annotationActions';
 import { getImage } from '../../actions/imageActions';
 import { UNKNOWN_CREATOR } from '../../utils/constants';
@@ -47,6 +47,7 @@ vi.mock('../TemplatingCardRender/index', () => ({
 vi.mock('../../actions/cardActions', async importOriginal => ({
   ...(await importOriginal<typeof import('../../actions/cardActions')>()),
   updateCard: vi.fn(() => Promise.resolve()),
+  updateCardRating: vi.fn(() => Promise.resolve()),
 }));
 vi.mock('../../actions/annotationActions', () => ({ createAnnotation: vi.fn() }));
 vi.mock('../../actions/imageActions', () => ({ getImage: vi.fn(), createImage: vi.fn() }));
@@ -419,6 +420,24 @@ it.each([CardState.Draft, CardState.Approved])(
   },
 );
 
+it('does not render the rating card for approved cards', async () => {
+  const card = { ...a, meta: { ...a.meta, state: CardState.Approved } };
+  render(
+    <Store.Provider value={store([card])}>
+      <BigCardRenderModal
+        card={card}
+        visible
+        hide={() => {}}
+        collectionNumber={1}
+        collectionSize={1}
+      />
+    </Store.Provider>,
+  );
+
+  await waitFor(() => expect(screen.getByText('Comment a')).toBeVisible());
+  expect(screen.getByRole('dialog').querySelector('.ant-card')).not.toBeInTheDocument();
+});
+
 describe('collection-based approval threshold', () => {
   it('updates approval availability when collection membership changes and waits for users to load', async () => {
     const members = Array.from({ length: 7 }, (_, index) => ({
@@ -512,6 +531,35 @@ describe('collection-based approval threshold', () => {
 });
 
 describe.each([false, true])('rating toggles (mobile: %s)', mobile => {
+  it('exposes each vote as a pressed state button with its count', async () => {
+    const voter = { ...UNKNOWN_CREATOR, uuid: 'voter', name: 'Voter' };
+    const card = {
+      ...makeCard('rating-accessible'),
+      meta: { ...a.meta, state: CardState.Rate, likes: ['voter'], dislikes: [] },
+    };
+    render(
+      <Store.Provider value={{ ...store([card]), currentUser: voter }}>
+        <BigCardRenderModal
+          card={card}
+          mobile={mobile}
+          visible
+          hide={() => {}}
+          collectionNumber={1}
+          collectionSize={1}
+        />
+      </Store.Provider>,
+    );
+
+    expect(await screen.findByRole('button', { name: 'Like (1)' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+    expect(screen.getByRole('button', { name: 'Dislike (0)' })).toHaveAttribute(
+      'aria-pressed',
+      'false',
+    );
+  });
+
   it.each([
     { initial: 'none', click: 'like', likes: ['other-like', 'voter'], dislikes: ['other-dislike'] },
     {
@@ -564,14 +612,22 @@ describe.each([false, true])('rating toggles (mobile: %s)', mobile => {
     const { rerender } = render(renderModal(card));
     fireEvent.click(await screen.findByRole('img', { name: scenario.click }));
 
-    expect(updateCard).toHaveBeenCalledExactlyOnceWith(value.dispatch, {
-      ...card,
-      meta: { ...card.meta, likes: scenario.likes, dislikes: scenario.dislikes },
-    });
+    const alreadySelected = scenario.initial === scenario.click;
+    const desiredRating = alreadySelected ? null : scenario.click === 'like' ? 'like' : 'dislike';
+    expect(updateCardRating).toHaveBeenCalledExactlyOnceWith(
+      value.dispatch,
+      card.uuid,
+      voter.uuid,
+      desiredRating,
+    );
+    expect(updateCard).not.toHaveBeenCalled();
     expect(card.meta.likes).toEqual(originalLikes);
     expect(card.meta.dislikes).toEqual(originalDislikes);
 
-    const updatedCard = vi.mocked(updateCard).mock.calls[0][1];
+    const updatedCard = {
+      ...card,
+      meta: { ...card.meta, likes: scenario.likes, dislikes: scenario.dislikes },
+    };
     rerender(renderModal(updatedCard));
     expect(screen.getByRole('img', { name: 'like' }).parentElement).toHaveTextContent(
       String(scenario.likes.length),

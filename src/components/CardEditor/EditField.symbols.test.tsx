@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import { ConfigProvider } from 'antd';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { ColorType } from '../../interfaces/enums';
 import EditField from './EditField';
+import CardTextInput from './CardTextInput';
 
 const device = vi.hoisted(() => ({ isMobile: false }));
 vi.mock('react-device-detect', async importOriginal => ({
@@ -53,6 +55,65 @@ function Harness({ initial = [''], disabled = false }: { initial?: string[]; dis
 }
 
 describe('Card Text symbol toolbar', () => {
+  it('uses a single color identity for the Mana icon and inserted symbol', () => {
+    const onChange = vi.fn();
+    render(
+      <ConfigProvider>
+        <CardTextInput
+          id="card-text"
+          name="Card Text"
+          value={[]}
+          onChange={onChange}
+          manaColors={[ColorType.Red]}
+        />
+      </ConfigProvider>,
+    );
+
+    const manaButton = screen.getByRole('button', { name: 'Mana' });
+    expect(manaButton.querySelector('.ms-r')).toBeInTheDocument();
+    fireEvent.click(manaButton);
+    expect(onChange).toHaveBeenCalledWith(['{r}']);
+  });
+
+  it('shows a Mana button for each color and updates when identity changes', () => {
+    const onChange = vi.fn();
+    const renderInput = (manaColors: ColorType[]) => (
+      <ConfigProvider>
+        <CardTextInput
+          id="card-text"
+          name="Card Text"
+          value={[]}
+          onChange={onChange}
+          manaColors={manaColors}
+        />
+      </ConfigProvider>
+    );
+    const { rerender } = render(renderInput([ColorType.Red]));
+
+    rerender(renderInput([ColorType.Green, ColorType.White]));
+    const whiteMana = screen.getByRole('button', { name: 'Mana white' });
+    const greenMana = screen.getByRole('button', { name: 'Mana green' });
+    expect(whiteMana.querySelector('.ms-w')).toBeInTheDocument();
+    expect(greenMana.querySelector('.ms-g')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Mana red' })).not.toBeInTheDocument();
+    fireEvent.click(greenMana);
+    expect(onChange).toHaveBeenCalledWith(['{g}']);
+  });
+
+  it('falls back to the blue Mana symbol when there is no color identity', () => {
+    const onChange = vi.fn();
+    render(
+      <ConfigProvider>
+        <CardTextInput id="card-text" name="Card Text" value={[]} onChange={onChange} />
+      </ConfigProvider>,
+    );
+
+    const manaButton = screen.getByRole('button', { name: 'Mana' });
+    expect(manaButton.querySelector('.ms-u')).toBeInTheDocument();
+    fireEvent.click(manaButton);
+    expect(onChange).toHaveBeenCalledWith(['{u}']);
+  });
+
   it.each([
     ['Tap', '{t}'],
     ['Mana', '{u}'],
@@ -62,6 +123,19 @@ describe('Card Text symbol toolbar', () => {
     fireEvent.click(screen.getByRole('button', { name: button }));
     expect(screen.getByRole('textbox', { name: 'Card Text' })).toHaveValue(symbol);
     expect(screen.getByLabelText('Stored lines')).toHaveTextContent(JSON.stringify([symbol]));
+  });
+
+  it('keeps the symbol guide inside the symbol toolbar after the divider', () => {
+    render(<Harness />);
+    const toolbar = screen.getByRole('group', { name: 'Card Text symbols' });
+    const guide = screen.getByRole('button', { name: 'Symbol guide' });
+    const dividers = toolbar.querySelectorAll<HTMLSpanElement>('[class*="symbolToolbarDivider"]');
+    expect(dividers).toHaveLength(3);
+    expect(toolbar).toContainElement(dividers[2]);
+    expect(toolbar).toContainElement(guide);
+    expect(
+      dividers[2].compareDocumentPosition(guide) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
   });
 
   it('replaces the selection and returns focus and caret for consecutive inserts', () => {
