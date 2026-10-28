@@ -58,6 +58,16 @@ const rememberCard = (state: CardMutations, card: CardInterface) => {
   state.saved.set(card.uuid, cloneDeep(card));
 };
 
+const cardCreator = (creator: Pick<UserInterface, 'name' | 'uuid'>): CardInterface['creator'] => ({
+  name: creator.name,
+  uuid: creator.uuid,
+});
+
+const sanitizeCard = (card: CardInterface): CardInterface => ({
+  ...card,
+  creator: cardCreator(card.creator),
+});
+
 const currentCollection = (state: CardMutations, cards: CardInterface[]): CardInterface[] => {
   const byId = new Map(cards.map(card => [card.uuid, card]));
   state.saved.forEach(card => byId.set(card.uuid, card));
@@ -77,7 +87,7 @@ export const EMPTY_CARD = (): CardInterface => ({
   rarity: RarityType.Common,
   favorite: false,
   tags: [],
-  creator: UNKNOWN_CREATOR,
+  creator: { name: UNKNOWN_CREATOR.name, uuid: UNKNOWN_CREATOR.uuid },
   meta: {
     comment: '',
     likes: [],
@@ -99,7 +109,8 @@ export const refreshCollection = (dispatch: (value: Action) => void) => {
     const result = await axios.get(request, args);
     state.saved.clear();
     state.deleted.clear();
-    result.data.cards.forEach((card: CardInterface) => rememberCard(state, card));
+    const cards = result.data.cards.map((card: CardInterface) => sanitizeCard(card));
+    cards.forEach((card: CardInterface) => rememberCard(state, card));
     // result.data.cards.forEach((card: CardInterface) => {
     //   if (!card.createdAt) {
     //     card.createdAt = moment().valueOf();
@@ -109,7 +120,7 @@ export const refreshCollection = (dispatch: (value: Action) => void) => {
 
     dispatch({
       type: CardActionType.BulkReadCard,
-      payload: { cards: result.data.cards },
+      payload: { cards },
     });
   }).catch(error => {
     if (error.response) {
@@ -130,15 +141,16 @@ export const refreshCollection = (dispatch: (value: Action) => void) => {
 
 export const createCard = (dispatch: (value: Action) => void, creator: UserInterface) => {
   const request = `${MIDDLEWARE_ENDPOINT}/cards`;
-  const args = { accessKey: getAccessToken(), creator };
+  const args = { accessKey: getAccessToken(), creator: cardCreator(creator) };
 
   mutateCards(dispatch, async state => {
     const result = await axios.post(request, args);
-    rememberCard(state, result.data.card);
+    const card = sanitizeCard(result.data.card);
+    rememberCard(state, card);
     return dispatch({
       type: CardActionType.CreateCard,
       payload: {
-        card: result.data.card,
+        card,
       },
     });
   }).catch(_error => {
@@ -147,7 +159,7 @@ export const createCard = (dispatch: (value: Action) => void, creator: UserInter
 };
 
 const prepareCard = async (updated: CardInterface, uploadImages = true): Promise<CardInterface> => {
-  const parsed = { ...updated };
+  const parsed = { ...updated, creator: cardCreator(updated.creator) };
   // `_id`/`__v` are Mongo-internal fields that ride along on cards held in
   // memory from the server (notably freshly POST-created ones). Sending them
   // back in the PUT makes MongoDB's replaceOne reject the update ("immutable
@@ -187,7 +199,7 @@ const persistCard = async (updated: CardInterface, uploadImages = true): Promise
   const request = `${MIDDLEWARE_ENDPOINT}/cards`;
   const parsed = await prepareCard(updated, uploadImages);
   const result = await axios.put(request, { card: parsed, accessKey: getAccessToken() });
-  return result.data.card;
+  return sanitizeCard(result.data.card);
 };
 
 interface CardChanges {
@@ -205,6 +217,7 @@ const diffCard = (previous: CardInterface | undefined, next: CardInterface): Car
     '_id',
     '__v',
     'loading',
+    'creator',
     'meta.likes',
     'meta.dislikes',
     'meta.lastUpdated',
@@ -234,10 +247,12 @@ const diffCard = (previous: CardInterface | undefined, next: CardInterface): Car
   };
 
   visit(previous, next, '');
+  changes.set.creator = cardCreator(next.creator);
   return changes;
 };
 
 const publishCard = (dispatch: Dispatch, state: CardMutations, card: CardInterface) => {
+  card = sanitizeCard(card);
   rememberCard(state, card);
   // `loading`/`loading:<name>` covers point at the images collection.
   if (isLoadingCover(card.front.cover)) {
@@ -258,8 +273,9 @@ export const refreshCard = (dispatch: Dispatch, cardUuid: string): Promise<CardI
     const result = await axios.get(`${MIDDLEWARE_ENDPOINT}/cards/${cardUuid}`, {
       params: { accessKey: getAccessToken() },
     });
-    const card = result.data.card as CardInterface | undefined;
-    if (!card) throw new Error(`Card ${cardUuid} was not found`);
+    const responseCard = result.data.card as CardInterface | undefined;
+    if (!responseCard) throw new Error(`Card ${cardUuid} was not found`);
+    const card = sanitizeCard(responseCard);
     publishCard(dispatch, state, card);
     return card;
   }).catch(error => {
@@ -342,7 +358,7 @@ export const createCardVariant = (
       if (state.deleted.has(source.uuid)) throw new Error('The source card has been deleted');
       const allocation = await axios.post(`${MIDDLEWARE_ENDPOINT}/cards`, {
         accessKey: getAccessToken(),
-        creator,
+        creator: cardCreator(creator),
       });
       allocatedId = allocation.data.card.uuid;
       if (!allocatedId) throw new Error('Missing allocated card ID');
@@ -351,7 +367,7 @@ export const createCardVariant = (
       const family = getVariantFamily(storedSource, collection);
       const copy = cloneDeep(draft);
       copy.uuid = allocatedId;
-      copy.creator = cloneDeep(creator);
+      copy.creator = cardCreator(creator);
       copy.favorite = false;
       copy.loading = false;
       copy.meta = { ...EMPTY_CARD().meta, state: storedSource.meta.state };

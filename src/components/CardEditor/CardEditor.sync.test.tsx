@@ -37,6 +37,14 @@ globalThis.ResizeObserver ??= class {
 };
 
 const imageData = 'data:image/png;base64,saved-image';
+const otherCreator = {
+  ...UNKNOWN_CREATOR,
+  name: 'Other creator',
+  uuid: 'other-creator',
+  seenCards: ['private-card'],
+  seenComments: ['private-comment'],
+  lastSeenVersion: 99,
+};
 const makeCard = (): CardInterface => ({
   ...EMPTY_CARD(),
   uuid: 'card-with-art',
@@ -50,7 +58,7 @@ function Harness({ initialCard }: { initialCard: CardInterface }) {
     mechanics: [],
     tags: [],
     annotationAccessor: {},
-    user: [UNKNOWN_CREATOR],
+    user: [UNKNOWN_CREATOR, otherCreator],
     currentUser: UNKNOWN_CREATOR,
   });
   const [draft, setDraft] = useState<CardInterface | null>(null);
@@ -116,6 +124,27 @@ describe('editor server/image synchronization', () => {
       expect(screen.getByRole('button', { name: 'Undo Changes' })).toBeDisabled();
     },
   );
+
+  it('clears the dirty marker after changing the creator and saving', async () => {
+    render(<Harness initialCard={makeCard()} />);
+    fireEvent.click(screen.getByText('Organization & Credits'));
+    fireEvent.mouseDown(screen.getByLabelText('Card Creator'));
+    fireEvent.click(screen.getByText('Other creator'));
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(EDIT_SAVE_OFFSET + 100);
+    });
+
+    expect(axios.patch).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({
+        set: expect.objectContaining({
+          creator: { name: otherCreator.name, uuid: otherCreator.uuid },
+        }),
+      }),
+    );
+    expect(screen.getByRole('button', { name: 'Undo Changes' })).toBeDisabled();
+  });
 
   it('keeps a newer local edit scheduled while an earlier save response arrives', async () => {
     let finishFirstSave!: () => void;

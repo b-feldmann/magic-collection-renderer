@@ -43,7 +43,7 @@ const makeCard = (cardTypes = [CardType.Creature]): CardInterface => ({
   name: 'Test card',
   manaCost: '{2}{u}',
   rarity: RarityType.Common,
-  creator,
+  creator: { name: creator.name, uuid: creator.uuid },
   tags: ['Collection'],
   front: {
     name: 'Test card',
@@ -340,12 +340,14 @@ describe('CardEditor compact layout', () => {
     await act(async () => vi.advanceTimersByTime(EDIT_SAVE_OFFSET + 100));
     expect(updateCard).toHaveBeenLastCalledWith(
       expect.any(Function),
-      expect.objectContaining({ creator: otherCreator }),
+      expect.objectContaining({
+        creator: { name: otherCreator.name, uuid: otherCreator.uuid },
+      }),
     );
     fireEvent.click(screen.getByRole('button', { name: 'Undo Changes' }));
     expect(updateCard).toHaveBeenLastCalledWith(
       expect.any(Function),
-      expect.objectContaining({ creator }),
+      expect.objectContaining({ creator: { name: creator.name, uuid: creator.uuid } }),
     );
   });
 });

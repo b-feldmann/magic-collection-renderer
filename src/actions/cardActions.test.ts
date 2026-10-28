@@ -20,6 +20,7 @@ vi.mock('../utils/accessService', () => ({
 
 import axios from 'axios';
 import {
+  createCard,
   createCardVariant,
   deleteCard,
   refreshCard,
@@ -83,13 +84,13 @@ describe('card variant persistence', () => {
     await createCardVariant(dispatch, source, [source], creator);
     expect(axios.post).toHaveBeenCalledWith(expect.stringContaining('/cards'), {
       accessKey: 'test-token',
-      creator,
+      creator: { name: creator.name, uuid: creator.uuid },
     });
     const copy = writes().find(card => card.uuid === 'new')!;
     expect(copy.variantIds).toEqual(['source']);
     expect(copy.front.cardText).toEqual(['Original text']);
     expect(copy.front).not.toBe(source.front);
-    expect(copy.creator).toEqual(creator);
+    expect(copy.creator).toEqual({ name: creator.name, uuid: creator.uuid });
     expect(copy.favorite).toBe(false);
     expect(copy.meta).toMatchObject({
       likes: [],
@@ -305,7 +306,13 @@ describe('card variant persistence', () => {
     await Promise.all([creation, modalSave]);
     expect(axios.patch).toHaveBeenCalledWith(
       expect.stringContaining('/cards/source'),
-      expect.objectContaining({ set: { 'meta.state': CardState.Rate }, unset: [] }),
+      expect.objectContaining({
+        set: {
+          creator: { name: source.creator.name, uuid: source.creator.uuid },
+          'meta.state': CardState.Rate,
+        },
+        unset: [],
+      }),
     );
     expect(dispatch.mock.calls.slice(-1)[0]?.[0]).toMatchObject({
       type: CardActionType.UpdateCard,
@@ -460,7 +467,7 @@ describe('updateCard', () => {
     vi.mocked(axios.patch).mockReset();
   });
 
-  it('sends only changed fields and reconciles the complete server card', async () => {
+  it('writes the normalized creator and changed fields, then reconciles the complete server card', async () => {
     const card = makeCard('card-to-patch');
     const dispatch = vi.fn();
     const mergedCard = {
@@ -485,13 +492,22 @@ describe('updateCard', () => {
 
     expect(axios.patch).toHaveBeenCalledWith(expect.stringContaining('/cards/card-to-patch'), {
       accessKey: 'test-token',
-      set: { 'front.cardMainType': 'Creature', 'front.name': 'Edited name' },
+      set: {
+        creator: { name: card.creator.name, uuid: card.creator.uuid },
+        'front.cardMainType': 'Creature',
+        'front.name': 'Edited name',
+      },
       unset: [],
     });
     expect(axios.put).not.toHaveBeenCalled();
     expect(dispatch).toHaveBeenLastCalledWith({
       type: CardActionType.UpdateCard,
-      payload: { card: mergedCard },
+      payload: {
+        card: {
+          ...mergedCard,
+          creator: { name: mergedCard.creator.name, uuid: mergedCard.creator.uuid },
+        },
+      },
     });
   });
 
@@ -532,16 +548,30 @@ describe('updateCard', () => {
     });
     expect(dispatch).toHaveBeenCalledWith({
       type: CardActionType.UpdateCard,
-      payload: { card },
+      payload: { card: { ...card, creator: { name: card.creator.name, uuid: card.creator.uuid } } },
     });
   });
 
   it('fetches and publishes the latest version of one card', async () => {
     const dispatch = vi.fn();
-    const latest = { ...makeCard('card-to-refresh'), name: 'Latest name' };
-    vi.mocked(axios.get).mockResolvedValueOnce({ data: { card: latest } });
+    const serverCard = {
+      ...makeCard('card-to-refresh'),
+      name: 'Latest name',
+      creator: {
+        name: 'Card creator',
+        uuid: 'creator-uuid',
+        seenCards: ['private-card'],
+        seenComments: ['private-comment'],
+        lastSeenVersion: 99,
+      },
+    };
+    const latest = {
+      ...serverCard,
+      creator: { name: 'Card creator', uuid: 'creator-uuid' },
+    };
+    vi.mocked(axios.get).mockResolvedValueOnce({ data: { card: serverCard } });
 
-    await refreshCard(dispatch, 'card-to-refresh');
+    const fetched = await refreshCard(dispatch, 'card-to-refresh');
 
     expect(axios.get).toHaveBeenCalledWith(expect.stringContaining('/cards/card-to-refresh'), {
       params: { accessKey: 'test-token' },
@@ -549,6 +579,71 @@ describe('updateCard', () => {
     expect(dispatch).toHaveBeenCalledWith({
       type: CardActionType.UpdateCard,
       payload: { card: latest },
+    });
+    expect(fetched.creator).toEqual({ name: 'Card creator', uuid: 'creator-uuid' });
+  });
+
+  it('filters creator data to name and UUID when fetching the collection', async () => {
+    const dispatch = vi.fn();
+    const serverCard = {
+      ...makeCard('collection-card'),
+      creator: {
+        name: 'Card creator',
+        uuid: 'creator-uuid',
+        seenCards: ['private-card'],
+        seenComments: ['private-comment'],
+        lastSeenVersion: 99,
+      },
+    };
+    const expectedCard = {
+      ...serverCard,
+      creator: { name: 'Card creator', uuid: 'creator-uuid' },
+    };
+    vi.mocked(axios.get).mockResolvedValueOnce({ data: { cards: [serverCard] } });
+
+    refreshCollection(dispatch);
+
+    await vi.waitFor(() =>
+      expect(dispatch).toHaveBeenCalledWith({
+        type: CardActionType.BulkReadCard,
+        payload: { cards: [expectedCard] },
+      }),
+    );
+  });
+
+  it('sends only creator name and UUID when creating a card', async () => {
+    const dispatch = vi.fn();
+    const creator = {
+      ...UNKNOWN_CREATOR,
+      name: 'Card creator',
+      uuid: 'creator-uuid',
+      seenCards: ['private-card'],
+      seenComments: ['private-comment'],
+      lastSeenVersion: 99,
+    };
+    const serverCard = {
+      ...makeCard('new-card'),
+      creator: {
+        name: creator.name,
+        uuid: creator.uuid,
+        seenCards: creator.seenCards,
+        seenComments: creator.seenComments,
+        lastSeenVersion: creator.lastSeenVersion,
+      },
+    };
+    vi.mocked(axios.post).mockResolvedValueOnce({ data: { card: serverCard } });
+
+    createCard(dispatch, creator);
+
+    await vi.waitFor(() =>
+      expect(dispatch).toHaveBeenCalledWith({
+        type: CardActionType.CreateCard,
+        payload: { card: { ...serverCard, creator: { name: creator.name, uuid: creator.uuid } } },
+      }),
+    );
+    expect(axios.post).toHaveBeenCalledWith(expect.stringContaining('/cards'), {
+      accessKey: 'test-token',
+      creator: { name: creator.name, uuid: creator.uuid },
     });
   });
 });

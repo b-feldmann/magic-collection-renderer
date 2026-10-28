@@ -97,8 +97,8 @@ beforeEach(() => {
 });
 
 describe('modern collection sidebar', () => {
-  it('right-aligns switch-user confirmation actions', () => {
-    const css = compile(resolve('src/components/CollectionActions/styles.module.scss')).css;
+  it('right-aligns shared confirmation actions', () => {
+    const css = compile(resolve('src/confirmationModal.module.scss')).css;
     expect(css).toContain('justify-content: flex-end');
   });
 

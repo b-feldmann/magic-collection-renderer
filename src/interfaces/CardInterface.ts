@@ -13,10 +13,18 @@ export interface CardMeta {
 
 export default interface CardInterface {
   [key: string]:
-    number | string | string[] | CardFaceInterface | CardMeta | UserInterface | boolean | undefined;
+    | number
+    | string
+    | string[]
+    | CardFaceInterface
+    | CardMeta
+    | UserInterface
+    | Pick<UserInterface, 'name' | 'uuid'>
+    | boolean
+    | undefined;
   name: string;
   rarity: RarityType;
-  creator: UserInterface;
+  creator: Pick<UserInterface, 'name' | 'uuid'>;
   uuid: string;
   manaCost: string;
   favorite?: boolean;

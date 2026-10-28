@@ -115,7 +115,11 @@ describe('CardEditor reload button', () => {
 
     expect(confirm).toHaveBeenCalled();
     expect(refreshCard).not.toHaveBeenCalled();
-    const config = confirm.mock.calls[0][0] as { onOk?: () => Promise<void> };
+    const config = confirm.mock.calls[0][0] as {
+      className?: string;
+      onOk?: () => Promise<void>;
+    };
+    expect(config.className).toEqual(expect.any(String));
     await act(async () => config.onOk?.());
 
     await waitFor(() => expect(screen.getByLabelText('Card Name')).toHaveValue('Latest'));

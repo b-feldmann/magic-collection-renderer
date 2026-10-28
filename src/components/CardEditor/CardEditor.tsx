@@ -10,6 +10,7 @@ import dayjs from 'dayjs';
 import CardInterface from '../../interfaces/CardInterface';
 
 import styles from './styles.module.scss';
+import confirmationStyles from '../../confirmationModal.module.scss';
 import {
   AdventureType,
   BasicLandArtStyles,
@@ -448,7 +449,8 @@ const CardEditor: React.FC<CardEditorInterface> = ({
         newTmpCard.name = `${newTmpCard.front.name}`;
       }
     } else if (key === 'creator') {
-      newTmpCard[key] = user.find(o => o.uuid === value) || UNKNOWN_CREATOR;
+      const selectedCreator = user.find(o => o.uuid === value) || UNKNOWN_CREATOR;
+      newTmpCard[key] = { name: selectedCreator.name, uuid: selectedCreator.uuid };
     } else if (key === 'rarity' || key === 'manaCost') {
       newTmpCard[key] = value;
     } else if (key === 'comment') {
@@ -643,6 +645,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
     Modal.confirm({
       title: 'Discard unsaved changes?',
       content: 'Reloading this card will replace your edits with the latest saved version.',
+      className: confirmationStyles.confirmationModal,
       okText: 'Reload card',
       cancelText: 'Keep editing',
       onOk: reloadCard,

@@ -22,7 +22,7 @@ vi.mock('../AnnotationList/AnnotationList', () => ({
 const card: CardInterface = {
   name: 'Backdrop Test',
   rarity: RarityType.Rare,
-  creator: { name: 'Creator', uuid: 'creator', seenCards: [], lastSeenVersion: 0 },
+  creator: { name: 'Creator', uuid: 'creator' },
   uuid: 'backdrop-card',
   manaCost: '',
   front: { name: 'Backdrop Test', cardTypes: [CardType.Creature], cardText: [] },

@@ -255,6 +255,13 @@ describe.each([
       expect(screen.getByLabelText('Edited card')).toHaveTextContent('a');
       expect(screen.getByLabelText('Viewed card')).toHaveTextContent('a');
       const confirmation = vi.mocked(Modal.confirm).mock.calls[0][0];
+      expect(confirmation).toEqual(
+        expect.objectContaining({
+          className: expect.any(String),
+          icon: expect.any(Object),
+          okType: 'primary',
+        }),
+      );
       await act(async () => {
         confirmation.onOk?.();
       });

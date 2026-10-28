@@ -14,7 +14,7 @@ vi.mock('../TemplatingCardRender/index', () => ({
 const card: CardInterface = {
   name: 'Dismiss test',
   rarity: RarityType.Rare,
-  creator: { name: 'Creator', uuid: 'creator', seenCards: [], lastSeenVersion: 0 },
+  creator: { name: 'Creator', uuid: 'creator' },
   uuid: 'dismiss-card',
   manaCost: '',
   front: { name: 'Dismiss test', cardTypes: [CardType.Creature], cardText: [] },

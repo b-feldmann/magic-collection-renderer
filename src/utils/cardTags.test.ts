@@ -15,7 +15,7 @@ const card = (overrides: Partial<CardInterface> = {}): CardInterface => ({
     cardTypes: [],
     cardText: [],
   },
-  creator: { uuid: 'user-1', name: 'User', seenCards: [], lastSeenVersion: 0 },
+  creator: { uuid: 'user-1', name: 'User' },
   meta: {
     comment: '',
     likes: [],

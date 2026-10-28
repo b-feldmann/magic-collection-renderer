@@ -30,7 +30,7 @@ vi.mock('../AnnotationList/AnnotationList', () => ({
 const card: CardInterface = {
   name: 'Holo Test',
   rarity: RarityType.Rare,
-  creator: { name: 'Creator', uuid: 'creator', seenCards: [], lastSeenVersion: 0 },
+  creator: { name: 'Creator', uuid: 'creator' },
   uuid: 'card-uuid',
   manaCost: '',
   front: {

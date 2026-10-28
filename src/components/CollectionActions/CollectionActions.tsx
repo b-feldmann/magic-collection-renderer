@@ -11,6 +11,7 @@ import EllipsisOutlined from '@ant-design/icons/EllipsisOutlined';
 import SwapOutlined from '@ant-design/icons/SwapOutlined';
 import UserInterface from '../../interfaces/UserInterface';
 import styles from './styles.module.scss';
+import confirmationStyles from '../../confirmationModal.module.scss';
 
 interface CollectionActionsProps {
   currentUser: UserInterface;
@@ -90,7 +91,7 @@ const CollectionActions = ({
                 title: 'Switch user?',
                 content: `You’ll switch the active collection to ${nextUser.name}.`,
                 icon: <SwapOutlined />,
-                className: styles.switchUserModal,
+                className: confirmationStyles.confirmationModal,
                 okText: 'Yes, switch user',
                 cancelText: 'Cancel',
                 onOk: () => onSwitchUser(nextUser),

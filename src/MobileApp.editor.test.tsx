@@ -239,7 +239,7 @@ describe('mobile card editing flow', () => {
     const editor = await screen.findByRole('region', { name: 'Card editor' });
     expect(axios.post).toHaveBeenCalledWith('http://localhost:8080/cards', {
       accessKey: 'token',
-      creator: user,
+      creator: { name: user.name, uuid: user.uuid },
     });
     expect(screen.getByLabelText('Card preview')).toBeInTheDocument();
     expect(within(editor).getByText('Card Name')).toBeInTheDocument();

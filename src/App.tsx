@@ -1,5 +1,6 @@
 import React, { useContext, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
 import { Col, Input, Modal, Row, Select, Tabs, Badge, Card, Result } from 'antd';
+import { ExclamationCircleFilled } from '@ant-design/icons';
 import sortCardsBy from 'lodash/sortBy';
 import CollectionActions from './components/CollectionActions/CollectionActions';
 
@@ -14,6 +15,7 @@ import CardEditor from './components/CardEditor/CardEditor';
 import { Store, StoreType } from './store';
 
 import styles from './App.module.scss';
+import confirmationStyles from './confirmationModal.module.scss';
 import './card-modal.scss';
 import './ant-tabs.scss';
 
@@ -236,8 +238,10 @@ const App: React.FC = () => {
     if (pendingDraft) {
       confirm({
         title: `${pendingDraft.name || oldCardName} has unsaved changes`,
+        icon: <ExclamationCircleFilled />,
+        className: confirmationStyles.confirmationModal,
         okText: 'Yes discard all changes',
-        okType: 'danger',
+        okType: 'primary',
         cancelText: 'Edit old card',
         onOk() {
           pendingDraftRef.current = null;
@@ -264,8 +268,10 @@ const App: React.FC = () => {
     if (pendingDraft && id !== cardEditId) {
       confirm({
         title: `${pendingDraft.name} has unsaved changes`,
+        icon: <ExclamationCircleFilled />,
+        className: confirmationStyles.confirmationModal,
         okText: 'Yes discard all changes',
-        okType: 'danger',
+        okType: 'primary',
         cancelText: 'Edit old card',
         onOk() {
           pendingDraftRef.current = null;
