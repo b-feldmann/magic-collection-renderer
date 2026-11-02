@@ -45,6 +45,18 @@ describe('buildSortAccessors', () => {
     expect(sorted).toEqual(['Free', 'Mid', 'Big']);
   });
 
+  it('treats X in a mana cost as zero when sorting', () => {
+    const cards = [
+      makeCard({ manaCost: '{1}', front: { name: 'One' } as any }),
+      makeCard({ manaCost: '{X}{U}', front: { name: 'Variable' } as any }),
+    ];
+
+    const accessors = buildSortAccessors(SortByType.ManaCost, SortByType.Name, NO_ANNOTATIONS);
+    const sorted = sortBy(cards, accessors).map(c => c.front.name);
+
+    expect(sorted).toEqual(['Variable', 'One']);
+  });
+
   it('defaults to Last Updated primary and Name secondary (newest first, then A-Z)', () => {
     const cards = [
       makeCard({ name: 'Old', front: { name: 'Old' } as any, meta: { lastUpdated: 100 } as any }),

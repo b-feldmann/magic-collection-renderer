@@ -20,8 +20,11 @@ export const getLastUpdated = (
 
 export const getConvertedManaCost = (manaCost: string): number =>
   (manaCost.match(/\{[^}]+\}/g) || []).reduce((total, symbol) => {
-    const value = parseInt(symbol.slice(1, -1), 10);
-    // Numeric symbols like {2} add their value; single mana like {R} counts as 1.
+    const manaSymbol = symbol.slice(1, -1);
+    const value = parseInt(manaSymbol, 10);
+    // Numeric symbols add their value, variable symbols are 0, and other
+    // single mana symbols count as 1.
+    if (/^[XYZ]$/i.test(manaSymbol)) return total;
     return total + (Number.isNaN(value) ? 1 : value);
   }, 0);
 

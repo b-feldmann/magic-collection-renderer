@@ -41,6 +41,7 @@ import {
   EDIT_TIME_OFFSET,
   UNKNOWN_CREATOR,
 } from '../../utils/constants';
+import { HeartFilled, HeartOutlined } from '@ant-design/icons';
 
 interface CardEditorInterface {
   card?: CardInterface;
@@ -1131,7 +1132,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
                 aria-label={tmpCard.favorite ? 'Unmark as favorite' : 'Mark as favorite'}
                 title={tmpCard.favorite ? 'Unmark as favorite' : 'Mark as favorite'}
                 aria-pressed={!!tmpCard.favorite}
-                icon={tmpCard.favorite ? <StarFilled /> : <StarOutlined />}
+                icon={tmpCard.favorite ? <HeartFilled /> : <HeartOutlined />}
                 onClick={toggleFavorite}
               />
             )}
