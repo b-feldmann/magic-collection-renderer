@@ -671,4 +671,19 @@ updateLog.push({
   ],
 });
 
+updateLog.push({
+  version: '4.0.1',
+  title: 'Mobile Filters',
+  content: [
+    {
+      type: ChangeLogFeatureType.Added,
+      feature: 'Added filters on mobile',
+    },
+    {
+      type: ChangeLogFeatureType.Fixed,
+      feature: 'Fixed sorting by cmc',
+    },
+  ],
+});
+
 export default updateLog;

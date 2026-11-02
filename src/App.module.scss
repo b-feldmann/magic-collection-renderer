@@ -141,6 +141,33 @@ $editor-width: clamp(516px, calc(100vw / 24 * 21 / 24 * 6 - 16px), 516px);
     }
   }
 
+  // Phones: the tall filter panel lives in the slide-up sheet (see
+  // .filterSheet below) instead of this column, so the collection above stays
+  // visible. This compact button opens the sheet.
+  .filtersButton:global(.ant-btn) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    width: calc(100% - 40px);
+    height: 44px;
+    margin: 12px 20px 0;
+    border: 1px solid #e3e9dc;
+    border-radius: 8px;
+    background: #f7f9f4;
+    color: var(--form-control-text-color);
+    box-shadow: none;
+    font-size: 12px;
+    font-weight: 550;
+
+    &:hover,
+    &:focus-visible {
+      background: #edf2e7;
+      border-color: #a9b9a1;
+      color: var(--form-control-text-color);
+    }
+  }
+
   .fullWidth {
     margin-top: 8px;
     width: 100%;
@@ -199,6 +226,22 @@ $editor-width: clamp(516px, calc(100vw / 24 * 21 / 24 * 6 - 16px), 516px);
   color: whitesmoke;
   padding: 4px;
   background: rgba(0, 0, 0, 0.8);
+}
+
+// Slide-up filter sheet (phone layout). The antd Drawer renders into a
+// body-level portal, so these selectors must stay outside `.app`.
+.filterSheet:global(.ant-drawer-section) {
+  border-radius: 20px 20px 0 0;
+  border-top: 1px solid #e3e8de;
+}
+
+.doneButton:global(.ant-btn) {
+  width: 100%;
+  height: 44px;
+  border-radius: 8px;
+  box-shadow: none;
+  font-size: 12px;
+  font-weight: 550;
 }
 
 .landscapeAddButton {

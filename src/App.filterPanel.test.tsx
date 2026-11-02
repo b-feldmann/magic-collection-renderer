@@ -1,5 +1,5 @@
 import React from 'react';
-import { act, fireEvent, render, screen, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import Modal from 'antd/es/modal';
 import { compile } from 'sass';
@@ -12,6 +12,7 @@ import { createCard, EMPTY_CARD, refreshCollection } from './actions/cardActions
 import { setCurrentUser } from './actions/userActions';
 import { UNKNOWN_CREATOR } from './utils/constants';
 import CardInterface from './interfaces/CardInterface';
+import { PHONE_LAYOUT_MEDIA_QUERY } from './utils/usePhoneLayout';
 
 vi.mock('antd/es/modal', async importOriginal => {
   const actual = await importOriginal<typeof import('antd/es/modal')>();
@@ -51,18 +52,18 @@ vi.mock('./actions/mechanicActions', () => ({ getMechanics: vi.fn() }));
 vi.mock('./actions/tagActions', () => ({ getTags: vi.fn() }));
 vi.mock('./actions/annotationActions', () => ({ getAnnotations: vi.fn() }));
 
-if (!window.matchMedia) {
-  window.matchMedia = (media: string) => ({
-    matches: false,
-    media,
-    onchange: null,
-    addListener() {},
-    removeListener() {},
-    addEventListener() {},
-    removeEventListener() {},
-    dispatchEvent: () => false,
-  });
-}
+// jsdom lacks matchMedia. Default to the phone layout so the mobile suites
+// exercise the slide-up filter sheet; the tablet side column has its own test.
+window.matchMedia ??= (media: string) => ({
+  matches: media === PHONE_LAYOUT_MEDIA_QUERY,
+  media,
+  onchange: null,
+  addListener() {},
+  removeListener() {},
+  addEventListener() {},
+  removeEventListener() {},
+  dispatchEvent: () => false,
+});
 if (!globalThis.ResizeObserver) {
   globalThis.ResizeObserver = class {
     observe() {}
@@ -235,6 +236,77 @@ describe('matching mobile collection actions', () => {
     expect(createCard).toHaveBeenCalledWith(store.dispatch, benjamin);
     fireEvent.click(screen.getByRole('button', { name: 'Edit mechanics' }));
     expect(screen.getByRole('dialog', { name: 'Mechanics editor' })).toBeInTheDocument();
+  });
+
+  it('opens the filters in a slide-up sheet, applies them, and keeps them applied after closing', async () => {
+    showMobile();
+    expect(screen.getByLabelText('Visible cards')).toHaveTextContent('Test creature');
+    // The tall filter panel is hidden until it slides up, so the cards stay visible.
+    expect(screen.queryByRole('checkbox', { name: 'Common rarity' })).not.toBeInTheDocument();
+
+    const filtersButton = screen.getByRole('button', { name: /filters/i });
+    expect(filtersButton).toHaveAttribute('aria-expanded', 'false');
+    fireEvent.click(filtersButton);
+    const sheet = await screen.findByRole('dialog', { name: 'Filters' });
+
+    fireEvent.click(within(sheet).getByRole('checkbox', { name: 'Common rarity' }));
+    expect(screen.getByLabelText('Visible cards')).toBeEmptyDOMElement();
+
+    fireEvent.click(within(sheet).getByRole('button', { name: 'Done' }));
+    await waitFor(
+      () => expect(screen.queryByRole('dialog', { name: 'Filters' })).not.toBeInTheDocument(),
+      { timeout: 2000 },
+    );
+    // The sheet slid down, but the chosen filter still applies.
+    expect(screen.getByLabelText('Visible cards')).toBeEmptyDOMElement();
+
+    // Reopening keeps the earlier selection instead of resetting it.
+    fireEvent.click(screen.getByRole('button', { name: /filters/i }));
+    const reopenedSheet = await screen.findByRole('dialog', { name: 'Filters' });
+    expect(
+      within(reopenedSheet).getByRole('checkbox', { name: 'Common rarity' }),
+    ).not.toBeChecked();
+    fireEvent.click(within(reopenedSheet).getByRole('button', { name: 'Reset all' }));
+    expect(screen.getByLabelText('Visible cards')).toHaveTextContent('Test creature');
+  });
+
+  it('shows the number of active filters on the Filters button while the sheet is closed', async () => {
+    showMobile();
+    expect(screen.getByRole('button', { name: /filters/i })).toHaveTextContent(/^Filters$/);
+
+    fireEvent.click(screen.getByRole('button', { name: /filters/i }));
+    const sheet = await screen.findByRole('dialog', { name: 'Filters' });
+    fireEvent.click(within(sheet).getByRole('checkbox', { name: 'Common rarity' }));
+    fireEvent.click(within(sheet).getByRole('checkbox', { name: 'Colorless color' }));
+    fireEvent.click(within(sheet).getByRole('button', { name: 'Done' }));
+
+    await waitFor(
+      () => expect(screen.queryByRole('dialog', { name: 'Filters' })).not.toBeInTheDocument(),
+      { timeout: 2000 },
+    );
+    expect(screen.getByRole('button', { name: /filters/i })).toHaveTextContent('Filters · 2');
+  });
+
+  it('keeps the filters visible without a sheet in the tablet side column', () => {
+    const matchMediaSpy = vi.spyOn(window, 'matchMedia').mockImplementation((media: string) => ({
+      matches: false,
+      media,
+      onchange: null,
+      addListener() {},
+      removeListener() {},
+      addEventListener() {},
+      removeEventListener() {},
+      dispatchEvent: () => false,
+    }));
+    try {
+      showMobile();
+      expect(screen.getByRole('textbox', { name: 'Filter by card name' })).toBeInTheDocument();
+      expect(screen.getByRole('checkbox', { name: 'Common rarity' })).toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: /filters/i })).not.toBeInTheDocument();
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    } finally {
+      matchMediaSpy.mockRestore();
+    }
   });
 
   it('uses confirmed user switching without exposing the administrative account', async () => {

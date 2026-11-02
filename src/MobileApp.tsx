@@ -1,6 +1,6 @@
 import React, { useContext, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
-import { Badge, Card, Col, Input, Modal, Result, Row, Select, Tabs } from 'antd';
-import { ExclamationCircleFilled } from '@ant-design/icons';
+import { Badge, Button, Card, Col, Drawer, Input, Modal, Result, Row, Select, Tabs } from 'antd';
+import { ExclamationCircleFilled, FilterOutlined } from '@ant-design/icons';
 import sortBy from 'lodash/sortBy';
 
 import CardInterface from './interfaces/CardInterface';
@@ -17,7 +17,10 @@ import confirmationStyles from './confirmationModal.module.scss';
 import './card-modal.scss';
 import './ant-tabs.scss';
 
-import CollectionFilterControls from './components/CollectionFilterControls/CollectionFilterControls';
+import CollectionFilterControls, {
+  CheckBoxGroupInterface,
+  CollectionFilterInterface,
+} from './components/CollectionFilterControls/CollectionFilterControls';
 import { createCard, EMPTY_CARD, refreshCollection } from './actions/cardActions';
 
 import { hasAccessToken, updateAccessToken } from './utils/accessService';
@@ -36,6 +39,10 @@ import {
 } from './actions/userActions';
 import { UNKNOWN_CREATOR } from './utils/constants';
 import useActiveCardTab from './utils/useActiveCardTab';
+import usePhoneLayout from './utils/usePhoneLayout';
+import cardToColor from './utils/cardToColor';
+import { matchesSelectedTags } from './utils/cardTagFilter';
+import { CardType, ColorType, RarityType } from './interfaces/enums';
 
 const { Search } = Input;
 const { confirm } = Modal;
@@ -55,9 +62,18 @@ const MobileApp: React.FC = () => {
   const [showCardEditor, setShowCardEditor] = useState(false);
   const [mechanicsVisible, setMechanicsVisible] = useState(false);
   const [cardNameFilter, setCardNameFilter] = useState<string>('');
+  const [showFilters, setShowFilters] = useState(false);
+  const isPhoneLayout = usePhoneLayout();
+  const [collectionFilter, setCollectionFilter] = useState<CollectionFilterInterface>({
+    colors: Object.fromEntries(Object.values(ColorType).map(color => [color, true])),
+    rarity: Object.fromEntries(Object.values(RarityType).map(rarity => [rarity, true])),
+    types: Object.fromEntries(Object.values(CardType).map(type => [type, true])),
+    creators: {},
+    tags: {},
+  });
   const [activeTabKey, setActiveTabKey] = useActiveCardTab();
 
-  const { cards, newUuid, dispatch, annotationAccessor, user, currentUser } =
+  const { cards, newUuid, dispatch, annotationAccessor, user, currentUser, tags } =
     useContext<StoreType>(Store);
 
   // Captured once at mount: avoids flashing the user chooser while the stored
@@ -92,10 +108,36 @@ const MobileApp: React.FC = () => {
       return Math.max(lastAnnotation.datetime, card.meta.lastUpdated);
     };
 
-    return sortBy(mergedCollection, [(o: CardInterface) => -1 * lastUpdated(o)]).filter(o =>
-      o.name.toLowerCase().includes(deferredNameFilter.toLowerCase()),
+    return sortBy(mergedCollection, [(o: CardInterface) => -1 * lastUpdated(o)]).filter(
+      o =>
+        o.name.toLowerCase().includes(deferredNameFilter.toLowerCase()) &&
+        collectionFilter.colors[cardToColor(o.front, o.manaCost).color] &&
+        collectionFilter.rarity[o.rarity] &&
+        o.front.cardTypes.some(type => collectionFilter.types[type]) &&
+        collectionFilter.creators[o.creator.uuid] !== false &&
+        matchesSelectedTags(
+          o.tags || [],
+          Object.keys(collectionFilter.tags).filter(tag => collectionFilter.tags[tag]),
+        ),
     );
-  }, [mergedCollection, annotationAccessor, deferredNameFilter]);
+  }, [mergedCollection, annotationAccessor, deferredNameFilter, collectionFilter]);
+
+  // Surfaced on the phone's Filters button so the collection state stays
+  // understandable while the filter sheet is slid down. Enum/creator filters
+  // count as active when deselected; tag filters when selected.
+  const activeFilterCount = useMemo(() => {
+    if (!isPhoneLayout) return 0;
+    const deselected = (group: CheckBoxGroupInterface) =>
+      Object.values(group).filter(shown => !shown).length;
+    return (
+      (cardNameFilter !== '' ? 1 : 0) +
+      deselected(collectionFilter.colors) +
+      deselected(collectionFilter.rarity) +
+      deselected(collectionFilter.types) +
+      deselected(collectionFilter.creators) +
+      Object.values(collectionFilter.tags).filter(Boolean).length
+    );
+  }, [isPhoneLayout, cardNameFilter, collectionFilter]);
 
   // O(1) uuid -> card lookups instead of a linear scan on every call.
   const cardByUuid = useMemo(
@@ -268,6 +310,17 @@ const MobileApp: React.FC = () => {
     );
   };
 
+  // Shared between the phone slide-up sheet and the tablet side column so
+  // both layouts drive the exact same filtering.
+  const filterControls = (
+    <CollectionFilterControls
+      collection={cards}
+      setCollectionFilter={setCollectionFilter}
+      availableTags={tags}
+      setNameFilter={setCardNameFilter}
+    />
+  );
+
   if (!hasAccessToken()) {
     return (
       <div className={styles.authWrapper}>
@@ -317,7 +370,44 @@ const MobileApp: React.FC = () => {
           {createGrid(filteredCollection)}
         </Col>
         <div className={styles.mobileControls}>
-          <CollectionFilterControls collection={cards} setNameFilter={setCardNameFilter} />
+          {isPhoneLayout && (
+            <Button
+              className={styles.filtersButton}
+              icon={<FilterOutlined />}
+              aria-expanded={showFilters}
+              onClick={() => setShowFilters(true)}
+            >
+              Filters{activeFilterCount > 0 ? ` · ${activeFilterCount}` : ''}
+            </Button>
+          )}
+          {isPhoneLayout ? (
+            <Drawer
+              aria-label="Filters"
+              placement="bottom"
+              size="85%"
+              open={showFilters}
+              onClose={() => setShowFilters(false)}
+              closable={false}
+              className={styles.filterSheet}
+              styles={{
+                body: { padding: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' },
+                footer: { padding: '12px 20px max(16px, env(safe-area-inset-bottom))' },
+              }}
+              footer={
+                <Button
+                  type="primary"
+                  className={styles.doneButton}
+                  onClick={() => setShowFilters(false)}
+                >
+                  Done
+                </Button>
+              }
+            >
+              {filterControls}
+            </Drawer>
+          ) : (
+            filterControls
+          )}
           <CollectionActions
             mobile
             currentUser={currentUser}
