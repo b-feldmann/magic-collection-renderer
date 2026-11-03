@@ -14,6 +14,7 @@ import { UNKNOWN_CREATOR } from './utils/constants';
 import CardInterface from './interfaces/CardInterface';
 import { CardState, SortByType } from './interfaces/enums';
 import { PHONE_LAYOUT_MEDIA_QUERY } from './utils/usePhoneLayout';
+import appStyles from './App.module.scss';
 
 vi.mock('antd/es/modal', async importOriginal => {
   const actual = await importOriginal<typeof import('antd/es/modal')>();
@@ -99,6 +100,87 @@ beforeEach(() => {
 });
 
 describe('modern collection sidebar', () => {
+  it.each(['hidden', 'preview'] as const)(
+    'gives the grid more visible room in Hidden than Preview, including after a %s reload',
+    initialState => {
+      const sheet = document.createElement('style');
+      sheet.textContent = compile(resolve('src/App.module.scss')).css.replace(
+        /\.([a-zA-Z_]\w*)/g,
+        (selector, name: string) => (appStyles[name] ? `.${appStyles[name]}` : selector),
+      );
+      document.head.append(sheet);
+      try {
+        localStorage.setItem('mtg-funset:CollectionStatsClosedState', initialState);
+        const initial = showApp();
+        const reserve = () =>
+          Number.parseFloat(
+            getComputedStyle(
+              screen.getByRole('region', { name: 'Collection mana curves' }).parentElement!,
+            ).paddingBottom,
+          );
+        fireEvent.click(screen.getByRole('button', { name: 'Hidden' }));
+        const hiddenReserve = reserve();
+        fireEvent.click(screen.getByRole('button', { name: 'Preview' }));
+        const previewReserve = reserve();
+        expect(hiddenReserve).toBeLessThan(previewReserve);
+        fireEvent.click(screen.getByRole('button', { name: 'Expand statistics' }));
+        expect(reserve()).toBe(previewReserve);
+        initial.unmount();
+
+        const previewReload = showApp();
+        expect(reserve()).toBe(previewReserve);
+        fireEvent.click(screen.getByRole('button', { name: 'Hidden' }));
+        previewReload.unmount();
+
+        showApp();
+        expect(reserve()).toBe(hiddenReserve);
+        expect(
+          screen.queryByRole('group', { name: 'Statistics previews' }),
+        ).not.toBeInTheDocument();
+      } finally {
+        sheet.remove();
+      }
+    },
+  );
+
+  it.each(['hidden', 'preview'] as const)(
+    'restores the selected %s statistics state after reloading, even after expanding',
+    preferred => {
+      localStorage.setItem(
+        'mtg-funset:CollectionStatsClosedState',
+        preferred === 'hidden' ? 'preview' : 'hidden',
+      );
+      const initial = showApp();
+      fireEvent.click(
+        screen.getByRole('button', {
+          name: preferred === 'hidden' ? 'Hidden' : 'Preview',
+        }),
+      );
+      expect(localStorage.getItem('mtg-funset:CollectionStatsClosedState')).toBe(preferred);
+      fireEvent.click(screen.getByRole('button', { name: 'Expand statistics' }));
+      expect(localStorage.getItem('mtg-funset:CollectionStatsClosedState')).toBe(preferred);
+      initial.unmount();
+
+      showApp();
+      expect(
+        screen.getByRole('button', {
+          name: preferred === 'hidden' ? 'Hidden' : 'Preview',
+        }),
+      ).toHaveAttribute('aria-pressed', 'true');
+      expect(screen.getByRole('button', { name: 'Expand statistics' })).toHaveAttribute(
+        'aria-expanded',
+        'false',
+      );
+      if (preferred === 'preview') {
+        expect(screen.getByRole('group', { name: 'Statistics previews' })).toBeInTheDocument();
+      } else {
+        expect(
+          screen.queryByRole('group', { name: 'Statistics previews' }),
+        ).not.toBeInTheDocument();
+      }
+    },
+  );
+
   it('right-aligns shared confirmation actions', () => {
     const css = compile(resolve('src/confirmationModal.module.scss')).css;
     expect(css).toContain('justify-content: flex-end');
@@ -215,11 +297,24 @@ describe('modern collection sidebar', () => {
     fireEvent.click(screen.getByRole('tab', { name: /Approved Cards/ }));
 
     const colorCurve = screen.getByRole('img', { name: 'Mana curve by color: 1 card' });
-    expect(
-      Array.from(colorCurve.querySelectorAll('[title^="CMC"]')).map(column =>
-        column.getAttribute('title'),
-      ),
-    ).toEqual(['CMC 2: 1 White']);
+    expect(within(colorCurve).getByTitle('Mana value 2: 1 White')).toBeInTheDocument();
+    expect(within(colorCurve).getByTitle('Mana value 5: No cards')).toBeInTheDocument();
+    expect(within(colorCurve).getByText('7+')).toBeInTheDocument();
+  });
+
+  it('updates statistics while expanded without discarding the chosen layout', () => {
+    showApp();
+    fireEvent.click(screen.getByRole('button', { name: 'Expand statistics' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Stacked' }));
+    fireEvent.change(screen.getByRole('textbox', { name: 'Filter by card name' }), {
+      target: { value: 'No match' },
+    });
+    expect(screen.getByLabelText('Visible cards')).toBeEmptyDOMElement();
+    expect(screen.getByRole('button', { name: 'Stacked' })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('img', { name: 'Mana curve by color: 0 cards' })).toBeInTheDocument();
+    expect(screen.getByRole('region', { name: 'Mana curve by rarity' })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Reset all' }));
+    expect(screen.getByRole('img', { name: 'Mana curve by color: 1 card' })).toBeInTheDocument();
   });
 
   it('keeps both sort selectors in the filters and persists selection changes', async () => {

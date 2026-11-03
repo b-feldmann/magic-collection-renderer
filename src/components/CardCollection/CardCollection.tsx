@@ -23,6 +23,7 @@ export interface CardCollectionInterface {
   seenCardUuids: { [key: string]: boolean };
   addSeenCard: (uuid: string) => void;
   mobile?: boolean;
+  bottomPadding?: number;
 }
 
 const CardCollection = ({
@@ -36,6 +37,7 @@ const CardCollection = ({
   seenCardUuids,
   addSeenCard,
   mobile,
+  bottomPadding = 0,
 }: CardCollectionInterface) => {
   const [showBackFaceConfig, setShowBackFaceConfig] = useState<{ [key: string]: boolean }>({});
   const [selectedVariants, setSelectedVariants] = useState<Record<string, string>>({});
@@ -114,6 +116,7 @@ const CardCollection = ({
         }
 
         const rows: number = Math.ceil(groups.length / columns);
+        const spacerRows = bottomPadding > 0 ? 1 : 0;
 
         // Reserve room for the vertical scrollbar so the rightmost column of
         // cards is never rendered underneath it. Only reserve the space when
@@ -160,8 +163,8 @@ const CardCollection = ({
               cellProps={data}
               columnCount={columns}
               columnWidth={columnWidth}
-              rowCount={rows}
-              rowHeight={columnHeight}
+              rowCount={rows + spacerRows}
+              rowHeight={rowIndex => (rowIndex === rows ? bottomPadding : columnHeight)}
               style={{ height, width }}
             />
           </div>

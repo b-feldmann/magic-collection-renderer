@@ -9,6 +9,7 @@ import reducer from './reducer';
 import { EMPTY_CARD } from './actions/cardActions';
 import CardInterface from './interfaces/CardInterface';
 import { UNKNOWN_CREATOR } from './utils/constants';
+import { PHONE_LAYOUT_MEDIA_QUERY } from './utils/usePhoneLayout';
 
 // Keep the modal, editor, reducer, creation and persistence real. Stub only
 // expensive collection/card rendering and unrelated initial data requests.
@@ -143,6 +144,51 @@ afterEach(async () => {
 });
 
 describe('mobile card editing flow', () => {
+  it('groups tablet Stats with Create card and Edit mechanics and opens statistics', async () => {
+    render(<Example />);
+
+    const actions = screen.getByRole('group', { name: 'Collection actions' });
+    expect(within(actions).getByRole('button', { name: 'Create card' })).toBeInTheDocument();
+    expect(within(actions).getByRole('button', { name: 'Edit mechanics' })).toBeInTheDocument();
+    const statsButton = within(actions).getByRole('button', { name: 'Stats' });
+    expect(screen.getAllByRole('button', { name: 'Stats' })).toHaveLength(1);
+    expect(statsButton).toHaveAttribute('aria-expanded', 'false');
+    fireEvent.click(statsButton);
+
+    expect(statsButton).toHaveAttribute('aria-expanded', 'true');
+    expect(
+      await screen.findByRole('region', { name: 'Collection mana curves' }),
+    ).toBeInTheDocument();
+  });
+
+  it('opens collection statistics in a phone slide-up drawer', async () => {
+    vi.spyOn(window, 'matchMedia').mockImplementation((media: string) => ({
+      matches: media === PHONE_LAYOUT_MEDIA_QUERY,
+      media,
+      onchange: null,
+      addListener() {},
+      removeListener() {},
+      addEventListener() {},
+      removeEventListener() {},
+      dispatchEvent: () => false,
+    }));
+    render(<Example />);
+
+    const statsButton = screen.getByRole('button', { name: 'Stats' });
+    expect(
+      within(screen.getByRole('group', { name: 'Collection actions' })).queryByRole('button', {
+        name: 'Stats',
+      }),
+    ).not.toBeInTheDocument();
+    expect(statsButton).toHaveAttribute('aria-expanded', 'false');
+    fireEvent.click(statsButton);
+
+    expect(statsButton).toHaveAttribute('aria-expanded', 'true');
+    expect(
+      await screen.findByRole('region', { name: 'Collection mana curves' }),
+    ).toBeInTheDocument();
+  });
+
   it('renders the Create card control at the same compact size as the other mobile controls', () => {
     render(<Example />);
 

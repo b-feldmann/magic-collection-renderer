@@ -697,4 +697,27 @@ updateLog.push({
   ],
 });
 
+updateLog.push({
+  version: '4.2.0',
+  title: 'Statistics',
+  content: [
+    {
+      type: ChangeLogFeatureType.Added,
+      feature: 'Statistic Preview',
+      description: 'Mana curve with color, card type and tag distribution.',
+    },
+    {
+      type: ChangeLogFeatureType.Added,
+      feature: 'Detailed Statistics',
+      description: 'Detailed mana curve with color, card type, tag and rarity distribution.',
+    },
+    {
+      type: ChangeLogFeatureType.Changed,
+      feature: 'Simplified evolution template',
+      description:
+        'If an evolution card has empty pt in a displayed level, or the pt are the same as the default pt we do not render level specific pt anymore.',
+    },
+  ],
+});
+
 export default updateLog;

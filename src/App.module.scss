@@ -13,6 +13,9 @@ $editor-width: clamp(516px, calc(100vw / 24 * 21 / 24 * 6 - 16px), 516px);
   display: flex;
   flex-direction: column;
   height: 100vh;
+  width: 100%;
+  max-width: 100vw;
+  overflow: hidden;
 
   @media only screen and (min-width: 600px) {
     flex-direction: row;
@@ -111,6 +114,15 @@ $editor-width: clamp(516px, calc(100vw / 24 * 21 / 24 * 6 - 16px), 516px);
     min-height: 0;
     min-width: 0;
     max-width: none;
+  }
+
+  // App reserves the actual closed-panel height inside this column: Hidden
+  // leaves a taller card viewport than Preview. Expansion overlays that viewport.
+  .collectionStatsHost {
+    --collection-stats-preview-height: 300px;
+    position: relative;
+    box-sizing: border-box;
+    isolation: isolate;
   }
 
   .tabs {

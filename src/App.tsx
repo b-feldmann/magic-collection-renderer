@@ -99,6 +99,25 @@ const App: React.FC = () => {
     'mtg-funset:SecondarySortBy',
     SortByType.Name,
   ) as [SortByType, (value: SortByType) => void];
+  const [statsClosedState, setStatsClosedState] = useState<'hidden' | 'preview'>(() => {
+    try {
+      return localStorage.getItem('mtg-funset:CollectionStatsClosedState') === 'hidden'
+        ? 'hidden'
+        : 'preview';
+    } catch {
+      return 'preview';
+    }
+  });
+  const handleStatsStateChange = (state: 'hidden' | 'preview' | 'expanded') => {
+    if (state === 'hidden' || state === 'preview') {
+      setStatsClosedState(state);
+      try {
+        localStorage.setItem('mtg-funset:CollectionStatsClosedState', state);
+      } catch {
+        // Storage may be unavailable in restricted browsing contexts.
+      }
+    }
+  };
 
   const [collectionFilter, setCollectionFilter] = useState<CollectionFilterInterface>({
     colors: {},
@@ -305,7 +324,11 @@ const App: React.FC = () => {
     return (
       <Row className={styles.fullHeight}>
         <MechanicModal visible={mechanicsVisible} setVisible={setMechanicsVisible} />
-        <Col span={collectionSpan} className={styles.collection}>
+        <Col
+          span={collectionSpan}
+          className={`${styles.collection} ${styles.collectionStatsHost}`}
+          style={{ paddingBottom: statsClosedState === 'hidden' ? 48 : 300 }}
+        >
           <Tabs
             activeKey={activeTabKey}
             onChange={setActiveTabKey}
@@ -346,7 +369,11 @@ const App: React.FC = () => {
               ),
             }))}
           />
-          <CollectionStats collection={visibleCollection} allCards={mergedCollection} />
+          <CollectionStats
+            collection={visibleCollection}
+            allCards={mergedCollection}
+            onStateChange={handleStatsStateChange}
+          />
         </Col>
         <Col span={editorSpan} className={styles.editor}>
           <CardEditor

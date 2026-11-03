@@ -1,6 +1,6 @@
 import React, { useContext, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
 import { Badge, Button, Card, Col, Drawer, Input, Modal, Result, Row, Select, Tabs } from 'antd';
-import { ExclamationCircleFilled, FilterOutlined } from '@ant-design/icons';
+import { BarChartOutlined, ExclamationCircleFilled, FilterOutlined } from '@ant-design/icons';
 import sortBy from 'lodash/sortBy';
 
 import CardInterface from './interfaces/CardInterface';
@@ -21,6 +21,7 @@ import CollectionFilterControls, {
   CheckBoxGroupInterface,
   CollectionFilterInterface,
 } from './components/CollectionFilterControls/CollectionFilterControls';
+import CollectionStats from './components/CollectionStats/CollectionStats';
 import { createCard, EMPTY_CARD, refreshCollection } from './actions/cardActions';
 
 import { hasAccessToken, updateAccessToken } from './utils/accessService';
@@ -51,6 +52,24 @@ const { confirm } = Modal;
 
 const NO_CARD = '-1';
 
+const CARD_TABS: { name: string; filter: (card: CardInterface) => boolean }[] = [
+  { name: 'All', filter: () => true },
+  {
+    name: 'Card Drafts / Idea Dump',
+    filter: card => card.meta.state === CardState.Draft,
+  },
+  {
+    name: 'Cards to Rate',
+    filter: card => card.meta.state === CardState.Rate,
+  },
+  {
+    name: 'Approved Cards',
+    filter: card => card.meta.state === CardState.Approved,
+  },
+];
+
+const tabKey = (name: string) => `tab-key-${name}`;
+
 // Guard so the initial data fetch runs once per app load, not again under
 // StrictMode's dev double-mount or on remount.
 let didInit = false;
@@ -65,6 +84,7 @@ const MobileApp: React.FC = () => {
   const [mechanicsVisible, setMechanicsVisible] = useState(false);
   const [cardNameFilter, setCardNameFilter] = useState<string>('');
   const [showFilters, setShowFilters] = useState(false);
+  const [showStats, setShowStats] = useState(false);
   const isPhoneLayout = usePhoneLayout();
   const [sortByType, setSortByType] = useLocalStorage(
     'mtg-funset:SortBy',
@@ -128,6 +148,15 @@ const MobileApp: React.FC = () => {
         ),
     );
   }, [mergedCollection, sortList, deferredNameFilter, collectionFilter]);
+
+  const activeTab = useMemo(
+    () => CARD_TABS.find(tab => tabKey(tab.name) === activeTabKey) || CARD_TABS[0],
+    [activeTabKey],
+  );
+  const visibleCollection = useMemo(
+    () => filteredCollection.filter(activeTab.filter),
+    [filteredCollection, activeTab],
+  );
 
   // Surfaced on the phone's Filters button so the collection state stays
   // understandable while the filter sheet is slid down. Enum/creator filters
@@ -255,22 +284,6 @@ const MobileApp: React.FC = () => {
   const createGrid = (collection: CardInterface[]) => {
     const collectionSpan = 24;
 
-    const cardTabs = [
-      { name: 'All', filter: () => true },
-      {
-        name: 'Card Drafts / Idea Dump',
-        filter: (o: CardInterface) => o.meta.state === CardState.Draft,
-      },
-      {
-        name: 'Cards to Rate',
-        filter: (o: CardInterface) => o.meta.state === CardState.Rate,
-      },
-      {
-        name: 'Approved Cards',
-        filter: (o: CardInterface) => o.meta.state === CardState.Approved,
-      },
-    ];
-
     return (
       <Row className={styles.fullHeight}>
         <Col span={collectionSpan} className={styles.collection}>
@@ -278,8 +291,8 @@ const MobileApp: React.FC = () => {
             activeKey={activeTabKey}
             onChange={setActiveTabKey}
             className={styles.tabs}
-            items={cardTabs.map(tabObj => ({
-              key: `tab-key-${tabObj.name}`,
+            items={CARD_TABS.map(tabObj => ({
+              key: tabKey(tabObj.name),
               label: (
                 <Badge
                   className={styles.tabBadge}
@@ -425,6 +438,17 @@ const MobileApp: React.FC = () => {
               Filters{activeFilterCount > 0 ? ` · ${activeFilterCount}` : ''}
             </Button>
           )}
+          {isPhoneLayout && (
+            <Button
+              className={styles.filtersButton}
+              icon={<BarChartOutlined />}
+              aria-label="Stats"
+              aria-expanded={showStats}
+              onClick={() => setShowStats(true)}
+            >
+              Stats
+            </Button>
+          )}
           {isPhoneLayout ? (
             <Drawer
               aria-label="Filters"
@@ -453,8 +477,38 @@ const MobileApp: React.FC = () => {
           ) : (
             filterControls
           )}
+          <Drawer
+            aria-label="Statistics"
+            placement="bottom"
+            size="80%"
+            open={showStats}
+            onClose={() => setShowStats(false)}
+            closable={false}
+            className={styles.filterSheet}
+            styles={{
+              body: { padding: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' },
+              footer: { padding: '12px 20px max(16px, env(safe-area-inset-bottom))' },
+            }}
+            footer={
+              <Button
+                type="primary"
+                className={styles.doneButton}
+                onClick={() => setShowStats(false)}
+              >
+                Done
+              </Button>
+            }
+          >
+            <CollectionStats
+              collection={visibleCollection}
+              allCards={mergedCollection}
+              fillHeight
+            />
+          </Drawer>
           <CollectionActions
             mobile
+            onShowStats={isPhoneLayout ? undefined : () => setShowStats(true)}
+            statsExpanded={showStats}
             currentUser={currentUser}
             users={user}
             onCreate={() => createCard(dispatch, currentUser)}

@@ -133,6 +133,25 @@ interface TemplatingCardRenderProps {
   containerWidth?: number;
 }
 
+const areStatsEqual = (stats: string | undefined, defaultStats: string | undefined): boolean => {
+  if (!stats?.trim() || !defaultStats?.trim()) return false;
+
+  const parsedStats = parseStats(stats);
+  const parsedDefaultStats = parseStats(defaultStats);
+
+  return (
+    parsedStats.power.trim() === parsedDefaultStats.power.trim() &&
+    parsedStats.toughness.trim() === parsedDefaultStats.toughness.trim()
+  );
+};
+
+const hasCompleteStats = (stats: string | undefined): boolean => {
+  if (!stats?.trim()) return false;
+
+  const [power, toughness, ...extraParts] = stats.split('/');
+  return extraParts.length === 0 && !!power.trim() && !!toughness.trim();
+};
+
 const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
   const { legendary, vehicle, nickname, cardTypes, basicLandType, rarity } = cardRenderProps;
   const { name, manaCost, cardStats, cover, creator } = cardRenderProps;
@@ -461,6 +480,15 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
   const hasSecondEvolution: boolean =
     isEvolution &&
     (!!level2Indicator || (!!level2Text && level2Text.length > 0 && level2Text[0] !== ''));
+  const hasIncompleteLevelStats =
+    !hasCompleteStats(level1Stats) || (hasSecondEvolution && !hasCompleteStats(level2Stats));
+  const hasLevelStatsMatchingDefault =
+    areStatsEqual(level1Stats, cardStats) ||
+    (hasSecondEvolution && areStatsEqual(level2Stats, cardStats));
+  const showLevelSpecificPt = hasStats && !hasIncompleteLevelStats && !hasLevelStatsMatchingDefault;
+  const standardPt = isEvolution
+    ? getPt(color, isArtifact, vehicle, isNickname, artStyle === CardArtStyles.Borderless, isLand)
+    : pt;
 
   return (
     <div style={{ height: `${getHeight(containerWidth)}px` }}>
@@ -487,6 +515,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
             ${isNickname && styles.nicknameFrame}
             ${isEnchantment && styles.enchantment}
             ${isEvolution && styles.evolution}
+            ${isEvolution && !showLevelSpecificPt && styles.evolutionWithoutLevelPt}
             ${!hasSecondEvolution && styles.hasNoSecondEvolution}
             ${isLand && styles.land}
             ${isArtifact && styles.artifact}
@@ -671,12 +700,14 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
             <div>
               {pt ? (
                 <img
-                  className={`${styles.pt} ${isEvolution ? `${styles.levelerPt} ${styles.levelerPtTop}` : ''}`}
-                  src={pt}
+                  className={`${styles.pt} ${isEvolution && showLevelSpecificPt ? `${styles.levelerPt} ${styles.levelerPtTop}` : ''}`}
+                  src={showLevelSpecificPt ? pt : standardPt}
                   alt=""
                 />
               ) : null}
-              <div className={`${styles.stats} ${isEvolution ? styles.levelerStatsTop : ''}`}>
+              <div
+                className={`${styles.stats} ${isEvolution && showLevelSpecificPt ? styles.levelerStatsTop : ''}`}
+              >
                 {`${parseStats(cardStats).power}/${parseStats(cardStats).toughness}`}
               </div>
             </div>
@@ -718,7 +749,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
                   {level1Indicator}
                 </div>
               ) : null}
-              {hasStats && (
+              {showLevelSpecificPt && (
                 <>
                   <img
                     className={`${styles.pt} ${styles.levelerPt} ${styles.levelerPtMid}`}
@@ -770,7 +801,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
                       {level2Indicator}
                     </div>
                   ) : null}
-                  {hasStats && (
+                  {showLevelSpecificPt && (
                     <>
                       <img
                         className={`${styles.pt} ${styles.levelerPt} ${styles.levelerPtBottom}`}

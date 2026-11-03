@@ -738,6 +738,17 @@
   }
 }
 
+.evolutionWithoutLevelPt.hasStats {
+  .levelerText {
+    width: 1260px;
+  }
+
+  .levelerLevel1Text,
+  .levelerLevel2Text {
+    width: 1090px;
+  }
+}
+
 .planeswalker.lines4 {
   .type {
     top: 1046px;
