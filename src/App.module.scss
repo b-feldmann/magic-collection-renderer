@@ -46,7 +46,7 @@ $editor-width: clamp(516px, calc(100vw / 24 * 21 / 24 * 6 - 16px), 516px);
     padding: 0;
     background: #fff;
     border: 1px solid #e3e8de;
-    border-radius: 20px;
+    border-radius: 15px;
     box-shadow: $muse-card-shadow;
     overflow: hidden;
   }
@@ -103,15 +103,32 @@ $editor-width: clamp(516px, calc(100vw / 24 * 21 / 24 * 6 - 16px), 516px);
   }
 
   .collection {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
     height: 100%;
     flex: 1 1 0;
+    min-height: 0;
     min-width: 0;
     max-width: none;
   }
 
   .tabs {
-    height: 100%;
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    height: auto;
+    min-height: 0;
     margin-left: 10px;
+
+    :global(.ant-tabs-body-holder) {
+      flex: 1 1 auto;
+      min-height: 0;
+    }
+
+    :global(.ant-tabs-body) {
+      min-height: 0;
+    }
   }
 
   .tabBadge {
@@ -129,7 +146,7 @@ $editor-width: clamp(516px, calc(100vw / 24 * 21 / 24 * 6 - 16px), 516px);
     width: 100%;
     padding: 0;
     border: 1px solid #e3e8de;
-    border-radius: 20px;
+    border-radius: 15px;
     box-shadow: $muse-card-shadow;
     overflow: hidden;
 

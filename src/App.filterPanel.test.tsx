@@ -12,7 +12,7 @@ import { createCard, EMPTY_CARD, refreshCollection } from './actions/cardActions
 import { setCurrentUser } from './actions/userActions';
 import { UNKNOWN_CREATOR } from './utils/constants';
 import CardInterface from './interfaces/CardInterface';
-import { SortByType } from './interfaces/enums';
+import { CardState, SortByType } from './interfaces/enums';
 import { PHONE_LAYOUT_MEDIA_QUERY } from './utils/usePhoneLayout';
 
 vi.mock('antd/es/modal', async importOriginal => {
@@ -172,12 +172,54 @@ describe('modern collection sidebar', () => {
   it('keeps filtering wired to the actual collection and reset restores the cards', () => {
     showApp();
     expect(screen.getByLabelText('Visible cards')).toHaveTextContent('Test creature');
+    expect(screen.getByRole('region', { name: 'Collection mana curves' })).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: 'Mana curve by color: 1 card' })).toBeInTheDocument();
     fireEvent.change(screen.getByRole('textbox', { name: 'Filter by card name' }), {
       target: { value: 'No match' },
     });
     expect(screen.getByLabelText('Visible cards')).toBeEmptyDOMElement();
+    expect(screen.getByRole('img', { name: 'Mana curve by color: 0 cards' })).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Reset all' }));
     expect(screen.getByLabelText('Visible cards')).toHaveTextContent('Test creature');
+    expect(screen.getByRole('img', { name: 'Mana curve by color: 1 card' })).toBeInTheDocument();
+  });
+
+  it('keeps the mana curves scoped to the active tab and first variant', () => {
+    const firstVariant: CardInterface = {
+      ...card,
+      uuid: 'first-variant',
+      name: 'First variant',
+      manaCost: '{1}{W}',
+      variantIds: ['alternate-variant'],
+      meta: { ...card.meta, createdAt: 1 },
+      front: { ...card.front, name: 'First variant' },
+    };
+    const alternateVariant: CardInterface = {
+      ...card,
+      uuid: 'alternate-variant',
+      name: 'Alternate variant',
+      manaCost: '{4}{U}',
+      variantIds: ['first-variant'],
+      meta: { ...card.meta, createdAt: 2, state: CardState.Approved },
+      front: { ...card.front, name: 'Alternate variant' },
+    };
+    render(
+      <Store.Provider value={{ ...store, cards: [firstVariant, alternateVariant] }}>
+        <App />
+      </Store.Provider>,
+    );
+
+    expect(screen.getByRole('region', { name: 'Collection mana curves' })).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: 'Mana curve by color: 1 card' })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('tab', { name: /Approved Cards/ }));
+
+    const colorCurve = screen.getByRole('img', { name: 'Mana curve by color: 1 card' });
+    expect(
+      Array.from(colorCurve.querySelectorAll('[title^="CMC"]')).map(column =>
+        column.getAttribute('title'),
+      ),
+    ).toEqual(['CMC 2: 1 White']);
   });
 
   it('keeps both sort selectors in the filters and persists selection changes', async () => {

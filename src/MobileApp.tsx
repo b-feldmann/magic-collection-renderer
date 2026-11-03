@@ -429,7 +429,7 @@ const MobileApp: React.FC = () => {
             <Drawer
               aria-label="Filters"
               placement="bottom"
-              size="85%"
+              size="80%"
               open={showFilters}
               onClose={() => setShowFilters(false)}
               closable={false}

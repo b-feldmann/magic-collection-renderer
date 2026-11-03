@@ -9,6 +9,7 @@ import fileDownload from 'js-file-download';
 import CardInterface from './interfaces/CardInterface';
 import { CardState, SortByType } from './interfaces/enums';
 import CardCollection from './components/CardCollection/CardCollection';
+import CollectionStats from './components/CollectionStats/CollectionStats';
 import { getNextVariantId, getVariantGroups, withLatestVariantIds } from './utils/cardVariants';
 import CardEditor from './components/CardEditor/CardEditor';
 
@@ -165,6 +166,11 @@ const App: React.FC = () => {
           ),
       ),
     [mergedCollection, sortList, deferredNameFilter, collectionFilter],
+  );
+
+  const visibleCollection = useMemo(
+    () => filteredCollection.filter(activeTab.filter),
+    [filteredCollection, activeTab],
   );
 
   // O(1) uuid -> card lookups instead of a linear scan on every call.
@@ -340,6 +346,7 @@ const App: React.FC = () => {
               ),
             }))}
           />
+          <CollectionStats collection={visibleCollection} allCards={mergedCollection} />
         </Col>
         <Col span={editorSpan} className={styles.editor}>
           <CardEditor

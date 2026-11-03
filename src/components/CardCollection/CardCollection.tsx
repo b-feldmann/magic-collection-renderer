@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 
-import { Grid } from 'react-window';
+import { Grid, useGridCallbackRef } from 'react-window';
 
 import { AutoSizer } from 'react-virtualized-auto-sizer';
 
@@ -39,8 +39,34 @@ const CardCollection = ({
 }: CardCollectionInterface) => {
   const [showBackFaceConfig, setShowBackFaceConfig] = useState<{ [key: string]: boolean }>({});
   const [selectedVariants, setSelectedVariants] = useState<Record<string, string>>({});
+  const [scrollShadows, setScrollShadows] = useState({ top: false, bottom: false });
+  const [gridRef, setGridRef] = useGridCallbackRef();
   const groups = useMemo(() => getVariantGroups(cards, allCards), [cards, allCards]);
   const previousEditId = useRef('');
+
+  useEffect(() => {
+    const grid = gridRef?.element;
+    if (!grid) return;
+
+    const update = () => {
+      const top = grid.scrollTop > 1;
+      const bottom = grid.scrollHeight - grid.clientHeight - grid.scrollTop > 1;
+      setScrollShadows(previous =>
+        previous.top === top && previous.bottom === bottom ? previous : { top, bottom },
+      );
+    };
+    const observer = typeof ResizeObserver === 'undefined' ? undefined : new ResizeObserver(update);
+    observer?.observe(grid);
+    grid.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+    update();
+
+    return () => {
+      observer?.disconnect();
+      grid.removeEventListener('scroll', update);
+      window.removeEventListener('resize', update);
+    };
+  }, [gridRef, groups.length, colSpanSetting, mobile]);
 
   // Follow accepted editor navigation; standalone collections can also browse locally.
   useEffect(() => {
@@ -123,16 +149,22 @@ const CardCollection = ({
         };
 
         return (
-          <Grid
-            className={styles.collection}
-            cellComponent={Cell}
-            cellProps={data}
-            columnCount={columns}
-            columnWidth={columnWidth}
-            rowCount={rows}
-            rowHeight={columnHeight}
+          <div
+            className={`${styles.scrollWrapper} ${scrollShadows.top ? styles.hasTopShadow : ''} ${scrollShadows.bottom ? styles.hasBottomShadow : ''}`}
             style={{ height, width }}
-          />
+          >
+            <Grid
+              gridRef={setGridRef}
+              className={styles.collection}
+              cellComponent={Cell}
+              cellProps={data}
+              columnCount={columns}
+              columnWidth={columnWidth}
+              rowCount={rows}
+              rowHeight={columnHeight}
+              style={{ height, width }}
+            />
+          </div>
         );
       }}
     />
