@@ -42,7 +42,9 @@ import useActiveCardTab from './utils/useActiveCardTab';
 import usePhoneLayout from './utils/usePhoneLayout';
 import cardToColor from './utils/cardToColor';
 import { matchesSelectedTags } from './utils/cardTagFilter';
-import { CardType, ColorType, RarityType } from './interfaces/enums';
+import { CardType, ColorType, RarityType, SortByType } from './interfaces/enums';
+import { buildSortAccessors } from './utils/sortAccessors';
+import useLocalStorage from './utils/useLocalStorageHook';
 
 const { Search } = Input;
 const { confirm } = Modal;
@@ -64,6 +66,14 @@ const MobileApp: React.FC = () => {
   const [cardNameFilter, setCardNameFilter] = useState<string>('');
   const [showFilters, setShowFilters] = useState(false);
   const isPhoneLayout = usePhoneLayout();
+  const [sortByType, setSortByType] = useLocalStorage(
+    'mtg-funset:SortBy',
+    SortByType.LastUpdated,
+  ) as [SortByType, (value: SortByType) => void];
+  const [secondarySortBy, setSecondarySortBy] = useLocalStorage(
+    'mtg-funset:SecondarySortBy',
+    SortByType.Name,
+  ) as [SortByType, (value: SortByType) => void];
   const [collectionFilter, setCollectionFilter] = useState<CollectionFilterInterface>({
     colors: Object.fromEntries(Object.values(ColorType).map(color => [color, true])),
     rarity: Object.fromEntries(Object.values(RarityType).map(rarity => [rarity, true])),
@@ -75,6 +85,11 @@ const MobileApp: React.FC = () => {
 
   const { cards, newUuid, dispatch, annotationAccessor, user, currentUser, tags } =
     useContext<StoreType>(Store);
+
+  const sortList = useMemo(
+    () => buildSortAccessors(sortByType, secondarySortBy, annotationAccessor),
+    [sortByType, secondarySortBy, annotationAccessor],
+  );
 
   // Captured once at mount: avoids flashing the user chooser while the stored
   // user is restored by the async `/user` fetch.
@@ -100,15 +115,7 @@ const MobileApp: React.FC = () => {
   const deferredNameFilter = useDeferredValue(cardNameFilter);
 
   const filteredCollection = useMemo(() => {
-    const lastUpdated = (card: CardInterface): number => {
-      const annotations = annotationAccessor[card.uuid];
-      if (!annotations) return card.meta.lastUpdated;
-
-      const lastAnnotation = annotations.reduce((a, b) => (a.datetime > b.datetime ? a : b));
-      return Math.max(lastAnnotation.datetime, card.meta.lastUpdated);
-    };
-
-    return sortBy(mergedCollection, [(o: CardInterface) => -1 * lastUpdated(o)]).filter(
+    return sortBy(mergedCollection, sortList).filter(
       o =>
         o.name.toLowerCase().includes(deferredNameFilter.toLowerCase()) &&
         collectionFilter.colors[cardToColor(o.front, o.manaCost).color] &&
@@ -120,7 +127,7 @@ const MobileApp: React.FC = () => {
           Object.keys(collectionFilter.tags).filter(tag => collectionFilter.tags[tag]),
         ),
     );
-  }, [mergedCollection, annotationAccessor, deferredNameFilter, collectionFilter]);
+  }, [mergedCollection, sortList, deferredNameFilter, collectionFilter]);
 
   // Surfaced on the phone's Filters button so the collection state stays
   // understandable while the filter sheet is slid down. Enum/creator filters
@@ -318,6 +325,44 @@ const MobileApp: React.FC = () => {
       setCollectionFilter={setCollectionFilter}
       availableTags={tags}
       setNameFilter={setCardNameFilter}
+      sortControls={
+        <div className={styles.sortRow}>
+          <div className={styles.sortField}>
+            <label htmlFor="mobile-primary-sort">Sort by</label>
+            <Select
+              id="mobile-primary-sort"
+              className={styles.sortSelect}
+              // @ts-ignore
+              value={sortByType || SortByType.Color}
+              // @ts-ignore
+              onChange={(newSortByValue: SortByType) => setSortByType(newSortByValue)}
+              aria-label="Primary sort"
+              options={(Object.keys(SortByType) as (keyof typeof SortByType)[]).map(key => ({
+                key: `mobile-sort-primary-${key}`,
+                value: SortByType[key],
+                label: SortByType[key],
+              }))}
+            />
+          </div>
+          <div className={styles.sortField}>
+            <label htmlFor="mobile-secondary-sort">Then by</label>
+            <Select
+              id="mobile-secondary-sort"
+              className={styles.sortSelect}
+              // @ts-ignore
+              value={secondarySortBy || SortByType.Name}
+              // @ts-ignore
+              onChange={(newSortByValue: SortByType) => setSecondarySortBy(newSortByValue)}
+              aria-label="Secondary sort"
+              options={(Object.keys(SortByType) as (keyof typeof SortByType)[]).map(key => ({
+                key: `mobile-sort-secondary-${key}`,
+                value: SortByType[key],
+                label: SortByType[key],
+              }))}
+            />
+          </div>
+        </div>
+      }
     />
   );
 

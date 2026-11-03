@@ -12,6 +12,7 @@ import { createCard, EMPTY_CARD, refreshCollection } from './actions/cardActions
 import { setCurrentUser } from './actions/userActions';
 import { UNKNOWN_CREATOR } from './utils/constants';
 import CardInterface from './interfaces/CardInterface';
+import { SortByType } from './interfaces/enums';
 import { PHONE_LAYOUT_MEDIA_QUERY } from './utils/usePhoneLayout';
 
 vi.mock('antd/es/modal', async importOriginal => {
@@ -214,9 +215,9 @@ describe('modern collection sidebar', () => {
 });
 
 describe('matching mobile collection actions', () => {
-  const showMobile = () =>
+  const showMobile = (cards: CardInterface[] = store.cards) =>
     render(
-      <Store.Provider value={store}>
+      <Store.Provider value={{ ...store, cards }}>
         <MobileApp />
       </Store.Provider>,
     );
@@ -285,6 +286,43 @@ describe('matching mobile collection actions', () => {
       { timeout: 2000 },
     );
     expect(screen.getByRole('button', { name: /filters/i })).toHaveTextContent('Filters · 2');
+  });
+
+  it('sorts cards using the controls in the phone filter sheet', async () => {
+    localStorage.setItem('mtg-funset:SortBy', SortByType.LastUpdated);
+    const testCard = {
+      ...card,
+      front: { ...card.front, name: 'Test creature' },
+      meta: { ...card.meta, lastUpdated: 20 },
+    };
+    const alphaCard = {
+      ...testCard,
+      uuid: 'alpha-card',
+      name: 'Alpha creature',
+      front: { ...testCard.front, name: 'Alpha creature' },
+      meta: { ...testCard.meta, lastUpdated: 10 },
+    };
+    showMobile([testCard, alphaCard]);
+    expect(screen.getByLabelText('Visible cards')).toHaveTextContent(
+      'Test creature, Alpha creature',
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: /filters/i }));
+    const sheet = await screen.findByRole('dialog', { name: 'Filters' });
+    const primarySort = within(sheet).getByRole('combobox', { name: 'Primary sort' });
+    expect(within(sheet).getByRole('combobox', { name: 'Secondary sort' })).toBeInTheDocument();
+
+    fireEvent.mouseDown(primarySort);
+    fireEvent.click(
+      await screen.findByText('Name', { selector: '.ant-select-item-option-content' }),
+    );
+
+    await waitFor(() =>
+      expect(screen.getByLabelText('Visible cards')).toHaveTextContent(
+        'Alpha creature, Test creature',
+      ),
+    );
+    expect(localStorage.getItem('mtg-funset:SortBy')).toBe('Name');
   });
 
   it('keeps the filters visible without a sheet in the tablet side column', () => {

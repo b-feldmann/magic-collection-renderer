@@ -672,16 +672,27 @@ updateLog.push({
 });
 
 updateLog.push({
-  version: '4.0.1',
+  version: '4.1.1',
   title: 'Mobile Filters',
   content: [
     {
       type: ChangeLogFeatureType.Added,
-      feature: 'Added filters on mobile',
+      feature: 'Mobile filter and sort controls open in a slide-up panel so cards stay visible',
     },
     {
       type: ChangeLogFeatureType.Fixed,
       feature: 'Fixed sorting by cmc',
+    },
+  ],
+});
+
+updateLog.push({
+  version: '4.1.2',
+  title: 'Mobile Order',
+  content: [
+    {
+      type: ChangeLogFeatureType.Added,
+      feature: 'Makes it possible to sort the collection on mobile',
     },
   ],
 });
