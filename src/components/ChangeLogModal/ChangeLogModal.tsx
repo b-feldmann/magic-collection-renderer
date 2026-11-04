@@ -26,7 +26,7 @@ const ChangeLogModal = () => {
       updateLog.length - 1 > currentUser.lastSeenVersion
     ) {
       modal.info({
-        title: 'Change Log',
+        title: 'Change log',
         content: renderLog(),
         width: '90%',
         className: styles.modal,

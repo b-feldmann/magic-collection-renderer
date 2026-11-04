@@ -5,6 +5,7 @@ import Modal from 'antd/es/modal';
 import Select from 'antd/es/select';
 import PlusOutlined from '@ant-design/icons/PlusOutlined';
 import EditOutlined from '@ant-design/icons/EditOutlined';
+import BarChartOutlined from '@ant-design/icons/BarChartOutlined';
 import DownloadOutlined from '@ant-design/icons/DownloadOutlined';
 import ReloadOutlined from '@ant-design/icons/ReloadOutlined';
 import EllipsisOutlined from '@ant-design/icons/EllipsisOutlined';
@@ -21,6 +22,8 @@ interface CollectionActionsProps {
   onSwitchUser: (user: UserInterface) => void;
   onReload: () => void;
   onDownload?: () => void;
+  onShowStats?: () => void;
+  statsExpanded?: boolean;
   mobile?: boolean;
 }
 
@@ -32,6 +35,8 @@ const CollectionActions = ({
   onSwitchUser,
   onReload,
   onDownload,
+  onShowStats,
+  statsExpanded = false,
   mobile = false,
 }: CollectionActionsProps) => {
   const userId = useId();
@@ -66,6 +71,17 @@ const CollectionActions = ({
       >
         Edit mechanics
       </Button>
+      {onShowStats && (
+        <Button
+          className={styles.mechanicsButton}
+          icon={<BarChartOutlined />}
+          aria-label="Stats"
+          aria-expanded={statsExpanded}
+          onClick={onShowStats}
+        >
+          Stats
+        </Button>
+      )}
       <div className={styles.accountRow}>
         <span className={styles.userAvatar} aria-hidden="true">
           {currentUser.name

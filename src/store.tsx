@@ -34,6 +34,11 @@ const initialStore = {
 
 export const Store = createContext<StoreType>(initialStore);
 
+// Card renders only need the mechanics, so they read them from here rather than
+// from `Store`. A `Store` subscription would re-render every visible card on any
+// dispatch (a loaded image, a seen card, ...), bypassing their `React.memo`.
+export const MechanicsContext = createContext<MechanicInterface[]>(initialState.mechanics);
+
 export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(reducer, initialState);
 
@@ -42,5 +47,9 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   // re-rendering on unrelated re-renders of the provider.
   const value: StoreType = useMemo(() => ({ ...state, dispatch }), [state]);
 
-  return <Store.Provider value={value}>{children}</Store.Provider>;
+  return (
+    <Store.Provider value={value}>
+      <MechanicsContext.Provider value={state.mechanics}>{children}</MechanicsContext.Provider>
+    </Store.Provider>
+  );
 }

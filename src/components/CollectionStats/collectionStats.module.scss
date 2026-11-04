@@ -1,28 +1,317 @@
+@use '../../styles/mixins';
+
+$muted-text: #526b5b;
+// Bars, their count labels and the grid lines share one timing so they stay aligned mid-move.
+$bar-transition: 280ms ease;
+
 .statsBar {
+  position: absolute;
+  bottom: 0;
+  inset-inline-start: 0;
+  inset-inline-end: 0;
+  z-index: 5;
+  height: var(--collection-stats-preview-height, 300px);
+  max-height: 100%;
   box-sizing: border-box;
   display: flex;
-  flex: 0 0 auto;
   flex-direction: column;
-  min-height: clamp(174px, 23vh, 210px);
-  padding: 12px 12px;
-  overflow: visible;
-  background: #fff;
-  border: 1px solid #e3e8de;
-  border-radius: 15px;
-  box-shadow: 0 12px 22px rgba(0, 0, 0, 0.04);
-  margin-bottom: 8px;
+  min-height: 0;
+  background: #f9fbf9;
+  border: 1px solid #d0ded3;
+  border-radius: var(--panel-radius) var(--panel-radius) 0 0;
+  color: #2b4032;
+  box-shadow: 0 -8px 35px #203e3020;
+  transition: height 280ms ease;
+  container-type: inline-size;
+
+  button {
+    cursor: pointer;
+    font: inherit;
+    &:focus-visible {
+      outline: 2px solid #6d9b74;
+      outline-offset: 2px;
+    }
+  }
 }
 
-.charts {
+.expanded {
+  height: min(82dvh, 100%);
+}
+.mostlyHidden {
+  height: 56px;
+}
+.sheetHeading.hiddenHeading {
+  align-items: flex-start;
+  justify-content: flex-end;
+  padding-top: 0;
+  padding-bottom: 0;
+  .headingIntro {
+    display: flex;
+    row-gap: 0;
+    line-height: 1;
+  }
+  .summary {
+    display: inline;
+  }
+  .headingIntro h2 {
+    font-size: 14px;
+    line-height: 1.25;
+  }
+  .headingControls {
+    margin-left: auto;
+    transform: translateY(-2px);
+  }
+}
+
+.fillHeight {
+  position: relative;
+  inset: auto;
+  flex: 1 1 auto;
+  height: 100%;
+  min-height: 0;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  transition: none;
+}
+
+.dragHandle {
+  display: grid;
+  flex: none;
+  place-items: center;
+  height: 18px;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: var(--panel-radius) var(--panel-radius) 0 0;
+  background: transparent;
+  touch-action: none;
+  cursor: ns-resize !important;
+  > span {
+    width: 42px;
+    height: 4px;
+    border-radius: 4px;
+    background: #b9cbbf;
+  }
+}
+
+.sheetHeading {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 2px 18px 6px;
+
+  h2 {
+    @include mixins.panel-title;
+  }
+}
+.statsBar:not(.expanded) .sheetHeading h2 {
+  font-size: 14px;
+}
+
+.headingIntro {
   display: flex;
   flex: 1;
-  gap: 8px;
-  min-height: min-content;
-  overflow-x: auto;
-  overflow-y: visible;
-  overscroll-behavior-inline: contain;
-  scrollbar-width: thin;
+  min-width: 0;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 12px;
+}
+.headingControls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: none;
+}
+.inlineMetrics {
+  display: block;
+  flex-basis: 100%;
+  font-size: 11px;
+  color: $muted-text;
+  strong {
+    color: #3b6449;
+  }
+}
+// Fixed height, so it fits the hidden sheet without making the heading taller.
+// Only shown from 800px up (see the container query below): narrower sheets need the
+// room for the heading text and controls.
+.miniCurve {
+  position: relative;
+  display: none;
+  flex: none;
+  align-self: center;
+  gap: 2px;
+  width: 96px;
+  height: 28px;
+}
+.miniCurveColumn {
+  display: flex;
+  flex: 1;
+  align-items: flex-end;
+  min-width: 0;
+}
+.miniCurveBar {
+  width: 100%;
+  min-height: 3px;
+  border-radius: 2px 2px 0 0;
+  background: #24452f;
+  transition:
+    height $bar-transition,
+    background-color $bar-transition;
+  @starting-style {
+    height: 0 !important;
+  }
+}
+.miniCurveEmptyBar {
+  min-height: 2px;
+  background: #a9b0ab;
+}
+.statsBar .expandButton {
+  display: inline-flex;
+  align-items: center;
+  height: var(--control-height);
+  padding: 0 10px;
+  color: #3f654b;
+  background: #fff;
+  border: 1px solid #bbcebf;
+  border-radius: var(--control-radius);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.layoutSwitch,
+.closedStateSwitch {
+  display: flex;
+  box-sizing: border-box;
+  height: var(--control-height);
+  padding: 3px;
+  background: #eef3ee;
+  border: 1px solid #cfdbd1;
+  border-radius: var(--control-radius);
+  button {
+    border: 0;
+    border-radius: 5px;
+    padding: 0 10px;
+    background: transparent;
+    color: $muted-text;
+    font-size: 12px;
+  }
+  button[aria-pressed='true'] {
+    background: #fff;
+    color: #3c6048;
+    box-shadow: 0 1px 4px #24432c14;
+    font-weight: 600;
+  }
+}
 
+.summary {
+  color: $muted-text;
+  font-size: 11px;
+}
+.details {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0 18px 20px;
+}
+.metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 8px 0 20px;
+
+  > div {
+    flex: 1 1 150px;
+    padding: 8px 12px;
+    border: 1px solid #e0e9e2;
+    border-radius: 8px;
+    background: #fff;
+  }
+  strong {
+    display: block;
+    font-size: 21px;
+    font-weight: 700;
+    color: #3b6149;
+  }
+  span {
+    color: $muted-text;
+    font-size: 11px;
+  }
+}
+
+.curveSection {
+  margin-top: 20px;
+}
+.sectionIntro {
+  min-width: 0;
+}
+.sectionHeading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  margin-bottom: 11px;
+  h2 {
+    @include mixins.section-heading;
+  }
+  > span {
+    @include mixins.section-number;
+  }
+}
+.sectionNote {
+  font-size: 11px;
+  color: $muted-text;
+  margin: 0 0 12px;
+}
+.singleCharts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(190px, 100%), 1fr));
+  gap: 12px;
+
+  // One height for every chart, whatever its column width: it follows the width of
+  // the sheet (.statsBar is the container), from 100px at 1920px screens up to 150px.
+  .plot {
+    height: clamp(100px, 9.25cqw, 150px);
+  }
+  // Over the plot, so one empty chart doesn't make its whole row taller.
+  .emptyState {
+    position: absolute;
+    inset-inline: 0;
+    top: 50%;
+    margin: 0;
+    text-align: center;
+  }
+}
+.stackedCharts {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+
+  .plot {
+    height: 280px;
+  }
+}
+.stackedSections {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 20px 16px;
+  margin: 20px 0;
+
+  .curveSection {
+    min-width: 0;
+    margin-top: 0;
+  }
+}
+.previewCharts {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  padding: 0 18px 10px;
+  overflow-x: auto;
   &:focus-visible {
     outline: 2px solid #6d9b74;
     outline-offset: -2px;
@@ -30,149 +319,199 @@
 }
 
 .chart {
+  // Keep the visually hidden description inside the scrolling chart rather than
+  // positioning it against the outer sheet and extending the document height.
+  position: relative;
   display: flex;
-  flex: 1 0 max(180px, 24%);
   flex-direction: column;
   min-width: 0;
   margin: 0;
-  padding: 7px 8px 5px;
-  overflow: visible;
-  background: #f8faf7;
-  border: 1px solid #edf0eb;
-  border-radius: 10px;
+  padding: 15px;
+  border: 1px solid #e0e8e2;
+  border-radius: var(--control-radius);
+  background: #fff;
 }
-
 .chartHeading {
   display: flex;
-  flex: none;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 4px;
-  margin-bottom: 4px;
-
+  flex-direction: column;
+  gap: 2px;
   h3 {
-    overflow: hidden;
+    color: #2b4032;
     margin: 0;
-    color: #35463a;
-    font-size: 11px;
-    font-weight: 600;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    font-size: 13px;
+    overflow-wrap: anywhere;
   }
-
   > span {
-    color: #879187;
-    font-size: 9px;
-    white-space: nowrap;
+    font-size: 11px;
+    color: $muted-text;
   }
 }
-
 .chartGraph {
-  display: flex;
-  flex: 1;
-  gap: 4px;
-  min-height: 58px;
+  padding-top: 24px;
 }
-
 .plotViewport {
-  flex: 1;
   min-width: 0;
-  min-height: 0;
   overflow-x: auto;
   overflow-y: hidden;
-  scrollbar-width: thin;
+  padding: 20px 2px 0 22px;
+  margin-top: -20px;
 }
-
+.noYAxis .plotViewport {
+  padding-left: 2px;
+}
 .plot {
   position: relative;
   display: flex;
-  height: 100%;
-  min-height: 58px;
-  gap: 3px;
+  gap: 7px;
+  height: 150px;
+  min-width: 130px;
 }
-
 .barColumn {
   position: relative;
   z-index: 1;
   display: flex;
-  flex: 1 0 12px;
+  flex: 1;
   flex-direction: column;
   min-width: 0;
 }
-
 .barStack {
   position: relative;
   display: flex;
   flex: 1;
   flex-direction: column-reverse;
   align-items: center;
-  justify-content: flex-start;
   min-height: 0;
 }
-
 .barSegment {
   display: flex;
   flex: 0 0 auto;
   align-items: center;
   justify-content: center;
-  width: min(16px, 70%);
-  min-height: 1px;
-  overflow: visible;
+  width: min(42px, 100%);
   border-radius: 2px 2px 0 0;
-  opacity: 0.9;
+  transition: height $bar-transition;
+  // Heights are inline styles, so growing in from zero needs !important to outrank them.
+  @starting-style {
+    height: 0 !important;
+  }
 }
-
 .segmentCount {
-  padding: 0 2px;
-  color: #24303a;
-  background: rgba(255, 255, 255, 0.88);
-  border-radius: 3px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
-  font-size: 8px;
+  font-size: 9px;
   font-weight: 700;
-  line-height: 10px;
-  pointer-events: none;
-  white-space: nowrap;
+  color: #243c2c;
+  background: #ffffffe0;
+  border-radius: 2px;
+  padding: 0 2px;
+  line-height: 11px;
 }
-
+.barCount {
+  position: absolute;
+  margin-bottom: 3px;
+  font-size: 10px;
+  font-weight: 600;
+  color: #45634e;
+  transition: bottom $bar-transition;
+  @starting-style {
+    bottom: 0 !important;
+  }
+}
 .cmcLabel {
   flex: none;
-  height: 13px;
-  color: #778177;
-  font-size: 8px;
-  line-height: 13px;
+  height: 22px;
+  font-size: 10px;
+  line-height: 22px;
+  text-align: center;
+  color: $muted-text;
+}
+.gridLine {
+  position: absolute;
+  inset-inline: 0;
+  border-top: 1px solid #eaf0eb;
+  transition: bottom $bar-transition;
+  > span {
+    position: absolute;
+    left: -22px;
+    top: -8px;
+    width: 18px;
+    text-align: right;
+    font-size: 9px;
+    color: $muted-text;
+  }
+}
+.axisLabel {
+  color: $muted-text;
+  font-size: 10px;
   text-align: center;
 }
-
 .legend {
   display: flex;
   flex: none;
   flex-wrap: wrap;
-  gap: 3px 8px;
-  margin: 4px 0 0;
+  gap: 4px 10px;
   padding: 0;
-  overflow: visible;
-  color: #69756a;
-  font-size: 8px;
-  line-height: 1.2;
+  margin: 8px 0 0;
   list-style: none;
-  scrollbar-width: thin;
+  color: $muted-text;
+  font-size: 10px;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 
   li {
     display: inline-flex;
-    flex: none;
     align-items: center;
-    gap: 3px;
-    white-space: nowrap;
+    gap: 4px;
+    overflow-wrap: anywhere;
   }
 }
-
 .legendSwatch {
-  width: 7px;
-  height: 7px;
+  width: 8px;
+  height: 8px;
+  flex: none;
   border-radius: 2px;
 }
-
+.emptyState {
+  margin: 6px 0 0;
+  color: $muted-text;
+  font-size: 11px;
+}
+.compactChart {
+  padding: 8px 12px;
+  .chartHeading {
+    flex-direction: row;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .chartHeading h3 {
+    font-size: 12px;
+  }
+  .chartHeading > span {
+    font-size: 10px;
+    white-space: nowrap;
+  }
+  .chartGraph {
+    padding-top: 6px;
+  }
+  .plotViewport {
+    padding: 0;
+    margin: 0;
+  }
+  .plot {
+    height: 142px;
+  }
+  .barSegment {
+    width: min(36px, 85%);
+  }
+  .legend {
+    font-size: 9px;
+    gap: 3px 8px;
+    max-height: 26px;
+    overflow-y: auto;
+  }
+}
 .visuallyHidden {
   position: absolute;
   width: 1px;
@@ -183,4 +522,87 @@
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
+}
+
+@media (max-width: 1399.98px) {
+  .previewCharts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .previewTagChart {
+    display: none;
+  }
+}
+
+@media (max-width: 650px) {
+  .singleCharts {
+    gap: 8px;
+  }
+  .details {
+    padding-inline: 12px;
+  }
+  .chart {
+    padding: 12px;
+  }
+  .previewCharts {
+    grid-template-columns: 1fr;
+    padding-inline: 12px;
+    gap: 8px;
+  }
+  .sheetHeading {
+    padding-inline: 12px;
+  }
+  .headingControls {
+    gap: 6px;
+  }
+  .summary {
+    font-size: 10px;
+  }
+  .layoutSwitch button {
+    padding: 0 6px;
+    font-size: 11px;
+  }
+}
+
+@container (min-width: 800px) {
+  .miniCurve {
+    display: flex;
+  }
+
+  // Shrink the intro to its text, so the mini curve sits directly beside it. A grid
+  // because a wrapping flex container would size to all its items on a single line.
+  .sheetHeading.hiddenHeading .headingIntro {
+    display: grid;
+    flex: 0 1 auto;
+    grid-template-columns: auto auto;
+    justify-content: start;
+    .inlineMetrics {
+      grid-column: 1 / -1;
+    }
+  }
+
+  .stackedSections {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    .curveSection {
+      display: grid;
+      grid-template-rows: subgrid;
+      grid-row: span 2;
+      row-gap: 0;
+    }
+
+    .stackedCharts {
+      align-self: start;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .statsBar,
+  .barSegment,
+  .barCount,
+  .gridLine,
+  .miniCurveBar {
+    transition: none;
+  }
 }

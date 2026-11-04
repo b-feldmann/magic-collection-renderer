@@ -1,5 +1,6 @@
 $muse-card-shadow: 0 20px 27px rgba(0, 0, 0, 0.05);
-$muse-card-radius: 12px;
+$muse-card-radius: var(--panel-radius);
+$muse-card-border: 1px solid #e3e8de;
 
 // Clamped widths for the floating "Muse card" panels. The middle `calc()` is
 // the fluid viewport-proportional width; the min/max keep the panels usable on
@@ -13,6 +14,9 @@ $editor-width: clamp(516px, calc(100vw / 24 * 21 / 24 * 6 - 16px), 516px);
   display: flex;
   flex-direction: column;
   height: 100vh;
+  width: 100%;
+  max-width: 100vw;
+  overflow: hidden;
 
   @media only screen and (min-width: 600px) {
     flex-direction: row;
@@ -27,7 +31,9 @@ $editor-width: clamp(516px, calc(100vw / 24 * 21 / 24 * 6 - 16px), 516px);
     width: $editor-width;
     // This fixed panel must not inherit Col span={6}'s 25% width cap.
     max-width: none;
+    box-sizing: border-box;
     background: #fff;
+    border: $muse-card-border;
     border-radius: $muse-card-radius;
     box-shadow: $muse-card-shadow;
   }
@@ -45,8 +51,8 @@ $editor-width: clamp(516px, calc(100vw / 24 * 21 / 24 * 6 - 16px), 516px);
     flex-direction: column;
     padding: 0;
     background: #fff;
-    border: 1px solid #e3e8de;
-    border-radius: 15px;
+    border: $muse-card-border;
+    border-radius: $muse-card-radius;
     box-shadow: $muse-card-shadow;
     overflow: hidden;
   }
@@ -98,7 +104,7 @@ $editor-width: clamp(516px, calc(100vw / 24 * 21 / 24 * 6 - 16px), 516px);
     // its controls take their space as real flex items, so the reserve would
     // squeeze the tabs/grid to zero width there.
     .collection {
-      margin-right: calc(#{$editor-width} + 16px);
+      margin-right: calc(#{$editor-width} + 18px);
     }
   }
 
@@ -113,6 +119,24 @@ $editor-width: clamp(516px, calc(100vw / 24 * 21 / 24 * 6 - 16px), 516px);
     max-width: none;
   }
 
+  // App reserves the actual closed-panel height inside this column: Hidden
+  // leaves a taller card viewport than Preview. Expansion overlays that viewport.
+  .collectionStatsHost {
+    --collection-stats-preview-height: 300px;
+    // Keeps the scrollbar thumb clear of the part of the grid behind the sheet.
+    --collection-scrollbar-end-inset: 18px;
+    // The grid's scrollbar sits in the gap past this column's right edge.
+    --collection-scrollbar-gutter: 10px;
+    position: relative;
+    box-sizing: border-box;
+    isolation: isolate;
+
+    // Tabs and cards start on the column's edge, 8px from the sidebar.
+    .tabs {
+      margin-left: 0;
+    }
+  }
+
   .tabs {
     display: flex;
     flex: 1 1 auto;
@@ -120,10 +144,39 @@ $editor-width: clamp(516px, calc(100vw / 24 * 21 / 24 * 6 - 16px), 516px);
     height: auto;
     min-height: 0;
     margin-left: 10px;
+    position: relative;
+
+    // The chips float over the grid, which runs to the top of the screen so cards
+    // scroll away under them. CardCollection's topPadding keeps the first row clear.
+    > :global(.ant-tabs-nav) {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 2;
+      margin-bottom: 0 !important;
+      // Only the chips catch clicks; the cards between them stay usable.
+      pointer-events: none;
+
+      :global(.ant-tabs-tab),
+      :global(.ant-tabs-nav-operations) {
+        pointer-events: auto;
+      }
+
+      // The wrap clips its overflow, so give the chips' ring and shadow room to
+      // show. The negative offset keeps the chips aligned with the cards.
+      :global(.ant-tabs-nav-wrap) {
+        margin-left: -6px;
+        padding: 0 0 16px 6px;
+      }
+    }
 
     :global(.ant-tabs-body-holder) {
       flex: 1 1 auto;
       min-height: 0;
+      // The grid has a fixed pixel height from AutoSizer. Without containment it
+      // props the column open, so the grid can't shrink when the stats reserve grows.
+      contain: size;
     }
 
     :global(.ant-tabs-body) {
@@ -131,13 +184,17 @@ $editor-width: clamp(516px, calc(100vw / 24 * 21 / 24 * 6 - 16px), 516px);
     }
   }
 
-  .tabBadge {
-    padding-left: 4px;
-    padding-right: 4px;
+  // Only while cards pass underneath (see useTabsOverCards): the shadow lifts the
+  // tabs off the card art.
+  [data-tabs-over-cards] .tabs > :global(.ant-tabs-nav) :global(.ant-tabs-tab) {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
   }
 
-  .tabBadge > sup {
-    margin-right: -14px;
+  .tabCount {
+    margin-left: 6px;
+    font-weight: 400;
+    font-variant-numeric: tabular-nums;
+    opacity: 0.75;
   }
 
   .mobileControls {
@@ -145,8 +202,8 @@ $editor-width: clamp(516px, calc(100vw / 24 * 21 / 24 * 6 - 16px), 516px);
     flex: none;
     width: 100%;
     padding: 0;
-    border: 1px solid #e3e8de;
-    border-radius: 15px;
+    border: $muse-card-border;
+    border-radius: $muse-card-radius;
     box-shadow: $muse-card-shadow;
     overflow: hidden;
 
@@ -167,15 +224,15 @@ $editor-width: clamp(516px, calc(100vw / 24 * 21 / 24 * 6 - 16px), 516px);
     justify-content: center;
     gap: 7px;
     width: calc(100% - 40px);
-    height: 44px;
+    height: var(--control-height);
     margin: 12px 20px 0;
     border: 1px solid #e3e9dc;
-    border-radius: 8px;
+    border-radius: var(--control-radius);
     background: #f7f9f4;
     color: var(--form-control-text-color);
     box-shadow: none;
     font-size: 12px;
-    font-weight: 550;
+    font-weight: 600;
 
     &:hover,
     &:focus-visible {
@@ -204,10 +261,10 @@ $editor-width: clamp(516px, calc(100vw / 24 * 21 / 24 * 6 - 16px), 516px);
     min-width: 0;
 
     &:global(.ant-select) {
-      height: 36px;
+      height: var(--control-height);
       font-size: 12px;
       border-color: #dce2d8;
-      border-radius: 9px;
+      border-radius: var(--control-radius);
       box-shadow: none;
     }
     :global(.ant-select-content) {
@@ -228,7 +285,7 @@ $editor-width: clamp(516px, calc(100vw / 24 * 21 / 24 * 6 - 16px), 516px);
       margin-bottom: 6px;
       color: #49584b;
       font-size: 11px;
-      font-weight: 550;
+      font-weight: 600;
     }
   }
 }
@@ -248,17 +305,17 @@ $editor-width: clamp(516px, calc(100vw / 24 * 21 / 24 * 6 - 16px), 516px);
 // Slide-up filter sheet (phone layout). The antd Drawer renders into a
 // body-level portal, so these selectors must stay outside `.app`.
 .filterSheet:global(.ant-drawer-section) {
-  border-radius: 20px 20px 0 0;
+  border-radius: var(--panel-radius) var(--panel-radius) 0 0;
   border-top: 1px solid #e3e8de;
 }
 
 .doneButton:global(.ant-btn) {
   width: 100%;
-  height: 44px;
-  border-radius: 8px;
+  height: var(--control-height);
+  border-radius: var(--control-radius);
   box-shadow: none;
   font-size: 12px;
-  font-weight: 550;
+  font-weight: 600;
 }
 
 .landscapeAddButton {

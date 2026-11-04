@@ -7,8 +7,8 @@
   height: 100% !important;
 }
 
-// Muse-style pill tabs: rounded chips on the gray layout, the active one
-// carries the dark gradient. antd's runtime styles load after this file, so
+// Tabs share the look of the sidebar's buttons: the active one matches Create
+// card, the others Edit mechanics. antd's runtime styles load after this file, so
 //! important is required to win ties against same-specificity antd rules.
 .ant-tabs > .ant-tabs-nav::before {
   border-bottom: none !important;
@@ -19,30 +19,33 @@
 }
 
 .ant-tabs > .ant-tabs-nav .ant-tabs-tab {
-  padding: 8px 16px !important;
-  margin: 8px 16px 0 0 !important;
-  background: #fff !important;
-  border-radius: 999px !important;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06) !important;
+  box-sizing: border-box;
+  height: var(--control-height);
+  padding: 0 12px !important;
+  margin: 8px 8px 0 0 !important;
+  border: 1px solid #e3e9dc;
+  background: #f7f9f4 !important;
+  border-radius: var(--control-radius) !important;
+  box-shadow: none !important;
+  color: var(--form-control-text-color);
+  font-size: 12px;
+  font-weight: 600;
   transition:
-    background 0.3s,
-    box-shadow 0.3s;
+    background 160ms ease,
+    border-color 160ms ease;
 }
 
 .ant-tabs > .ant-tabs-nav .ant-tabs-tab:not(.ant-tabs-tab-active):hover {
-  background: #ececec !important;
+  background: #edf2e7 !important;
+  border-color: #a9b9a1;
 }
 
 .ant-tabs > .ant-tabs-nav .ant-tabs-tab.ant-tabs-tab-active {
-  background: #14532d !important;
-  box-shadow: none !important;
-
-  .ant-badge {
-    color: #fff !important;
-  }
+  background: #3e6248 !important;
+  border-color: #3e6248;
 }
 
-// Room between the pill row and the collection grid below.
+// Room between the tab row and the collection grid below.
 .ant-tabs > .ant-tabs-nav {
-  margin-bottom: 32px !important;
+  margin-bottom: 12px !important;
 }

@@ -34,7 +34,7 @@ const Comment: React.FC<CommentProps> = ({
         {(author || datetime) && (
           <div className="mcr-comment-head" style={{ marginBottom: 4 }}>
             {author && (
-              <span className="mcr-comment-author" style={{ marginRight: 8, fontWeight: 500 }}>
+              <span className="mcr-comment-author" style={{ marginRight: 8, fontWeight: 600 }}>
                 {author}
               </span>
             )}

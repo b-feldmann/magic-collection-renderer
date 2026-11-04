@@ -1,3 +1,5 @@
+@use '../../styles/mixins';
+
 .noCard {
   padding-left: 32px;
   margin-top: 50vh;
@@ -47,9 +49,9 @@
   :global(.ant-radio-group) {
     display: flex;
     flex-wrap: wrap;
-    gap: 4px;
-    padding: 4px;
-    border-radius: 9px;
+    gap: 3px;
+    padding: 3px;
+    border-radius: var(--control-radius);
     background: #f0f3ed;
   }
 
@@ -57,10 +59,11 @@
     flex: 1 1 auto;
     min-width: 0;
     height: auto;
-    min-height: var(--ant-control-height-sm, 34px);
-    padding: 6px 9px;
+    // The group's padding counts towards the shared control height.
+    min-height: calc(var(--control-height) - 6px);
+    padding: 3px 9px;
     border: 0;
-    border-radius: 6px;
+    border-radius: 5px;
     background: transparent;
     color: #697b65;
     text-align: center;
@@ -69,6 +72,10 @@
 
     &::before {
       display: none;
+    }
+
+    @media (pointer: coarse) {
+      min-height: 44px;
     }
   }
 
@@ -102,12 +109,7 @@
   padding: 16px 20px 0;
 
   h2 {
-    margin: 0;
-    color: #26332f;
-    font-size: 22px;
-    font-weight: 650;
-    line-height: 1.25;
-    letter-spacing: -0.4px;
+    @include mixins.panel-title;
   }
 }
 
@@ -139,17 +141,11 @@
   margin-bottom: 11px;
 
   h3 {
-    margin: 0;
-    color: #294632;
-    font-size: 16px;
-    font-weight: 650;
-    letter-spacing: -0.2px;
+    @include mixins.section-heading;
   }
 
   > span {
-    color: #71826e;
-    font-size: 10px;
-    letter-spacing: 0.7px;
+    @include mixins.section-number;
   }
 }
 
@@ -216,26 +212,32 @@
 }
 
 .specialtyHeading {
+  @include mixins.section-heading;
   margin: 5px 0 0;
   padding-top: 10px;
   border-top: 1px solid #edf0eb;
-  color: #294632;
-  font-size: 16px;
-  font-weight: 650;
 }
 
 .organization {
   padding: 13px 0;
-
-  summary {
-    color: #405344;
-    font-size: 15px;
-    font-weight: 600;
-    cursor: pointer;
-  }
+  @include mixins.collapsible;
 
   &[open] .fields {
     margin-top: 11px;
+  }
+}
+
+.readOnlyField {
+  min-width: 0;
+  margin: 0;
+
+  dd {
+    display: flex;
+    align-items: center;
+    min-height: var(--ant-control-height-sm, 34px);
+    margin: 0;
+    color: #75836e;
+    font-size: 13px;
   }
 }
 
@@ -484,7 +486,7 @@
   gap: 12px;
   padding: 12px;
   border: 1px dashed #cdd9ca;
-  border-radius: 10px;
+  border-radius: var(--control-radius);
   background: #fafbf8;
 
   :global(.ant-upload-wrapper) {

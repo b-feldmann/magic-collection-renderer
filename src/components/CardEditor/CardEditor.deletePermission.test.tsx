@@ -93,13 +93,13 @@ describe('CardEditor - delete permission', () => {
   it('shows the delete button for the card creator', () => {
     renderEditor(user, makeCard(user));
 
-    expect(screen.getByText('Delete Card')).toBeVisible();
+    expect(screen.getByText('Delete card')).toBeVisible();
   });
 
   it('hides the delete button for a user who did not create the card', () => {
     renderEditor(user, makeCard(SOMEONE_ELSE));
 
-    expect(screen.queryByText('Delete Card')).not.toBeInTheDocument();
+    expect(screen.queryByText('Delete card')).not.toBeInTheDocument();
   });
 
   it('shows the delete button for BJennWare on any card', () => {
@@ -107,7 +107,7 @@ describe('CardEditor - delete permission', () => {
 
     renderEditor(bjennware, makeCard(SOMEONE_ELSE));
 
-    expect(screen.getByText('Delete Card')).toBeVisible();
+    expect(screen.getByText('Delete card')).toBeVisible();
   });
 
   it('notifies the parent after the selected card has been deleted', async () => {
@@ -119,7 +119,7 @@ describe('CardEditor - delete permission', () => {
     });
     renderEditor(user, makeCard(user), onCardDeleted);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Delete Card' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Delete card' }));
     await act(async () => {
       await confirmation?.onOk?.();
     });

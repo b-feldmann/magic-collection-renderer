@@ -180,7 +180,7 @@ const BigCardRenderModal = ({
   const releaseForRatingButton =
     card.meta.state === CardState.Draft ? (
       <Button ghost danger size="small" onClick={() => updateState(CardState.Rate)}>
-        Release for Rating!
+        Release for rating
       </Button>
     ) : undefined;
 
@@ -247,7 +247,7 @@ const BigCardRenderModal = ({
           size="small"
           onClick={() => updateState(CardState.Draft)}
         >
-          Return to Draft
+          Return to draft
         </Button>
       </div>
     </div>

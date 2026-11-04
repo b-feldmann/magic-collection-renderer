@@ -5,6 +5,16 @@
 @layer base {
   :root {
     --form-control-text-color: #1e241f;
+    --panel-radius: 12px;
+    --control-radius: 8px;
+    --control-height: 34px;
+  }
+
+  /* Touch devices get a comfortable tap target on every control. */
+  @media (pointer: coarse) {
+    :root {
+      --control-height: 44px;
+    }
   }
 
   body {
@@ -18,13 +28,39 @@
       sans-serif;
     color: #141414;
   }
+
+  /* Slim scrollbars everywhere: a 6px thumb centered in a 10px scrollbar. */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #b9cbbf content-box;
+    border: 2px solid transparent;
+    border-radius: 5px;
+  }
+
+  ::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+
+  /* Firefox ignores ::-webkit-scrollbar and can't set an exact width. It still
+     passes selector(::-webkit-scrollbar), so detect it by a -moz- property.
+     Chrome must not get these: scrollbar-width turns off ::-webkit-scrollbar. */
+  @supports (-moz-appearance: none) {
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: #b9cbbf transparent;
+    }
+  }
 }
 
 @layer components {
   /* Signature Muse card: white surface, rounded corners, soft drop-shadow. */
   .muse-card {
     background: #fff;
-    border-radius: 12px;
+    border-radius: var(--panel-radius);
     box-shadow: 0 20px 27px rgba(0, 0, 0, 0.05);
   }
 

@@ -14,7 +14,7 @@ import {
   CoverFit,
   RarityType,
 } from '../../interfaces/enums';
-import { Store, StoreType } from '../../store';
+import { MechanicsContext } from '../../store';
 import { getColor } from '../../utils/cardToColor';
 import { resolveColorIdentity } from '../../utils/getLandColor';
 import { formatTypeLine } from '../../utils/cardTypes';
@@ -71,7 +71,7 @@ const PlaneswalkerCardRender = (cardRender: PlaneswalkerCardRenderProps) => {
   const { backFace, collectionNumber, collectionSize, rarity } = cardRender;
   const { containerWidth = CARD_WIDTH, artStyle } = cardRender;
 
-  const { mechanics } = useContext<StoreType>(Store);
+  const mechanics = useContext(MechanicsContext);
 
   // The mana cost (rendered top-right) and the title share the same row, so a
   // wider cost must leave the title less room. Measure the cost box and shrink

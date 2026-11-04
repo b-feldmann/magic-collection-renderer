@@ -5,7 +5,7 @@ import AntIcon from '../AntIcon/AntIcon';
 import ActionHover from '../ActionHover/ActionHover';
 // import CardRender from '../CardRender/CardRender';
 import CardRender from '../TemplatingCardRender/index';
-import GlowingStar from '../GlowingStar/index';
+import NewCardBadge from '../NewCardBadge/index';
 import CardInterface from '../../interfaces/CardInterface';
 import CardFaceInterface from '../../interfaces/CardFaceInterface';
 import FavoriteHeart from '../FavoriteHeart/FavoriteHeart';
@@ -18,6 +18,7 @@ import { getVariantAnnotations } from '../../utils/cardVariants';
 
 export interface CellData {
   columnCount: number;
+  topSpacerRows?: number;
   cards: CardInterface[];
   variantGroups?: CardInterface[][];
   selectVariant?: (familyId: string, uuid: string) => void;
@@ -49,6 +50,7 @@ const Cell = ({
   variantGroups,
   selectVariant,
   columnCount,
+  topSpacerRows = 0,
   seenCardUuids,
   currentEditId,
   addSeenCard,
@@ -58,7 +60,7 @@ const Cell = ({
   showBackFaceConfig,
   mobile,
 }: CellProps) => {
-  const index = columnIndex + rowIndex * columnCount;
+  const index = columnIndex + (rowIndex - topSpacerRows) * columnCount;
   const card = cards[index];
   const { dispatch, annotationAccessor } = useContext(Store);
   const family = card ? variantGroups?.[index] || [card] : [];
@@ -82,17 +84,7 @@ const Cell = ({
 
   return (
     <div className={styles.cardBox} style={style} {...ariaAttributes}>
-      {isNew && <GlowingStar />}
-      {hasUnreadComments && (
-        <span
-          className={styles.newComments}
-          role="img"
-          aria-label="New comments"
-          title="New comments"
-        >
-          <MessageFilled aria-hidden="true" />
-        </span>
-      )}
+      {isNew && <NewCardBadge />}
       <Spin size="large" spinning={!!card.loading}>
         <ActionHover
           onClick={() => {
@@ -133,6 +125,16 @@ const Cell = ({
         </ActionHover>
       </Spin>
       <FavoriteHeart favorite={card.favorite} />
+      {hasUnreadComments && (
+        <span
+          className={`${styles.newComments} ${isNew ? styles.belowNewBadge : ''}`}
+          role="img"
+          aria-label="New comments"
+          title="New comments"
+        >
+          <MessageFilled aria-hidden="true" />
+        </span>
+      )}
       {(family.length > 1 || card.back) && (
         <div className={styles.cardControls} role="group" aria-label="Card controls">
           {family.length > 1 && (

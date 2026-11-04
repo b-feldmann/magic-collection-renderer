@@ -11,7 +11,7 @@ import UserInterface from '../../interfaces/UserInterface';
 import reducer from '../../reducer';
 import axios from 'axios';
 
-vi.mock('axios', () => ({ default: { put: vi.fn(), get: vi.fn() } }));
+vi.mock('axios', () => ({ default: { patch: vi.fn(), get: vi.fn() } }));
 
 // Card art is unrelated to the unread-comment lifecycle.
 vi.mock('../TemplatingCardRender/index', () => ({
@@ -118,10 +118,17 @@ beforeEach(() => {
   vi.clearAllMocks();
   savedUsers.clear();
   localStorage.setItem('api_key', 'test-access-key');
-  vi.mocked(axios.put).mockReset();
-  vi.mocked(axios.put).mockImplementation(async (_url, body: unknown) => {
-    const { user } = body as { user: UserInterface };
-    savedUsers.set(user.uuid, user);
+  vi.mocked(axios.patch).mockReset();
+  // Behaves like the middleware: merges the sent changes into the stored user.
+  vi.mocked(axios.patch).mockImplementation(async (url, body: unknown) => {
+    const uuid = url.split('/').pop()!;
+    const stored = savedUsers.get(uuid) || { ...UNKNOWN_CREATOR, uuid };
+    const { seenComments = [] } = body as { seenComments?: string[] };
+    const user = {
+      ...stored,
+      seenComments: [...new Set([...(stored.seenComments || []), ...seenComments])],
+    };
+    savedUsers.set(uuid, user);
     return { data: { user } };
   });
   const getStyle = window.getComputedStyle.bind(window);
@@ -149,6 +156,7 @@ describe('new-comment indicator', () => {
       seenComments: ['earlier-comment'],
       lastSeenVersion: 5,
     };
+    savedUsers.set('reader', value.currentUser);
     render(view(value, true));
     await waitFor(() => expect(bubble()).not.toBeInTheDocument());
     expect(savedUsers.get('reader')).toEqual({
@@ -156,6 +164,62 @@ describe('new-comment indicator', () => {
       seenComments: ['earlier-comment', 'comment-1'],
     });
     expect(value.currentUser.seenComments).toEqual(['earlier-comment']);
+  });
+
+  it('shows no bubble until a real user is loaded, then uses their saved reads', () => {
+    const value = makeStore();
+    const { rerender } = render(view({ ...value, currentUser: UNKNOWN_CREATOR }));
+    expect(bubble()).not.toBeInTheDocument();
+    rerender(view(value));
+    expect(bubble()).toBeVisible();
+    expect(axios.patch).not.toHaveBeenCalled();
+  });
+
+  it('does not save reads for the placeholder user when a card is opened', () => {
+    const value = makeStore();
+    render(view({ ...value, currentUser: UNKNOWN_CREATOR }, true));
+    expect(bubble()).not.toBeInTheDocument();
+    expect(axios.patch).not.toHaveBeenCalled();
+  });
+
+  it('shows no bubble for your own comments and does not save them as read', () => {
+    const value = makeStore();
+    const own = { ...comment, author: value.currentUser.uuid };
+    const annotationAccessor = { [card.uuid]: [own] };
+    const { rerender } = render(view({ ...value, annotationAccessor }));
+    expect(bubble()).not.toBeInTheDocument();
+    rerender(view({ ...value, annotationAccessor }, true));
+    expect(bubble()).not.toBeInTheDocument();
+    expect(axios.patch).not.toHaveBeenCalled();
+  });
+
+  it("saves only other people's comments when a card has both", async () => {
+    const value = makeStore();
+    const own = { ...comment, uuid: 'own-comment', author: value.currentUser.uuid };
+    const annotationAccessor = { [card.uuid]: [own, comment] };
+    const { rerender } = render(view({ ...value, annotationAccessor }));
+    expect(bubble()).toBeVisible();
+    rerender(view({ ...value, annotationAccessor }, true));
+    await waitFor(() => expect(bubble()).not.toBeInTheDocument());
+    expect(savedUsers.get('reader')?.seenComments).toEqual(['comment-1']);
+  });
+
+  it('labels the new-card badge only until the card has been seen', () => {
+    const newCard = () => screen.queryByRole('img', { name: 'New card' });
+    const value = makeStore();
+    const { rerender } = render(
+      <Store.Provider value={value}>
+        <Cell {...cellProps} seenCardUuids={{}} />
+      </Store.Provider>,
+    );
+    expect(newCard()).toBeInTheDocument();
+    expect(bubble()).toBeInTheDocument();
+    rerender(
+      <Store.Provider value={value}>
+        <Cell {...cellProps} />
+      </Store.Provider>,
+    );
+    expect(newCard()).not.toBeInTheDocument();
   });
 
   it('does not save again when all comments are already read', () => {
@@ -170,7 +234,7 @@ describe('new-comment indicator', () => {
       ),
     );
     expect(bubble()).not.toBeInTheDocument();
-    expect(axios.put).not.toHaveBeenCalled();
+    expect(axios.patch).not.toHaveBeenCalled();
   });
 
   it('stays on hover and clears only after opening, then returns for later comments', async () => {
@@ -182,11 +246,11 @@ describe('new-comment indicator', () => {
     // Requesting an opening is not enough if navigation is blocked by unsaved edits.
     fireEvent.click(screen.getByText('Card preview'));
     expect(bubble()).toBeVisible();
-    expect(axios.put).not.toHaveBeenCalled();
+    expect(axios.patch).not.toHaveBeenCalled();
     rerender(view(value, true));
     await waitFor(() => expect(bubble()).not.toBeInTheDocument());
-    expect(axios.put).toHaveBeenCalledWith('http://localhost:8080/user', {
-      user: { ...value.currentUser, seenComments: ['comment-1'] },
+    expect(axios.patch).toHaveBeenCalledWith('http://localhost:8080/user/reader', {
+      seenComments: ['comment-1'],
       accessKey: 'test-access-key',
     });
     unmount();
@@ -313,10 +377,10 @@ describe('new-comment indicator', () => {
   });
 
   it('keeps comments unread when saving fails and retries on reopening', async () => {
-    vi.mocked(axios.put).mockRejectedValueOnce(new Error('Offline'));
+    vi.mocked(axios.patch).mockRejectedValueOnce(new Error('Offline'));
     const value = makeStore();
     const { rerender } = render(view(value, true));
-    await waitFor(() => expect(axios.put).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(axios.patch).toHaveBeenCalledTimes(1));
     expect(bubble()).toBeVisible();
     rerender(view(value));
     rerender(view(value, true));
@@ -334,7 +398,7 @@ describe('new-comment indicator', () => {
 
   it('does not try to save read state without a selected user', () => {
     render(view({ ...makeStore(), currentUser: UNKNOWN_CREATOR }, true));
-    expect(axios.put).not.toHaveBeenCalled();
+    expect(axios.patch).not.toHaveBeenCalled();
   });
 
   it('shows unread comments on mobile and clears the bubble after opening the card', async () => {

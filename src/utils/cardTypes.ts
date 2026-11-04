@@ -32,7 +32,7 @@ export const hasType = (face: CardFaceInterface, type: CardType): boolean =>
   Array.isArray(face.cardTypes) && face.cardTypes.includes(type);
 
 // Card types that can never share a face (at most one of them per card).
-// The editor disables the other members in the Card Types select and hides the
+// The editor disables the other members in the Card types select and hides the
 // Invention art style; this guard backstops programmatic saves.
 export const MUTUALLY_EXCLUSIVE_CARD_TYPES = [
   CardType.Adventure,

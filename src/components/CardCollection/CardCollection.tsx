@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useEffectEvent, useMemo, useRef, useState } from 'react';
 
 import { Grid, useGridCallbackRef } from 'react-window';
 
@@ -9,6 +9,11 @@ import Cell, { CellData } from './Cell';
 
 import styles from './styles.module.scss';
 import { CARD_WIDTH, CARD_HEIGHT } from '../../utils/constants';
+
+// Matches the global scrollbar width in index.css.
+const SCROLLBAR_WIDTH = 10;
+// Space between neighbouring cards: twice the `.cardBox` padding.
+const CARD_GAP = 8;
 import { getVariantGroups } from '../../utils/cardVariants';
 
 export interface CardCollectionInterface {
@@ -23,6 +28,9 @@ export interface CardCollectionInterface {
   seenCardUuids: { [key: string]: boolean };
   addSeenCard: (uuid: string) => void;
   mobile?: boolean;
+  topPadding?: number;
+  bottomPadding?: number;
+  onScrolledChange?: (scrolled: boolean) => void;
 }
 
 const CardCollection = ({
@@ -36,24 +44,30 @@ const CardCollection = ({
   seenCardUuids,
   addSeenCard,
   mobile,
+  topPadding = 0,
+  bottomPadding = 0,
+  onScrolledChange,
 }: CardCollectionInterface) => {
   const [showBackFaceConfig, setShowBackFaceConfig] = useState<{ [key: string]: boolean }>({});
   const [selectedVariants, setSelectedVariants] = useState<Record<string, string>>({});
-  const [scrollShadows, setScrollShadows] = useState({ top: false, bottom: false });
+  const [hasMoreBelow, setHasMoreBelow] = useState(false);
   const [gridRef, setGridRef] = useGridCallbackRef();
   const groups = useMemo(() => getVariantGroups(cards, allCards), [cards, allCards]);
   const previousEditId = useRef('');
+  const reportedScrolled = useRef<boolean | null>(null);
+  const reportScrolled = useEffectEvent((scrolled: boolean) => {
+    if (reportedScrolled.current === scrolled) return;
+    reportedScrolled.current = scrolled;
+    onScrolledChange?.(scrolled);
+  });
 
   useEffect(() => {
     const grid = gridRef?.element;
     if (!grid) return;
 
     const update = () => {
-      const top = grid.scrollTop > 1;
-      const bottom = grid.scrollHeight - grid.clientHeight - grid.scrollTop > 1;
-      setScrollShadows(previous =>
-        previous.top === top && previous.bottom === bottom ? previous : { top, bottom },
-      );
+      setHasMoreBelow(grid.scrollHeight - grid.clientHeight - grid.scrollTop > 1);
+      reportScrolled(grid.scrollTop > 0);
     };
     const observer = typeof ResizeObserver === 'undefined' ? undefined : new ResizeObserver(update);
     observer?.observe(grid);
@@ -114,20 +128,26 @@ const CardCollection = ({
         }
 
         const rows: number = Math.ceil(groups.length / columns);
+        const topSpacerRows = topPadding > 0 ? 1 : 0;
+        const bottomSpacerRows = bottomPadding > 0 ? 1 : 0;
 
-        // Reserve room for the vertical scrollbar so the rightmost column of
-        // cards is never rendered underneath it. Only reserve the space when
-        // the content actually overflows vertically (i.e. a scrollbar shows).
-        // Separation from the fixed editor panel is already provided by the
-        // `.collection` `margin-right` in App.module.scss (reserves the editor
-        // width + an 8px gap), so no extra right gutter is needed here.
-        const SCROLLBAR_WIDTH = 17;
-        const unreservedColumnHeight: number = (width / columns / CARD_WIDTH) * CARD_HEIGHT;
-        const hasVerticalScrollbar: boolean = rows * unreservedColumnHeight > height;
-        const availableWidth: number = hasVerticalScrollbar ? width - SCROLLBAR_WIDTH : width;
+        // On desktop the cards span the column exactly, so they line up with the
+        // statistics sheet: the cells' outer padding hangs past both edges, and the
+        // scrollbar sits past the right edge, in the gap before the editor. Card size
+        // doesn't depend on the scrollbar. The last cell's padding is clipped behind it.
+        // Mobile has no side panels, so it only reserves room when content overflows.
+        const sideOverhang: number = mobile ? 0 : CARD_GAP / 2;
+        const cardHeightFor = (columnWidth: number) =>
+          ((columnWidth - CARD_GAP) / CARD_WIDTH) * CARD_HEIGHT + CARD_GAP;
+        const hasVerticalScrollbar: boolean =
+          rows * cardHeightFor(width / columns) + topPadding + bottomPadding > height;
+        const gridWidth: number = mobile ? width : width + sideOverhang + SCROLLBAR_WIDTH;
+        const cellsWidth: number = mobile
+          ? width - (hasVerticalScrollbar ? SCROLLBAR_WIDTH : 0)
+          : width + 2 * sideOverhang;
 
-        const columnWidth: number = availableWidth / columns;
-        const columnHeight: number = (columnWidth / CARD_WIDTH) * CARD_HEIGHT;
+        const columnWidth: number = cellsWidth / columns;
+        const columnHeight: number = cardHeightFor(columnWidth);
 
         const data: CellData = {
           cards: visibleCards,
@@ -137,21 +157,22 @@ const CardCollection = ({
             else setSelectedVariants(previous => ({ ...previous, [familyId]: uuid }));
           },
           columnCount: columns,
+          topSpacerRows,
           seenCardUuids,
           currentEditId,
           addSeenCard,
           downloadCard: downloadJson,
           toggleShowBackConfig,
           editCard,
-          width: columnWidth - 4,
+          width: columnWidth - CARD_GAP,
           showBackFaceConfig,
           mobile,
         };
 
         return (
           <div
-            className={`${styles.scrollWrapper} ${scrollShadows.top ? styles.hasTopShadow : ''} ${scrollShadows.bottom ? styles.hasBottomShadow : ''}`}
-            style={{ height, width }}
+            className={`${styles.scrollWrapper} ${hasMoreBelow ? styles.hasBottomShadow : ''}`}
+            style={{ height, width: gridWidth, marginLeft: -sideOverhang }}
           >
             <Grid
               gridRef={setGridRef}
@@ -160,9 +181,12 @@ const CardCollection = ({
               cellProps={data}
               columnCount={columns}
               columnWidth={columnWidth}
-              rowCount={rows}
-              rowHeight={columnHeight}
-              style={{ height, width }}
+              rowCount={topSpacerRows + rows + bottomSpacerRows}
+              rowHeight={rowIndex => {
+                if (rowIndex < topSpacerRows) return topPadding;
+                return rowIndex === topSpacerRows + rows ? bottomPadding : columnHeight;
+              }}
+              style={{ height, width: gridWidth }}
             />
           </div>
         );

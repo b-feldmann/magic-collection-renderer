@@ -36,7 +36,7 @@ export const createAnnotation = (
     .post(MIDDLEWARE_ENDPOINT, args)
     .then(result => {
       if (result.status !== 200 || !result.data?.annotation) {
-        staticAntd.message.error('Failed creating a new comment :(');
+        staticAntd.message.error("Couldn't create the comment. Please try again.");
         return false;
       }
       dispatch({
@@ -48,7 +48,7 @@ export const createAnnotation = (
       return true;
     })
     .catch(_error => {
-      staticAntd.message.error('Failed creating a new comment :(');
+      staticAntd.message.error("Couldn't create the comment. Please try again.");
       return false;
     });
 };
@@ -68,7 +68,7 @@ export const updateAnnotation = (
       });
     })
     .catch(_error => {
-      staticAntd.message.error("Couldn't update comment");
+      staticAntd.message.error("Couldn't update the comment. Please try again.");
     });
 };
 

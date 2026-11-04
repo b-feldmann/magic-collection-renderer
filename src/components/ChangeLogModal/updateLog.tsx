@@ -91,7 +91,7 @@ updateLog.push({
       type: ChangeLogFeatureType.Fixed,
       feature: 'FireFox Bug Fix',
       description:
-        'Is now working accordingly on FireFox (Why use this Browser anywhy? :p). Works also on Microsoft Edge (Not in any way better than FireFox).',
+        'Is now working accordingly on FireFox (Why use this Browser anyway? :p). Works also on Microsoft Edge (Not in any way better than FireFox).',
     },
     {
       type: ChangeLogFeatureType.Added,
@@ -693,6 +693,50 @@ updateLog.push({
     {
       type: ChangeLogFeatureType.Added,
       feature: 'Makes it possible to sort the collection on mobile',
+    },
+  ],
+});
+
+updateLog.push({
+  version: '4.2.0',
+  title: 'Statistics',
+  content: [
+    {
+      type: ChangeLogFeatureType.Added,
+      feature: 'Statistic Preview',
+      description: 'Mana curve with color, card type and tag distribution.',
+    },
+    {
+      type: ChangeLogFeatureType.Added,
+      feature: 'Detailed Statistics',
+      description: 'Detailed mana curve with color, card type, tag and rarity distribution.',
+    },
+    {
+      type: ChangeLogFeatureType.Changed,
+      feature: 'Simplified evolution template',
+      description:
+        'If an evolution card has empty pt in a displayed level, or the pt are the same as the default pt we do not render level specific pt anymore.',
+    },
+    {
+      type: ChangeLogFeatureType.Changed,
+      feature: 'Aligned font sizes, spacing, rounded edges and more.',
+    },
+    {
+      type: ChangeLogFeatureType.Changed,
+      feature: 'Aligned favorite, new, and new comment indicator.',
+    },
+    {
+      type: ChangeLogFeatureType.Fixed,
+      feature:
+        'Sometime a new card indicator was shown even if no new comment was added to a card.',
+    },
+    {
+      type: ChangeLogFeatureType.Fixed,
+      feature: 'Improved performance when loading the collection or filtering cards.',
+    },
+    {
+      type: ChangeLogFeatureType.Fixed,
+      feature: 'Added Extended and Borderless Artstyle to evolution cards.',
     },
   ],
 });

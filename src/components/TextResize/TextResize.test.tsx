@@ -1,0 +1,158 @@
+import React from 'react';
+import { act, render, screen } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import '@testing-library/jest-dom/vitest';
+
+import TextResize from './TextResize';
+import TemplatingCardRender from '../TemplatingCardRender/TemplatingCardRender';
+import { MechanicsContext, Store, StoreType } from '../../store';
+import { CardType, RarityType } from '../../interfaces/enums';
+import { UNKNOWN_CREATOR } from '../../utils/constants';
+import MechanicInterface from '../../interfaces/MechanicInterface';
+
+// jsdom has no layout: content "needs" 2px of height per pixel of font size, and
+// each scrollHeight read stands in for one forced layout.
+const BOX_HEIGHT = 100;
+let boxHeight = BOX_HEIGHT;
+let measurements = 0;
+let resizeCallbacks: (() => void)[] = [];
+const fontListeners: (() => void)[] = [];
+
+const define = (prop: string, get: (this: HTMLElement) => number) =>
+  Object.defineProperty(HTMLElement.prototype, prop, { configurable: true, get });
+
+beforeEach(() => {
+  boxHeight = BOX_HEIGHT;
+  measurements = 0;
+  resizeCallbacks = [];
+  define('clientHeight', () => boxHeight);
+  define('clientWidth', () => 100);
+  define('scrollWidth', () => 100);
+  define('scrollHeight', function scrollHeight(this: HTMLElement) {
+    measurements += 1;
+    return parseFloat(this.style.fontSize) * 2;
+  });
+  vi.stubGlobal(
+    'ResizeObserver',
+    class {
+      constructor(callback: () => void) {
+        resizeCallbacks.push(callback);
+      }
+
+      observe() {}
+
+      disconnect() {}
+    },
+  );
+  Object.defineProperty(document, 'fonts', {
+    configurable: true,
+    value: { addEventListener: (_: string, listener: () => void) => fontListeners.push(listener) },
+  });
+});
+
+afterEach(() => {
+  ['clientHeight', 'clientWidth', 'scrollWidth', 'scrollHeight'].forEach(prop => {
+    delete (HTMLElement.prototype as unknown as Record<string, unknown>)[prop];
+  });
+  vi.unstubAllGlobals();
+});
+
+const fitted = (text: string) => screen.getByText(text).closest('div')!;
+
+const renderText = (text = 'Some text') => (
+  <TextResize maxFontSize={80} minFontSize={20}>
+    <p>{text}</p>
+  </TextResize>
+);
+
+describe('TextResize', () => {
+  it('uses the largest font size that fits', () => {
+    render(renderText());
+    expect(fitted('Some text')).toHaveStyle({ fontSize: '50px' });
+  });
+
+  it('falls back to the minimum size when the text never fits', () => {
+    boxHeight = 10;
+    render(renderText());
+    expect(fitted('Some text')).toHaveStyle({ fontSize: '20px' });
+  });
+
+  it('does not re-measure when a re-render leaves the content unchanged', () => {
+    const { rerender } = render(renderText());
+    measurements = 0;
+    rerender(renderText());
+    expect(measurements).toBe(0);
+  });
+
+  it('re-measures when the content changes', () => {
+    const { rerender } = render(renderText());
+    measurements = 0;
+    rerender(renderText('Other text'));
+    expect(measurements).toBeGreaterThan(0);
+  });
+
+  it('re-fits only when the box actually changed size', () => {
+    render(renderText());
+    measurements = 0;
+    act(() => resizeCallbacks.forEach(callback => callback()));
+    expect(measurements).toBe(0);
+
+    boxHeight = 60;
+    act(() => resizeCallbacks.forEach(callback => callback()));
+    expect(fitted('Some text')).toHaveStyle({ fontSize: '30px' });
+  });
+
+  it('re-fits when a web font finishes loading', () => {
+    render(renderText());
+    measurements = 0;
+    act(() => fontListeners.forEach(listener => listener()));
+    expect(measurements).toBeGreaterThan(0);
+  });
+});
+
+describe('TemplatingCardRender store subscription', () => {
+  const store: StoreType = {
+    cards: [],
+    mechanics: [],
+    annotationAccessor: {},
+    user: [UNKNOWN_CREATOR],
+    currentUser: UNKNOWN_CREATOR,
+    dispatch: () => {},
+  };
+  const lifelink = { uuid: 'm1', name: 'Lifelink', description: 'Heals you' } as MechanicInterface;
+  const cardTypes = [CardType.Creature];
+  const cardText = ['[Lifelink]'];
+
+  const tree = (value: StoreType, mechanics: MechanicInterface[]) => (
+    <Store.Provider value={value}>
+      <MechanicsContext.Provider value={mechanics}>
+        <TemplatingCardRender
+          name="Test Card"
+          rarity={RarityType.Common}
+          cardID="card"
+          manaCost="{1}{W}"
+          cardTypes={cardTypes}
+          cardText={cardText}
+          cardStats="2/2"
+          collectionNumber={1}
+          collectionSize={10}
+        />
+      </MechanicsContext.Provider>
+    </Store.Provider>
+  );
+
+  it('does not re-measure the card when unrelated store state changes', () => {
+    const mechanics: MechanicInterface[] = [];
+    const { rerender } = render(tree(store, mechanics));
+    measurements = 0;
+    rerender(tree({ ...store, user: [] }, mechanics));
+    expect(measurements).toBe(0);
+  });
+
+  it('updates the card text when the mechanics change', () => {
+    const { rerender, container } = render(tree(store, []));
+    const before = container.innerHTML;
+    rerender(tree(store, [lifelink]));
+    expect(container.innerHTML).not.toBe(before);
+  });
+});

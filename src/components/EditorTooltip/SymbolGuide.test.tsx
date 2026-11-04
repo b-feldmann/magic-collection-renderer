@@ -60,7 +60,7 @@ describe('SymbolGuide', () => {
     render(<SymbolGuide onClose={() => {}} />);
 
     expect(
-      screen.getByRole('heading', { name: 'Text Formatting & Shortcuts' }),
+      screen.getByRole('heading', { name: 'Text formatting & shortcuts' }),
     ).toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: 'Text Formatting' })).not.toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: 'Text Shortcuts' })).not.toBeInTheDocument();
@@ -87,7 +87,7 @@ describe('SymbolGuide', () => {
 
   it('makes every advanced code available through a native expandable summary', () => {
     render(<SymbolGuide onClose={() => {}} />);
-    const summary = screen.getByText('Hybrid & Phyrexian Mana');
+    const summary = screen.getByText('Hybrid & Phyrexian mana');
     const details = summary.closest('details')!;
     expect(details.open).toBe(false);
     expect(summary.tagName).toBe('SUMMARY');
@@ -139,7 +139,7 @@ describe('SymbolGuide', () => {
           <SymbolGuide onClose={() => {}} />
         </form>,
       );
-      if (name === 'Two-color hybrid') fireEvent.click(screen.getByText('Hybrid & Phyrexian Mana'));
+      if (name === 'Two-color hybrid') fireEvent.click(screen.getByText('Hybrid & Phyrexian mana'));
       fireEvent.click(screen.getByRole('button', { name: `Copy ${name}: ${code}` }));
       await waitFor(() => expect(screen.getByRole('status')).toHaveTextContent(`Copied ${code}`));
       expect(writeText).toHaveBeenCalledExactlyOnceWith(code);

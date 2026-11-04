@@ -75,7 +75,7 @@ const mockStoreValue: StoreType = {
 // server round-trip: it writes the persisted card into `cards`.
 let serverUpdate: (card: CardInterface) => void = () => {};
 // Records every value CardEditor pushes to the parent via `saveTmpCard`.
-// App treats a non-null `tmpCard` as "this card has unsaved changes".
+// App treats a non-null `tmpCard` as "this card has changes that aren't saved yet".
 let saveTmpCardCalls: (CardInterface | null)[] = [];
 
 const Harness: React.FC<{ initialCard: CardInterface }> = ({ initialCard }) => {
@@ -134,7 +134,7 @@ describe('CardEditor - saving after adding a back face as the first action', () 
   });
 
   const typeName = (value: string) => {
-    const label = screen.getByText('Card Name');
+    const label = screen.getByText('Card name');
     const input = label.closest('span')!.querySelector('input') as HTMLInputElement;
     fireEvent.change(input, { target: { value } });
   };
@@ -161,7 +161,7 @@ describe('CardEditor - saving after adding a back face as the first action', () 
 
     // First (and only) action after "creating": add a back face.
     fireEvent.click(screen.getByRole('button', { name: 'More card actions' }));
-    fireEvent.click(screen.getByRole('menuitem', { name: 'Add Back Face' }));
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Add back face' }));
 
     // Let the updateCard round-trip resolve.
     await act(async () => {

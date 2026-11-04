@@ -96,7 +96,7 @@ describe('EditorTooltip', () => {
   it('renders every hybrid in mana-cost mode', async () => {
     render(<ExplicitGuide />);
     fireEvent.click(screen.getByRole('button', { name: 'Symbol guide' }));
-    fireEvent.click(await screen.findByText('Hybrid & Phyrexian Mana'));
+    fireEvent.click(await screen.findByText('Hybrid & Phyrexian mana'));
     for (const symbol of ['wu', 'wb', 'ub', 'ur', 'br', 'bg', 'rg', 'rw', 'gw', 'gu']) {
       const button = screen.getByRole('button', { name: `Copy Two-color hybrid: {${symbol}}` });
       expect(button.querySelector(`.ms-${symbol}`)).toHaveClass('ms-cost');

@@ -1,0 +1,70 @@
+// Shared heading and disclosure styles. Radii and control heights are CSS custom
+// properties in index.css (--panel-radius, --control-radius, --control-height).
+
+// Title of a whole panel or dialog (Filters, Card editor, Edit mechanics).
+@mixin panel-title {
+  margin: 0;
+  color: #26332f;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.4px;
+}
+
+// Heading of a section inside a panel.
+@mixin section-heading {
+  margin: 0;
+  color: #294632;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+}
+
+// The small "01" index next to a section heading.
+@mixin section-number {
+  color: #526b5b;
+  font-size: 10px;
+  letter-spacing: 0.7px;
+}
+
+// Apply to a <details>: a chevron that turns when the section opens.
+@mixin collapsible {
+  > summary {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #405344;
+    font-size: 14px;
+    font-weight: 600;
+    list-style: none;
+    cursor: pointer;
+
+    &::-webkit-details-marker {
+      display: none;
+    }
+
+    &::before {
+      content: '';
+      flex: none;
+      width: 6px;
+      height: 6px;
+      margin: 0 3px 0 1px;
+      border-right: 1.5px solid #7e8a76;
+      border-bottom: 1.5px solid #7e8a76;
+      transform: rotate(-45deg);
+    }
+
+    &:focus-visible {
+      outline: 2px solid #3e6248;
+      outline-offset: 2px;
+    }
+
+    @media (pointer: coarse) {
+      min-height: 44px;
+    }
+  }
+
+  &[open] > summary::before {
+    transform: rotate(45deg);
+  }
+}

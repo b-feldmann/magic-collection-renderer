@@ -33,7 +33,7 @@ const PdfDownloadWrapper: React.FC<PdfDownloadWrapperInterface> = (
   // );
 
   const downloadPdf = () => {
-    message.error('Currently not implemented :(');
+    message.error('This is not available yet.');
   };
 
   return <div>{render(downloadPdf)}</div>;

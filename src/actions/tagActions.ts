@@ -5,14 +5,14 @@ import { getAccessToken } from '../utils/accessService';
 
 const MIDDLEWARE_ENDPOINT = import.meta.env.PROD ? '' : 'http://localhost:8080';
 
-export const getTags = (dispatch: (value: Action) => void) => {
+export const getTags = (dispatch: (value: Action) => void): Promise<string[] | undefined> =>
   axios
     .get(`${MIDDLEWARE_ENDPOINT}/tags`, { params: { accessKey: getAccessToken() } })
     .then(result => {
       dispatch({ type: TagActionType.GetTags, payload: { tags: result.data.tags } });
+      return result.data.tags as string[];
     })
-    .catch(() => {});
-};
+    .catch(() => undefined);
 
 export const createTag = (dispatch: (value: Action) => void, tag: string) => {
   const name = tag.trim();

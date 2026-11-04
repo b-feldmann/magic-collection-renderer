@@ -109,7 +109,7 @@ describe('CardEditor reload button', () => {
       update: vi.fn(),
     });
     render(<Harness initialCard={makeCard()} />);
-    fireEvent.change(screen.getByLabelText('Card Name'), { target: { value: 'Local edit' } });
+    fireEvent.change(screen.getByLabelText('Card name'), { target: { value: 'Local edit' } });
 
     fireEvent.click(screen.getByRole('button', { name: 'Reload card from server' }));
 
@@ -122,7 +122,7 @@ describe('CardEditor reload button', () => {
     expect(config.className).toEqual(expect.any(String));
     await act(async () => config.onOk?.());
 
-    await waitFor(() => expect(screen.getByLabelText('Card Name')).toHaveValue('Latest'));
+    await waitFor(() => expect(screen.getByLabelText('Card name')).toHaveValue('Latest'));
     expect(refreshCard).toHaveBeenCalledWith(expect.any(Function), 'reload-card');
   });
 });

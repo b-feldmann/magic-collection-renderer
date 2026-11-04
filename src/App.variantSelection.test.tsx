@@ -147,7 +147,7 @@ describe.each([
       </Store.Provider>,
     );
 
-  it.each(['All', 'Card Drafts / Idea Dump', 'Cards to Rate', 'Approved Cards'])(
+  it.each(['All', 'Card drafts / idea dump', 'Cards to rate', 'Approved cards'])(
     'remembers the %s tab after remounting',
     tab => {
       const { unmount } = showApp();
@@ -164,10 +164,10 @@ describe.each([
     },
   );
 
-  it('falls back to Card Drafts when the saved tab is invalid', () => {
+  it('falls back to Card drafts when the saved tab is invalid', () => {
     localStorage.setItem('mtg-funset:ActiveCardTab:v1', 'tab-key-removed');
     showApp();
-    expect(screen.getByRole('tab', { name: /Card Drafts/ })).toHaveAttribute(
+    expect(screen.getByRole('tab', { name: /Card drafts/ })).toHaveAttribute(
       'aria-selected',
       'true',
     );

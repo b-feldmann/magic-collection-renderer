@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-import { Action, ImageActionType } from '../reducer';
+import { Action, ImageActionType, ImagePayload } from '../reducer';
 
 import CardInterface from '../interfaces/CardInterface';
 import { getAccessToken } from '../utils/accessService';
@@ -12,6 +12,26 @@ const MIDDLEWARE_ENDPOINT = import.meta.env.PROD ? '/images' : 'http://localhost
 const getCoverForFace = (card: CardInterface, face: 0 | 1): string | undefined =>
   face === 1 && card.back ? card.back.cover : card.front.cover;
 
+// Every store update re-sorts the collection and re-renders its consumers, so
+// images arriving close together (a screen full of cells) share one update.
+const IMAGE_BATCH_WINDOW_MS = 50;
+const loadedImages = new WeakMap<(value: Action) => void, ImagePayload[]>();
+
+const queueLoadedImage = (dispatch: (value: Action) => void, image: ImagePayload) => {
+  const queued = loadedImages.get(dispatch);
+  if (queued) {
+    queued.push(image);
+    return;
+  }
+
+  const images = [image];
+  loadedImages.set(dispatch, images);
+  setTimeout(() => {
+    loadedImages.delete(dispatch);
+    dispatch({ type: ImageActionType.ReadImages, payload: { images } });
+  }, IMAGE_BATCH_WINDOW_MS);
+};
+
 export const getImage = (dispatch: (value: Action) => void, card: CardInterface, face: 0 | 1) => {
   const args = { params: { accessKey: getAccessToken(), cardUuid: card.uuid, face } };
   axios
@@ -21,18 +41,15 @@ export const getImage = (dispatch: (value: Action) => void, card: CardInterface,
 
       // The file name persisted on the card's cover (`loading:<name>`) is
       // re-attached so the editor keeps showing it after a reload.
-      dispatch({
-        type: ImageActionType.ReadImage,
-        payload: {
-          base64: result.data.base64,
-          name: getCoverFileName(getCoverForFace(card, face)),
-          face,
-          cardUuid: card.uuid,
-        },
+      queueLoadedImage(dispatch, {
+        base64: result.data.base64,
+        name: getCoverFileName(getCoverForFace(card, face)),
+        face,
+        cardUuid: card.uuid,
       });
     })
     .catch(_error => {
-      staticAntd.message.error("Could'nt load card image.");
+      staticAntd.message.error("Couldn't load the card image.");
     });
 };
 
@@ -54,7 +71,7 @@ export const createImage = (
       });
     })
     .catch(error => {
-      staticAntd.message.error('Failed creating a new image :(');
+      staticAntd.message.error("Couldn't create the image. Please try again.");
       throw error;
     });
 };

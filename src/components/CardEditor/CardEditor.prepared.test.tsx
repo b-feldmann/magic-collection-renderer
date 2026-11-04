@@ -51,7 +51,7 @@ if (!(HTMLElement.prototype as any).scrollIntoView) {
 
 const mockStoreValue: StoreType = {
   cards: [],
-  // A mechanic so the Card Text field renders its "Add Mechanic" select; the
+  // A mechanic so the Card text field renders its "Add mechanic" select; the
   // Prepared Text footer must not add a second one (see the adventure tests).
   mechanics: [{ uuid: 'mech-1', name: 'Lifelink', description: 'Heals you' } as MechanicInterface],
   annotationAccessor: {},
@@ -93,8 +93,8 @@ const renderEditor = (card: CardInterface, saveTmpCard = () => {}) =>
   );
 
 // The editor renders hidden fields too (display:none), so all queries are
-// scoped to the wrapper of the visible "Card Types" label.
-const typeField = (): HTMLElement => screen.getByText('Card Types').closest('span') as HTMLElement;
+// scoped to the wrapper of the visible "Card types" label.
+const typeField = (): HTMLElement => screen.getByText('Card types').closest('span') as HTMLElement;
 
 const openTypeSelect = () => {
   fireEvent.mouseDown(typeField().querySelector('.ant-select-content') as Element);
@@ -118,7 +118,7 @@ const typeOption = (label: string): HTMLElement => {
 
 const DISABLED_CLASS = 'ant-select-item-option-disabled';
 
-// Selects the given option in the Card Types multi-select via the shared
+// Selects the given option in the Card types multi-select via the shared
 // openTypeSelect / typeOption helpers above.
 const selectCardType = async (typeLabel: string) => {
   openTypeSelect();
@@ -169,7 +169,7 @@ describe('CardEditor - Prepared section', () => {
 
   it('CONTROL: renders no Prepared section for a non-prepared card', () => {
     // The section is spliced out entirely (not merely hidden): a hidden
-    // text-list would still render a second "Add Mechanic" placeholder and
+    // text-list would still render a second "Add mechanic" placeholder and
     // break generic text queries.
     renderEditor(makeCard([CardType.Creature]));
 
@@ -179,10 +179,10 @@ describe('CardEditor - Prepared section', () => {
     }
   });
 
-  it('does not render mechanic selects in Card Text or Prepared Text', () => {
+  it('does not render mechanic selects in Card text or Prepared Text', () => {
     renderEditor(makeCard([CardType.Creature, CardType.Prepared]));
 
-    expect(fieldWrapper('Card Text').querySelector('.ant-select')).toBeNull();
+    expect(fieldWrapper('Card text').querySelector('.ant-select')).toBeNull();
     expect(fieldWrapper('Text').querySelector('.ant-select')).toBeNull();
   });
 

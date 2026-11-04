@@ -1,177 +1,307 @@
 import React from 'react';
-import { render, screen, within } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { fireEvent, render, screen, within } from '@testing-library/react';
+import { describe, expect, it, vi } from 'vitest';
 import CardInterface from '../../interfaces/CardInterface';
-import CollectionStats, { buildManaCurveData } from './CollectionStats';
+import CollectionStats from './CollectionStats';
 
 const card = (
   name: string,
-  manaCost: string,
-  rarity: string,
-  cardTypes: string[],
+  manaCost = '{2}{U}',
+  cardTypes = ['Creature'],
   tags: string[] = [],
 ): CardInterface =>
   ({
     name,
-    manaCost,
-    rarity,
     uuid: name,
+    manaCost,
+    rarity: 'Common',
     tags,
     creator: { name: 'Tester', uuid: 'tester' },
     meta: { comment: '', likes: [], dislikes: [], lastUpdated: 0, createdAt: 0, state: 'Approved' },
     front: { name, cardText: [], cardTypes },
   }) as CardInterface;
 
-describe('CollectionStats', () => {
-  it('groups each filtered card by converted mana cost, color, rarity, and creature status', () => {
-    const data = buildManaCurveData([
-      card('Free Creature', '', 'Common', ['Creature']),
-      card('White Creature', '{2}{W}', 'Rare', ['Creature']),
-      card('Blue Spell', '{2}{U}', 'Mythic Rare', ['Instant']),
-      card('Green Enchantment', '{1}{G}', 'Uncommon', ['Enchantment']),
-    ]);
-
-    expect(data.colors).toEqual([
-      { cmc: 0, white: 0, blue: 0, black: 0, red: 0, green: 0, colorless: 1, multicolor: 0 },
-      { cmc: 1, white: 0, blue: 0, black: 0, red: 0, green: 0, colorless: 0, multicolor: 0 },
-      { cmc: 2, white: 0, blue: 0, black: 0, red: 0, green: 1, colorless: 0, multicolor: 0 },
-      { cmc: 3, white: 1, blue: 1, black: 0, red: 0, green: 0, colorless: 0, multicolor: 0 },
-    ]);
-    expect(data.rarities).toEqual([
-      { cmc: 0, Common: 1, Uncommon: 0, Rare: 0, 'Mythic Rare': 0 },
-      { cmc: 1, Common: 0, Uncommon: 0, Rare: 0, 'Mythic Rare': 0 },
-      { cmc: 2, Common: 0, Uncommon: 1, Rare: 0, 'Mythic Rare': 0 },
-      { cmc: 3, Common: 0, Uncommon: 0, Rare: 1, 'Mythic Rare': 1 },
-    ]);
-    expect(data.types).toEqual([
-      { cmc: 0, Creature: 1, 'Instant / Sorcery': 0, Other: 0 },
-      { cmc: 1, Creature: 0, 'Instant / Sorcery': 0, Other: 0 },
-      { cmc: 2, Creature: 0, 'Instant / Sorcery': 0, Other: 1 },
-      { cmc: 3, Creature: 1, 'Instant / Sorcery': 1, Other: 0 },
-    ]);
-  });
-
-  it('counts only the first member of each variant family', () => {
-    const firstVariant = {
-      ...card('First variant', '{1}{W}', 'Common', ['Creature'], ['Canonical']),
-      uuid: 'first',
-      variantIds: ['alternate'],
-      meta: {
-        ...card('First variant', '{1}{W}', 'Common', ['Creature']).meta,
-        createdAt: 1,
-      },
-    };
-    const alternate = {
-      ...card('Alternate', '{4}{U}', 'Rare', ['Alternate']),
-      uuid: 'alternate',
-      variantIds: ['first'],
-      meta: {
-        ...card('Alternate', '{4}{U}', 'Rare', ['Instant']).meta,
-        createdAt: 2,
-      },
-    };
-
-    const data = buildManaCurveData([firstVariant, alternate], [firstVariant, alternate]);
-
-    expect(data.colors).toEqual([
-      { cmc: 2, white: 1, blue: 0, black: 0, red: 0, green: 0, colorless: 0, multicolor: 0 },
-    ]);
-  });
-
-  it('excludes lands and groups instants and sorceries together', () => {
-    const data = buildManaCurveData([
-      card('Creature land', '{1}{G}', 'Rare', ['Creature', 'Land']),
-      card('Basic land', '', 'Common', ['Basic Land']),
-      card('Creature', '{2}{W}', 'Uncommon', ['Creature']),
-      card('Instant', '{1}{U}', 'Common', ['Instant']),
-      card('Sorcery', '{1}{B}', 'Common', ['Sorcery']),
-      card('Enchantment', '{1}', 'Common', ['Enchantment']),
-    ]);
-
-    expect(data.types).toEqual([
-      { cmc: 1, Creature: 0, 'Instant / Sorcery': 0, Other: 1 },
-      { cmc: 2, Creature: 0, 'Instant / Sorcery': 2, Other: 0 },
-      { cmc: 3, Creature: 1, 'Instant / Sorcery': 0, Other: 0 },
-    ]);
-  });
-
-  it('counts a card once for each tag assigned to its first variant', () => {
-    const data = buildManaCurveData([
-      card('Tagged creature', '{1}{R}', 'Common', ['Creature'], ['Aggro', 'Flying']),
-      card('Tagged spell', '{2}{G}', 'Rare', ['Sorcery'], ['Aggro']),
-    ]);
-
-    expect(data.tagCategories.map(({ label }) => label)).toEqual(['Aggro', 'Flying']);
-    expect(data.tags).toEqual([
-      { cmc: 2, 'tag-0': 1, 'tag-1': 1 },
-      { cmc: 3, 'tag-0': 1, 'tag-1': 0 },
-    ]);
-  });
-
-  it('uses only the first variant tags when another variant matches the active collection', () => {
-    const firstVariant = {
-      ...card('First variant', '{1}{W}', 'Common', ['Creature'], ['Canonical']),
-      uuid: 'first',
-      variantIds: ['alternate'],
-      meta: { ...card('First variant', '{1}{W}', 'Common', ['Creature']).meta, createdAt: 1 },
-    };
-    const alternate = {
-      ...card('Alternate', '{4}{U}', 'Rare', ['Instant'], ['Alternate']),
-      uuid: 'alternate',
-      variantIds: ['first'],
-      meta: { ...card('Alternate', '{4}{U}', 'Rare', ['Instant']).meta, createdAt: 2 },
-    };
-
-    const data = buildManaCurveData([alternate], [firstVariant, alternate]);
-
-    expect(data.tagCategories.map(({ label }) => label)).toEqual(['Canonical']);
-    expect(data.tags[0]).toEqual({ cmc: 2, 'tag-0': 1 });
-  });
-
-  it('omits empty CMC buckets at either end but preserves gaps between populated buckets', () => {
-    const data = buildManaCurveData([
-      card('Two drop', '{1}{W}', 'Common', ['Creature']),
-      card('Four drop', '{3}{U}', 'Rare', ['Instant']),
-    ]);
-
-    expect(data.colors.map(({ cmc }) => cmc)).toEqual([2, 3, 4]);
-    expect(data.types.map(({ cmc }) => cmc)).toEqual([2, 3, 4]);
-    expect(data.tags).toEqual([]);
-  });
-
-  it('shows four labeled mana-curve charts with counts inside the bars', () => {
-    render(
-      <CollectionStats collection={[card('White Creature', '{2}{W}', 'Rare', ['Creature'])]} />,
-    );
-
-    expect(screen.getByRole('region', { name: 'Collection mana curves' })).toBeInTheDocument();
-    expect(screen.queryByRole('heading', { name: 'Mana curve' })).not.toBeInTheDocument();
-    expect(screen.queryByText(/cards? in view/)).not.toBeInTheDocument();
-    expect(screen.getByRole('img', { name: /mana curve by color/i })).toBeInTheDocument();
-    expect(screen.getByRole('img', { name: /mana curve by rarity/i })).toBeInTheDocument();
-    expect(
-      screen.getByRole('img', { name: /mana curve by nonland card types/i }),
-    ).toBeInTheDocument();
-    const tagChart = screen.getByRole('img', { name: /mana curve by tags/i });
-    expect(tagChart).toBeInTheDocument();
-    expect(tagChart.querySelectorAll('[title^="CMC"]')).toHaveLength(0);
-    expect(screen.queryByText('CMC')).not.toBeInTheDocument();
-    expect(screen.queryAllByRole('group', { name: 'Card count axis' })).toHaveLength(0);
-    const colorChart = screen.getByRole('img', { name: /mana curve by color/i });
-    expect(within(colorChart).getByText('1')).toBeInTheDocument();
-  });
-
-  it('labels every colored segment in a stacked CMC bar', () => {
+describe('CollectionStats expanded charts', () => {
+  it('includes zero-mana lands in the color charts in preview, individual and stacked views', () => {
     render(
       <CollectionStats
+        collection={[card('Land', '', ['Land']), card('Free spell', '', ['Artifact'])]}
+      />,
+    );
+    expect(screen.getByRole('img', { name: 'Mana curve by color: 2 cards' })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Expand statistics' }));
+    const colors = screen.getByRole('region', { name: 'Mana curve by color' });
+    const colorless = within(colors).getByRole('img', { name: 'Mana curve by colorless: 2 cards' });
+    expect(within(colorless).getByTitle('Mana value 0: 2 Colorless')).toBeInTheDocument();
+    expect(
+      screen.getByText(/other curves and summary statistics exclude lands/i),
+    ).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Stacked' }));
+    expect(screen.getByRole('img', { name: 'Mana curve by color: 2 cards' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('img', { name: 'Mana curve by card type: 1 card' }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: 'Mana curve by rarity: 1 card' })).toBeInTheDocument();
+  });
+
+  it('shows every color, separate card types, tags and expanded-only rarities', () => {
+    render(
+      <CollectionStats
+        fillHeight
         collection={[
-          card('White card', '{1}{W}', 'Common', ['Creature']),
-          card('Blue card', '{1}{U}', 'Rare', ['Instant']),
+          card('Creature', '{2}{U}', ['Creature'], ['Flying']),
+          card('Walker', '{4}', ['Planeswalker']),
         ]}
       />,
     );
+    const colors = screen.getByRole('region', { name: 'Mana curve by color' });
+    expect(within(colors).getAllByRole('figure')).toHaveLength(7);
+    expect(within(colors).getByRole('heading', { name: 'Colorless' })).toBeInTheDocument();
+    expect(within(colors).getByRole('heading', { name: 'Multicolor' })).toBeInTheDocument();
+    const types = screen.getByRole('region', { name: 'Mana curve by card type' });
+    for (const name of [
+      'Creature',
+      'Instant',
+      'Sorcery',
+      'Enchantment',
+      'Artifact',
+      'Planeswalker',
+    ]) {
+      expect(within(types).getByRole('heading', { name })).toBeInTheDocument();
+    }
+    expect(screen.getByRole('heading', { name: 'Flying' })).toBeInTheDocument();
+    expect(
+      within(screen.getByRole('region', { name: 'Mana curve by rarity' })).getAllByRole('figure'),
+    ).toHaveLength(4);
+  });
 
-    const colorChart = screen.getByRole('img', { name: 'Mana curve by color: 2 cards' });
-    expect(within(colorChart).getAllByText('1')).toHaveLength(2);
+  it('describes shared scales and updates them with the filtered data', () => {
+    const collection = [card('Blue 1'), card('Blue 2'), card('Blue 3'), card('Red', '{2}{R}')];
+    const { rerender } = render(<CollectionStats fillHeight collection={collection} />);
+    const colors = screen.getByRole('region', { name: 'Mana curve by color' });
+    expect(
+      within(colors).getByText('Shared scale: 0–3 cards · mana values 0–7+'),
+    ).toBeInTheDocument();
+    rerender(<CollectionStats fillHeight collection={[collection[0]]} />);
+    expect(
+      within(colors).getByText('Shared scale: 0–1 cards · mana values 0–7+'),
+    ).toBeInTheDocument();
+  });
+
+  it('shows nonland average and the 2–3 mana percentage with its denominator', () => {
+    render(
+      <CollectionStats
+        fillHeight
+        collection={[
+          card('Two', '{2}'),
+          card('Three', '{3}'),
+          card('Eight', '{8}'),
+          card('Land', '', ['Land']),
+        ]}
+      />,
+    );
+    expect(screen.getByText('4.33')).toBeInTheDocument();
+    expect(screen.getByText('67%')).toBeInTheDocument();
+    expect(screen.getByText(/2 of 3/)).toBeInTheDocument();
+    expect(screen.getByText('Nonland cards · 1 land')).toBeInTheDocument();
+    expect(screen.queryByText(/3 nonlands · 1 land/)).not.toBeInTheDocument();
+  });
+
+  it('shows a clear tag empty state and finite statistics for an all-land collection', () => {
+    render(<CollectionStats fillHeight collection={[card('Land', '', ['Basic Land'])]} />);
+    expect(screen.getByText('0.00')).toBeInTheDocument();
+    expect(screen.getByText('0%')).toBeInTheDocument();
+    expect(screen.getByText('No tagged nonland cards')).toBeInTheDocument();
+    expect(screen.getByRole('region', { name: 'Collection mana curves' })).not.toHaveTextContent(
+      'NaN',
+    );
+  });
+
+  it('labels overlapping tags without claiming they are unique card totals', () => {
+    render(
+      <CollectionStats
+        fillHeight
+        collection={[card('Tagged', '{2}', ['Creature'], ['Aggro', 'Flying'])]}
+      />,
+    );
+    const tags = screen.getByRole('region', { name: 'Mana curve by tag' });
+    expect(within(tags).getAllByText('1 tag match')).toHaveLength(2);
+    expect(within(tags).getByText(/Cards can match multiple tags/)).toBeInTheDocument();
+  });
+});
+
+const pointer = (element: HTMLElement, type: string, x: number, y: number) => {
+  const event = new MouseEvent(type, { bubbles: true, clientX: x, clientY: y, button: 0 });
+  Object.defineProperty(event, 'pointerId', { value: 1 });
+  fireEvent(element, event);
+};
+
+describe('CollectionStats bottom sheet', () => {
+  it('supports mostly hidden and preview closed states and persists the preferred state', () => {
+    localStorage.clear();
+    const { unmount } = render(<CollectionStats collection={[card('Blue')]} />);
+    expect(
+      screen.getByRole('button', { name: 'Expand statistics; drag up to expand' }),
+    ).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Expand statistics; drag up to expand' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Collapse statistics' }));
+    expect(screen.getByRole('heading', { name: 'Collection statistics' })).toBeInTheDocument();
+    expect(screen.getByText('1 nonlands · 0 lands')).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: 'Collection statistics' }).closest('header'),
+    ).toHaveTextContent('Average 3.00 mana · 100% at 2–3 mana');
+    fireEvent.click(screen.getByRole('button', { name: 'Hidden' }));
+    expect(
+      screen.getByRole('button', { name: 'Expand statistics; drag up to expand' }),
+    ).toBeInTheDocument();
+    expect(localStorage.getItem('mtg-funset:CollectionStatsClosedState')).toBe('hidden');
+    fireEvent.click(screen.getByRole('button', { name: 'Expand statistics; drag up to expand' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Collapse statistics' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Preview' }));
+    expect(
+      screen.getByRole('button', { name: 'Expand statistics; drag up to expand' }),
+    ).toBeInTheDocument();
+    expect(screen.getAllByRole('figure')).toHaveLength(3);
+    expect(localStorage.getItem('mtg-funset:CollectionStatsClosedState')).toBe('preview');
+    unmount();
+    render(<CollectionStats collection={[card('Blue')]} />);
+    expect(
+      screen.getByRole('button', { name: 'Expand statistics; drag up to expand' }),
+    ).toBeInTheDocument();
+    expect(screen.getAllByRole('figure')).toHaveLength(3);
+  });
+
+  it('shows the mana curve of all filtered cards only in the hidden state', () => {
+    localStorage.clear();
+    const curveName = /^Mana curve of all cards/;
+    const collection = [card('Three'), card('Other three', '{3}'), card('Land', '', ['Land'])];
+    const { rerender } = render(<CollectionStats collection={collection} />);
+    expect(screen.queryByRole('img', { name: curveName })).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Hidden' }));
+    const curve = screen.getByRole('img', { name: 'Mana curve of all cards: 3 cards' });
+    expect(within(curve).getByTitle('Mana value 3: 2 cards')).toBeInTheDocument();
+    expect(within(curve).getByTitle('Mana value 0: 1 card')).toBeInTheDocument();
+    expect(within(curve).getByTitle('Mana value 7+: 0 cards')).toBeInTheDocument();
+
+    rerender(<CollectionStats collection={[collection[0]]} />);
+    expect(
+      screen.getByRole('img', { name: 'Mana curve of all cards: 1 card' }),
+    ).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Expand statistics' }));
+    expect(screen.queryByRole('img', { name: curveName })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Collapse statistics' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Preview' }));
+    expect(screen.queryByRole('img', { name: curveName })).not.toBeInTheDocument();
+    localStorage.clear();
+  });
+
+  it('starts with only the three stacked previews and opens to individual charts', () => {
+    render(<CollectionStats collection={[card('Blue')]} />);
+    expect(screen.getAllByRole('figure')).toHaveLength(3);
+    expect(screen.queryByRole('heading', { name: 'Rarity' })).not.toBeInTheDocument();
+    const expand = screen.getByRole('button', { name: 'Expand statistics' });
+    expect(expand).toHaveAttribute('aria-expanded', 'false');
+    fireEvent.click(expand);
+    expect(screen.getByRole('button', { name: 'Collapse statistics' })).toHaveAttribute(
+      'aria-expanded',
+      'true',
+    );
+    expect(screen.getByRole('button', { name: 'Individual' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+    expect(screen.getByRole('region', { name: 'Mana curve by rarity' })).toBeInTheDocument();
+    expect(screen.getByRole('region', { name: 'Mana curve by color' })).toBeInTheDocument();
+  });
+
+  it('switches all expanded charts to stacked and resets to individual on reopening', () => {
+    render(<CollectionStats collection={[card('Blue')]} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Expand statistics' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Stacked' }));
+    expect(screen.getAllByRole('figure')).toHaveLength(4);
+    expect(screen.getByRole('img', { name: 'Mana curve by rarity: 1 card' })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Collapse statistics' }));
+    expect(screen.getAllByRole('figure')).toHaveLength(3);
+    fireEvent.click(screen.getByRole('button', { name: 'Expand statistics' }));
+    expect(screen.getByRole('button', { name: 'Individual' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+  });
+
+  it('collapses on Escape and restores focus to the expansion control', () => {
+    render(<CollectionStats collection={[]} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Expand statistics' }));
+    fireEvent.keyDown(screen.getByRole('button', { name: 'Stacked' }), { key: 'Escape' });
+    expect(screen.getByRole('button', { name: 'Expand statistics' })).toHaveFocus();
+    expect(screen.queryByRole('region', { name: 'Mana curve by rarity' })).not.toBeInTheDocument();
+  });
+
+  it.each(['Enter', ' ', 'ArrowUp'])('opens using the handle keyboard action %s', key => {
+    render(<CollectionStats collection={[]} />);
+    fireEvent.keyDown(
+      screen.getByRole('button', { name: 'Expand statistics; drag up to expand' }),
+      { key },
+    );
+    expect(screen.getByRole('button', { name: 'Collapse statistics' })).toBeInTheDocument();
+    fireEvent.keyDown(
+      screen.getByRole('button', { name: 'Collapse statistics; drag down to collapse' }),
+      { key: 'ArrowDown' },
+    );
+    expect(screen.getByRole('button', { name: 'Expand statistics' })).toBeInTheDocument();
+  });
+
+  it('expands and collapses on vertical handle drags without a trailing click reversing the gesture', () => {
+    render(<CollectionStats collection={[card('Blue')]} />);
+    const grip = screen.getByRole('button', { name: 'Expand statistics; drag up to expand' });
+    grip.setPointerCapture = vi.fn();
+    grip.releasePointerCapture = vi.fn();
+    pointer(grip, 'pointerdown', 100, 200);
+    pointer(grip, 'pointerup', 100, 100);
+    fireEvent.click(grip);
+    expect(screen.getByRole('button', { name: 'Collapse statistics' })).toBeInTheDocument();
+    pointer(grip, 'pointerdown', 100, 100);
+    pointer(grip, 'pointerup', 100, 200);
+    fireEvent.click(grip);
+    expect(screen.getByRole('button', { name: 'Expand statistics' })).toBeInTheDocument();
+  });
+
+  it.each([
+    { name: 'short', endX: 100, endY: 180, cancel: false },
+    { name: 'horizontal', endX: 240, endY: 150, cancel: false },
+    { name: 'cancelled', endX: 100, endY: 100, cancel: true },
+  ])('ignores $name gestures', ({ endX, endY, cancel }) => {
+    render(<CollectionStats collection={[]} />);
+    const grip = screen.getByRole('button', { name: 'Expand statistics; drag up to expand' });
+    grip.setPointerCapture = vi.fn();
+    grip.releasePointerCapture = vi.fn();
+    pointer(grip, 'pointerdown', 100, 200);
+    if (cancel) pointer(grip, 'pointercancel', endX, endY);
+    pointer(grip, 'pointerup', endX, endY);
+    expect(screen.getByRole('button', { name: 'Expand statistics' })).toHaveAttribute(
+      'aria-expanded',
+      'false',
+    );
+  });
+
+  it('embeds expanded content in the existing mobile drawer without a nested sheet', () => {
+    render(<CollectionStats fillHeight collection={[card('Blue')]} />);
+    expect(
+      screen.queryByRole('button', { name: /Expand statistics|Collapse statistics/ }),
+    ).not.toBeInTheDocument();
+    expect(screen.getByRole('region', { name: 'Mana curve by rarity' })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Stacked' }));
+    expect(screen.getAllByRole('figure')).toHaveLength(4);
+  });
+
+  it('keeps the expanded selection when live filtered data changes', () => {
+    const { rerender } = render(<CollectionStats collection={[card('Blue')]} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Expand statistics' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Stacked' }));
+    rerender(<CollectionStats collection={[]} />);
+    expect(screen.getByRole('button', { name: 'Stacked' })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('img', { name: 'Mana curve by color: 0 cards' })).toBeInTheDocument();
   });
 });

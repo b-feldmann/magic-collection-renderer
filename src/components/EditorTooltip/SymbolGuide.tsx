@@ -159,7 +159,7 @@ const SymbolGuide = ({ onClose }: { onClose: () => void }): React.JSX.Element =>
             ))}
           </div>
           <details className={styles.advanced}>
-            <summary>Hybrid &amp; Phyrexian Mana</summary>
+            <summary>Hybrid &amp; Phyrexian mana</summary>
             {ADVANCED.map(group => (
               <div key={group.name} className={styles.advancedGroup}>
                 <p className={styles.label}>{group.name}</p>
@@ -205,7 +205,7 @@ const SymbolGuide = ({ onClose }: { onClose: () => void }): React.JSX.Element =>
             </p>
           </div>
           <div className={styles.textFormatting}>
-            <h4>Text Formatting &amp; Shortcuts</h4>
+            <h4>Text formatting &amp; shortcuts</h4>
             <div className={styles.formattingRows}>
               <div className={styles.formattingRow}>
                 <code>*text*</code>

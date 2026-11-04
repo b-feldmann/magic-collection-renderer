@@ -1,11 +1,11 @@
 import React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 
 import CardEditor from './CardEditor';
 import { Store, StoreType } from '../../store';
-import { CardState, CardType, RarityType } from '../../interfaces/enums';
+import { CardArtStyles, CardState, CardType, RarityType } from '../../interfaces/enums';
 import { UNKNOWN_CREATOR } from '../../utils/constants';
 import type CardInterface from '../../interfaces/CardInterface';
 
@@ -88,10 +88,10 @@ describe('CardEditor - Evolution fields', () => {
     expect(screen.getByText('Power')).toBeVisible();
   });
 
-  it('lists Evolution as a Card Type and disables other exclusive types', () => {
+  it('lists Evolution as a Card type and disables other exclusive types', () => {
     renderEditor(makeCard([EVOLUTION]));
 
-    const typeField = screen.getByText('Card Types').closest('span') as HTMLElement;
+    const typeField = screen.getByText('Card types').closest('span') as HTMLElement;
     fireEvent.mouseDown(typeField.querySelector('.ant-select-content') as Element);
     const input = typeField.querySelector('.ant-select-input') as HTMLInputElement;
     fireEvent.change(input, { target: { value: 'Prepared' } });
@@ -100,5 +100,19 @@ describe('CardEditor - Evolution fields', () => {
       document.querySelectorAll('.ant-select-dropdown .ant-select-item-option'),
     ).find(option => option.getAttribute('title') === 'Prepared');
     expect(preparedOption).toHaveClass('ant-select-item-option-disabled');
+  });
+
+  it('offers exactly the Regular, Extended and Borderless art styles', () => {
+    renderEditor(makeCard([EVOLUTION]));
+
+    const options = within(screen.getByLabelText('Art style'))
+      .getAllByRole('radio', { hidden: true })
+      .map(input => input.getAttribute('value'));
+
+    expect(options).toEqual([
+      CardArtStyles.Regular,
+      CardArtStyles.Extended,
+      CardArtStyles.Borderless,
+    ]);
   });
 });

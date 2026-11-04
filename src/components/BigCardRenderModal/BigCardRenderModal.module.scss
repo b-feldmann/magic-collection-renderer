@@ -66,14 +66,7 @@
   flex-shrink: 0;
 
   .ratingVote {
-    height: 44px;
     min-width: 44px;
-    min-height: 44px;
-  }
-
-  .stateButton {
-    height: 44px;
-    min-height: 44px;
   }
 
   .ratingPanel {
@@ -82,11 +75,6 @@
 
   .ratingActions {
     justify-content: center;
-
-    :global(.ant-btn) {
-      height: 44px;
-      min-height: 44px;
-    }
   }
 }
 
@@ -116,7 +104,7 @@
   margin-top: 12px;
   padding-bottom: 16px;
   border: 1px solid #dce5f2;
-  border-radius: 12px;
+  border-radius: var(--panel-radius);
   background: #fff;
   color: #182537;
 
@@ -144,7 +132,7 @@
   gap: 8px;
   padding: 12px 16px;
   border-bottom: 1px solid #e9eef5;
-  border-radius: 12px 12px 0 0;
+  border-radius: var(--panel-radius) var(--panel-radius) 0 0;
   background: #f8faff;
 
   h2 {
@@ -162,7 +150,7 @@
   gap: 12px;
   padding: 4px 8px;
   margin-top: 8px;
-  border-radius: 6px;
+  border-radius: var(--control-radius);
   background: rgba(255, 255, 255, 0.96);
   color: #222;
   white-space: nowrap;
@@ -172,7 +160,7 @@
   margin-bottom: 4px;
   background: #fff;
   color: #141414;
-  border-radius: 12px;
+  border-radius: var(--panel-radius);
   box-shadow: 0 12px 28px rgba(19, 33, 54, 0.1);
 }
 
@@ -205,11 +193,11 @@
   gap: 7px;
   width: auto;
   min-width: 40px;
-  height: 26px;
-  min-height: 26px;
+  height: var(--control-height);
+  min-height: var(--control-height);
   padding: 0 9px;
   border: 1px solid #e3e7ed;
-  border-radius: 11px;
+  border-radius: var(--control-radius);
   background: #f7f8fa;
   color: #465160;
   font: inherit;
@@ -252,10 +240,10 @@
   justify-content: flex-end;
 
   :global(.ant-btn) {
-    height: 24px;
-    min-height: 24px;
+    height: var(--control-height);
+    min-height: var(--control-height);
     padding-inline: 10px;
-    border-radius: 8px;
+    border-radius: var(--control-radius);
     font-size: 12px;
     font-weight: 600;
   }
@@ -263,8 +251,8 @@
 
 .stateButton {
   margin: 0;
-  height: 24px;
-  min-height: 24px;
+  height: var(--control-height);
+  min-height: var(--control-height);
 }
 
 .view {
@@ -279,7 +267,7 @@
 .annotationView {
   min-width: 0;
   background: transparent;
-  border-radius: 12px;
+  border-radius: var(--panel-radius);
 }
 
 .modalCardViewWrapper {

@@ -23,6 +23,9 @@ https://github.com/BJennWare/magic-collection-middleware. In dev, all API calls 
 hit `http://localhost:8080`; in production (`import.meta.env.PROD`) they use relative paths (`''`,
 `/images`, `/user`, ...). Without the server running the UI loads but has no data.
 
+When opening the app in a browser against the local dev server, use the access key
+`dev-access-key`.
+
 ## Architecture
 
 - **State**: vanilla React only — `useContext` + `useReducer`. Global store is `src/store.tsx`

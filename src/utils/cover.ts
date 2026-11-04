@@ -49,6 +49,15 @@ export const isLoadingCover = (value?: string): boolean =>
 // keeps the file name for the UI.
 export const toLoadingCover = (name: string): string => (name ? `loading:${name}` : 'loading');
 
+// Cover to show after re-reading a card: an image that is already loaded stays
+// as long as the server still points at the same file.
+export const keepLoadedCover = (loaded?: string, incoming?: string): string | undefined =>
+  loaded?.startsWith('base64:') &&
+  isLoadingCover(incoming) &&
+  getCoverFileName(loaded) === getCoverFileName(incoming)
+    ? loaded
+    : incoming;
+
 // Src usable in an <img> ('' while an uploaded image is not loaded yet).
 export const getCoverImageSrc = (value?: string): string => {
   if (!value) return '';

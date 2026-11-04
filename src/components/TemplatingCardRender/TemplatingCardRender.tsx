@@ -20,7 +20,7 @@ import {
   PreparedType,
   RarityType,
 } from '../../interfaces/enums';
-import { Store, StoreType } from '../../store';
+import { MechanicsContext } from '../../store';
 import { getColor } from '../../utils/cardToColor';
 import { formatTypeLine } from '../../utils/cardTypes';
 import CardFaceInterface from '../../interfaces/CardFaceInterface';
@@ -133,6 +133,25 @@ interface TemplatingCardRenderProps {
   containerWidth?: number;
 }
 
+const areStatsEqual = (stats: string | undefined, defaultStats: string | undefined): boolean => {
+  if (!stats?.trim() || !defaultStats?.trim()) return false;
+
+  const parsedStats = parseStats(stats);
+  const parsedDefaultStats = parseStats(defaultStats);
+
+  return (
+    parsedStats.power.trim() === parsedDefaultStats.power.trim() &&
+    parsedStats.toughness.trim() === parsedDefaultStats.toughness.trim()
+  );
+};
+
+const hasCompleteStats = (stats: string | undefined): boolean => {
+  if (!stats?.trim()) return false;
+
+  const [power, toughness, ...extraParts] = stats.split('/');
+  return extraParts.length === 0 && !!power.trim() && !!toughness.trim();
+};
+
 const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
   const { legendary, vehicle, nickname, cardTypes, basicLandType, rarity } = cardRenderProps;
   const { name, manaCost, cardStats, cover, creator } = cardRenderProps;
@@ -145,7 +164,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
   const { backFace, collectionNumber, collectionSize } = cardRenderProps;
   const { containerWidth = CARD_WIDTH, artStyle, coverFit } = cardRenderProps;
 
-  const { mechanics } = useContext<StoreType>(Store);
+  const mechanics = useContext(MechanicsContext);
 
   // The mana cost (rendered top-right) and the title share the same row, so a
   // wider cost must leave the title less room. Measure the cost box and shrink
@@ -461,6 +480,15 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
   const hasSecondEvolution: boolean =
     isEvolution &&
     (!!level2Indicator || (!!level2Text && level2Text.length > 0 && level2Text[0] !== ''));
+  const hasIncompleteLevelStats =
+    !hasCompleteStats(level1Stats) || (hasSecondEvolution && !hasCompleteStats(level2Stats));
+  const hasLevelStatsMatchingDefault =
+    areStatsEqual(level1Stats, cardStats) ||
+    (hasSecondEvolution && areStatsEqual(level2Stats, cardStats));
+  const showLevelSpecificPt = hasStats && !hasIncompleteLevelStats && !hasLevelStatsMatchingDefault;
+  const standardPt = isEvolution
+    ? getPt(color, isArtifact, vehicle, isNickname, artStyle === CardArtStyles.Borderless, isLand)
+    : pt;
 
   return (
     <div style={{ height: `${getHeight(containerWidth)}px` }}>
@@ -487,6 +515,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
             ${isNickname && styles.nicknameFrame}
             ${isEnchantment && styles.enchantment}
             ${isEvolution && styles.evolution}
+            ${isEvolution && !showLevelSpecificPt && styles.evolutionWithoutLevelPt}
             ${!hasSecondEvolution && styles.hasNoSecondEvolution}
             ${isLand && styles.land}
             ${isArtifact && styles.artifact}
@@ -667,21 +696,6 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
             className={`${styles.rarity} ${isToken ? styles.tokenRarity : ''}`}
           />
 
-          {(isCreature || (isArtifact && vehicle)) && (
-            <div>
-              {pt ? (
-                <img
-                  className={`${styles.pt} ${isEvolution ? `${styles.levelerPt} ${styles.levelerPtTop}` : ''}`}
-                  src={pt}
-                  alt=""
-                />
-              ) : null}
-              <div className={`${styles.stats} ${isEvolution ? styles.levelerStatsTop : ''}`}>
-                {`${parseStats(cardStats).power}/${parseStats(cardStats).toughness}`}
-              </div>
-            </div>
-          )}
-
           {isEvolution ? (
             <>
               {level1Text?.length ? (
@@ -718,7 +732,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
                   {level1Indicator}
                 </div>
               ) : null}
-              {hasStats && (
+              {showLevelSpecificPt && (
                 <>
                   <img
                     className={`${styles.pt} ${styles.levelerPt} ${styles.levelerPtMid}`}
@@ -770,7 +784,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
                       {level2Indicator}
                     </div>
                   ) : null}
-                  {hasStats && (
+                  {showLevelSpecificPt && (
                     <>
                       <img
                         className={`${styles.pt} ${styles.levelerPt} ${styles.levelerPtBottom}`}
@@ -786,6 +800,23 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
               )}
             </>
           ) : null}
+
+          {(isCreature || (isArtifact && vehicle)) && (
+            <div>
+              {pt ? (
+                <img
+                  className={`${styles.pt} ${isEvolution && showLevelSpecificPt ? `${styles.levelerPt} ${styles.levelerPtTop}` : ''}`}
+                  src={showLevelSpecificPt ? pt : standardPt}
+                  alt=""
+                />
+              ) : null}
+              <div
+                className={`${styles.stats} ${isEvolution && showLevelSpecificPt ? styles.levelerStatsTop : ''}`}
+              >
+                {`${parseStats(cardStats).power}/${parseStats(cardStats).toughness}`}
+              </div>
+            </div>
+          )}
 
           {!isLand && !isToken && !backFace && (
             <div ref={costRef} className={`${styles.cost} ${isToken ? styles.tokenCost : ''}`}>

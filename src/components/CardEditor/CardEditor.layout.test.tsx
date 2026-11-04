@@ -87,28 +87,28 @@ describe('CardEditor compact layout', () => {
   it('groups editable fields into named sections without tabs or a manual save action', () => {
     renderEditor();
 
-    expect(screen.getByRole('heading', { name: 'Card Editor', level: 2 })).toBeVisible();
+    expect(screen.getByRole('heading', { name: 'Card editor', level: 2 })).toBeVisible();
 
-    for (const name of ['The Essentials', 'Words & Abilities', 'Artwork & Frame']) {
+    for (const name of ['The essentials', 'Words & abilities', 'Artwork & frame']) {
       expect(screen.getByRole('heading', { name })).toBeVisible();
       expect(screen.getByRole('region', { name })).toBeVisible();
     }
     expect(screen.queryByRole('tablist')).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /save changes/i })).not.toBeInTheDocument();
     expect(screen.getByText('Changes save automatically')).toBeVisible();
-    expect(screen.getByRole('button', { name: 'Delete Card' })).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Delete card' })).toBeVisible();
   });
 
   it('labels and pairs the six main fields in the approved reading order', () => {
     renderEditor();
-    const essentials = screen.getByRole('region', { name: 'The Essentials' });
+    const essentials = screen.getByRole('region', { name: 'The essentials' });
     const controls = [
-      'Card Name',
+      'Card name',
       'Nickname',
-      'Mana Cost',
+      'Mana cost',
       'Rarity',
-      'Card Types',
-      'Card Sub Types',
+      'Card types',
+      'Card subtypes',
     ].map(name => within(essentials).getByLabelText(name));
 
     controls.slice(1).forEach((control, index) => {
@@ -167,7 +167,7 @@ describe('CardEditor compact layout', () => {
 
   it('renders and updates the mana cost symbols in the input suffix', () => {
     renderEditor();
-    const manaCost = screen.getByLabelText('Mana Cost');
+    const manaCost = screen.getByLabelText('Mana cost');
     const suffix = () =>
       manaCost.closest('.ant-input-affix-wrapper')?.querySelector('.ant-input-suffix');
 
@@ -189,16 +189,16 @@ describe('CardEditor compact layout', () => {
     renderEditor(card);
 
     expect(screen.queryByLabelText('Nickname')).not.toBeInTheDocument();
-    expect(screen.getByLabelText('Card Name').closest('[data-field-key]')).toHaveStyle({
+    expect(screen.getByLabelText('Card name').closest('[data-field-key]')).toHaveStyle({
       gridColumn: 'span 1',
     });
   });
 
   it.each([
     ['Nickname', 'An alternate name'],
-    ['Card Sub Types', 'e.g. Human Wizard'],
-    ['Flavour Text', 'Every card has a story…'],
-    ['Flavour Text Author', 'Who said it?'],
+    ['Card subtypes', 'e.g. Human Wizard'],
+    ['Flavour text', 'Every card has a story…'],
+    ['Flavour text author', 'Who said it?'],
   ])('shows the mockup placeholder and optional hint for %s', (name, placeholder) => {
     renderEditor();
     const input = screen.getByPlaceholderText(placeholder);
@@ -221,13 +221,13 @@ describe('CardEditor compact layout', () => {
     'shows one full-width mockup upload panel above the artwork fields for %s',
     cardType => {
       renderEditor(makeCard([cardType]));
-      const artwork = screen.getByRole('region', { name: 'Artwork & Frame' });
+      const artwork = screen.getByRole('region', { name: 'Artwork & frame' });
       const panel = within(artwork).getByRole('group', { name: 'Give your card a world' });
       expect(within(panel).getByText('Upload artwork or paste a URL below')).toBeVisible();
       expect(within(panel).getByRole('button', { name: 'Choose file' })).toBeVisible();
       expect(artwork.querySelectorAll('input[type="file"]')).toHaveLength(1);
       expect(within(artwork).getByLabelText('Cover (URL)')).toBeVisible();
-      expect(within(artwork).getByLabelText('Cover Fit')).toBeVisible();
+      expect(within(artwork).getByLabelText('Cover fit')).toBeVisible();
       expect(
         panel.compareDocumentPosition(within(artwork).getByLabelText('Cover (URL)')) &
           Node.DOCUMENT_POSITION_FOLLOWING,
@@ -239,7 +239,7 @@ describe('CardEditor compact layout', () => {
     const card = makeCard();
     card.tags = [];
     renderEditor(card);
-    fireEvent.click(screen.getByText('Organization & Credits'));
+    fireEvent.click(screen.getByText('Organization & credits'));
     expect(screen.getByText('Add tags…')).toBeVisible();
   });
 
@@ -297,19 +297,19 @@ describe('CardEditor compact layout', () => {
 
   it('makes variant and back-face actions available through the overflow menu', () => {
     renderEditor();
-    expect(screen.queryByRole('menuitem', { name: 'Create Variant' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('menuitem', { name: 'Create variant' })).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'More card actions' }));
-    expect(screen.getByRole('menuitem', { name: 'Create Variant' })).toBeInTheDocument();
-    expect(screen.getByRole('menuitem', { name: 'Add Back Face' })).toBeInTheDocument();
+    expect(screen.getByRole('menuitem', { name: 'Create variant' })).toBeInTheDocument();
+    expect(screen.getByRole('menuitem', { name: 'Add back face' })).toBeInTheDocument();
   });
 
   it('does not render irrelevant basic-land controls into the form', () => {
     renderEditor(makeCard([CardType.BasicLand]));
-    expect(screen.getByLabelText('Land Types')).toBeVisible();
-    expect(screen.getByLabelText('Card Types')).toBeVisible();
-    expect(screen.queryByLabelText('Mana Cost')).not.toBeInTheDocument();
-    expect(screen.queryByLabelText('Card Name')).not.toBeInTheDocument();
-    expect(screen.getByLabelText('Art Style')).toBeInTheDocument();
+    expect(screen.getByLabelText('Land types')).toBeVisible();
+    expect(screen.getByLabelText('Card types')).toBeVisible();
+    expect(screen.queryByLabelText('Mana cost')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Card name')).not.toBeInTheDocument();
+    expect(screen.getByLabelText('Art style')).toBeInTheDocument();
   });
 
   it('switches faces through the menu without exposing front-only rarity or mana controls', () => {
@@ -319,22 +319,22 @@ describe('CardEditor compact layout', () => {
     fireEvent.click(screen.getByRole('button', { name: 'More card actions' }));
     fireEvent.click(screen.getByRole('menuitem', { name: 'Edit Back Face' }));
 
-    expect(screen.getByLabelText('Card Name')).toHaveValue('Back face');
-    expect(screen.queryByLabelText('Mana Cost')).not.toBeInTheDocument();
+    expect(screen.getByLabelText('Card name')).toHaveValue('Back face');
+    expect(screen.queryByLabelText('Mana cost')).not.toBeInTheDocument();
     expect(screen.queryByLabelText('Rarity')).not.toBeInTheDocument();
   });
 
   it('retains organization edits across disclosure changes and supports undo', async () => {
     vi.useFakeTimers();
     renderEditor();
-    const disclosure = screen.getByText('Organization & Credits').closest('details')!;
+    const disclosure = screen.getByText('Organization & credits').closest('details')!;
     expect(disclosure).not.toHaveAttribute('open');
-    fireEvent.click(screen.getByText('Organization & Credits'));
+    fireEvent.click(screen.getByText('Organization & credits'));
     expect(screen.getByLabelText('Tags')).toBeVisible();
-    fireEvent.mouseDown(screen.getByLabelText('Card Creator'));
+    fireEvent.mouseDown(screen.getByLabelText('Card creator'));
     fireEvent.click(screen.getByText('Other creator'));
-    fireEvent.click(screen.getByText('Organization & Credits'));
-    fireEvent.click(screen.getByText('Organization & Credits'));
+    fireEvent.click(screen.getByText('Organization & credits'));
+    fireEvent.click(screen.getByText('Organization & credits'));
     expect(disclosure).toHaveTextContent('Other creator');
     expect(disclosure).toHaveTextContent('Collection');
     await act(async () => vi.advanceTimersByTime(EDIT_SAVE_OFFSET + 100));
@@ -344,7 +344,7 @@ describe('CardEditor compact layout', () => {
         creator: { name: otherCreator.name, uuid: otherCreator.uuid },
       }),
     );
-    fireEvent.click(screen.getByRole('button', { name: 'Undo Changes' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Undo changes' }));
     expect(updateCard).toHaveBeenLastCalledWith(
       expect.any(Function),
       expect.objectContaining({ creator: { name: creator.name, uuid: creator.uuid } }),

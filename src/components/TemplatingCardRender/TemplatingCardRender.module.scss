@@ -738,6 +738,17 @@
   }
 }
 
+.evolutionWithoutLevelPt.hasStats {
+  .levelerText {
+    width: 1260px;
+  }
+
+  .levelerLevel1Text,
+  .levelerLevel2Text {
+    width: 1090px;
+  }
+}
+
 .planeswalker.lines4 {
   .type {
     top: 1046px;
@@ -821,6 +832,18 @@
 
   .stats {
     color: white;
+  }
+
+  // Evolution level P/T plates are the light regular plates, not the dark
+  // borderless ones, and their stats are positioned for the regular plate spot.
+  .levelerPt {
+    right: calc(1500px / 746 * 41);
+  }
+
+  .levelerStatsTop,
+  .levelerStatsMid,
+  .levelerStatsBottom {
+    color: black;
   }
 }
 

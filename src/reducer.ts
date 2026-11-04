@@ -5,10 +5,21 @@ import AnnotationAccessorInterface from './interfaces/AnnotationAccessorInterfac
 import UserInterface from './interfaces/UserInterface';
 import { UNKNOWN_CREATOR } from './utils/constants';
 import { normalizeCard } from './utils/cardTypes';
+import { keepLoadedCover } from './utils/cover';
+import CardFaceInterface from './interfaces/CardFaceInterface';
+import isEqual from 'lodash/isEqual';
 
 export enum ImageActionType {
   CreateImage = 'create-image',
   ReadImage = 'read-image',
+  ReadImages = 'read-images',
+}
+
+export interface ImagePayload {
+  base64: string;
+  name?: string;
+  cardUuid: string;
+  face: number;
 }
 
 export enum CardActionType {
@@ -75,14 +86,45 @@ export type Action =
   | { type: UserActionType.GetUser; payload: { user: UserInterface[] } }
   | { type: UserActionType.UpdateUser; payload: { user: UserInterface } }
   | { type: UserActionType.SetCurrentUser; payload: { user: UserInterface } }
-  | {
-      type: ImageActionType.CreateImage;
-      payload: { base64: string; name?: string; cardUuid: string; face: number };
-    }
-  | {
-      type: ImageActionType.ReadImage;
-      payload: { base64: string; name?: string; cardUuid: string; face: number };
-    };
+  | { type: ImageActionType.CreateImage; payload: ImagePayload }
+  | { type: ImageActionType.ReadImage; payload: ImagePayload }
+  | { type: ImageActionType.ReadImages; payload: { images: ImagePayload[] } };
+
+const withImage = (card: CardInterface, image: ImagePayload): CardInterface => {
+  // The persisted file name is kept with the cover value so the editor
+  // can show it after a reload (see utils/cover.ts).
+  const cover = image.name ? `base64:${image.name}|${image.base64}` : `base64:${image.base64}`;
+
+  return image.face === 1 && card.back
+    ? { ...card, back: { ...card.back, cover } }
+    : { ...card, front: { ...card.front, cover } };
+};
+
+// Keeps the previous face object when nothing changed, so the card's memoized
+// render is skipped, and keeps an image that is already loaded unless the card
+// was saved since (`unchanged` is false) or points at another file.
+const mergeReloadedFace = (
+  previous: CardFaceInterface | undefined,
+  incoming: CardFaceInterface,
+  unchanged: boolean,
+): CardFaceInterface => {
+  const cover = unchanged ? keepLoadedCover(previous?.cover, incoming.cover) : incoming.cover;
+  const merged = cover === incoming.cover ? incoming : { ...incoming, cover };
+  return previous && isEqual(previous, merged) ? previous : merged;
+};
+
+const mergeReloadedCard = (
+  previous: CardInterface | undefined,
+  incoming: CardInterface,
+): CardInterface => {
+  if (!previous) return incoming;
+  const unchanged = previous.meta.lastUpdated === incoming.meta.lastUpdated;
+  return {
+    ...incoming,
+    front: mergeReloadedFace(previous.front, incoming.front, unchanged),
+    back: incoming.back && mergeReloadedFace(previous.back, incoming.back, unchanged),
+  };
+};
 
 const reducer: React.Reducer<State, Action> = (state, action) => {
   let annotationAccessor: AnnotationAccessorInterface;
@@ -107,16 +149,19 @@ const reducer: React.Reducer<State, Action> = (state, action) => {
           normalizeCard(action.payload.card),
         ],
       };
-    case CardActionType.BulkReadCard:
+    case CardActionType.BulkReadCard: {
+      const previousCards = new Map(state.cards.map(card => [card.uuid, card]));
+      const incomingIds = new Set(action.payload.cards.map(card => card.uuid));
       return {
         ...state,
         cards: [
-          ...state.cards.filter(
-            card => !action.payload.cards.find(newCard => newCard.uuid === card.uuid),
+          ...state.cards.filter(card => !incomingIds.has(card.uuid)),
+          ...action.payload.cards.map(card =>
+            mergeReloadedCard(previousCards.get(card.uuid), normalizeCard(card)),
           ),
-          ...action.payload.cards.map(normalizeCard),
         ],
       };
+    }
     case CardActionType.UpdateCard:
       return {
         ...state,
@@ -257,27 +302,24 @@ const reducer: React.Reducer<State, Action> = (state, action) => {
       };
 
     case ImageActionType.ReadImage:
-    case ImageActionType.CreateImage: {
-      // The persisted file name is kept with the cover value so the editor
-      // can show it after a reload (see utils/cover.ts).
-      const cover = action.payload.name
-        ? `base64:${action.payload.name}|${action.payload.base64}`
-        : `base64:${action.payload.base64}`;
-
+    case ImageActionType.CreateImage:
       return {
         ...state,
-        cards: state.cards.map(card => {
-          if (action.payload.cardUuid !== card.uuid) return card;
+        cards: state.cards.map(card =>
+          action.payload.cardUuid === card.uuid ? withImage(card, action.payload) : card,
+        ),
+      };
 
-          const result: CardInterface = { ...card };
-          if (action.payload.face === 1 && result.back) {
-            result.back.cover = cover;
-          } else {
-            result.front.cover = cover;
-          }
-
-          return result;
-        }),
+    case ImageActionType.ReadImages: {
+      const imagesByCard = new Map<string, ImagePayload[]>();
+      action.payload.images.forEach(image => {
+        imagesByCard.set(image.cardUuid, [...(imagesByCard.get(image.cardUuid) || []), image]);
+      });
+      return {
+        ...state,
+        cards: state.cards.map(
+          card => imagesByCard.get(card.uuid)?.reduce(withImage, card) ?? card,
+        ),
       };
     }
 

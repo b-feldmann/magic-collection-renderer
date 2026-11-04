@@ -1,3 +1,5 @@
+@use '../../styles/mixins';
+
 .controls {
   display: flex;
   flex-direction: column;
@@ -16,11 +18,7 @@
   padding: 19px 20px 13px;
 
   h2 {
-    margin: 0;
-    color: #2c3530;
-    font-size: 23px;
-    font-weight: 650;
-    letter-spacing: -0.7px;
+    @include mixins.panel-title;
   }
 }
 
@@ -36,6 +34,10 @@
   &:disabled {
     color: #a0aa9b;
     cursor: default;
+  }
+
+  @media (pointer: coarse) {
+    min-height: 44px;
   }
 }
 
@@ -78,8 +80,6 @@
   min-width: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
-  scrollbar-width: thin;
-  scrollbar-color: #d3dccb transparent;
 }
 
 .scrollContent {
@@ -87,10 +87,10 @@
 }
 
 .search:global(.ant-input-affix-wrapper) {
-  min-height: 38px;
-  padding: 6px 11px;
+  min-height: var(--control-height);
+  padding: 0 11px;
   border: 1px solid #dce2d8;
-  border-radius: 12px;
+  border-radius: var(--control-radius);
   box-shadow: none;
   font-size: 13px;
 
@@ -127,16 +127,10 @@
   margin-bottom: 10px;
 
   h3 {
-    margin: 0;
-    color: #374b38;
-    font-size: 15px;
-    font-weight: 650;
-    letter-spacing: -0.25px;
+    @include mixins.section-heading;
   }
   > span {
-    color: #85917e;
-    font-size: 10px;
-    letter-spacing: 1px;
+    @include mixins.section-number;
   }
 }
 
@@ -150,11 +144,11 @@
   display: flex;
   align-items: center;
   min-width: 0;
-  min-height: 30px;
+  min-height: var(--control-height);
   margin: 0;
   padding: 5px 7px;
   border: 1px solid #e6e9e2;
-  border-radius: 8px;
+  border-radius: var(--control-radius);
   background: #fff;
   color: var(--form-control-text-color);
   font-size: 11.8px;
@@ -226,31 +220,7 @@
 .disclosure {
   padding: 12px 0;
   border-bottom: 1px solid #e9ede5;
-
-  summary {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    list-style: none;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 550;
-  }
-  summary::-webkit-details-marker {
-    display: none;
-  }
-  summary::before {
-    content: '';
-    width: 6px;
-    height: 6px;
-    margin: 0 3px 0 1px;
-    border-right: 1.5px solid #7e8a76;
-    border-bottom: 1.5px solid #7e8a76;
-    transform: rotate(-45deg);
-  }
-  &[open] summary::before {
-    transform: rotate(45deg);
-  }
+  @include mixins.collapsible;
 }
 
 .groupCount {

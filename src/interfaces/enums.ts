@@ -106,6 +106,15 @@ export enum SortByType {
   Name = 'Name',
 }
 
+export const SORT_BY_LABELS: Record<SortByType, string> = {
+  [SortByType.Color]: 'Color',
+  [SortByType.LastUpdated]: 'Last updated',
+  [SortByType.Creator]: 'Creator',
+  [SortByType.Rarity]: 'Rarity',
+  [SortByType.ManaCost]: 'Mana cost',
+  [SortByType.Name]: 'Name',
+};
+
 export enum ChangeLogFeatureType {
   Added = 'Added',
   Changed = 'Changed',

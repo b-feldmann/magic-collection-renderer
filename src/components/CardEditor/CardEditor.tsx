@@ -2,8 +2,6 @@ import React, { useContext, useEffect, useId, useMemo, useRef, useState } from '
 import { Button, ConfigProvider, Dropdown, Flex, Modal, theme } from 'antd';
 import EllipsisOutlined from '@ant-design/icons/EllipsisOutlined';
 import ReloadOutlined from '@ant-design/icons/ReloadOutlined';
-import StarFilled from '@ant-design/icons/StarFilled';
-import StarOutlined from '@ant-design/icons/StarOutlined';
 import cloneDeep from 'lodash/cloneDeep';
 import isEqual from 'lodash/isEqual';
 import dayjs from 'dayjs';
@@ -80,17 +78,16 @@ const GROUPED_FIELD_KEYS = new Set([
 ]);
 
 // Card types that exist in the data model but must not be offered in the
-// Card Types multi-select.
+// Card types multi-select.
 const HIDDEN_CARD_TYPES = new Set([CardType.Aftermath, CardType.SplitCard]);
 
 // Single source of truth for which art styles may be selected for a given set
-// of card types. Used both to build the Art Style radio options and to decide
+// of card types. Used both to build the Art style radio options and to decide
 // whether the current art style can be kept when the card types change.
 const isArtStyleAvailableForType = (artStyle: string, cardTypes: CardType[] = []): boolean => {
   if (cardTypes.includes(CardType.BasicLand)) {
     return (Object.values(BasicLandArtStyles) as string[]).includes(artStyle);
   }
-  if (cardTypes.includes(CardType.Evolution)) return artStyle === CardArtStyles.Regular;
   if (artStyle === CardArtStyles.Invocation) return false;
   // Invention is artifact-only and unavailable for the mutually exclusive
   // showcase types (Adventure/Omen/Split Card/Aftermath/Prepared/Planeswalker).
@@ -105,6 +102,11 @@ const isArtStyleAvailableForType = (artStyle: string, cardTypes: CardType[] = []
     // Planeswalkers only support the Borderless showcase frames, not the other
     // non-regular art styles.
     if (cardTypes.includes(CardType.Planeswalker)) return artStyle === CardArtStyles.Borderless;
+    // Evolutions are built on the standard frames, so they share the standard
+    // Extended and Borderless variants, but no other non-regular art styles.
+    if (cardTypes.includes(CardType.Evolution)) {
+      return artStyle === CardArtStyles.Extended || artStyle === CardArtStyles.Borderless;
+    }
     // The Alternate Art showcases are adventure-only.
     if (ALTERNATE_ART_STYLES.includes(artStyle)) return cardTypes.includes(CardType.Adventure);
     // Adventures and omens support the Extended art style, but no other
@@ -192,7 +194,7 @@ const getEvolutionSectionConfig = (includeStats: boolean): InputConfigInterface[
       key: 'level1Indicator',
       pairedFieldKey: 'level1Text',
       type: 'paired-text',
-      name: 'Level / Card Text',
+      name: 'Level / card text',
       width: 100,
     },
   ];
@@ -210,7 +212,7 @@ const getEvolutionSectionConfig = (includeStats: boolean): InputConfigInterface[
       key: 'level2Indicator',
       pairedFieldKey: 'level2Text',
       type: 'paired-text',
-      name: 'Level / Card Text',
+      name: 'Level / card text',
       width: 100,
     },
   ];
@@ -732,7 +734,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
   const hasMana = () =>
     !types().includes(CardType.Token) && !isLand() && !types().includes(CardType.Emblem);
   const showManaCost = () => hasMana() && !editBack;
-  // Tokens take their colors from the explicit Token Colors selection instead
+  // Tokens take their colors from the explicit Token colors selection instead
   // of a mana cost (a Token that is also a Land keeps deriving colors from its
   // rules text).
   const isColoredToken = () => types().includes(CardType.Token) && !types().includes(CardType.Land);
@@ -745,7 +747,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
     getValue('artStyle') !== CardArtStyles.Invocation;
 
   // With one member of the exclusive group selected, the other members become
-  // unselectable in the Card Types multi-select.
+  // unselectable in the Card types multi-select.
   const exclusiveDisabledKeys = types().some(t =>
     MUTUALLY_EXCLUSIVE_CARD_TYPES.includes(t as CardType),
   )
@@ -776,7 +778,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
     {
       key: 'artStyle',
       type: 'radio',
-      name: 'Art Style',
+      name: 'Art style',
       data: (Object.keys(CardArtStyles) as (keyof typeof CardArtStyles)[])
         .filter(style =>
           isArtStyleAvailableForType(CardArtStyles[style], getValue('cardTypes') || []),
@@ -797,7 +799,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
       nonRemovableValues: automaticTags,
       width: 100,
     },
-    { key: 'name', type: 'input', name: 'Card Name', width: 50 },
+    { key: 'name', type: 'input', name: 'Card name', width: 50 },
     {
       key: 'nickname',
       type: 'input',
@@ -816,7 +818,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
     {
       key: 'coverFit',
       type: 'select',
-      name: 'Cover Fit',
+      name: 'Cover fit',
       data: (Object.keys(CoverFit) as (keyof typeof CoverFit)[]).map(type => ({
         key: CoverFit[type],
         value: CoverFit[type],
@@ -830,11 +832,11 @@ const CardEditor: React.FC<CardEditorInterface> = ({
       name: 'Vehicle?',
       width: isArtifact() ? 50 : 0,
     },
-    { key: 'manaCost', type: 'input', name: 'Mana Cost', width: showManaCost() ? 50 : 0 },
+    { key: 'manaCost', type: 'input', name: 'Mana cost', width: showManaCost() ? 50 : 0 },
     {
       key: 'tokenColors',
       type: 'multi-select',
-      name: 'Token Colors',
+      name: 'Token colors',
       data: (Object.keys(ColorType) as (keyof typeof ColorType)[])
         .filter(
           colorKey =>
@@ -863,7 +865,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
           {
             key: 'colorIdentity',
             type: 'multi-select' as const,
-            name: 'Color Identity',
+            name: 'Color identity',
             data: [
               ColorType.White,
               ColorType.Blue,
@@ -881,7 +883,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
     {
       key: 'cardTypes',
       type: 'multi-select',
-      name: 'Card Types',
+      name: 'Card types',
       data: cardTypeOptions,
       disabledKeys: exclusiveDisabledKeys,
       width: 50,
@@ -889,7 +891,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
     {
       key: 'cardSubTypes',
       type: 'input',
-      name: 'Card Sub Types',
+      name: 'Card subtypes',
       width: 50,
       placeholder: 'e.g. Human Wizard',
       optional: true,
@@ -897,13 +899,13 @@ const CardEditor: React.FC<CardEditorInterface> = ({
     {
       key: 'cardText',
       type: isPlaneswalker() ? 'split-list' : 'text-list',
-      name: 'Card Text',
+      name: 'Card text',
       width: 100,
     },
     {
       key: 'flavourText',
       type: 'area',
-      name: 'Flavour Text',
+      name: 'Flavour text',
       width: isPlaneswalker() ? 0 : 100,
       placeholder: 'Every card has a story…',
       optional: true,
@@ -911,7 +913,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
     {
       key: 'flavourAuthor',
       type: 'input',
-      name: 'Flavour Text Author',
+      name: 'Flavour text author',
       placeholder: 'Who said it?',
       optional: true,
       width: isPlaneswalker() ? 0 : 100,
@@ -925,9 +927,9 @@ const CardEditor: React.FC<CardEditorInterface> = ({
     {
       key: 'creator',
       type: 'select',
-      name: 'Card Creator',
+      name: 'Card creator',
       data: user.filter(u => u.name !== 'ADMIN').map(o => ({ key: o.uuid, value: o.name })),
-      width: hasStats() ? 50 : 100,
+      width: 50,
     },
     // Evolution is mutually exclusive with Creature, but still owns level-specific P/T fields.
     ...(isEvolution() ? getEvolutionSectionConfig(hasStats()) : []),
@@ -942,7 +944,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
       {
         key: 'artStyle',
         type: 'radio',
-        name: 'Art Style',
+        name: 'Art style',
         data: (Object.keys(BasicLandArtStyles) as (keyof typeof BasicLandArtStyles)[]).map(
           type => ({
             key: BasicLandArtStyles[type],
@@ -961,7 +963,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
       {
         key: 'coverFit',
         type: 'select',
-        name: 'Cover Fit',
+        name: 'Cover fit',
         data: (Object.keys(CoverFit) as (keyof typeof CoverFit)[]).map(type => ({
           key: CoverFit[type],
           value: CoverFit[type],
@@ -971,7 +973,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
       {
         key: 'cardTypes',
         type: 'multi-select',
-        name: 'Card Types',
+        name: 'Card types',
         data: cardTypeOptions,
         disabledKeys: exclusiveDisabledKeys,
         width: 100,
@@ -979,7 +981,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
       {
         key: 'basicLandType',
         type: 'select',
-        name: 'Land Types',
+        name: 'Land types',
         data: (Object.keys(BasicLandType) as (keyof typeof BasicLandType)[]).map(type => ({
           key: BasicLandType[type],
           value: BasicLandType[type],
@@ -989,9 +991,9 @@ const CardEditor: React.FC<CardEditorInterface> = ({
       {
         key: 'creator',
         type: 'select',
-        name: 'Card Creator',
+        name: 'Card creator',
         data: user.filter(u => u.name !== 'ADMIN').map(o => ({ key: o.uuid, value: o.name })),
-        width: hasStats() ? 50 : 100,
+        width: 50,
       },
       // { key: 'comment', type: 'area', name: 'Comment' },
     ];
@@ -1046,13 +1048,13 @@ const CardEditor: React.FC<CardEditorInterface> = ({
   const fieldsFor = (keys: string[]) =>
     keys.flatMap(key => visibleConfig.filter(config => config.key === key));
   const sections = [
-    { key: 'essentials', name: 'The Essentials', fields: fieldsFor(ESSENTIAL_FIELD_KEYS) },
+    { key: 'essentials', name: 'The essentials', fields: fieldsFor(ESSENTIAL_FIELD_KEYS) },
     {
       key: 'abilities',
-      name: 'Words & Abilities',
+      name: 'Words & abilities',
       fields: visibleConfig.filter(config => !GROUPED_FIELD_KEYS.has(config.key)),
     },
-    { key: 'artwork', name: 'Artwork & Frame', fields: fieldsFor(ARTWORK_FIELD_KEYS) },
+    { key: 'artwork', name: 'Artwork & frame', fields: fieldsFor(ARTWORK_FIELD_KEYS) },
   ].filter(section => section.fields.length > 0);
   const renderField = (config: InputConfigInterface) => (
     <div
@@ -1090,9 +1092,9 @@ const CardEditor: React.FC<CardEditorInterface> = ({
           label: editBack ? 'Edit Front Face' : 'Edit Back Face',
           onClick: () => setEditBack(!editBack),
         },
-        { key: 'delete-back', label: 'Delete Back Face', danger: true, onClick: deleteBackFace },
+        { key: 'delete-back', label: 'Delete back face', danger: true, onClick: deleteBackFace },
       ]
-    : [{ key: 'add-back', label: 'Add Back Face', onClick: addBackFace }];
+    : [{ key: 'add-back', label: 'Add back face', onClick: addBackFace }];
 
   return (
     <ConfigProvider
@@ -1103,8 +1105,6 @@ const CardEditor: React.FC<CardEditorInterface> = ({
           colorText: '#35463b',
           colorBorder: '#dfe5de',
           colorBgContainer: '#ffffff',
-          borderRadius: 8,
-          borderRadiusSM: 8,
           fontSize: Math.max(13, token.fontSizeSM),
           fontSizeSM: Math.max(13, token.fontSizeSM),
           controlHeight: Math.max(34, token.controlHeight),
@@ -1113,7 +1113,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
         components: {
           Input: { paddingBlock: 7, paddingBlockSM: 7 },
           Button: {
-            controlHeightSM: Math.max(32, token.controlHeightSM),
+            controlHeightSM: Math.max(34, token.controlHeightSM),
             fontSizeSM: Math.max(12, token.fontSizeSM),
           },
         },
@@ -1122,7 +1122,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
       <div className={styles.editor}>
         <canvas id="cover-resize-canvas" className={styles.canvas} />
         <header className={styles.editorHeader}>
-          <h2>Card Editor</h2>
+          <h2>Card editor</h2>
           <Flex className={styles.headerActions} wrap gap={6}>
             {canFavoriteCard && (
               <Button
@@ -1151,7 +1151,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
               disabled={creatingVariant}
               menu={{
                 items: [
-                  { key: 'variant', label: 'Create Variant', onClick: () => void createVariant() },
+                  { key: 'variant', label: 'Create variant', onClick: () => void createVariant() },
                   ...backFaceItems,
                 ],
               }}
@@ -1187,9 +1187,21 @@ const CardEditor: React.FC<CardEditorInterface> = ({
             </section>
           ))}
           <details className={styles.organization}>
-            <summary>Organization &amp; Credits</summary>
+            <summary>Organization &amp; credits</summary>
             <div className={styles.fields}>
               {fieldsFor(ORGANIZATION_FIELD_KEYS).map(renderField)}
+              <dl className={styles.readOnlyField}>
+                <dt className={styles.label}>Created</dt>
+                <dd>
+                  {card.meta.createdAt ? (
+                    <time dateTime={dayjs(card.meta.createdAt).toISOString()}>
+                      {dayjs(card.meta.createdAt).format('DD.MM.YYYY HH:mm')}
+                    </time>
+                  ) : (
+                    'Unknown'
+                  )}
+                </dd>
+              </dl>
             </div>
           </details>
         </div>
@@ -1199,11 +1211,11 @@ const CardEditor: React.FC<CardEditorInterface> = ({
           </span>
           <Flex className={styles.footerActions} wrap="nowrap" gap={8}>
             <Button size="small" disabled={!contentChanged} onClick={undoChanges}>
-              Undo Changes
+              Undo changes
             </Button>
             {canDeleteCard && (
               <Button size="small" onClick={confirmDeleteCard} danger>
-                Delete Card
+                Delete card
               </Button>
             )}
           </Flex>

@@ -73,24 +73,24 @@ const makeCard = (cardTypes: CardType[], tokenColors?: ColorType[]): CardInterfa
 });
 
 describe('CardEditor - token colors', () => {
-  it('shows the Token Colors multi-select for a creature token', () => {
+  it('shows the Token colors multi-select for a creature token', () => {
     render(
       <Store.Provider value={mockStoreValue}>
         <CardEditor card={makeCard([CardType.Token, CardType.Creature])} saveTmpCard={() => {}} />
       </Store.Provider>,
     );
 
-    expect(screen.getByText('Token Colors')).toBeVisible();
+    expect(screen.getByText('Token colors')).toBeVisible();
   });
 
-  it('CONTROL: hides the Token Colors select for a regular creature', () => {
+  it('CONTROL: hides the Token colors select for a regular creature', () => {
     render(
       <Store.Provider value={mockStoreValue}>
         <CardEditor card={makeCard([CardType.Creature])} saveTmpCard={() => {}} />
       </Store.Provider>,
     );
 
-    expect(screen.queryByText('Token Colors')).not.toBeInTheDocument();
+    expect(screen.queryByText('Token colors')).not.toBeInTheDocument();
   });
 
   it('saves selected colors to the card face', async () => {
@@ -104,7 +104,7 @@ describe('CardEditor - token colors', () => {
       </Store.Provider>,
     );
 
-    const label = screen.getByText('Token Colors');
+    const label = screen.getByText('Token colors');
     const field = label.parentElement!.parentElement!;
     const selectRoot = field.querySelector('.ant-select') as HTMLElement;
     expect(selectRoot).not.toBeNull();
@@ -131,24 +131,24 @@ describe('CardEditor - color identity override', () => {
     manaCost,
   });
 
-  it('shows the Color Identity multi-select for a no-cost card', () => {
+  it('shows the Color identity multi-select for a no-cost card', () => {
     render(
       <Store.Provider value={mockStoreValue}>
         <CardEditor card={makeNoCostCard()} saveTmpCard={() => {}} />
       </Store.Provider>,
     );
 
-    expect(screen.getByText('Color Identity')).toBeVisible();
+    expect(screen.getByText('Color identity')).toBeVisible();
   });
 
-  it('hides the Color Identity multi-select when the card has a mana cost', () => {
+  it('hides the Color identity multi-select when the card has a mana cost', () => {
     render(
       <Store.Provider value={mockStoreValue}>
         <CardEditor card={makeNoCostCard('{2}{U}')} saveTmpCard={() => {}} />
       </Store.Provider>,
     );
 
-    expect(screen.queryByText('Color Identity')).not.toBeInTheDocument();
+    expect(screen.queryByText('Color identity')).not.toBeInTheDocument();
   });
 
   it('saves selected identity colors to the card face', async () => {
@@ -159,7 +159,7 @@ describe('CardEditor - color identity override', () => {
       </Store.Provider>,
     );
 
-    const label = screen.getByText('Color Identity');
+    const label = screen.getByText('Color identity');
     const field = label.parentElement!.parentElement!;
     fireEvent.mouseDown(field.querySelector('.ant-select') as HTMLElement);
 

@@ -1,32 +1,21 @@
 .scrollWrapper {
   position: relative;
-  margin-top: -16px;
 
-  &::before,
   &::after {
     content: '';
     position: absolute;
     left: 0;
-    right: 0;
+    right: var(--collection-scrollbar-gutter, 0);
     height: 10px;
     z-index: 1;
     pointer-events: none;
     opacity: 0;
     transition: opacity 160ms ease;
-  }
-
-  &::before {
-    top: 0;
-    background: linear-gradient(to bottom, rgba(45, 65, 42, 0.09), transparent);
-  }
-
-  &::after {
     bottom: 0;
     background: linear-gradient(to top, rgba(45, 65, 42, 0.09), transparent);
   }
 }
 
-.hasTopShadow::before,
 .hasBottomShadow::after {
   opacity: 1;
 }
@@ -34,28 +23,44 @@
 .collection {
   //padding-left: 14px;
   overflow-x: hidden !important;
+
+  &::-webkit-scrollbar-track {
+    margin-bottom: var(--collection-scrollbar-end-inset, 0);
+  }
 }
 
 .cardBox {
   position: relative;
-  padding: 8px;
+  padding: 4px;
 }
 
+// Matches FavoriteHeart, mirrored into the opposite corner.
 .newComments {
   position: absolute;
-  top: 32px;
-  right: 14px;
+  top: 6px;
+  right: 6px;
   z-index: 3;
-  pointer-events: none;
-  color: #1677ff;
-  font-size: 24px;
+  display: grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  font-size: 18px;
   line-height: 1;
-  filter: drop-shadow(0 0 3px white) drop-shadow(0 0 5px lightblue);
+  pointer-events: none;
+  color: #197a43;
+}
+
+// The new-card badge takes this corner until the card has been seen.
+.belowNewBadge {
+  top: 40px;
 }
 
 .cardControls {
   position: absolute;
-  bottom: 0;
+  bottom: 6px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 2;
@@ -69,11 +74,25 @@
   align-items: center;
   gap: 8px;
   padding: 3px 6px;
-  border-radius: 6px;
+  border-radius: var(--control-radius);
   background: rgba(255, 255, 255, 0.95);
   color: #222;
   font-size: 12px;
   white-space: nowrap;
+}
+
+// Phones: full-size targets, wrapping when they no longer fit under a narrow card.
+@media (pointer: coarse) {
+  .cardControls {
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+  }
+
+  .variantControls button {
+    min-width: 44px;
+    min-height: 44px;
+  }
 }
 
 .edit {
@@ -82,7 +101,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .scrollWrapper::before,
   .scrollWrapper::after {
     transition: none;
   }

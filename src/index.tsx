@@ -2,7 +2,7 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { App as AntdApp, ConfigProvider } from 'antd';
 
-import { BrowserView, MobileView } from 'react-device-detect';
+import { BrowserView, isMobile, MobileView } from 'react-device-detect';
 
 import 'mana-font/css/mana.css';
 import './index.css';
@@ -25,8 +25,12 @@ root.render(
           colorPrimary: '#14532d',
           fontFamily:
             "'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
-          borderRadius: 12,
+          borderRadius: 8,
+          borderRadiusSM: 8,
           borderRadiusLG: 12,
+          // Keep in step with --control-height in index.css.
+          controlHeight: isMobile ? 44 : 34,
+          ...(isMobile ? { controlHeightSM: 44 } : {}),
           colorBgLayout: '#f0f2f5',
           colorText: '#141414',
           colorTextSecondary: '#8c8c8c',
@@ -39,15 +43,11 @@ root.render(
             borderRadiusLG: 12,
             boxShadowTertiary: '0 20px 27px rgba(0, 0, 0, 0.05)',
           },
-          Button: {
-            borderRadius: 8,
-          },
           Tabs: {
-            // Muse pill tabs: no ink bar, the active pill carries the state.
+            // No ink bar: the active tab's fill carries the state.
             inkBarColor: 'transparent',
-            horizontalItemPadding: '8px 16px',
-            itemColor: '#595959',
-            itemHoverColor: '#141414',
+            itemColor: '#1e241f',
+            itemHoverColor: '#1e241f',
             itemSelectedColor: '#ffffff',
           },
         },

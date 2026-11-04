@@ -109,10 +109,10 @@ const selectAdventureType = async (label: string) => {
   fireEvent.click(option);
 };
 
-// Selects the given option in the Card Types multi-select (see the alternate
+// Selects the given option in the Card types multi-select (see the alternate
 // art tests for the dropdown-traversal details).
 const selectCardType = async (typeLabel: string) => {
-  const label = screen.getByText('Card Types');
+  const label = screen.getByText('Card types');
   const field = label.parentElement!.parentElement!;
   fireEvent.mouseDown(field.querySelector('.ant-select') as HTMLElement);
 
@@ -141,7 +141,7 @@ describe('CardEditor - Adventure section', () => {
 
   it('CONTROL: renders no Adventure section for a non-adventure card', () => {
     // The section is spliced out entirely (not merely hidden): a hidden
-    // text-list would still render a second "Add Mechanic" placeholder and
+    // text-list would still render a second "Add mechanic" placeholder and
     // break generic text queries.
     renderEditor(makeCard([CardType.Creature]));
 
@@ -151,10 +151,10 @@ describe('CardEditor - Adventure section', () => {
     }
   });
 
-  it('does not render mechanic selects in Card Text or Adventure Text', () => {
+  it('does not render mechanic selects in Card text or Adventure Text', () => {
     renderEditor(makeCard([CardType.Creature, CardType.Adventure]));
 
-    expect(fieldWrapper('Card Text').querySelector('.ant-select')).toBeNull();
+    expect(fieldWrapper('Card text').querySelector('.ant-select')).toBeNull();
     expect(fieldWrapper('Text').querySelector('.ant-select')).toBeNull();
   });
 
