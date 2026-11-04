@@ -88,7 +88,6 @@ const isArtStyleAvailableForType = (artStyle: string, cardTypes: CardType[] = []
   if (cardTypes.includes(CardType.BasicLand)) {
     return (Object.values(BasicLandArtStyles) as string[]).includes(artStyle);
   }
-  if (cardTypes.includes(CardType.Evolution)) return artStyle === CardArtStyles.Regular;
   if (artStyle === CardArtStyles.Invocation) return false;
   // Invention is artifact-only and unavailable for the mutually exclusive
   // showcase types (Adventure/Omen/Split Card/Aftermath/Prepared/Planeswalker).
@@ -103,6 +102,11 @@ const isArtStyleAvailableForType = (artStyle: string, cardTypes: CardType[] = []
     // Planeswalkers only support the Borderless showcase frames, not the other
     // non-regular art styles.
     if (cardTypes.includes(CardType.Planeswalker)) return artStyle === CardArtStyles.Borderless;
+    // Evolutions are built on the standard frames, so they share the standard
+    // Extended and Borderless variants, but no other non-regular art styles.
+    if (cardTypes.includes(CardType.Evolution)) {
+      return artStyle === CardArtStyles.Extended || artStyle === CardArtStyles.Borderless;
+    }
     // The Alternate Art showcases are adventure-only.
     if (ALTERNATE_ART_STYLES.includes(artStyle)) return cardTypes.includes(CardType.Adventure);
     // Adventures and omens support the Extended art style, but no other
@@ -925,7 +929,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
       type: 'select',
       name: 'Card creator',
       data: user.filter(u => u.name !== 'ADMIN').map(o => ({ key: o.uuid, value: o.name })),
-      width: hasStats() ? 50 : 100,
+      width: 50,
     },
     // Evolution is mutually exclusive with Creature, but still owns level-specific P/T fields.
     ...(isEvolution() ? getEvolutionSectionConfig(hasStats()) : []),
@@ -989,7 +993,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
         type: 'select',
         name: 'Card creator',
         data: user.filter(u => u.name !== 'ADMIN').map(o => ({ key: o.uuid, value: o.name })),
-        width: hasStats() ? 50 : 100,
+        width: 50,
       },
       // { key: 'comment', type: 'area', name: 'Comment' },
     ];
@@ -1186,6 +1190,18 @@ const CardEditor: React.FC<CardEditorInterface> = ({
             <summary>Organization &amp; credits</summary>
             <div className={styles.fields}>
               {fieldsFor(ORGANIZATION_FIELD_KEYS).map(renderField)}
+              <dl className={styles.readOnlyField}>
+                <dt className={styles.label}>Created</dt>
+                <dd>
+                  {card.meta.createdAt ? (
+                    <time dateTime={dayjs(card.meta.createdAt).toISOString()}>
+                      {dayjs(card.meta.createdAt).format('DD.MM.YYYY HH:mm')}
+                    </time>
+                  ) : (
+                    'Unknown'
+                  )}
+                </dd>
+              </dl>
             </div>
           </details>
         </div>

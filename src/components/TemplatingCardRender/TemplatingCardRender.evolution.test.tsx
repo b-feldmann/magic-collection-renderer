@@ -5,7 +5,7 @@ import '@testing-library/jest-dom/vitest';
 
 import TemplatingCardRender from './TemplatingCardRender';
 import { Store, StoreType } from '../../store';
-import { CardType, RarityType } from '../../interfaces/enums';
+import { CardArtStyles, CardType, RarityType } from '../../interfaces/enums';
 import { UNKNOWN_CREATOR } from '../../utils/constants';
 
 const EVOLUTION = CardType.Evolution;
@@ -41,6 +41,7 @@ const renderEvolution = (
     level1Indicator: 'LEVEL 2-3',
     level2Indicator: 'LEVEL 4+',
   },
+  artStyle?: CardArtStyles,
 ) =>
   render(
     <Store.Provider value={mockStoreValue}>
@@ -52,6 +53,7 @@ const renderEvolution = (
         cardTypes={evolution ? [EVOLUTION, CardType.Creature] : [CardType.Creature]}
         cardText={[]}
         cardStats="1/1"
+        artStyle={artStyle}
         {...({
           level1Text: ['Level 1 ability'],
           level2Text: ['Level 2 ability'],
@@ -128,6 +130,29 @@ describe('TemplatingCardRender - Evolution frame', () => {
     expect(screen.getByText('1/1')).toBeInTheDocument();
     expect(screen.getByText('3/3')).toBeInTheDocument();
     expect(screen.getByText('4/4')).toBeInTheDocument();
+  });
+
+  it.each([
+    { artStyle: CardArtStyles.Extended, frame: 'mainframes/extended/' },
+    { artStyle: CardArtStyles.Borderless, frame: 'mainframes/borderless/' },
+  ])('keeps the level overlays on the $artStyle frame', ({ artStyle, frame }) => {
+    renderEvolution(true, { level1Indicator: 'LEVEL 2-3', level2Indicator: 'LEVEL 4+' }, artStyle);
+
+    expect(allImages().some(img => img.getAttribute('src')?.includes(frame))).toBe(true);
+    expect(allImages().some(img => img.getAttribute('src')?.includes('mainframes/m15/'))).toBe(
+      false,
+    );
+    expect(
+      allImages().some(img => img.getAttribute('src')?.includes('parts/levelerLevelMid/regular/')),
+    ).toBe(true);
+    expect(
+      allImages().some(img =>
+        img.getAttribute('src')?.includes('parts/levelerLevelBottom/regular/'),
+      ),
+    ).toBe(true);
+    expect(allImages().filter(img => img.className.includes('levelerPt'))).toHaveLength(3);
+    expect(screen.getByText('Level 1 ability')).toBeInTheDocument();
+    expect(screen.getByText('Level 2 ability')).toBeInTheDocument();
   });
 
   it('keeps ordinary cards on the regular frame without level indicators', () => {

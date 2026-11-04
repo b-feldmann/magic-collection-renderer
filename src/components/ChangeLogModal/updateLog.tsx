@@ -91,7 +91,7 @@ updateLog.push({
       type: ChangeLogFeatureType.Fixed,
       feature: 'FireFox Bug Fix',
       description:
-        'Is now working accordingly on FireFox (Why use this Browser anywhy? :p). Works also on Microsoft Edge (Not in any way better than FireFox).',
+        'Is now working accordingly on FireFox (Why use this Browser anyway? :p). Works also on Microsoft Edge (Not in any way better than FireFox).',
     },
     {
       type: ChangeLogFeatureType.Added,
@@ -719,15 +719,24 @@ updateLog.push({
     },
     {
       type: ChangeLogFeatureType.Changed,
-      feature: 'Aligned font sizes, spacing, rounded edges and more',
+      feature: 'Aligned font sizes, spacing, rounded edges and more.',
+    },
+    {
+      type: ChangeLogFeatureType.Changed,
+      feature: 'Aligned favorite, new, and new comment indicator.',
     },
     {
       type: ChangeLogFeatureType.Fixed,
-      feature: 'Sometime a new card indicator was shown even if no new comment was added to a card',
+      feature:
+        'Sometime a new card indicator was shown even if no new comment was added to a card.',
     },
     {
       type: ChangeLogFeatureType.Fixed,
-      feature: 'Improved performance when loading the collection or filtering cards',
+      feature: 'Improved performance when loading the collection or filtering cards.',
+    },
+    {
+      type: ChangeLogFeatureType.Fixed,
+      feature: 'Added Extended and Borderless Artstyle to evolution cards.',
     },
   ],
 });
