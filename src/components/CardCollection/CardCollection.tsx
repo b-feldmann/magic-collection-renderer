@@ -126,7 +126,8 @@ const CardCollection = ({
         // width + an 8px gap), so no extra right gutter is needed here.
         const SCROLLBAR_WIDTH = 17;
         const unreservedColumnHeight: number = (width / columns / CARD_WIDTH) * CARD_HEIGHT;
-        const hasVerticalScrollbar: boolean = rows * unreservedColumnHeight > height;
+        const hasVerticalScrollbar: boolean =
+          rows * unreservedColumnHeight + bottomPadding > height;
         const availableWidth: number = hasVerticalScrollbar ? width - SCROLLBAR_WIDTH : width;
 
         const columnWidth: number = availableWidth / columns;

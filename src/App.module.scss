@@ -136,6 +136,9 @@ $editor-width: clamp(516px, calc(100vw / 24 * 21 / 24 * 6 - 16px), 516px);
     :global(.ant-tabs-body-holder) {
       flex: 1 1 auto;
       min-height: 0;
+      // The grid has a fixed pixel height from AutoSizer. Without containment it
+      // props the column open, so the grid can't shrink when the stats reserve grows.
+      contain: size;
     }
 
     :global(.ant-tabs-body) {

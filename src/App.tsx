@@ -327,7 +327,7 @@ const App: React.FC = () => {
         <Col
           span={collectionSpan}
           className={`${styles.collection} ${styles.collectionStatsHost}`}
-          style={{ paddingBottom: statsClosedState === 'hidden' ? 48 : 300 }}
+          style={{ paddingBottom: statsClosedState === 'hidden' ? 56 : 300 }}
         >
           <Tabs
             activeKey={activeTabKey}
@@ -353,6 +353,7 @@ const App: React.FC = () => {
                   <CardCollection
                     cards={filteredCollection.filter(tabObj.filter)}
                     allCards={mergedCollection}
+                    bottomPadding={16}
                     currentEditId={cardEditId}
                     onSelectVariant={switchCardVariant}
                     editCard={id => {
