@@ -103,7 +103,8 @@ describe('CollectionStats expanded charts', () => {
     expect(screen.getByText('4.33')).toBeInTheDocument();
     expect(screen.getByText('67%')).toBeInTheDocument();
     expect(screen.getByText(/2 of 3/)).toBeInTheDocument();
-    expect(screen.getByText(/3 nonlands · 1 land/)).toBeInTheDocument();
+    expect(screen.getByText('Nonland cards · 1 land')).toBeInTheDocument();
+    expect(screen.queryByText(/3 nonlands · 1 land/)).not.toBeInTheDocument();
   });
 
   it('shows a clear tag empty state and finite statistics for an all-land collection', () => {

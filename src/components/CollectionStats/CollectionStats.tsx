@@ -222,15 +222,17 @@ const CollectionStats = ({
       <header className={`${styles.sheetHeading} ${isMostlyHidden ? styles.hiddenHeading : ''}`}>
         <div className={styles.headingIntro}>
           <h2>Collection statistics</h2>
-          <span className={styles.summary}>
-            {summary.nonlandCount} nonlands · {summary.landCount}{' '}
-            {summary.landCount === 1 ? 'land' : 'lands'}
-          </span>
           {!isExpanded && (
-            <span className={styles.inlineMetrics}>
-              Average <strong>{summary.averageManaValue.toFixed(2)}</strong> mana ·{' '}
-              <strong>{summary.twoToThreePercent}%</strong> at 2–3 mana
-            </span>
+            <>
+              <span className={styles.summary}>
+                {summary.nonlandCount} nonlands · {summary.landCount}{' '}
+                {summary.landCount === 1 ? 'land' : 'lands'}
+              </span>
+              <span className={styles.inlineMetrics}>
+                Average <strong>{summary.averageManaValue.toFixed(2)}</strong> mana ·{' '}
+                <strong>{summary.twoToThreePercent}%</strong> at 2–3 mana
+              </span>
+            </>
           )}
         </div>
         <div className={styles.headingControls}>
@@ -295,7 +297,9 @@ const CollectionStats = ({
             <div className={styles.metrics}>
               <div>
                 <strong>{summary.nonlandCount}</strong>
-                <span>Nonland cards</span>
+                <span>
+                  Nonland cards · {summary.landCount} {summary.landCount === 1 ? 'land' : 'lands'}
+                </span>
               </div>
               <div>
                 <strong>{summary.averageManaValue.toFixed(2)}</strong>
