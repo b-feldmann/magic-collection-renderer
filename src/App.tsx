@@ -25,11 +25,10 @@ import CollectionFilterControls, {
 } from './components/CollectionFilterControls/CollectionFilterControls';
 import cardToColor from './utils/cardToColor';
 import { buildSortAccessors } from './utils/sortAccessors';
-import { createCard, EMPTY_CARD, refreshCollection } from './actions/cardActions';
+import { createCard, EMPTY_CARD } from './actions/cardActions';
+import { loadCollection } from './actions/collectionActions';
 
 import { hasAccessToken, updateAccessToken } from './utils/accessService';
-import { getMechanics } from './actions/mechanicActions';
-import { getTags } from './actions/tagActions';
 import MechanicModal from './components/MechanicModal/MechanicModal';
 import useLocalStorage from './utils/useLocalStorageHook';
 import ChangeLogModal from './components/ChangeLogModal/ChangeLogModal';
@@ -42,7 +41,7 @@ import {
   setCurrentUser,
   shouldShowUserSelect,
 } from './actions/userActions';
-import { UNKNOWN_CREATOR } from './utils/constants';
+import { COLLECTION_TABS_INSET, UNKNOWN_CREATOR } from './utils/constants';
 import { matchesSelectedTags } from './utils/cardTagFilter';
 import useActiveCardTab from './utils/useActiveCardTab';
 
@@ -222,9 +221,7 @@ const App: React.FC = () => {
   }, [newUuid]);
 
   const refresh = () => {
-    refreshCollection(dispatch);
-    getMechanics(dispatch);
-    getTags(dispatch);
+    loadCollection(dispatch);
     getAnnotations(dispatch);
     getUser(dispatch);
   };
@@ -365,6 +362,7 @@ const App: React.FC = () => {
                   <CardCollection
                     cards={filteredCollection.filter(tabObj.filter)}
                     allCards={mergedCollection}
+                    topPadding={COLLECTION_TABS_INSET}
                     bottomPadding={LAST_ROW_GAP + STATS_CORNER_OVERLAP}
                     currentEditId={cardEditId}
                     onSelectVariant={switchCardVariant}

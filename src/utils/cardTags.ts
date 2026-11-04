@@ -40,6 +40,21 @@ export const getCardTags = (card: CardInterface, mechanics: MechanicInterface[])
   ...new Set([...(card.tags || []), ...getAutomaticCardTags(card, mechanics)]),
 ];
 
+export const getKnownCardTags = (
+  card: CardInterface,
+  tags: string[],
+  mechanics: MechanicInterface[],
+): string[] => {
+  const knownTags = new Set([
+    ...tags,
+    ...mechanics.map(mechanic => mechanic.name.trim()),
+    // Automatic tags such as 'Evolution' are derived from the card and need no catalogue entry.
+    ...getAutomaticCardTags(card, mechanics),
+  ]);
+
+  return (card.tags || []).filter(tag => knownTags.has(tag.trim()));
+};
+
 export const updateCardTags = (
   previousCard: CardInterface,
   nextCard: CardInterface,

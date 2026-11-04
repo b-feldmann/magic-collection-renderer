@@ -44,7 +44,26 @@ describe('collection grid scroll shadows', () => {
     expect(screen.getByRole('grid')).toHaveAttribute('aria-rowcount', '2');
   });
 
-  it('shows shadows only where more cards are available while scrolling', () => {
+  it('keeps every card when reserving room above the first row for the tab chips', () => {
+    render(
+      <CardCollection
+        cards={Array.from({ length: 4 }, (_, index) => ({
+          ...EMPTY_CARD(),
+          uuid: `card-${index}`,
+        }))}
+        topPadding={58}
+        editCard={vi.fn()}
+        addSeenCard={vi.fn()}
+        seenCardUuids={{}}
+        currentEditId=""
+      />,
+    );
+
+    expect(screen.getByRole('grid')).toHaveAttribute('aria-rowcount', '2');
+    expect(screen.getAllByText('card')).toHaveLength(4);
+  });
+
+  it('shows the bottom shadow only while more cards are available below', () => {
     render(
       <CardCollection
         cards={[]}
@@ -63,20 +82,18 @@ describe('collection grid scroll shadows', () => {
     });
 
     fireEvent.scroll(grid);
-    expect(wrapper).not.toHaveClass(styles.hasTopShadow);
     expect(wrapper).toHaveClass(styles.hasBottomShadow);
 
     grid.scrollTop = 150;
     fireEvent.scroll(grid);
-    expect(wrapper).toHaveClass(styles.hasTopShadow, styles.hasBottomShadow);
+    expect(wrapper).toHaveClass(styles.hasBottomShadow);
 
     grid.scrollTop = 300;
     fireEvent.scroll(grid);
-    expect(wrapper).toHaveClass(styles.hasTopShadow);
     expect(wrapper).not.toHaveClass(styles.hasBottomShadow);
   });
 
-  it('hides both shadows when the grid content fits', () => {
+  it('hides the shadow when the grid content fits', () => {
     render(
       <CardCollection
         cards={[]}
@@ -94,11 +111,10 @@ describe('collection grid scroll shadows', () => {
     });
     fireEvent.scroll(grid);
 
-    expect(grid.parentElement).not.toHaveClass(styles.hasTopShadow);
     expect(grid.parentElement).not.toHaveClass(styles.hasBottomShadow);
   });
 
-  it('refreshes shadows when the grid layout setting changes', () => {
+  it('refreshes the shadow when the grid layout setting changes', () => {
     const props = {
       cards: [],
       editCard: vi.fn(),

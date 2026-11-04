@@ -22,12 +22,11 @@ import CollectionFilterControls, {
   CollectionFilterInterface,
 } from './components/CollectionFilterControls/CollectionFilterControls';
 import CollectionStats from './components/CollectionStats/CollectionStats';
-import { createCard, EMPTY_CARD, refreshCollection } from './actions/cardActions';
+import { createCard, EMPTY_CARD } from './actions/cardActions';
+import { loadCollection } from './actions/collectionActions';
 
 import { hasAccessToken, updateAccessToken } from './utils/accessService';
-import { getMechanics } from './actions/mechanicActions';
 import MechanicModal from './components/MechanicModal/MechanicModal';
-import { getTags } from './actions/tagActions';
 import ChangeLogModal from './components/ChangeLogModal/ChangeLogModal';
 import BigCardRenderModal from './components/BigCardRenderModal/BigCardRenderModal';
 import { getAnnotations } from './actions/annotationActions';
@@ -38,7 +37,7 @@ import {
   setCurrentUser,
   shouldShowUserSelect,
 } from './actions/userActions';
-import { UNKNOWN_CREATOR } from './utils/constants';
+import { COLLECTION_TABS_INSET, UNKNOWN_CREATOR } from './utils/constants';
 import useActiveCardTab from './utils/useActiveCardTab';
 import usePhoneLayout from './utils/usePhoneLayout';
 import cardToColor from './utils/cardToColor';
@@ -233,9 +232,7 @@ const MobileApp: React.FC = () => {
   }, [newUuid]);
 
   const refresh = () => {
-    refreshCollection(dispatch);
-    getMechanics(dispatch);
-    getTags(dispatch);
+    loadCollection(dispatch);
     getAnnotations(dispatch);
     getUser(dispatch);
   };
@@ -311,6 +308,7 @@ const MobileApp: React.FC = () => {
                   <CardCollection
                     cards={filteredCollection.filter(tabObj.filter)}
                     allCards={mergedCollection}
+                    topPadding={COLLECTION_TABS_INSET}
                     currentEditId={cardEditId}
                     onSelectVariant={switchCardVariant}
                     editCard={id => {

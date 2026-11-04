@@ -263,6 +263,10 @@ $muted-text: #526b5b;
 .stackedCharts {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
+
+  .plot {
+    height: 280px;
+  }
 }
 .stackedSections {
   display: grid;

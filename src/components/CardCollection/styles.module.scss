@@ -1,7 +1,6 @@
 .scrollWrapper {
   position: relative;
 
-  &::before,
   &::after {
     content: '';
     position: absolute;
@@ -12,20 +11,11 @@
     pointer-events: none;
     opacity: 0;
     transition: opacity 160ms ease;
-  }
-
-  &::before {
-    top: 0;
-    background: linear-gradient(to bottom, rgba(45, 65, 42, 0.09), transparent);
-  }
-
-  &::after {
     bottom: 0;
     background: linear-gradient(to top, rgba(45, 65, 42, 0.09), transparent);
   }
 }
 
-.hasTopShadow::before,
 .hasBottomShadow::after {
   opacity: 1;
 }
@@ -85,7 +75,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .scrollWrapper::before,
   .scrollWrapper::after {
     transition: none;
   }

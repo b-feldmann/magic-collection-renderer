@@ -18,6 +18,7 @@ import { getVariantAnnotations } from '../../utils/cardVariants';
 
 export interface CellData {
   columnCount: number;
+  topSpacerRows?: number;
   cards: CardInterface[];
   variantGroups?: CardInterface[][];
   selectVariant?: (familyId: string, uuid: string) => void;
@@ -49,6 +50,7 @@ const Cell = ({
   variantGroups,
   selectVariant,
   columnCount,
+  topSpacerRows = 0,
   seenCardUuids,
   currentEditId,
   addSeenCard,
@@ -58,7 +60,7 @@ const Cell = ({
   showBackFaceConfig,
   mobile,
 }: CellProps) => {
-  const index = columnIndex + rowIndex * columnCount;
+  const index = columnIndex + (rowIndex - topSpacerRows) * columnCount;
   const card = cards[index];
   const { dispatch, annotationAccessor } = useContext(Store);
   const family = card ? variantGroups?.[index] || [card] : [];

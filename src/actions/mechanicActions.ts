@@ -30,18 +30,21 @@ export const syncCardsWithMechanic = (
   });
 };
 
-export const getMechanics = (dispatch: (value: Action) => void) => {
+export const getMechanics = (
+  dispatch: (value: Action) => void,
+): Promise<MechanicInterface[] | undefined> => {
   const request = `${MIDDLEWARE_ENDPOINT}/mechanics`;
   const args = { params: { accessKey: getAccessToken() } };
-  axios
+  return axios
     .get(request, args)
     .then(result => {
       dispatch({
         type: MechanicActionType.GetMechanics,
         payload: { mechanics: result.data.mechanics },
       });
+      return result.data.mechanics as MechanicInterface[];
     })
-    .catch(() => {});
+    .catch(() => undefined);
 };
 
 export const createMechanic = (dispatch: (value: Action) => void, cards: CardInterface[] = []) => {

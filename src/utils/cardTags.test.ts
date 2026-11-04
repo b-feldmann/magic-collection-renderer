@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import type CardInterface from '../interfaces/CardInterface';
 import type MechanicInterface from '../interfaces/MechanicInterface';
 import { CardType } from '../interfaces/enums';
-import { getAutomaticCardTags, getCardTags, updateCardTags } from './cardTags';
+import { getAutomaticCardTags, getCardTags, getKnownCardTags, updateCardTags } from './cardTags';
 
 const card = (overrides: Partial<CardInterface> = {}): CardInterface => ({
   name: 'Test Card',
@@ -100,5 +100,34 @@ describe('getCardTags', () => {
         [mechanic('Flying')],
       ),
     ).toEqual(['Flying']);
+  });
+});
+
+describe('getKnownCardTags', () => {
+  it('keeps tags from the catalogue or a mechanic and drops all others', () => {
+    expect(
+      getKnownCardTags(
+        card({ tags: ['Combo', 'Flying', 'Deleted'] }),
+        ['Combo'],
+        [mechanic('Flying')],
+      ),
+    ).toEqual(['Combo', 'Flying']);
+  });
+
+  it('keeps automatic tags that are missing from the catalogue', () => {
+    expect(
+      getKnownCardTags(
+        card({
+          tags: ['Evolution', 'Deleted'],
+          front: { name: 'Test Card', cardTypes: [CardType.Evolution], cardText: [] },
+        }),
+        ['Combo'],
+        [],
+      ),
+    ).toEqual(['Evolution']);
+  });
+
+  it('matches tags regardless of surrounding whitespace', () => {
+    expect(getKnownCardTags(card({ tags: ['Combo '] }), ['Combo'], [])).toEqual(['Combo ']);
   });
 });

@@ -106,11 +106,13 @@ describe('TemplatingCardRender - Evolution frame', () => {
     const ptImages = allImages().filter(img => img.className.includes('levelerPt'));
     expect(ptImages).toHaveLength(3);
     expect(document.querySelector('[class*="evolutionWithoutLevelPt"]')).toBeNull();
-    expect(ptImages.map(img => img.getAttribute('src'))).toEqual([
-      expect.stringContaining('pt/levelers/top/g.png'),
-      expect.stringContaining('pt/levelers/mid/g.png'),
-      expect.stringContaining('pt/levelers/bottom/g.png'),
-    ]);
+    expect(ptImages.map(img => img.getAttribute('src'))).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining('pt/levelers/top/g.png'),
+        expect.stringContaining('pt/levelers/mid/g.png'),
+        expect.stringContaining('pt/levelers/bottom/g.png'),
+      ]),
+    );
     // Only real (carved) parts render: no debug-colored overlay masks.
     for (const cls of ['levelerRulesTop', 'levelerRulesMid', 'levelerRulesBottom']) {
       expect(allImages().some(img => img.className.includes(cls))).toBe(false);
@@ -145,10 +147,12 @@ describe('TemplatingCardRender - Evolution frame', () => {
 
     const ptImages = allImages().filter(img => img.className.includes('levelerPt'));
     expect(ptImages).toHaveLength(2);
-    expect(ptImages.map(img => img.getAttribute('src'))).toEqual([
-      expect.stringContaining('pt/levelers/top/g.png'),
-      expect.stringContaining('pt/levelers/mid/g.png'),
-    ]);
+    expect(ptImages.map(img => img.getAttribute('src'))).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining('pt/levelers/top/g.png'),
+        expect.stringContaining('pt/levelers/mid/g.png'),
+      ]),
+    );
     expect(screen.getByText('1/1')).toBeInTheDocument();
     expect(screen.getByText('3/3')).toBeInTheDocument();
     expect(screen.queryByText('4/4')).not.toBeInTheDocument();

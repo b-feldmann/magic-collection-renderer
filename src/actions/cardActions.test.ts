@@ -25,12 +25,13 @@ import {
   deleteCard,
   refreshCard,
   refreshCollection,
+  removeUnknownCardTags,
   updateCard,
   updateCardRating,
 } from './cardActions';
 import { createImage } from './imageActions';
 import { staticAntd } from '../utils/staticAntd';
-import { AnnotationActionType, CardActionType } from '../reducer';
+import { Action, AnnotationActionType, CardActionType } from '../reducer';
 import CardInterface from '../interfaces/CardInterface';
 import { CardType, CardState, RarityType } from '../interfaces/enums';
 import { UNKNOWN_CREATOR } from '../utils/constants';
@@ -644,6 +645,60 @@ describe('updateCard', () => {
     expect(axios.post).toHaveBeenCalledWith(expect.stringContaining('/cards'), {
       accessKey: 'test-token',
       creator: { name: creator.name, uuid: creator.uuid },
+    });
+  });
+});
+
+describe('removeUnknownCardTags', () => {
+  const mechanics = [{ uuid: 'mechanic-1', name: 'Flying', description: '' }];
+
+  const loadCards = async (dispatch: (value: Action) => void, cards: CardInterface[]) => {
+    vi.mocked(axios.get).mockResolvedValueOnce({ data: { cards } });
+    await refreshCollection(dispatch);
+  };
+
+  beforeEach(() => {
+    vi.mocked(axios.get).mockReset();
+    vi.mocked(axios.patch).mockReset();
+  });
+
+  it('patches only the tags of cards with unknown tags and publishes the result', async () => {
+    const stale = { ...makeCard('stale'), tags: ['Combo', 'Flying', 'Deleted'] };
+    const clean = { ...makeCard('clean'), tags: ['Combo'] };
+    const untagged = makeCard('untagged');
+    const saved = { ...stale, tags: ['Combo', 'Flying'] };
+    const dispatch = vi.fn();
+    await loadCards(dispatch, [stale, clean, untagged]);
+    vi.mocked(axios.patch).mockResolvedValueOnce({ data: { card: saved } });
+
+    await removeUnknownCardTags(dispatch, ['Combo'], mechanics);
+
+    expect(axios.patch).toHaveBeenCalledTimes(1);
+    expect(axios.patch).toHaveBeenCalledWith(expect.stringContaining('/cards/stale'), {
+      accessKey: 'test-token',
+      set: { tags: ['Combo', 'Flying'] },
+      unset: [],
+    });
+    expect(dispatch).toHaveBeenCalledWith({
+      type: CardActionType.UpdateCard,
+      payload: { card: expect.objectContaining({ uuid: 'stale', tags: ['Combo', 'Flying'] }) },
+    });
+  });
+
+  it('still cleans the other cards when one write fails', async () => {
+    const first = { ...makeCard('first'), tags: ['Deleted'] };
+    const second = { ...makeCard('second'), tags: ['Deleted'] };
+    const dispatch = vi.fn();
+    await loadCards(dispatch, [first, second]);
+    vi.mocked(axios.patch)
+      .mockRejectedValueOnce(new Error('offline'))
+      .mockResolvedValueOnce({ data: { card: { ...second, tags: [] } } });
+
+    await expect(removeUnknownCardTags(dispatch, ['Combo'], [])).resolves.toBeUndefined();
+
+    expect(dispatch).toHaveBeenCalledWith({
+      type: CardActionType.UpdateCard,
+      payload: { card: expect.objectContaining({ uuid: 'second', tags: [] }) },
     });
   });
 });

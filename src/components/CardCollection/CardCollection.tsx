@@ -28,6 +28,7 @@ export interface CardCollectionInterface {
   seenCardUuids: { [key: string]: boolean };
   addSeenCard: (uuid: string) => void;
   mobile?: boolean;
+  topPadding?: number;
   bottomPadding?: number;
 }
 
@@ -42,11 +43,12 @@ const CardCollection = ({
   seenCardUuids,
   addSeenCard,
   mobile,
+  topPadding = 0,
   bottomPadding = 0,
 }: CardCollectionInterface) => {
   const [showBackFaceConfig, setShowBackFaceConfig] = useState<{ [key: string]: boolean }>({});
   const [selectedVariants, setSelectedVariants] = useState<Record<string, string>>({});
-  const [scrollShadows, setScrollShadows] = useState({ top: false, bottom: false });
+  const [hasMoreBelow, setHasMoreBelow] = useState(false);
   const [gridRef, setGridRef] = useGridCallbackRef();
   const groups = useMemo(() => getVariantGroups(cards, allCards), [cards, allCards]);
   const previousEditId = useRef('');
@@ -56,11 +58,7 @@ const CardCollection = ({
     if (!grid) return;
 
     const update = () => {
-      const top = grid.scrollTop > 1;
-      const bottom = grid.scrollHeight - grid.clientHeight - grid.scrollTop > 1;
-      setScrollShadows(previous =>
-        previous.top === top && previous.bottom === bottom ? previous : { top, bottom },
-      );
+      setHasMoreBelow(grid.scrollHeight - grid.clientHeight - grid.scrollTop > 1);
     };
     const observer = typeof ResizeObserver === 'undefined' ? undefined : new ResizeObserver(update);
     observer?.observe(grid);
@@ -121,7 +119,8 @@ const CardCollection = ({
         }
 
         const rows: number = Math.ceil(groups.length / columns);
-        const spacerRows = bottomPadding > 0 ? 1 : 0;
+        const topSpacerRows = topPadding > 0 ? 1 : 0;
+        const bottomSpacerRows = bottomPadding > 0 ? 1 : 0;
 
         // On desktop the cards span the column exactly, so they line up with the
         // statistics sheet: the cells' outer padding hangs past both edges, and the
@@ -132,7 +131,7 @@ const CardCollection = ({
         const cardHeightFor = (columnWidth: number) =>
           ((columnWidth - CARD_GAP) / CARD_WIDTH) * CARD_HEIGHT + CARD_GAP;
         const hasVerticalScrollbar: boolean =
-          rows * cardHeightFor(width / columns) + bottomPadding > height;
+          rows * cardHeightFor(width / columns) + topPadding + bottomPadding > height;
         const gridWidth: number = mobile ? width : width + sideOverhang + SCROLLBAR_WIDTH;
         const cellsWidth: number = mobile
           ? width - (hasVerticalScrollbar ? SCROLLBAR_WIDTH : 0)
@@ -149,6 +148,7 @@ const CardCollection = ({
             else setSelectedVariants(previous => ({ ...previous, [familyId]: uuid }));
           },
           columnCount: columns,
+          topSpacerRows,
           seenCardUuids,
           currentEditId,
           addSeenCard,
@@ -162,7 +162,7 @@ const CardCollection = ({
 
         return (
           <div
-            className={`${styles.scrollWrapper} ${scrollShadows.top ? styles.hasTopShadow : ''} ${scrollShadows.bottom ? styles.hasBottomShadow : ''}`}
+            className={`${styles.scrollWrapper} ${hasMoreBelow ? styles.hasBottomShadow : ''}`}
             style={{ height, width: gridWidth, marginLeft: -sideOverhang }}
           >
             <Grid
@@ -172,8 +172,11 @@ const CardCollection = ({
               cellProps={data}
               columnCount={columns}
               columnWidth={columnWidth}
-              rowCount={rows + spacerRows}
-              rowHeight={rowIndex => (rowIndex === rows ? bottomPadding : columnHeight)}
+              rowCount={topSpacerRows + rows + bottomSpacerRows}
+              rowHeight={rowIndex => {
+                if (rowIndex < topSpacerRows) return topPadding;
+                return rowIndex === topSpacerRows + rows ? bottomPadding : columnHeight;
+              }}
               style={{ height, width: gridWidth }}
             />
           </div>

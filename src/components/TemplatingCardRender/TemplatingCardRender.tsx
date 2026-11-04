@@ -696,23 +696,6 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
             className={`${styles.rarity} ${isToken ? styles.tokenRarity : ''}`}
           />
 
-          {(isCreature || (isArtifact && vehicle)) && (
-            <div>
-              {pt ? (
-                <img
-                  className={`${styles.pt} ${isEvolution && showLevelSpecificPt ? `${styles.levelerPt} ${styles.levelerPtTop}` : ''}`}
-                  src={showLevelSpecificPt ? pt : standardPt}
-                  alt=""
-                />
-              ) : null}
-              <div
-                className={`${styles.stats} ${isEvolution && showLevelSpecificPt ? styles.levelerStatsTop : ''}`}
-              >
-                {`${parseStats(cardStats).power}/${parseStats(cardStats).toughness}`}
-              </div>
-            </div>
-          )}
-
           {isEvolution ? (
             <>
               {level1Text?.length ? (
@@ -817,6 +800,23 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
               )}
             </>
           ) : null}
+
+          {(isCreature || (isArtifact && vehicle)) && (
+            <div>
+              {pt ? (
+                <img
+                  className={`${styles.pt} ${isEvolution && showLevelSpecificPt ? `${styles.levelerPt} ${styles.levelerPtTop}` : ''}`}
+                  src={showLevelSpecificPt ? pt : standardPt}
+                  alt=""
+                />
+              ) : null}
+              <div
+                className={`${styles.stats} ${isEvolution && showLevelSpecificPt ? styles.levelerStatsTop : ''}`}
+              >
+                {`${parseStats(cardStats).power}/${parseStats(cardStats).toughness}`}
+              </div>
+            </div>
+          )}
 
           {!isLand && !isToken && !backFace && (
             <div ref={costRef} className={`${styles.cost} ${isToken ? styles.tokenCost : ''}`}>

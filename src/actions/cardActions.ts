@@ -8,6 +8,8 @@ import { Action, AnnotationActionType, CardActionType } from '../reducer';
 import { CardType, CardState, RarityType } from '../interfaces/enums';
 
 import CardInterface from '../interfaces/CardInterface';
+import MechanicInterface from '../interfaces/MechanicInterface';
+import { getKnownCardTags } from '../utils/cardTags';
 import { deriveLegacyMainType } from '../utils/cardTypes';
 import { getVariantFamily, withLatestVariantIds } from '../utils/cardVariants';
 import { getAccessToken, deleteAccessToken } from '../utils/accessService';
@@ -98,14 +100,14 @@ export const EMPTY_CARD = (): CardInterface => ({
   },
 });
 
-export const refreshCollection = (dispatch: (value: Action) => void) => {
+export const refreshCollection = (dispatch: (value: Action) => void): Promise<boolean> => {
   dispatch({
     type: CardActionType.RefreshCollection,
   });
 
   const request = `${MIDDLEWARE_ENDPOINT}/cards`;
   const args = { params: { accessKey: getAccessToken() } };
-  mutateCards(dispatch, async state => {
+  return mutateCards(dispatch, async state => {
     const result = await axios.get(request, args);
     state.saved.clear();
     state.deleted.clear();
@@ -122,6 +124,7 @@ export const refreshCollection = (dispatch: (value: Action) => void) => {
       type: CardActionType.BulkReadCard,
       payload: { cards },
     });
+    return true;
   }).catch(error => {
     if (error.response) {
       const { response } = error;
@@ -131,11 +134,12 @@ export const refreshCollection = (dispatch: (value: Action) => void) => {
           'Wrong access token! You are not authorized to use this service :(',
           3,
         );
-        return;
+        return false;
       }
     }
 
     staticAntd.message.error("Could'nt load collection. Maybe you access token is wrong.");
+    return false;
   });
 };
 
@@ -305,6 +309,30 @@ export const updateCard = (
     throw error;
   });
 };
+
+// Runs inside the mutation queue against the latest saved cards, so a save that landed while the
+// collection was loading is not overwritten. Only `tags` is patched. A failed write leaves the card
+// as it was, and the next load tries again.
+export const removeUnknownCardTags = (
+  dispatch: Dispatch,
+  tags: string[],
+  mechanics: MechanicInterface[],
+): Promise<void> =>
+  mutateCards(dispatch, async state => {
+    await Promise.allSettled(
+      currentCollection(state, []).map(async card => {
+        const knownTags = getKnownCardTags(card, tags, mechanics);
+        if (knownTags.length === (card.tags || []).length) return;
+
+        const result = await axios.patch(`${MIDDLEWARE_ENDPOINT}/cards/${card.uuid}`, {
+          accessKey: getAccessToken(),
+          set: { tags: knownTags },
+          unset: [],
+        });
+        publishCard(dispatch, state, result.data.card);
+      }),
+    );
+  });
 
 export const updateCardRating = (
   dispatch: (value: Action) => void,

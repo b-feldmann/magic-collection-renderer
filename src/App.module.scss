@@ -144,6 +144,41 @@ $editor-width: clamp(516px, calc(100vw / 24 * 21 / 24 * 6 - 16px), 516px);
     height: auto;
     min-height: 0;
     margin-left: 10px;
+    position: relative;
+
+    // The chips float over the grid, which runs to the top of the screen so cards
+    // scroll away under them. CardCollection's topPadding keeps the first row clear.
+    > :global(.ant-tabs-nav) {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 2;
+      margin-bottom: 0 !important;
+      // Only the chips catch clicks; the cards between them stay usable.
+      pointer-events: none;
+
+      :global(.ant-tabs-tab),
+      :global(.ant-tabs-nav-operations) {
+        pointer-events: auto;
+      }
+
+      // The wrap clips its overflow, so give the chips' ring and shadow room to
+      // show. The negative offset keeps the chips aligned with the cards.
+      :global(.ant-tabs-nav-wrap) {
+        margin-left: -6px;
+        padding: 0 0 16px 6px;
+      }
+
+      // Chips sit on busy card art here: a light ring separates them from dark
+      // cards (the active chip is dark itself) and the shadow lifts them off light ones.
+      :global(.ant-tabs-tab),
+      :global(.ant-tabs-tab.ant-tabs-tab-active) {
+        box-shadow:
+          0 0 0 1.5px rgba(255, 255, 255, 0.9),
+          0 4px 12px rgba(0, 0, 0, 0.4) !important;
+      }
+    }
 
     :global(.ant-tabs-body-holder) {
       flex: 1 1 auto;
