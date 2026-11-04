@@ -1,18 +1,18 @@
 .heart {
   position: absolute;
-  top: 8px;
-  left: 8px;
+  top: 6px;
+  left: 6px;
   z-index: 3;
   display: grid;
-  width: 1.5em;
-  height: 1.5em;
+  width: 30px;
+  height: 30px;
   place-items: center;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.8);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.55);
-  font-size: 25px;
-  padding-top: 2px;
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  font-size: 18px;
   line-height: 1;
+  padding-top: 1px;
   pointer-events: none;
   color: #bd1945 !important;
 }

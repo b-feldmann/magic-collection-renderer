@@ -34,28 +34,28 @@
   padding: 4px;
 }
 
-// Same badge as FavoriteHeart, mirrored into the opposite corner.
+// Matches FavoriteHeart, mirrored into the opposite corner.
 .newComments {
   position: absolute;
-  top: 8px;
-  right: 8px;
+  top: 6px;
+  right: 6px;
   z-index: 3;
   display: grid;
-  width: 1.5em;
-  height: 1.5em;
+  width: 30px;
+  height: 30px;
   place-items: center;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.8);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.55);
-  font-size: 25px;
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  font-size: 18px;
   line-height: 1;
   pointer-events: none;
   color: #197a43;
 }
 
-// The new-card star takes this corner until the card has been seen.
-.belowStar {
-  top: calc(8px + 1.5em + 6px);
+// The new-card badge takes this corner until the card has been seen.
+.belowNewBadge {
+  top: 40px;
 }
 
 .cardControls {

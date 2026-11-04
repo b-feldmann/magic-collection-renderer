@@ -5,7 +5,7 @@ import AntIcon from '../AntIcon/AntIcon';
 import ActionHover from '../ActionHover/ActionHover';
 // import CardRender from '../CardRender/CardRender';
 import CardRender from '../TemplatingCardRender/index';
-import GlowingStar from '../GlowingStar/index';
+import NewCardBadge from '../NewCardBadge/index';
 import CardInterface from '../../interfaces/CardInterface';
 import CardFaceInterface from '../../interfaces/CardFaceInterface';
 import FavoriteHeart from '../FavoriteHeart/FavoriteHeart';
@@ -84,7 +84,7 @@ const Cell = ({
 
   return (
     <div className={styles.cardBox} style={style} {...ariaAttributes}>
-      {isNew && <GlowingStar />}
+      {isNew && <NewCardBadge />}
       <Spin size="large" spinning={!!card.loading}>
         <ActionHover
           onClick={() => {
@@ -127,7 +127,7 @@ const Cell = ({
       <FavoriteHeart favorite={card.favorite} />
       {hasUnreadComments && (
         <span
-          className={`${styles.newComments} ${isNew ? styles.belowStar : ''}`}
+          className={`${styles.newComments} ${isNew ? styles.belowNewBadge : ''}`}
           role="img"
           aria-label="New comments"
           title="New comments"
