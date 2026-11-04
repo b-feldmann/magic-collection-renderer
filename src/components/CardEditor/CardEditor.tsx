@@ -2,8 +2,6 @@ import React, { useContext, useEffect, useId, useMemo, useRef, useState } from '
 import { Button, ConfigProvider, Dropdown, Flex, Modal, theme } from 'antd';
 import EllipsisOutlined from '@ant-design/icons/EllipsisOutlined';
 import ReloadOutlined from '@ant-design/icons/ReloadOutlined';
-import StarFilled from '@ant-design/icons/StarFilled';
-import StarOutlined from '@ant-design/icons/StarOutlined';
 import cloneDeep from 'lodash/cloneDeep';
 import isEqual from 'lodash/isEqual';
 import dayjs from 'dayjs';

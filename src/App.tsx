@@ -56,7 +56,9 @@ const STATS_HIDDEN_HEIGHT = 56;
 // The grid runs behind the sheet by its corner radius so cards continue under
 // the rounded corners instead of ending in a straight line above them.
 const STATS_CORNER_OVERLAP = 18;
-const LAST_ROW_GAP = 12;
+// Together with the last row's 4px cell padding this leaves the same 8px gap
+// below the cards as between the cards and the sidebar.
+const LAST_ROW_GAP = 4;
 
 // Shared tab definitions so the collection grid and the sidebar filter counts
 // agree on which cards belong to each tab.
