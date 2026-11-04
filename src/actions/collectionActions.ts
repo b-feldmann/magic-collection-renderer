@@ -1,5 +1,5 @@
 import { Action } from '../reducer';
-import { refreshCollection, removeUnknownCardTags } from './cardActions';
+import { addAutomaticCardTags, refreshCollection, removeUnknownCardTags } from './cardActions';
 import { getMechanics } from './mechanicActions';
 import { getTags } from './tagActions';
 
@@ -10,9 +10,13 @@ export const loadCollection = async (dispatch: (value: Action) => void): Promise
     getTags(dispatch),
   ]);
 
+  if (!collectionLoaded || !mechanics) return;
+
   // Removing tags is destructive: a failed request or an empty tag catalogue says nothing about
   // which tags really exist, so only clean up against a complete, successful load.
-  if (!collectionLoaded || !mechanics || !tags?.length) return;
+  if (tags?.length) await removeUnknownCardTags(dispatch, tags, mechanics);
 
-  await removeUnknownCardTags(dispatch, tags, mechanics);
+  // Runs after the cleanup so a card needing both sees the cleaned tags. Adding only needs the
+  // cards and mechanics, so it still runs without a tag catalogue.
+  await addAutomaticCardTags(dispatch, mechanics);
 };

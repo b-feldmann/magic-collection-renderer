@@ -43,6 +43,66 @@ describe('getCardTags', () => {
     ).toEqual(['Lifelink']);
   });
 
+  it.each(['Flying', 'flying', 'FLYING', 'This creature has flying.', '[flying]'])(
+    'finds a mechanic name without brackets and in any letter case: %s',
+    cardText => {
+      expect(
+        getAutomaticCardTags(
+          card({ front: { name: 'Test Card', cardTypes: [], cardText: [cardText] } }),
+          [mechanic('Flying')],
+        ),
+      ).toEqual(['Flying']);
+    },
+  );
+
+  it.each(['Move toward it', 'Warden', 'Awards'])(
+    'does not find a mechanic name inside another word: %s',
+    cardText => {
+      expect(
+        getAutomaticCardTags(
+          card({ front: { name: 'Test Card', cardTypes: [], cardText: [cardText] } }),
+          [mechanic('Ward')],
+        ),
+      ).toEqual([]);
+    },
+  );
+
+  it('treats special characters in a mechanic name literally', () => {
+    const withText = (cardText: string) =>
+      card({ front: { name: 'Test Card', cardTypes: [], cardText: [cardText] } });
+
+    expect(getAutomaticCardTags(withText('power (x)'), [mechanic('Power (X)')])).toEqual([
+      'Power (X)',
+    ]);
+    expect(getAutomaticCardTags(withText('power x'), [mechanic('Power (X)')])).toEqual([]);
+  });
+
+  it('adds the tag when the word is typed and removes it when the word is deleted', () => {
+    const empty = card({ front: { name: 'Test Card', cardTypes: [], cardText: ['Draw a card'] } });
+    const typed = card({
+      tags: ['manual'],
+      front: { name: 'Test Card', cardTypes: [], cardText: ['Draw a card, then scry 1'] },
+    });
+    const mechanics = [mechanic('Scry')];
+
+    const added = updateCardTags(empty, typed, mechanics);
+    expect(added).toEqual(['manual', 'Scry']);
+
+    expect(updateCardTags({ ...typed, tags: added }, { ...empty, tags: added }, mechanics)).toEqual(
+      ['manual'],
+    );
+  });
+
+  it('uses the mechanic spelling when a manual tag differs only by case', () => {
+    const tagged = card({
+      tags: ['flying', 'custom'],
+      front: { name: 'Test Card', cardTypes: [], cardText: ['flying'] },
+    });
+
+    expect(getCardTags(tagged, [mechanic('Flying')])).toEqual(['Flying', 'custom']);
+    expect(updateCardTags(tagged, tagged, [mechanic('Flying')])).toEqual(['Flying', 'custom']);
+  });
+
   it('adds the Evolution tag for cards using the Evolution type', () => {
     expect(
       getAutomaticCardTags(

@@ -9,7 +9,7 @@ import { CardType, CardState, RarityType } from '../interfaces/enums';
 
 import CardInterface from '../interfaces/CardInterface';
 import MechanicInterface from '../interfaces/MechanicInterface';
-import { getKnownCardTags } from '../utils/cardTags';
+import { getCardTags, getKnownCardTags } from '../utils/cardTags';
 import { deriveLegacyMainType } from '../utils/cardTypes';
 import { getVariantFamily, withLatestVariantIds } from '../utils/cardVariants';
 import { getAccessToken, deleteAccessToken } from '../utils/accessService';
@@ -327,6 +327,29 @@ export const removeUnknownCardTags = (
         const result = await axios.patch(`${MIDDLEWARE_ENDPOINT}/cards/${card.uuid}`, {
           accessKey: getAccessToken(),
           set: { tags: knownTags },
+          unset: [],
+        });
+        publishCard(dispatch, state, result.data.card);
+      }),
+    );
+  });
+
+// Saves the automatic tags that cards are missing, such as those of cards last saved before a
+// mechanic existed. Same queue and failure handling as removeUnknownCardTags; cards that are
+// already up to date are not written, so this settles after one successful load.
+export const addAutomaticCardTags = (
+  dispatch: Dispatch,
+  mechanics: MechanicInterface[],
+): Promise<void> =>
+  mutateCards(dispatch, async state => {
+    await Promise.allSettled(
+      currentCollection(state, []).map(async card => {
+        const nextTags = getCardTags(card, mechanics);
+        if (isEqual(nextTags, card.tags || [])) return;
+
+        const result = await axios.patch(`${MIDDLEWARE_ENDPOINT}/cards/${card.uuid}`, {
+          accessKey: getAccessToken(),
+          set: { tags: nextTags },
           unset: [],
         });
         publishCard(dispatch, state, result.data.card);
