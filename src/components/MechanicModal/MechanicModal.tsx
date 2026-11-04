@@ -12,7 +12,7 @@ import editorStyles from '../CardEditor/styles.module.scss';
 import styles from './styles.module.scss';
 
 const MechanicFields = ({ mechanic, index }: { mechanic: MechanicInterface; index: number }) => {
-  const { cards, dispatch } = useContext<StoreType>(Store);
+  const { cards, mechanics, dispatch } = useContext<StoreType>(Store);
   const [edits, setEdits] = useState<Partial<Pick<MechanicInterface, 'name' | 'description'>>>({});
   const draft = { ...mechanic, ...edits };
   const submitted = useRef<MechanicInterface | null>(null);
@@ -28,7 +28,7 @@ const MechanicFields = ({ mechanic, index }: { mechanic: MechanicInterface; inde
     }
     // Keep both edits together even if the previous request has not updated the store yet.
     submitted.current = draft;
-    const saved = await updateMechanic(dispatch, draft, cards);
+    const saved = await updateMechanic(dispatch, draft, cards, mechanics);
     if (submitted.current === draft) submitted.current = null;
     if (saved) {
       // Drop acknowledged overrides only; typing during the request must stay intact.

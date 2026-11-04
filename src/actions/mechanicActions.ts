@@ -1,4 +1,5 @@
 import axios from 'axios';
+import isEqual from 'lodash/isEqual';
 
 import { Action, MechanicActionType } from '../reducer';
 
@@ -8,7 +9,7 @@ import CardInterface from '../interfaces/CardInterface';
 import { staticAntd } from '../utils/staticAntd';
 import { createTag } from './tagActions';
 import { updateCard } from './cardActions';
-import { getAutomaticCardTags } from '../utils/cardTags';
+import { getCardTags } from '../utils/cardTags';
 
 const MIDDLEWARE_ENDPOINT = import.meta.env.PROD ? '' : 'http://localhost:8080';
 
@@ -16,17 +17,18 @@ export const syncCardsWithMechanic = (
   dispatch: (value: Action) => void,
   cards: CardInterface[],
   mechanic: MechanicInterface,
+  mechanics: MechanicInterface[] = [],
 ) => {
   if (!mechanic.name.trim()) return;
 
-  cards.forEach(card => {
-    if (!getAutomaticCardTags(card, [mechanic]).includes(mechanic.name)) return;
-    if (card.tags?.includes(mechanic.name)) return;
+  // The other mechanics matter too: saving this one can change which of them a card references.
+  const catalogue = [...mechanics.filter(other => other.uuid !== mechanic.uuid), mechanic];
 
-    updateCard(dispatch, {
-      ...card,
-      tags: [...new Set([...(card.tags || []), mechanic.name])],
-    }).catch(() => {});
+  cards.forEach(card => {
+    const tags = getCardTags(card, catalogue);
+    if (isEqual(tags, card.tags || [])) return;
+
+    updateCard(dispatch, { ...card, tags }).catch(() => {});
   });
 };
 
@@ -72,6 +74,7 @@ export const updateMechanic = (
   dispatch: (value: Action) => void,
   updated: MechanicInterface,
   cards: CardInterface[] = [],
+  mechanics: MechanicInterface[] = [],
 ) => {
   const request = `${MIDDLEWARE_ENDPOINT}/mechanics`;
   const parsed = { ...updated };
@@ -87,7 +90,7 @@ export const updateMechanic = (
     .put(request, { mechanic: parsed, accessKey: getAccessToken() })
     .then(result => {
       if (result.data.mechanic.name.trim()) createTag(dispatch, result.data.mechanic.name);
-      syncCardsWithMechanic(dispatch, cards, result.data.mechanic);
+      syncCardsWithMechanic(dispatch, cards, result.data.mechanic, mechanics);
       dispatch({
         type: MechanicActionType.UpdateMechanic,
         payload: {

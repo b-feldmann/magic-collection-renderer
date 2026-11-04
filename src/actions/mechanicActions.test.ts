@@ -124,4 +124,38 @@ describe('updateMechanic', () => {
       expect.objectContaining({ uuid: 'card-1', tags: ['Test'] }),
     );
   });
+
+  it('tags cards with a mechanic that a saved description now references', () => {
+    const card = {
+      uuid: 'card-1',
+      tags: ['Cycling'],
+      front: { name: 'Card', cardTypes: [], cardText: ['Cycling'] },
+    } as never;
+    const discard = { uuid: 'discard', name: 'Discard', description: '' };
+    const cycling = { uuid: 'cycling', name: 'Cycling', description: '' };
+
+    syncCardsWithMechanic(
+      () => {},
+      [card],
+      { ...cycling, description: 'Discard this card and draw a card' },
+      [discard, cycling],
+    );
+
+    expect(updateCard).toHaveBeenCalledWith(
+      expect.any(Function),
+      expect.objectContaining({ uuid: 'card-1', tags: ['Cycling', 'Discard'] }),
+    );
+  });
+
+  it('does not write cards whose tags are already correct', () => {
+    const card = {
+      uuid: 'card-1',
+      tags: ['Test'],
+      front: { name: 'Card', cardTypes: [], cardText: ['[Test]'] },
+    } as never;
+
+    syncCardsWithMechanic(() => {}, [card], makeMechanic('uuid-1'));
+
+    expect(updateCard).not.toHaveBeenCalled();
+  });
 });

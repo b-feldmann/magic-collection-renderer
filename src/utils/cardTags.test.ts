@@ -103,6 +103,57 @@ describe('getCardTags', () => {
     expect(updateCardTags(tagged, tagged, [mechanic('Flying')])).toEqual(['Flying', 'custom']);
   });
 
+  describe('mechanics referenced by a mechanic on the card', () => {
+    const withText = (cardText: string) =>
+      card({ front: { name: 'Test Card', cardTypes: [], cardText: [cardText] } });
+    const discard: MechanicInterface = {
+      ...mechanic('Discard'),
+      description: 'Discard a card from your hand',
+    };
+    const cycling: MechanicInterface = {
+      ...mechanic('Cycling'),
+      description: 'discard this card and draw a card',
+    };
+
+    it.each(['[Cycling {2}]', 'cycling 2'])('adds the referenced mechanic for: %s', cardText => {
+      expect(getAutomaticCardTags(withText(cardText), [discard, cycling])).toEqual([
+        'Discard',
+        'Cycling',
+      ]);
+    });
+
+    it('does not follow references of referenced mechanics', () => {
+      const madness = { ...mechanic('Madness'), description: 'Exile it instead' };
+      const exiled = { ...discard, description: 'Discard a card, then use madness' };
+
+      expect(getAutomaticCardTags(withText('Cycling'), [madness, exiled, cycling])).toEqual([
+        'Discard',
+        'Cycling',
+      ]);
+    });
+
+    it('ignores descriptions of mechanics that are not on the card', () => {
+      expect(getAutomaticCardTags(withText('Draw a card'), [discard, cycling])).toEqual([]);
+    });
+
+    it('handles mechanics that reference each other or themselves', () => {
+      const first = { ...mechanic('First'), description: 'Uses second and first' };
+      const second = { ...mechanic('Second'), description: 'Uses first' };
+
+      expect(getAutomaticCardTags(withText('First'), [first, second])).toEqual(['First', 'Second']);
+    });
+
+    it('removes the referenced tag with the mechanic that references it', () => {
+      const previous = card({
+        tags: ['Discard', 'Cycling', 'manual'],
+        front: { name: 'Test Card', cardTypes: [], cardText: ['Cycling'] },
+      });
+      const next = { ...previous, front: { ...previous.front, cardText: ['Draw a card'] } };
+
+      expect(updateCardTags(previous, next, [discard, cycling])).toEqual(['manual']);
+    });
+  });
+
   it('adds the Evolution tag for cards using the Evolution type', () => {
     expect(
       getAutomaticCardTags(

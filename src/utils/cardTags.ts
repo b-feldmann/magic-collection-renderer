@@ -53,8 +53,13 @@ export const getAutomaticCardTags = (
     .filter(Boolean)
     .map(face => faceText(face!))
     .join('\n');
+  const usedMechanics = mechanics.filter(mechanic => usesMechanic(cardText, mechanic));
+  // One level only: descriptions of mechanics that are merely referenced are never read.
+  const usedDescriptions = usedMechanics.map(mechanic => mechanic.description).join('\n');
   const automaticTags = mechanics
-    .filter(mechanic => usesMechanic(cardText, mechanic))
+    .filter(
+      mechanic => usedMechanics.includes(mechanic) || usesMechanic(usedDescriptions, mechanic),
+    )
     .map(mechanic => mechanic.name);
 
   if (faces.some(face => face!.cardTypes?.includes(CardType.Evolution))) {

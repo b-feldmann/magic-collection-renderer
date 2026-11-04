@@ -75,6 +75,7 @@ describe('MechanicModal', () => {
       dispatch,
       { ...mechanic, name: 'Reach' },
       [],
+      [mechanic],
     );
     fireEvent.blur(name);
     expect(updateMechanic).toHaveBeenCalledTimes(1);
@@ -98,6 +99,7 @@ describe('MechanicModal', () => {
         description: 'Can block creatures with flying.\nEven dragons.',
       },
       [],
+      [mechanic],
     );
   });
 
@@ -142,6 +144,7 @@ describe('MechanicModal', () => {
       dispatch,
       { ...mechanic, name: 'Reach', description: 'New description' },
       [],
+      [{ ...mechanic, name: 'Reach' }],
     );
   });
 
