@@ -1,5 +1,5 @@
 import React, { useContext, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
-import { Col, Input, Modal, Row, Select, Tabs, Badge, Card, Result } from 'antd';
+import { Col, Input, Modal, Row, Select, Tabs, Card, Result } from 'antd';
 import { ExclamationCircleFilled } from '@ant-design/icons';
 import sortCardsBy from 'lodash/sortBy';
 import CollectionActions from './components/CollectionActions/CollectionActions';
@@ -7,7 +7,7 @@ import CollectionActions from './components/CollectionActions/CollectionActions'
 import fileDownload from 'js-file-download';
 
 import CardInterface from './interfaces/CardInterface';
-import { CardState, SortByType } from './interfaces/enums';
+import { CardState, SORT_BY_LABELS, SortByType } from './interfaces/enums';
 import CardCollection from './components/CardCollection/CardCollection';
 import CollectionStats from './components/CollectionStats/CollectionStats';
 import { getNextVariantId, getVariantGroups, withLatestVariantIds } from './utils/cardVariants';
@@ -44,6 +44,7 @@ import {
 import { COLLECTION_TABS_INSET, UNKNOWN_CREATOR } from './utils/constants';
 import { matchesSelectedTags } from './utils/cardTagFilter';
 import useActiveCardTab from './utils/useActiveCardTab';
+import useTabsOverCards from './utils/useTabsOverCards';
 
 const { Search } = Input;
 const { confirm } = Modal;
@@ -55,7 +56,7 @@ const STATS_PREVIEW_HEIGHT = 300;
 const STATS_HIDDEN_HEIGHT = 56;
 // The grid runs behind the sheet by its corner radius so cards continue under
 // the rounded corners instead of ending in a straight line above them.
-const STATS_CORNER_OVERLAP = 18;
+const STATS_CORNER_OVERLAP = 12;
 // Together with the last row's 4px cell padding this leaves the same 8px gap
 // below the cards as between the cards and the sidebar.
 const LAST_ROW_GAP = 4;
@@ -65,15 +66,15 @@ const LAST_ROW_GAP = 4;
 const CARD_TABS: { name: string; filter: (o: CardInterface) => boolean }[] = [
   { name: 'All', filter: () => true },
   {
-    name: 'Card Drafts / Idea Dump',
+    name: 'Card drafts / idea dump',
     filter: (o: CardInterface) => o.meta.state === CardState.Draft,
   },
   {
-    name: 'Cards to Rate',
+    name: 'Cards to rate',
     filter: (o: CardInterface) => o.meta.state === CardState.Rate,
   },
   {
-    name: 'Approved Cards',
+    name: 'Approved cards',
     filter: (o: CardInterface) => o.meta.state === CardState.Approved,
   },
 ];
@@ -139,6 +140,7 @@ const App: React.FC = () => {
   const [colSpanSetting, setColSpanSetting] = useState<number>(-1);
 
   const [activeTabKey, setActiveTabKey] = useActiveCardTab();
+  const { hostRef: tabsHostRef, reportScrolled } = useTabsOverCards(activeTabKey);
 
   const { cards, newUuid, dispatch, annotationAccessor, user, currentUser, tags } =
     useContext<StoreType>(Store);
@@ -269,12 +271,12 @@ const App: React.FC = () => {
     const pendingDraft = pendingDraftRef.current || tmpCard;
     if (pendingDraft) {
       confirm({
-        title: `${pendingDraft.name || oldCardName} has unsaved changes`,
+        title: `${pendingDraft.name || oldCardName} has changes that aren't saved yet`,
         icon: <ExclamationCircleFilled />,
         className: confirmationStyles.confirmationModal,
-        okText: 'Yes discard all changes',
+        okText: 'Yes, discard changes',
         okType: 'primary',
-        cancelText: 'Edit old card',
+        cancelText: 'Keep editing',
         onOk() {
           pendingDraftRef.current = null;
           setTmpCard(null);
@@ -299,12 +301,12 @@ const App: React.FC = () => {
     const pendingDraft = pendingDraftRef.current || tmpCard;
     if (pendingDraft && id !== cardEditId) {
       confirm({
-        title: `${pendingDraft.name} has unsaved changes`,
+        title: `${pendingDraft.name} has changes that aren't saved yet`,
         icon: <ExclamationCircleFilled />,
         className: confirmationStyles.confirmationModal,
-        okText: 'Yes discard all changes',
+        okText: 'Yes, discard changes',
         okType: 'primary',
-        cancelText: 'Edit old card',
+        cancelText: 'Keep editing',
         onOk() {
           pendingDraftRef.current = null;
           setTmpCard(null);
@@ -332,6 +334,7 @@ const App: React.FC = () => {
       <Row className={styles.fullHeight}>
         <MechanicModal visible={mechanicsVisible} setVisible={setMechanicsVisible} />
         <Col
+          ref={tabsHostRef}
           span={collectionSpan}
           className={`${styles.collection} ${styles.collectionStatsHost}`}
           style={{
@@ -347,17 +350,15 @@ const App: React.FC = () => {
             items={CARD_TABS.map(tabObj => ({
               key: tabKey(tabObj.name),
               label: (
-                <Badge
-                  className={styles.tabBadge}
-                  count={
-                    getVariantGroups(filteredCollection.filter(tabObj.filter), mergedCollection)
-                      .length
-                  }
-                  showZero
-                  overflowCount={999}
-                >
+                <span>
                   {tabObj.name}
-                </Badge>
+                  <span className={styles.tabCount}>
+                    {
+                      getVariantGroups(filteredCollection.filter(tabObj.filter), mergedCollection)
+                        .length
+                    }
+                  </span>
+                </span>
               ),
               children: (
                 <div className={styles.fullHeight}>
@@ -365,6 +366,7 @@ const App: React.FC = () => {
                     cards={filteredCollection.filter(tabObj.filter)}
                     allCards={mergedCollection}
                     topPadding={COLLECTION_TABS_INSET}
+                    onScrolledChange={scrolled => reportScrolled(tabKey(tabObj.name), scrolled)}
                     bottomPadding={LAST_ROW_GAP + STATS_CORNER_OVERLAP}
                     currentEditId={cardEditId}
                     onSelectVariant={switchCardVariant}
@@ -412,7 +414,7 @@ const App: React.FC = () => {
           extra={
             <Search
               className={styles.accessKeyInput}
-              placeholder="Input Access Key"
+              placeholder="Enter access key"
               enterButton="Enter"
               onSearch={value => {
                 updateAccessToken(value);
@@ -429,9 +431,8 @@ const App: React.FC = () => {
     <div>
       <ChangeLogModal />
       <div className={`${styles.loginWrapper} ${showUserSelect ? '' : styles.authenticated}`}>
-        <Card title="Choose Current User" style={{ width: '300px' }}>
+        <Card title="Choose current user" style={{ width: '300px' }}>
           <Select
-            size="large"
             onChange={(key: string) =>
               setCurrentUser(dispatch, user.find(o => o.uuid === key) || UNKNOWN_CREATOR)
             }
@@ -470,7 +471,7 @@ const App: React.FC = () => {
                       options={(Object.keys(SortByType) as (keyof typeof SortByType)[]).map(d => ({
                         key: `collection-sort-primary-${d}`,
                         value: SortByType[d],
-                        label: SortByType[d],
+                        label: SORT_BY_LABELS[SortByType[d]],
                       }))}
                     />
                   </div>
@@ -487,7 +488,7 @@ const App: React.FC = () => {
                       options={(Object.keys(SortByType) as (keyof typeof SortByType)[]).map(d => ({
                         key: `collection-sort-secondary-${d}`,
                         value: SortByType[d],
-                        label: SortByType[d],
+                        label: SORT_BY_LABELS[SortByType[d]],
                       }))}
                     />
                   </div>

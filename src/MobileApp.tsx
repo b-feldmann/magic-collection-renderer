@@ -1,5 +1,5 @@
 import React, { useContext, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
-import { Badge, Button, Card, Col, Drawer, Input, Modal, Result, Row, Select, Tabs } from 'antd';
+import { Button, Card, Col, Drawer, Input, Modal, Result, Row, Select, Tabs } from 'antd';
 import { BarChartOutlined, ExclamationCircleFilled, FilterOutlined } from '@ant-design/icons';
 import sortBy from 'lodash/sortBy';
 
@@ -37,12 +37,13 @@ import {
   setCurrentUser,
   shouldShowUserSelect,
 } from './actions/userActions';
-import { COLLECTION_TABS_INSET, UNKNOWN_CREATOR } from './utils/constants';
+import { MOBILE_COLLECTION_TABS_INSET, UNKNOWN_CREATOR } from './utils/constants';
 import useActiveCardTab from './utils/useActiveCardTab';
+import useTabsOverCards from './utils/useTabsOverCards';
 import usePhoneLayout from './utils/usePhoneLayout';
 import cardToColor from './utils/cardToColor';
 import { matchesSelectedTags } from './utils/cardTagFilter';
-import { CardType, ColorType, RarityType, SortByType } from './interfaces/enums';
+import { CardType, ColorType, RarityType, SORT_BY_LABELS, SortByType } from './interfaces/enums';
 import { buildSortAccessors } from './utils/sortAccessors';
 import useLocalStorage from './utils/useLocalStorageHook';
 
@@ -54,15 +55,15 @@ const NO_CARD = '-1';
 const CARD_TABS: { name: string; filter: (card: CardInterface) => boolean }[] = [
   { name: 'All', filter: () => true },
   {
-    name: 'Card Drafts / Idea Dump',
+    name: 'Card drafts / idea dump',
     filter: card => card.meta.state === CardState.Draft,
   },
   {
-    name: 'Cards to Rate',
+    name: 'Cards to rate',
     filter: card => card.meta.state === CardState.Rate,
   },
   {
-    name: 'Approved Cards',
+    name: 'Approved cards',
     filter: card => card.meta.state === CardState.Approved,
   },
 ];
@@ -101,6 +102,7 @@ const MobileApp: React.FC = () => {
     tags: {},
   });
   const [activeTabKey, setActiveTabKey] = useActiveCardTab();
+  const { hostRef: tabsHostRef, reportScrolled } = useTabsOverCards(activeTabKey);
 
   const { cards, newUuid, dispatch, annotationAccessor, user, currentUser, tags } =
     useContext<StoreType>(Store);
@@ -200,12 +202,12 @@ const MobileApp: React.FC = () => {
     const pendingDraft = pendingDraftRef.current || tmpCard;
     if (pendingDraft) {
       confirm({
-        title: `${pendingDraft.name || oldCardName} has unsaved changes`,
+        title: `${pendingDraft.name || oldCardName} has changes that aren't saved yet`,
         icon: <ExclamationCircleFilled />,
         className: confirmationStyles.confirmationModal,
-        okText: 'Yes discard all changes',
+        okText: 'Yes, discard changes',
         okType: 'primary',
-        cancelText: 'Edit old card',
+        cancelText: 'Keep editing',
         onOk() {
           pendingDraftRef.current = null;
           setTmpCard(null);
@@ -253,12 +255,12 @@ const MobileApp: React.FC = () => {
     const pendingDraft = pendingDraftRef.current || tmpCard;
     if (pendingDraft && id !== cardEditId) {
       confirm({
-        title: `${pendingDraft.name} has unsaved changes`,
+        title: `${pendingDraft.name} has changes that aren't saved yet`,
         icon: <ExclamationCircleFilled />,
         className: confirmationStyles.confirmationModal,
-        okText: 'Yes discard all changes',
+        okText: 'Yes, discard changes',
         okType: 'primary',
-        cancelText: 'Edit old card',
+        cancelText: 'Keep editing',
         onOk() {
           pendingDraftRef.current = null;
           setTmpCard(null);
@@ -283,7 +285,7 @@ const MobileApp: React.FC = () => {
 
     return (
       <Row className={styles.fullHeight}>
-        <Col span={collectionSpan} className={styles.collection}>
+        <Col ref={tabsHostRef} span={collectionSpan} className={styles.collection}>
           <Tabs
             activeKey={activeTabKey}
             onChange={setActiveTabKey}
@@ -291,24 +293,23 @@ const MobileApp: React.FC = () => {
             items={CARD_TABS.map(tabObj => ({
               key: tabKey(tabObj.name),
               label: (
-                <Badge
-                  className={styles.tabBadge}
-                  count={
-                    getVariantGroups(filteredCollection.filter(tabObj.filter), mergedCollection)
-                      .length
-                  }
-                  showZero
-                  overflowCount={999}
-                >
+                <span>
                   {tabObj.name}
-                </Badge>
+                  <span className={styles.tabCount}>
+                    {
+                      getVariantGroups(filteredCollection.filter(tabObj.filter), mergedCollection)
+                        .length
+                    }
+                  </span>
+                </span>
               ),
               children: (
                 <div className={styles.fullHeight}>
                   <CardCollection
                     cards={filteredCollection.filter(tabObj.filter)}
                     allCards={mergedCollection}
-                    topPadding={COLLECTION_TABS_INSET}
+                    topPadding={MOBILE_COLLECTION_TABS_INSET}
+                    onScrolledChange={scrolled => reportScrolled(tabKey(tabObj.name), scrolled)}
                     currentEditId={cardEditId}
                     onSelectVariant={switchCardVariant}
                     editCard={id => {
@@ -351,7 +352,7 @@ const MobileApp: React.FC = () => {
               options={(Object.keys(SortByType) as (keyof typeof SortByType)[]).map(key => ({
                 key: `mobile-sort-primary-${key}`,
                 value: SortByType[key],
-                label: SortByType[key],
+                label: SORT_BY_LABELS[SortByType[key]],
               }))}
             />
           </div>
@@ -368,7 +369,7 @@ const MobileApp: React.FC = () => {
               options={(Object.keys(SortByType) as (keyof typeof SortByType)[]).map(key => ({
                 key: `mobile-sort-secondary-${key}`,
                 value: SortByType[key],
-                label: SortByType[key],
+                label: SORT_BY_LABELS[SortByType[key]],
               }))}
             />
           </div>
@@ -386,7 +387,7 @@ const MobileApp: React.FC = () => {
           subTitle="Sorry, you are not authorized to access this page. But please try to authenticate yourself."
           extra={
             <Search
-              placeholder="Input Access Key"
+              placeholder="Enter access key"
               enterButton="Enter"
               onSearch={value => {
                 updateAccessToken(value);
@@ -403,9 +404,8 @@ const MobileApp: React.FC = () => {
     <div>
       <ChangeLogModal />
       <div className={`${styles.loginWrapper} ${showUserSelect ? '' : styles.authenticated}`}>
-        <Card title="Choose Current User" style={{ width: '300px' }}>
+        <Card title="Choose current user" style={{ width: '300px' }}>
           <Select
-            size="large"
             onChange={(key: string) =>
               setCurrentUser(dispatch, user.find(o => o.uuid === key) || UNKNOWN_CREATOR)
             }

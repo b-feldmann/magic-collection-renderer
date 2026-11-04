@@ -96,7 +96,7 @@ const MechanicModal = ({
     <Modal
       className={styles.modal}
       width={920}
-      title="Edit Mechanics"
+      title="Edit mechanics"
       open={visible}
       centered
       destroyOnHidden
@@ -129,7 +129,7 @@ const MechanicModal = ({
             block
             onClick={() => createMechanic(dispatch, cards)}
           >
-            Add Mechanic
+            Add mechanic
           </Button>
         </article>
       </div>

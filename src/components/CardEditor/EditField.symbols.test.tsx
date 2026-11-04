@@ -44,7 +44,7 @@ function Harness({ initial = [''], disabled = false }: { initial?: string[]; dis
     <ConfigProvider componentDisabled={disabled}>
       <EditField
         fieldKey="cardText"
-        name="Card Text"
+        name="Card text"
         type="text-list"
         getValue={() => lines}
         saveValue={(_key, value) => setLines(value)}
@@ -54,14 +54,14 @@ function Harness({ initial = [''], disabled = false }: { initial?: string[]; dis
   );
 }
 
-describe('Card Text symbol toolbar', () => {
+describe('Card text symbol toolbar', () => {
   it('uses a single color identity for the Mana icon and inserted symbol', () => {
     const onChange = vi.fn();
     render(
       <ConfigProvider>
         <CardTextInput
           id="card-text"
-          name="Card Text"
+          name="Card text"
           value={[]}
           onChange={onChange}
           manaColors={[ColorType.Red]}
@@ -81,7 +81,7 @@ describe('Card Text symbol toolbar', () => {
       <ConfigProvider>
         <CardTextInput
           id="card-text"
-          name="Card Text"
+          name="Card text"
           value={[]}
           onChange={onChange}
           manaColors={manaColors}
@@ -106,7 +106,7 @@ describe('Card Text symbol toolbar', () => {
       <ConfigProvider>
         <CardTextInput
           id="card-text"
-          name="Card Text"
+          name="Card text"
           value={[]}
           onChange={onChange}
           manaColors={manaColors}
@@ -132,7 +132,7 @@ describe('Card Text symbol toolbar', () => {
     const onChange = vi.fn();
     render(
       <ConfigProvider>
-        <CardTextInput id="card-text" name="Card Text" value={[]} onChange={onChange} />
+        <CardTextInput id="card-text" name="Card text" value={[]} onChange={onChange} />
       </ConfigProvider>,
     );
 
@@ -149,13 +149,13 @@ describe('Card Text symbol toolbar', () => {
   ])('inserts %s using the stored symbol syntax', (button, symbol) => {
     render(<Harness />);
     fireEvent.click(screen.getByRole('button', { name: button }));
-    expect(screen.getByRole('textbox', { name: 'Card Text' })).toHaveValue(symbol);
+    expect(screen.getByRole('textbox', { name: 'Card text' })).toHaveValue(symbol);
     expect(screen.getByLabelText('Stored lines')).toHaveTextContent(JSON.stringify([symbol]));
   });
 
   it('keeps the symbol guide inside the symbol toolbar after the divider', () => {
     render(<Harness />);
-    const toolbar = screen.getByRole('group', { name: 'Card Text symbols' });
+    const toolbar = screen.getByRole('group', { name: 'Card text symbols' });
     const guide = screen.getByRole('button', { name: 'Symbol guide' });
     const dividers = toolbar.querySelectorAll<HTMLSpanElement>('[class*="symbolToolbarDivider"]');
     expect(dividers).toHaveLength(3);
@@ -209,7 +209,7 @@ describe('Card Text symbol toolbar', () => {
     expect(await screen.findByRole('heading', { name: 'Symbol guide' })).toBeInTheDocument();
     expect(screen.getByText('{0} – {20}')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Copy Tap: {t}' }));
-    expect(screen.getByRole('textbox', { name: 'Card Text' })).toHaveValue('');
+    expect(screen.getByRole('textbox', { name: 'Card text' })).toHaveValue('');
     expect(screen.getByLabelText('Stored lines')).toHaveTextContent('[""]');
   });
 
@@ -220,7 +220,7 @@ describe('Card Text symbol toolbar', () => {
     for (const name of ['Tap', 'Mana', 'Generic']) {
       fireEvent.click(screen.getByRole('button', { name }));
     }
-    const textarea = screen.getByRole('textbox', { name: 'Card Text' });
+    const textarea = screen.getByRole('textbox', { name: 'Card text' });
     expect(textarea).toHaveValue('{t}{u}{1}');
     fireEvent.change(textarea, { target: { value: '{ut}' } });
     expect(screen.getByLabelText('Stored lines')).toHaveTextContent('["{ut}"]');

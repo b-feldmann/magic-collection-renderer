@@ -93,6 +93,31 @@ describe('collection grid scroll shadows', () => {
     expect(wrapper).not.toHaveClass(styles.hasBottomShadow);
   });
 
+  it('reports whether the grid is scrolled, so the tabs only lift off cards under them', () => {
+    const onScrolledChange = vi.fn();
+    render(
+      <CardCollection
+        cards={[]}
+        editCard={vi.fn()}
+        addSeenCard={vi.fn()}
+        seenCardUuids={{}}
+        currentEditId=""
+        onScrolledChange={onScrolledChange}
+      />,
+    );
+
+    const grid = screen.getByRole('grid');
+    expect(onScrolledChange).toHaveBeenLastCalledWith(false);
+
+    grid.scrollTop = 40;
+    fireEvent.scroll(grid);
+    expect(onScrolledChange).toHaveBeenLastCalledWith(true);
+
+    grid.scrollTop = 0;
+    fireEvent.scroll(grid);
+    expect(onScrolledChange).toHaveBeenLastCalledWith(false);
+  });
+
   it('hides the shadow when the grid content fits', () => {
     render(
       <CardCollection

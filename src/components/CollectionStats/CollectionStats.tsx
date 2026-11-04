@@ -151,7 +151,7 @@ const CollectionStats = ({
       countUnit: 'cards',
     },
     {
-      title: 'Card Type',
+      title: 'Card type',
       section: 'card type',
       data: data.types,
       categories: activeTypes,

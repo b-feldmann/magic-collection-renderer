@@ -64,7 +64,7 @@ export const createMechanic = (dispatch: (value: Action) => void, cards: CardInt
       });
     })
     .catch(_error => {
-      staticAntd.message.error('Failed creating a new mechanic :(');
+      staticAntd.message.error("Couldn't create the mechanic. Please try again.");
     });
 };
 
@@ -97,7 +97,7 @@ export const updateMechanic = (
       return true;
     })
     .catch(_error => {
-      staticAntd.message.error("Could'nt update mechanic");
+      staticAntd.message.error("Couldn't update the mechanic. Please try again.");
       return false;
     });
 };

@@ -80,7 +80,7 @@ const renderEditor = (card: CardInterface) => {
 };
 
 const getCardTextEditor = (): HTMLTextAreaElement => {
-  const label = screen.getByText('Card Text');
+  const label = screen.getByText('Card text');
   const textarea = label.closest('span')!.querySelector('textarea') as HTMLTextAreaElement;
   expect(textarea).not.toBeNull();
   return textarea;
@@ -133,19 +133,19 @@ describe('CardEditor - card text textarea for non-planeswalker', () => {
     expect(getPersisted().front.cardText).toEqual(['One.', '', 'Two.', '']);
   });
 
-  it('hides the Add Instruction and Add Mechanic controls', () => {
+  it('hides the Add instruction and Add mechanic controls', () => {
     renderEditor(makeCard({ cardText: [] }));
 
-    expect(screen.queryByText('Add Instruction')).toBeNull();
-    expect(screen.queryByText('Add Mechanic')).toBeNull();
+    expect(screen.queryByText('Add instruction')).toBeNull();
+    expect(screen.queryByText('Add mechanic')).toBeNull();
   });
 
   it('keeps the per-instruction list UI for planeswalkers', () => {
     renderEditor(makeCard({ cardTypes: [CardType.Planeswalker], cardText: ['+1: Buff.'] }));
 
-    const label = screen.getByText('Card Text');
+    const label = screen.getByText('Card text');
     const splitList = label.closest('span')!;
     expect(splitList.querySelectorAll('textarea').length).toBeGreaterThan(0);
-    expect(screen.getByText('Add Instruction')).toBeDefined();
+    expect(screen.getByText('Add instruction')).toBeDefined();
   });
 });

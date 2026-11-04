@@ -208,7 +208,7 @@ const EditField = (props: EditFieldInterface) => {
           />
           <TextArea
             aria-label={`${name} text`}
-            placeholder="Card Text"
+            placeholder="Card text"
             style={{ width: '80%' }}
             value={text}
             onChange={e => saveValue(pairedFieldKey, e.target.value.split('\n'))}
@@ -521,7 +521,7 @@ const EditField = (props: EditFieldInterface) => {
                     saveValue(fieldKey, list);
                   }}
                 >
-                  Add Instruction
+                  Add instruction
                 </Button>
               </Space.Compact>
             </div>

@@ -7,14 +7,14 @@
 
 .createButton:global(.ant-btn) {
   width: 100%;
-  height: 34px;
+  height: var(--control-height);
   border: 1px solid #3e6248;
-  border-radius: 8px;
+  border-radius: var(--control-radius);
   background: #3e6248;
   color: #fff;
   box-shadow: none;
   font-size: 12px;
-  font-weight: 550;
+  font-weight: 600;
   &:hover,
   &:focus-visible {
     background: #33543d;
@@ -24,14 +24,14 @@
 }
 .mechanicsButton:global(.ant-btn) {
   width: 100%;
-  height: 30px;
+  height: var(--control-height);
   margin-top: 6px;
   border: 1px solid #e3e9dc;
-  border-radius: 8px;
+  border-radius: var(--control-radius);
   background: #f7f9f4;
   color: var(--form-control-text-color);
   box-shadow: none;
-  font-size: 11px;
+  font-size: 12px;
   &:hover,
   &:focus-visible {
     background: #edf2e7;
@@ -57,7 +57,7 @@
   background: #eaf0e3;
   color: #58724e;
   font-size: 10px;
-  font-weight: 650;
+  font-weight: 700;
 }
 .userPicker {
   flex: 1;
@@ -71,9 +71,10 @@
 }
 .userSelect:global(.ant-select) {
   width: 100%;
+  height: var(--control-height);
   color: #4a5b44;
   font-size: 12px;
-  font-weight: 550;
+  font-weight: 600;
   cursor: pointer;
   :global(.ant-select-selector) {
     min-height: 24px;
@@ -91,8 +92,8 @@
 }
 .moreActions:global(.ant-btn) {
   flex: none;
-  width: 26px;
-  height: 26px;
+  width: var(--control-height);
+  height: var(--control-height);
   color: #788570;
 }
 
@@ -103,9 +104,7 @@
   padding-bottom: max(10px, env(safe-area-inset-bottom));
   .createButton:global(.ant-btn),
   .mechanicsButton:global(.ant-btn) {
-    height: 44px;
     margin-top: 0;
-    font-size: 12px;
   }
   .accountRow {
     grid-column: 1 / -1;
@@ -113,12 +112,7 @@
     padding-top: 8px;
   }
   .userSelect:global(.ant-select) {
-    min-height: 30px;
     font-size: 13px;
-  }
-  .moreActions:global(.ant-btn) {
-    width: 44px;
-    height: 44px;
   }
   @media (min-width: 600px) {
     grid-template-columns: minmax(0, 1fr);

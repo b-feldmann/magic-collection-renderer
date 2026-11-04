@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useEffectEvent, useMemo, useRef, useState } from 'react';
 
 import { Grid, useGridCallbackRef } from 'react-window';
 
@@ -30,6 +30,7 @@ export interface CardCollectionInterface {
   mobile?: boolean;
   topPadding?: number;
   bottomPadding?: number;
+  onScrolledChange?: (scrolled: boolean) => void;
 }
 
 const CardCollection = ({
@@ -45,6 +46,7 @@ const CardCollection = ({
   mobile,
   topPadding = 0,
   bottomPadding = 0,
+  onScrolledChange,
 }: CardCollectionInterface) => {
   const [showBackFaceConfig, setShowBackFaceConfig] = useState<{ [key: string]: boolean }>({});
   const [selectedVariants, setSelectedVariants] = useState<Record<string, string>>({});
@@ -52,6 +54,12 @@ const CardCollection = ({
   const [gridRef, setGridRef] = useGridCallbackRef();
   const groups = useMemo(() => getVariantGroups(cards, allCards), [cards, allCards]);
   const previousEditId = useRef('');
+  const reportedScrolled = useRef<boolean | null>(null);
+  const reportScrolled = useEffectEvent((scrolled: boolean) => {
+    if (reportedScrolled.current === scrolled) return;
+    reportedScrolled.current = scrolled;
+    onScrolledChange?.(scrolled);
+  });
 
   useEffect(() => {
     const grid = gridRef?.element;
@@ -59,6 +67,7 @@ const CardCollection = ({
 
     const update = () => {
       setHasMoreBelow(grid.scrollHeight - grid.clientHeight - grid.scrollTop > 1);
+      reportScrolled(grid.scrollTop > 0);
     };
     const observer = typeof ResizeObserver === 'undefined' ? undefined : new ResizeObserver(update);
     observer?.observe(grid);

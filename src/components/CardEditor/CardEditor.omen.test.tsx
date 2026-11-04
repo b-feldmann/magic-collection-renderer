@@ -41,7 +41,7 @@ if (!(globalThis as any).ResizeObserver) {
 
 const mockStoreValue: StoreType = {
   cards: [],
-  // A mechanic so the Card Text field renders its "Add Mechanic" select; the
+  // A mechanic so the Card text field renders its "Add mechanic" select; the
   // Omen Text footer must not add a second one (see the adventure tests).
   mechanics: [{ uuid: 'mech-1', name: 'Lifelink', description: 'Heals you' } as MechanicInterface],
   annotationAccessor: {},
@@ -82,8 +82,8 @@ const renderEditor = (card: CardInterface, saveTmpCard = () => {}) =>
     </Store.Provider>,
   );
 
-// Scope selection queries to the Card Types control.
-const typeField = (): HTMLElement => screen.getByText('Card Types').closest('span') as HTMLElement;
+// Scope selection queries to the Card types control.
+const typeField = (): HTMLElement => screen.getByText('Card types').closest('span') as HTMLElement;
 
 const openTypeSelect = () => {
   fireEvent.mouseDown(typeField().querySelector('.ant-select-content') as Element);
@@ -195,7 +195,7 @@ const selectOmenType = async (label: string) => {
   fireEvent.click(option);
 };
 
-// Selects the given option in the Card Types multi-select via the shared
+// Selects the given option in the Card types multi-select via the shared
 // openTypeSelect / typeOption helpers above.
 const selectCardType = async (typeLabel: string) => {
   openTypeSelect();
@@ -218,7 +218,7 @@ describe('CardEditor - Omen section', () => {
 
   it('CONTROL: renders no Omen section for a non-omen card', () => {
     // The section is spliced out entirely (not merely hidden): a hidden
-    // text-list would still render a second "Add Mechanic" placeholder and
+    // text-list would still render a second "Add mechanic" placeholder and
     // break generic text queries.
     renderEditor(makeCard([CardType.Creature]));
 
@@ -228,10 +228,10 @@ describe('CardEditor - Omen section', () => {
     }
   });
 
-  it('does not render mechanic selects in Card Text or Omen Text', () => {
+  it('does not render mechanic selects in Card text or Omen Text', () => {
     renderEditor(makeCard([CardType.Creature, CardType.Omen]));
 
-    expect(fieldWrapper('Card Text').querySelector('.ant-select')).toBeNull();
+    expect(fieldWrapper('Card text').querySelector('.ant-select')).toBeNull();
     expect(fieldWrapper('Text').querySelector('.ant-select')).toBeNull();
   });
 

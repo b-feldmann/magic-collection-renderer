@@ -1,5 +1,5 @@
 $muse-card-shadow: 0 20px 27px rgba(0, 0, 0, 0.05);
-$muse-card-radius: 15px;
+$muse-card-radius: var(--panel-radius);
 $muse-card-border: 1px solid #e3e8de;
 
 // Clamped widths for the floating "Muse card" panels. The middle `calc()` is
@@ -169,15 +169,6 @@ $editor-width: clamp(516px, calc(100vw / 24 * 21 / 24 * 6 - 16px), 516px);
         margin-left: -6px;
         padding: 0 0 16px 6px;
       }
-
-      // Chips sit on busy card art here: a light ring separates them from dark
-      // cards (the active chip is dark itself) and the shadow lifts them off light ones.
-      :global(.ant-tabs-tab),
-      :global(.ant-tabs-tab.ant-tabs-tab-active) {
-        box-shadow:
-          0 0 0 1.5px rgba(255, 255, 255, 0.9),
-          0 4px 12px rgba(0, 0, 0, 0.4) !important;
-      }
     }
 
     :global(.ant-tabs-body-holder) {
@@ -193,13 +184,17 @@ $editor-width: clamp(516px, calc(100vw / 24 * 21 / 24 * 6 - 16px), 516px);
     }
   }
 
-  .tabBadge {
-    padding-left: 4px;
-    padding-right: 4px;
+  // Only while cards pass underneath (see useTabsOverCards): the shadow lifts the
+  // tabs off the card art.
+  [data-tabs-over-cards] .tabs > :global(.ant-tabs-nav) :global(.ant-tabs-tab) {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
   }
 
-  .tabBadge > sup {
-    margin-right: -14px;
+  .tabCount {
+    margin-left: 6px;
+    font-weight: 400;
+    font-variant-numeric: tabular-nums;
+    opacity: 0.75;
   }
 
   .mobileControls {
@@ -229,15 +224,15 @@ $editor-width: clamp(516px, calc(100vw / 24 * 21 / 24 * 6 - 16px), 516px);
     justify-content: center;
     gap: 7px;
     width: calc(100% - 40px);
-    height: 44px;
+    height: var(--control-height);
     margin: 12px 20px 0;
     border: 1px solid #e3e9dc;
-    border-radius: 8px;
+    border-radius: var(--control-radius);
     background: #f7f9f4;
     color: var(--form-control-text-color);
     box-shadow: none;
     font-size: 12px;
-    font-weight: 550;
+    font-weight: 600;
 
     &:hover,
     &:focus-visible {
@@ -266,10 +261,10 @@ $editor-width: clamp(516px, calc(100vw / 24 * 21 / 24 * 6 - 16px), 516px);
     min-width: 0;
 
     &:global(.ant-select) {
-      height: 36px;
+      height: var(--control-height);
       font-size: 12px;
       border-color: #dce2d8;
-      border-radius: 9px;
+      border-radius: var(--control-radius);
       box-shadow: none;
     }
     :global(.ant-select-content) {
@@ -290,7 +285,7 @@ $editor-width: clamp(516px, calc(100vw / 24 * 21 / 24 * 6 - 16px), 516px);
       margin-bottom: 6px;
       color: #49584b;
       font-size: 11px;
-      font-weight: 550;
+      font-weight: 600;
     }
   }
 }
@@ -310,17 +305,17 @@ $editor-width: clamp(516px, calc(100vw / 24 * 21 / 24 * 6 - 16px), 516px);
 // Slide-up filter sheet (phone layout). The antd Drawer renders into a
 // body-level portal, so these selectors must stay outside `.app`.
 .filterSheet:global(.ant-drawer-section) {
-  border-radius: 20px 20px 0 0;
+  border-radius: var(--panel-radius) var(--panel-radius) 0 0;
   border-top: 1px solid #e3e8de;
 }
 
 .doneButton:global(.ant-btn) {
   width: 100%;
-  height: 44px;
-  border-radius: 8px;
+  height: var(--control-height);
+  border-radius: var(--control-radius);
   box-shadow: none;
   font-size: 12px;
-  font-weight: 550;
+  font-weight: 600;
 }
 
 .landscapeAddButton {

@@ -107,7 +107,7 @@ describe('editor server/image synchronization', () => {
       if (uploadedFaces > 0) saved.front.cover = 'loading:art.png';
       if (saved.back) saved.back.cover = 'loading:art.png';
       render(<Harness initialCard={card} />);
-      fireEvent.change(screen.getByLabelText('Card Name'), { target: { value: 'Edited' } });
+      fireEvent.change(screen.getByLabelText('Card name'), { target: { value: 'Edited' } });
 
       // Advance separately so React processes each server response/hydration
       // before another complete autosave interval elapses.
@@ -121,14 +121,14 @@ describe('editor server/image synchronization', () => {
       expect(axios.patch).toHaveBeenCalledTimes(1);
       expect(axios.post).toHaveBeenCalledTimes(uploadedFaces);
       expect(axios.get).toHaveBeenCalledTimes(uploadedFaces);
-      expect(screen.getByRole('button', { name: 'Undo Changes' })).toBeDisabled();
+      expect(screen.getByRole('button', { name: 'Undo changes' })).toBeDisabled();
     },
   );
 
   it('clears the dirty marker after changing the creator and saving', async () => {
     render(<Harness initialCard={makeCard()} />);
-    fireEvent.click(screen.getByText('Organization & Credits'));
-    fireEvent.mouseDown(screen.getByLabelText('Card Creator'));
+    fireEvent.click(screen.getByText('Organization & credits'));
+    fireEvent.mouseDown(screen.getByLabelText('Card creator'));
     fireEvent.click(screen.getByText('Other creator'));
 
     await act(async () => {
@@ -143,7 +143,7 @@ describe('editor server/image synchronization', () => {
         }),
       }),
     );
-    expect(screen.getByRole('button', { name: 'Undo Changes' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Undo changes' })).toBeDisabled();
   });
 
   it('keeps a newer local edit scheduled while an earlier save response arrives', async () => {
@@ -159,15 +159,15 @@ describe('editor server/image synchronization', () => {
     });
 
     render(<Harness initialCard={makeCard()} />);
-    fireEvent.change(screen.getByLabelText('Card Name'), { target: { value: 'First edit' } });
+    fireEvent.change(screen.getByLabelText('Card name'), { target: { value: 'First edit' } });
     await act(async () => {
       await vi.advanceTimersByTimeAsync(EDIT_SAVE_OFFSET + 100);
     });
-    fireEvent.change(screen.getByLabelText('Card Name'), { target: { value: 'Newer edit' } });
+    fireEvent.change(screen.getByLabelText('Card name'), { target: { value: 'Newer edit' } });
     await act(async () => {
       finishFirstSave();
     });
-    expect(screen.getByLabelText('Card Name')).toHaveValue('Newer edit');
+    expect(screen.getByLabelText('Card name')).toHaveValue('Newer edit');
 
     for (let interval = 0; interval < 4; interval += 1) {
       await act(async () => {
@@ -177,6 +177,6 @@ describe('editor server/image synchronization', () => {
 
     expect(screen.getByLabelText('Saved name')).toHaveTextContent('Newer edit');
     expect(axios.patch).toHaveBeenCalledTimes(2);
-    expect(screen.getByRole('button', { name: 'Undo Changes' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Undo changes' })).toBeDisabled();
   });
 });

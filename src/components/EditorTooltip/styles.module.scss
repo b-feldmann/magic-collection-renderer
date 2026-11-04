@@ -1,3 +1,5 @@
+@use '../../styles/mixins';
+
 .popover {
   max-width: calc(100vw - 24px);
 }
@@ -40,12 +42,12 @@
   container-type: inline-size;
   display: flex;
   flex-direction: column;
-  width: min(620px, calc(100vw - 24px));
-  max-height: calc(100dvh - 32px);
+  width: min(480px, calc(100vw - 24px));
+  max-height: min(680px, calc(100dvh - 32px));
   color: #4c594d;
   background: #fff;
-  font-size: 14px;
-  line-height: 1.5;
+  font-size: 13px;
+  line-height: 1.45;
 
   &,
   * {
@@ -67,7 +69,7 @@
   code {
     color: #63715e;
     font-family: 'SFMono-Regular', Consolas, monospace;
-    font-size: 12px;
+    font-size: 11px;
     overflow-wrap: anywhere;
     user-select: text;
   }
@@ -75,7 +77,8 @@
 
 .header {
   flex: 0 0 auto;
-  padding: 24px 30px 0;
+  padding: 16px 20px 12px;
+  border-bottom: 1px solid #e6eae2;
 }
 
 .titleRow {
@@ -85,12 +88,9 @@
   gap: 12px;
 
   h2 {
-    margin: 0;
-    color: #2c3530;
-    font-size: 26px;
-    font-weight: 650;
-    letter-spacing: -0.5px;
-    line-height: 1.2;
+    @include mixins.panel-title;
+    font-size: 17px;
+    letter-spacing: -0.2px;
   }
 }
 
@@ -98,16 +98,18 @@
   display: grid;
   flex-shrink: 0;
   place-items: center;
-  width: 32px;
-  height: 32px;
+  width: var(--control-height);
+  height: var(--control-height);
+  // Keeps the touch target without letting it inflate the header or inset the ×.
+  margin: -6px -8px -6px 0;
   padding: 0;
   border: 0;
-  border-radius: 8px;
+  border-radius: var(--control-radius);
   color: #7e8978;
   background: transparent;
 
   span {
-    font-size: 26px;
+    font-size: 20px;
     line-height: 1;
   }
   &:hover {
@@ -116,20 +118,20 @@
 }
 
 .intro {
-  margin: 12px 0 0;
+  margin: 4px 0 0;
   color: #7b8676;
-  line-height: 1.6;
+  font-size: 12px;
 }
 
 .content {
   min-height: 0;
-  padding: 0 30px;
+  padding: 0 20px;
   overflow-y: auto;
   overscroll-behavior: contain;
 }
 
 .section {
-  padding: 24px 0;
+  padding: 14px 0;
   border-bottom: 1px solid #e6eae2;
 
   &:last-child {
@@ -142,19 +144,16 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: 16px;
+  margin-bottom: 10px;
 
   h3 {
-    margin: 0;
-    color: #374b38;
-    font-size: 19px;
-    font-weight: 650;
-    letter-spacing: -0.2px;
+    @include mixins.section-heading;
+    font-size: 13px;
+    letter-spacing: 0;
   }
 
   > span {
-    color: #84917c;
-    font-size: 12px;
+    @include mixins.section-number;
     font-variant-numeric: tabular-nums;
   }
 }
@@ -164,7 +163,7 @@
 .advancedGrid,
 .loyalty {
   display: grid;
-  gap: 8px;
+  gap: 6px;
 }
 
 .manaGrid {
@@ -172,7 +171,7 @@
 }
 .common {
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  margin-top: 14px;
+  margin-top: 6px;
 }
 .advancedGrid {
   grid-template-columns: repeat(5, minmax(0, 1fr));
@@ -185,7 +184,7 @@
 .token {
   min-width: 0;
   border: 1px solid #e1e6dc;
-  border-radius: 11px;
+  border-radius: var(--control-radius);
   color: #4c594d;
   background: #fff;
   transition:
@@ -203,27 +202,27 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  min-height: 83px;
-  padding: 10px 3px;
+  gap: 6px;
+  min-height: 56px;
+  padding: 8px 3px 6px;
 
   :global(.ms) {
-    font-size: 24px;
+    font-size: 17px;
   }
 }
 
 .token {
   display: grid;
-  grid-template-columns: 23px minmax(0, 1fr) auto;
+  grid-template-columns: 18px minmax(0, 1fr) auto;
   align-items: center;
-  gap: 11px;
-  min-height: 47px;
-  padding: 12px;
+  gap: 8px;
+  min-height: 36px;
+  padding: 6px 10px;
   text-align: left;
 
   :global(.ms) {
     color: #596653;
-    font-size: 19px;
+    font-size: 15px;
   }
 }
 
@@ -233,111 +232,87 @@
 }
 
 .advanced {
-  margin-top: 16px;
+  margin-top: 10px;
+  @include mixins.collapsible;
 
-  summary {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    border-radius: 4px;
-    color: #53654c;
-    cursor: pointer;
-    list-style: none;
-
-    &::-webkit-details-marker {
-      display: none;
-    }
-    &::before {
-      content: '›';
-      color: #8a987f;
-      font-size: 22px;
-      line-height: 16px;
-    }
-  }
-
-  &[open] > summary::before {
-    transform: rotate(90deg);
+  > summary {
+    font-size: 12px;
   }
 }
 
 .advancedGroup {
-  margin-top: 16px;
+  margin-top: 10px;
 
   .symbol {
-    min-height: 70px;
-    gap: 10px;
+    min-height: 52px;
   }
 }
 
 .label {
-  margin: 0 0 10px;
+  margin: 0 0 6px;
   color: #7e8978;
-  font-size: 13px;
+  font-size: 12px;
 }
 .loyalty .symbol {
-  min-height: 77px;
+  min-height: 56px;
 }
 .loyalty :global(.ms) {
   color: #61725a;
-  font-size: 28px;
+  font-size: 20px;
 }
 .hint {
-  margin: 12px 0 0;
+  margin: 8px 0 0;
   color: #818c79;
-  font-size: 12px;
-  line-height: 1.6;
-}
-.hint code {
   font-size: 11px;
 }
 
 .nameTip {
   display: flex;
   align-items: center;
-  gap: 14px;
-  margin-bottom: 16px;
-  padding: 12px 14px;
+  gap: 10px;
+  margin-bottom: 12px;
+  padding: 8px 12px;
   border: 1px solid #e5eadd;
-  border-radius: 11px;
+  border-radius: var(--control-radius);
   background: #f7f9f4;
-  font-size: 13px;
+  font-size: 12px;
 
   > code {
-    padding: 0 5px;
+    padding: 0 3px;
     color: #3e6249;
-    font-size: 19px;
+    font-size: 16px;
   }
   p {
     margin: 0;
-    line-height: 1.6;
   }
 }
 
 .textFormatting {
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 
   h4 {
-    margin: 0 0 10px;
+    margin: 0 0 6px;
     color: #53654c;
-    font-size: 14px;
-    font-weight: 650;
+    font-size: 12px;
+    font-weight: 700;
   }
 }
 
 .formattingRows {
   overflow: hidden;
   border: 1px solid #e1e6dc;
-  border-radius: 11px;
+  border-radius: var(--control-radius);
 }
 
 .formattingRow {
   display: grid;
   grid-template-columns: minmax(90px, 0.7fr) minmax(0, 1fr);
   align-items: center;
-  gap: 12px;
-  min-height: 44px;
-  padding: 8px 14px;
+  gap: 10px;
+  min-height: 32px;
+  padding: 5px 12px;
   border-bottom: 1px solid #e9ede5;
+  font-size: 12px;
 
   &:last-child {
     border-bottom: 0;
@@ -346,7 +321,7 @@
   > span {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
   }
 }
 
@@ -358,20 +333,19 @@
 .mechanics {
   overflow: hidden;
   border: 1px solid #e1e6dc;
-  border-radius: 11px;
+  border-radius: var(--control-radius);
 }
 .mechanic {
-  padding: 13px 15px;
+  padding: 9px 12px;
   border-bottom: 1px solid #e9ede5;
 
   &:last-child {
     border-bottom: 0;
   }
   p {
-    margin: 8px 0 0;
+    margin: 5px 0 0;
     color: #7a8673;
-    font-size: 12px;
-    line-height: 1.6;
+    font-size: 11px;
   }
 }
 
@@ -382,7 +356,7 @@
   gap: 8px;
 
   > code {
-    padding: 5px 7px;
+    padding: 2px 6px;
     border-radius: 5px;
     color: #466044;
     background: #f1f4ed;
@@ -398,11 +372,11 @@
   flex: 0 0 auto;
   align-items: center;
   gap: 8px;
-  padding: 17px 30px;
+  padding: 9px 20px;
   border-top: 1px solid #e6eae2;
   color: #7e8978;
   background: #fafbf8;
-  font-size: 12px;
+  font-size: 11px;
 }
 
 .dot {
@@ -413,34 +387,26 @@
   background: #80a186;
 }
 
-@container (max-width: 480px) {
+// Below the guide's full 480px width, which is a phone: stack tokens and restore touch sizes.
+@container (max-width: 440px) {
   .header {
-    padding: 20px 20px 0;
+    padding: 14px 16px 12px;
   }
   .content {
-    padding: 0 20px;
+    padding: 0 16px;
   }
   .footer {
-    padding: 16px 20px;
-  }
-  .titleRow h2 {
-    font-size: 25px;
-  }
-  .manaGrid {
-    gap: 5px;
+    padding: 10px 16px;
   }
   .symbol {
-    min-height: 76px;
+    min-height: 60px;
   }
   .token {
-    grid-template-columns: 23px minmax(0, 1fr);
-    gap: 8px;
+    grid-template-columns: 18px minmax(0, 1fr);
+    min-height: 44px;
   }
   .token code {
     grid-column: 1 / -1;
-  }
-  .symbolName {
-    font-size: 13px;
   }
   .mechanicHeading > span {
     display: none;

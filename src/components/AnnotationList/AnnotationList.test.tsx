@@ -50,7 +50,7 @@ const submitComment = async () => {
   const field = screen.getByRole('textbox', { name: 'Your comment' });
   await selectCommentRange(field, 0);
   await pasteCommentText(field, 'My comment');
-  fireEvent.click(screen.getByRole('button', { name: 'Add Comment' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Add comment' }));
   return { field, actions };
 };
 
@@ -84,7 +84,7 @@ it('keeps the draft when the request fails and allows retrying', async () => {
 
   expect(field).toHaveTextContent('My comment');
   vi.mocked(axios.post).mockResolvedValueOnce({ status: 200, data: { annotation } });
-  fireEvent.click(screen.getByRole('button', { name: /Add Comment/ }));
+  fireEvent.click(screen.getByRole('button', { name: /Add comment/ }));
   await waitFor(() => expect(field.textContent).toBe(''));
 });
 

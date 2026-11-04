@@ -88,10 +88,10 @@ describe('CardEditor - Evolution fields', () => {
     expect(screen.getByText('Power')).toBeVisible();
   });
 
-  it('lists Evolution as a Card Type and disables other exclusive types', () => {
+  it('lists Evolution as a Card type and disables other exclusive types', () => {
     renderEditor(makeCard([EVOLUTION]));
 
-    const typeField = screen.getByText('Card Types').closest('span') as HTMLElement;
+    const typeField = screen.getByText('Card types').closest('span') as HTMLElement;
     fireEvent.mouseDown(typeField.querySelector('.ant-select-content') as Element);
     const input = typeField.querySelector('.ant-select-input') as HTMLInputElement;
     fireEvent.change(input, { target: { value: 'Prepared' } });

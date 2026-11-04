@@ -76,7 +76,7 @@ const EditorTooltip = ({ className, children }: EditorTooltipProps) => {
       ref={popoverRef}
       className={className}
       classNames={{ root: styles.popover }}
-      styles={{ container: { padding: 0, borderRadius: 20, overflow: 'hidden' } }}
+      styles={{ container: { padding: 0, borderRadius: 14, overflow: 'hidden' } }}
       trigger={children ? 'click' : ['hover', 'focus', 'click']}
       open={open && !componentDisabled}
       onOpenChange={nextOpen => {

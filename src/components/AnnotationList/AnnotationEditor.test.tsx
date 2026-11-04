@@ -34,7 +34,7 @@ it('opens the comment picker on the left and replaces the remembered text select
   await waitFor(() => expect(field.textContent).toBe('Hello 🔥'));
   expect(field.querySelector('[data-google-emoji]')).not.toBeNull();
   expect(field).toHaveFocus();
-  fireEvent.click(screen.getByRole('button', { name: 'Add Comment' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Add comment' }));
   await waitFor(() => expect(onSubmit).toHaveBeenCalledWith('Hello 🔥', expect.any(Object)));
 });
 
@@ -43,7 +43,7 @@ it('does not erase edits made while a successful submission is pending', async (
   const onSubmit = vi.fn(() => new Promise<boolean>(respond => (resolve = respond)));
   render(<AnnotationEditor defaultContent="First 🔥" submitting={false} onSubmit={onSubmit} />);
   const field = screen.getByRole('textbox', { name: 'Your comment' });
-  fireEvent.click(screen.getByRole('button', { name: 'Add Comment' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Add comment' }));
   await selectCommentRange(field, 'First 🔥'.length);
   await pasteCommentText(field, ' more');
   await act(async () => resolve(true));
@@ -55,7 +55,7 @@ it('clears an unchanged submitted draft without allowing undo to recover it', as
   const onSubmit = vi.fn().mockResolvedValue(true);
   render(<AnnotationEditor defaultContent="First 🔥" submitting={false} onSubmit={onSubmit} />);
   const field = screen.getByRole('textbox', { name: 'Your comment' });
-  fireEvent.click(screen.getByRole('button', { name: 'Add Comment' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Add comment' }));
   await waitFor(() => expect(field.textContent).toBe(''));
   await selectCommentRange(field, 0);
   await act(async () => fireEvent.keyDown(field, { key: 'z', code: 'KeyZ', ctrlKey: true }));

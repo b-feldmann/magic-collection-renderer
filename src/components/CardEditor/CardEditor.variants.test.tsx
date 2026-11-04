@@ -50,7 +50,7 @@ const makeStore = (cards = [makeCard()]): StoreType => ({
   dispatch: vi.fn(),
 });
 const typeName = (value: string) => {
-  const input = screen.getByText('Card Name').closest('span')!.querySelector('input')!;
+  const input = screen.getByText('Card name').closest('span')!.querySelector('input')!;
   fireEvent.change(input, { target: { value } });
 };
 
@@ -72,7 +72,7 @@ describe('editor variant creation', () => {
 
   it('does not offer variant creation when no card is selected', () => {
     render(<CardEditor saveTmpCard={() => {}} />);
-    expect(screen.queryByRole('button', { name: 'Create Variant' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Create variant' })).not.toBeInTheDocument();
   });
 
   it.each(['before release', 'after release', 'undo'])(
@@ -97,7 +97,7 @@ describe('editor variant creation', () => {
         </Store.Provider>,
       );
       if (timing === 'after release') typeName('Unsaved edit');
-      if (timing === 'undo') fireEvent.click(screen.getByRole('button', { name: 'Undo Changes' }));
+      if (timing === 'undo') fireEvent.click(screen.getByRole('button', { name: 'Undo changes' }));
       await act(async () => {
         vi.advanceTimersByTime(EDIT_SAVE_OFFSET + 100);
       });
@@ -130,14 +130,14 @@ describe('editor variant creation', () => {
     const group = screen.getByRole('button', { name: 'Mark as favorite' }).parentElement;
     expect(screen.getByRole('button', { name: 'More card actions' }).parentElement).toBe(group);
     fireEvent.click(screen.getByRole('button', { name: 'More card actions' }));
-    expect(screen.getByRole('menuitem', { name: 'Add Back Face' }).parentElement).toBe(
-      screen.getByRole('menuitem', { name: 'Create Variant' }).parentElement,
+    expect(screen.getByRole('menuitem', { name: 'Add back face' }).parentElement).toBe(
+      screen.getByRole('menuitem', { name: 'Create variant' }).parentElement,
     );
   });
 
   it.each([
     ['Mark as favorite', 'wrap'],
-    ['Undo Changes', 'nowrap'],
+    ['Undo changes', 'nowrap'],
   ])('uses %s action-row wrapping of %s', (buttonName, flexWrap) => {
     const card = {
       ...makeCard(),
@@ -205,12 +205,12 @@ describe('editor variant creation', () => {
     expect(onDraftChange).toHaveBeenLastCalledWith(null);
   });
 
-  it.each(['Add Back Face', 'Delete Back Face'])(
+  it.each(['Add back face', 'Delete back face'])(
     'keeps newer drafts tracked after an earlier %s save finishes',
     async action => {
       const initial = makeCard();
       const card =
-        action === 'Delete Back Face' ? { ...initial, back: { ...initial.front } } : initial;
+        action === 'Delete back face' ? { ...initial, back: { ...initial.front } } : initial;
       let finishSave!: (value: unknown) => void;
       vi.mocked(updateCard).mockReturnValueOnce(
         new Promise(resolve => {
@@ -254,7 +254,7 @@ describe('editor variant creation', () => {
     );
     typeName('New draft');
     await act(async () => {
-      clickMenuAction('Create Variant');
+      clickMenuAction('Create variant');
     });
     expect(createCardVariant).toHaveBeenCalledWith(
       expect.any(Function),
@@ -290,7 +290,7 @@ describe('editor variant creation', () => {
     );
     typeName('Keep this draft');
     await act(async () => {
-      clickMenuAction('Create Variant');
+      clickMenuAction('Create variant');
     });
     expect(screen.getByDisplayValue('Keep this draft')).toBeVisible();
     expect(screen.getByRole('button', { name: 'More card actions' })).toBeEnabled();
@@ -319,7 +319,7 @@ describe('editor variant creation', () => {
       expect.objectContaining({ name: 'Edited', variantIds: ['new-variant'] }),
     );
     await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: 'Undo Changes' }));
+      fireEvent.click(screen.getByRole('button', { name: 'Undo changes' }));
     });
     expect(updateCard).toHaveBeenLastCalledWith(
       expect.any(Function),
@@ -348,8 +348,8 @@ describe('editor variant creation', () => {
       </Store.Provider>,
     );
 
-    expect(screen.getByLabelText('Mana Cost')).toHaveValue('{U}');
-    expect(screen.getByLabelText('Card Name')).toHaveValue('Local draft');
+    expect(screen.getByLabelText('Mana cost')).toHaveValue('{U}');
+    expect(screen.getByLabelText('Card name')).toHaveValue('Local draft');
     await act(async () => {
       vi.advanceTimersByTime(EDIT_SAVE_OFFSET + 100);
     });
@@ -384,7 +384,7 @@ describe('editor variant creation', () => {
       vi.advanceTimersByTime(EDIT_SAVE_OFFSET + 100);
     });
     await act(async () => {
-      clickMenuAction('Create Variant');
+      clickMenuAction('Create variant');
     });
     expect(createCardVariant).not.toHaveBeenCalled();
     await act(async () => {

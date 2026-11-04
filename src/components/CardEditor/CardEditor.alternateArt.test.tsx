@@ -72,9 +72,9 @@ const makeCard = (cardTypes: CardType[], artStyle?: CardArtStyles): CardInterfac
   },
 });
 
-// Selects the given option in the Card Types multi-select.
+// Selects the given option in the Card types multi-select.
 const selectCardType = async (typeLabel: string) => {
-  const label = screen.getByText('Card Types');
+  const label = screen.getByText('Card types');
   const field = label.parentElement!.parentElement!;
   fireEvent.mouseDown(field.querySelector('.ant-select') as HTMLElement);
 
@@ -90,11 +90,11 @@ const selectCardType = async (typeLabel: string) => {
   fireEvent.click(option);
 };
 
-// Removes the given type from the Card Types selection via the tag's remove
+// Removes the given type from the Card types selection via the tag's remove
 // icon (clicking an already-selected dropdown option does not deselect it in
 // antd's jsdom implementation).
 const deselectCardType = (typeLabel: string) => {
-  const label = screen.getByText('Card Types');
+  const label = screen.getByText('Card types');
   const field = label.parentElement!.parentElement!;
   const tag = Array.from(field.querySelectorAll('.ant-select-selection-item')).find(t =>
     t.textContent?.includes(typeLabel),

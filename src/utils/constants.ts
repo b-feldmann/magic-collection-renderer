@@ -15,7 +15,9 @@ export const CARD_WIDTH = 1500;
 export const CARD_HEIGHT = 2100;
 
 // Room above the first card row for the tab chips, which float over the grid.
-export const COLLECTION_TABS_INSET = 58;
+// Room above the first card row for the floating tabs: top margin, tab height, gap.
+export const MOBILE_COLLECTION_TABS_INSET = 60;
+export const COLLECTION_TABS_INSET = 50;
 
 export const EDIT_TIME_OFFSET = 600;
 

@@ -131,14 +131,14 @@ export const refreshCollection = (dispatch: (value: Action) => void): Promise<bo
       if (response.status && response.status === 401) {
         deleteAccessToken();
         staticAntd.message.error(
-          'Wrong access token! You are not authorized to use this service :(',
+          "Wrong access token. You aren't authorized to use this service.",
           3,
         );
         return false;
       }
     }
 
-    staticAntd.message.error("Could'nt load collection. Maybe you access token is wrong.");
+    staticAntd.message.error("Couldn't load the collection. Your access token may be wrong.");
     return false;
   });
 };
@@ -158,7 +158,7 @@ export const createCard = (dispatch: (value: Action) => void, creator: UserInter
       },
     });
   }).catch(_error => {
-    staticAntd.message.error('Failed creating a new card :(');
+    staticAntd.message.error("Couldn't create the card. Please try again.");
   });
 };
 
@@ -283,7 +283,7 @@ export const refreshCard = (dispatch: Dispatch, cardUuid: string): Promise<CardI
     publishCard(dispatch, state, card);
     return card;
   }).catch(error => {
-    staticAntd.message.error("Could'nt reload the card");
+    staticAntd.message.error("Couldn't reload the card. Please try again.");
     throw error;
   });
 
@@ -305,7 +305,7 @@ export const updateCard = (
     });
     return publishCard(dispatch, state, result.data.card);
   }).catch(error => {
-    staticAntd.message.error("Could'nt update the card");
+    staticAntd.message.error("Couldn't update the card. Please try again.");
     throw error;
   });
 };
@@ -349,7 +349,7 @@ export const updateCardRating = (
     });
     return publishCard(dispatch, state, result.data.card);
   }).catch(error => {
-    staticAntd.message.error("Could'nt update the card");
+    staticAntd.message.error("Couldn't update the card. Please try again.");
     throw error;
   });
 
@@ -433,7 +433,7 @@ export const createCardVariant = (
         : true;
       staticAntd.message.error(
         restored && removed
-          ? 'Could not create the variant. No variant was selected.'
+          ? "Couldn't create the variant. No variant was selected."
           : 'Variant recovery was incomplete. Refresh the collection before editing further.',
       );
       throw error;
@@ -489,7 +489,7 @@ export const deleteCard = (
       ).then(results => results.every(result => result.status === 'fulfilled'));
       staticAntd.message.error(
         restored && annotationsRestored
-          ? 'Could not delete the card. Refresh the collection before trying again.'
+          ? "Couldn't delete the card. Refresh the collection before trying again."
           : 'Deletion recovery was incomplete. Refresh the collection before editing further.',
       );
       throw error;

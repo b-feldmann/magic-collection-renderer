@@ -357,14 +357,14 @@ it.each([false, true])(
     expect(variantField.textContent).toBe('');
     await selectCommentRange(variantField, 0);
     await pasteCommentText(variantField, 'New b comment');
-    fireEvent.click(screen.getByRole('button', { name: 'Add Comment' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Add comment' }));
     expect(createAnnotation).toHaveBeenCalledWith(
       value.dispatch,
       'New b comment',
       UNKNOWN_CREATOR,
       'a',
     );
-    fireEvent.click(screen.getByRole('button', { name: 'Release for Rating!' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Release for rating' }));
     expect(updateCard).toHaveBeenCalledWith(value.dispatch, expect.objectContaining({ uuid: 'b' }));
   },
 );
@@ -384,7 +384,7 @@ it.each([false, true])('releases every variant to rating together (mobile: %s)',
     </Store.Provider>,
   );
 
-  fireEvent.click(await screen.findByRole('button', { name: 'Release for Rating!' }));
+  fireEvent.click(await screen.findByRole('button', { name: 'Release for rating' }));
 
   expect(updateCard).toHaveBeenCalledWith(value.dispatch, {
     ...a,
@@ -414,7 +414,7 @@ it('returns every variant to Draft and clears ratings without mutating originals
     </Store.Provider>,
   );
   fireEvent.click(await screen.findByRole('button', { name: 'Next variant' }));
-  fireEvent.click(screen.getByRole('button', { name: 'Return to Draft' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Return to draft' }));
 
   expect(updateCard).toHaveBeenCalledWith(value.dispatch, {
     ...a,
@@ -433,7 +433,7 @@ it('returns every variant to Draft and clears ratings without mutating originals
 });
 
 it.each([CardState.Draft, CardState.Approved])(
-  'does not offer Return to Draft for cards outside rating (state: %s)',
+  'does not offer Return to draft for cards outside rating (state: %s)',
   async state => {
     const card = { ...a, meta: { ...a.meta, state } };
     render(
@@ -448,7 +448,7 @@ it.each([CardState.Draft, CardState.Approved])(
       </Store.Provider>,
     );
     await waitFor(() => expect(screen.getByText('Comment a')).toBeVisible());
-    expect(screen.queryByRole('button', { name: 'Return to Draft' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Return to draft' })).not.toBeInTheDocument();
   },
 );
 

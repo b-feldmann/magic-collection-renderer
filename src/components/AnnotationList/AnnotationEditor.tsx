@@ -89,7 +89,7 @@ const AnnotationEditor = ({
           onClick={handleSubmit}
           type="primary"
         >
-          Add Comment
+          Add comment
         </Button>
       </div>
     </div>

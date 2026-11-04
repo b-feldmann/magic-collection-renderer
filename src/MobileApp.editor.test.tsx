@@ -270,11 +270,11 @@ describe('mobile card editing flow', () => {
       target: { value: 'Unsaved mobile name' },
     });
     fireEvent.click(screen.getByRole('button', { name: 'Next variant' }));
-    fireEvent.click(await screen.findByRole('button', { name: 'Edit old card' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Keep editing' }));
     expect(screen.getByRole('region', { name: 'Card editor' })).toBeInTheDocument();
     expect(within(editor).getByDisplayValue('Unsaved mobile name')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Next variant' }));
-    fireEvent.click(await screen.findByRole('button', { name: 'Yes discard all changes' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Yes, discard changes' }));
     expect(screen.getByLabelText('Card preview')).toHaveTextContent('Card b');
     expect(screen.queryByRole('region', { name: 'Card editor' })).not.toBeInTheDocument();
   });
@@ -288,7 +288,7 @@ describe('mobile card editing flow', () => {
       creator: { name: user.name, uuid: user.uuid },
     });
     expect(screen.getByLabelText('Card preview')).toBeInTheDocument();
-    expect(within(editor).getByText('Card Name')).toBeInTheDocument();
+    expect(within(editor).getByText('Card name')).toBeInTheDocument();
     expect(within(editor).queryByDisplayValue('Card a')).not.toBeInTheDocument();
   });
 

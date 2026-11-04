@@ -32,7 +32,7 @@ export const getImage = (dispatch: (value: Action) => void, card: CardInterface,
       });
     })
     .catch(_error => {
-      staticAntd.message.error("Could'nt load card image.");
+      staticAntd.message.error("Couldn't load the card image.");
     });
 };
 
@@ -54,7 +54,7 @@ export const createImage = (
       });
     })
     .catch(error => {
-      staticAntd.message.error('Failed creating a new image :(');
+      staticAntd.message.error("Couldn't create the image. Please try again.");
       throw error;
     });
 };

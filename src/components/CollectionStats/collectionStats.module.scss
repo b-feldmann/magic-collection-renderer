@@ -1,3 +1,5 @@
+@use '../../styles/mixins';
+
 $muted-text: #526b5b;
 
 .statsBar {
@@ -14,7 +16,7 @@ $muted-text: #526b5b;
   min-height: 0;
   background: #f9fbf9;
   border: 1px solid #d0ded3;
-  border-radius: 18px 18px 0 0;
+  border-radius: var(--panel-radius) var(--panel-radius) 0 0;
   color: #2b4032;
   box-shadow: 0 -8px 35px #203e3020;
   transition: height 280ms ease;
@@ -79,7 +81,7 @@ $muted-text: #526b5b;
   width: 100%;
   padding: 0;
   border: 0;
-  border-radius: 18px 18px 0 0;
+  border-radius: var(--panel-radius) var(--panel-radius) 0 0;
   background: transparent;
   touch-action: none;
   cursor: ns-resize !important;
@@ -100,12 +102,7 @@ $muted-text: #526b5b;
   padding: 2px 18px 6px;
 
   h2 {
-    margin: 0;
-    color: #26332f;
-    font-size: 22px;
-    font-weight: 650;
-    line-height: 1.25;
-    letter-spacing: -0.4px;
+    @include mixins.panel-title;
   }
 }
 .statsBar:not(.expanded) .sheetHeading h2 {
@@ -136,50 +133,34 @@ $muted-text: #526b5b;
   }
 }
 .statsBar .expandButton {
-  padding: 6px 10px;
+  display: inline-flex;
+  align-items: center;
+  height: var(--control-height);
+  padding: 0 10px;
   color: #3f654b;
   background: #fff;
   border: 1px solid #bbcebf;
-  border-radius: 7px;
+  border-radius: var(--control-radius);
   font-size: 12px;
   font-weight: 600;
   white-space: nowrap;
 }
-.layoutSwitch {
+.layoutSwitch,
+.closedStateSwitch {
   display: flex;
+  box-sizing: border-box;
+  height: var(--control-height);
   padding: 3px;
   background: #eef3ee;
   border: 1px solid #cfdbd1;
-  border-radius: 8px;
+  border-radius: var(--control-radius);
   button {
     border: 0;
     border-radius: 5px;
-    padding: 5px 10px;
+    padding: 0 10px;
     background: transparent;
     color: $muted-text;
     font-size: 12px;
-  }
-  button[aria-pressed='true'] {
-    background: #fff;
-    color: #3c6048;
-    box-shadow: 0 1px 4px #24432c14;
-    font-weight: 600;
-  }
-}
-.closedStateSwitch {
-  display: flex;
-  padding: 3px;
-  background: #eef3ee;
-  border: 1px solid #cfdbd1;
-  border-radius: 8px;
-
-  button {
-    border: 0;
-    border-radius: 5px;
-    padding: 5px 8px;
-    background: transparent;
-    color: $muted-text;
-    font-size: 11px;
   }
   button[aria-pressed='true'] {
     background: #fff;
@@ -215,7 +196,7 @@ $muted-text: #526b5b;
   strong {
     display: block;
     font-size: 21px;
-    font-weight: 650;
+    font-weight: 700;
     color: #3b6149;
   }
   span {
@@ -238,16 +219,10 @@ $muted-text: #526b5b;
   gap: 6px 12px;
   margin-bottom: 11px;
   h2 {
-    margin: 0;
-    color: #294632;
-    font-size: 16px;
-    font-weight: 650;
-    letter-spacing: -0.2px;
+    @include mixins.section-heading;
   }
   > span {
-    color: $muted-text;
-    font-size: 11px;
-    letter-spacing: 0.7px;
+    @include mixins.section-number;
   }
 }
 .sectionNote {
@@ -303,7 +278,7 @@ $muted-text: #526b5b;
   margin: 0;
   padding: 15px;
   border: 1px solid #e0e8e2;
-  border-radius: 9px;
+  border-radius: var(--control-radius);
   background: #fff;
 }
 .chartHeading {
@@ -364,7 +339,7 @@ $muted-text: #526b5b;
 }
 .segmentCount {
   font-size: 9px;
-  font-weight: 650;
+  font-weight: 700;
   color: #243c2c;
   background: #ffffffe0;
   border-radius: 2px;
@@ -517,14 +492,11 @@ $muted-text: #526b5b;
   .headingControls {
     gap: 6px;
   }
-  .headingIntro h2 {
-    font-size: 12px;
-  }
   .summary {
     font-size: 10px;
   }
   .layoutSwitch button {
-    padding: 5px 6px;
+    padding: 0 6px;
     font-size: 11px;
   }
 }

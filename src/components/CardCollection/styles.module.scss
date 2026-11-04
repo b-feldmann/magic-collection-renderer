@@ -62,11 +62,25 @@
   align-items: center;
   gap: 8px;
   padding: 3px 6px;
-  border-radius: 6px;
+  border-radius: var(--control-radius);
   background: rgba(255, 255, 255, 0.95);
   color: #222;
   font-size: 12px;
   white-space: nowrap;
+}
+
+// Phones: full-size targets, wrapping when they no longer fit under a narrow card.
+@media (pointer: coarse) {
+  .cardControls {
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+  }
+
+  .variantControls button {
+    min-width: 44px;
+    min-height: 44px;
+  }
 }
 
 .edit {

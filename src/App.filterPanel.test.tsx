@@ -294,7 +294,7 @@ describe('modern collection sidebar', () => {
     expect(screen.getByRole('region', { name: 'Collection mana curves' })).toBeInTheDocument();
     expect(screen.getByRole('img', { name: 'Mana curve by color: 1 card' })).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole('tab', { name: /Approved Cards/ }));
+    fireEvent.click(screen.getByRole('tab', { name: /Approved cards/ }));
 
     const colorCurve = screen.getByRole('img', { name: 'Mana curve by color: 1 card' });
     expect(within(colorCurve).getByTitle('Mana value 2: 1 White')).toBeInTheDocument();

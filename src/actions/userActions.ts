@@ -13,7 +13,7 @@ const CURRENT_USER_STORAGE_KEY = 'mtg-funset:currentUser';
 export const hasStoredUser = (): boolean => localStorage.getItem(CURRENT_USER_STORAGE_KEY) !== null;
 
 /**
- * Decide whether the "Choose Current User" chooser should be visible.
+ * Decide whether the "Choose current user" chooser should be visible.
  *
  * On reload `currentUser` starts as `UNKNOWN_CREATOR` and the persisted user is
  * only restored after the async `/user` fetch resolves. Showing the chooser in
