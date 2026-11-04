@@ -9,6 +9,11 @@ import Cell, { CellData } from './Cell';
 
 import styles from './styles.module.scss';
 import { CARD_WIDTH, CARD_HEIGHT } from '../../utils/constants';
+
+// Matches the global scrollbar width in index.css.
+const SCROLLBAR_WIDTH = 10;
+// Space between neighbouring cards: twice the `.cardBox` padding.
+const CARD_GAP = 8;
 import { getVariantGroups } from '../../utils/cardVariants';
 
 export interface CardCollectionInterface {
@@ -118,20 +123,23 @@ const CardCollection = ({
         const rows: number = Math.ceil(groups.length / columns);
         const spacerRows = bottomPadding > 0 ? 1 : 0;
 
-        // Reserve room for the vertical scrollbar so the rightmost column of
-        // cards is never rendered underneath it. Only reserve the space when
-        // the content actually overflows vertically (i.e. a scrollbar shows).
-        // Separation from the fixed editor panel is already provided by the
-        // `.collection` `margin-right` in App.module.scss (reserves the editor
-        // width + an 8px gap), so no extra right gutter is needed here.
-        const SCROLLBAR_WIDTH = 17;
-        const unreservedColumnHeight: number = (width / columns / CARD_WIDTH) * CARD_HEIGHT;
+        // On desktop the cards span the column exactly, so they line up with the
+        // statistics sheet: the cells' outer padding hangs past both edges, and the
+        // scrollbar sits past the right edge, in the gap before the editor. Card size
+        // doesn't depend on the scrollbar. The last cell's padding is clipped behind it.
+        // Mobile has no side panels, so it only reserves room when content overflows.
+        const sideOverhang: number = mobile ? 0 : CARD_GAP / 2;
+        const cardHeightFor = (columnWidth: number) =>
+          ((columnWidth - CARD_GAP) / CARD_WIDTH) * CARD_HEIGHT + CARD_GAP;
         const hasVerticalScrollbar: boolean =
-          rows * unreservedColumnHeight + bottomPadding > height;
-        const availableWidth: number = hasVerticalScrollbar ? width - SCROLLBAR_WIDTH : width;
+          rows * cardHeightFor(width / columns) + bottomPadding > height;
+        const gridWidth: number = mobile ? width : width + sideOverhang + SCROLLBAR_WIDTH;
+        const cellsWidth: number = mobile
+          ? width - (hasVerticalScrollbar ? SCROLLBAR_WIDTH : 0)
+          : width + 2 * sideOverhang;
 
-        const columnWidth: number = availableWidth / columns;
-        const columnHeight: number = (columnWidth / CARD_WIDTH) * CARD_HEIGHT;
+        const columnWidth: number = cellsWidth / columns;
+        const columnHeight: number = cardHeightFor(columnWidth);
 
         const data: CellData = {
           cards: visibleCards,
@@ -147,7 +155,7 @@ const CardCollection = ({
           downloadCard: downloadJson,
           toggleShowBackConfig,
           editCard,
-          width: columnWidth - 4,
+          width: columnWidth - CARD_GAP,
           showBackFaceConfig,
           mobile,
         };
@@ -155,7 +163,7 @@ const CardCollection = ({
         return (
           <div
             className={`${styles.scrollWrapper} ${scrollShadows.top ? styles.hasTopShadow : ''} ${scrollShadows.bottom ? styles.hasBottomShadow : ''}`}
-            style={{ height, width }}
+            style={{ height, width: gridWidth, marginLeft: -sideOverhang }}
           >
             <Grid
               gridRef={setGridRef}
@@ -166,7 +174,7 @@ const CardCollection = ({
               columnWidth={columnWidth}
               rowCount={rows + spacerRows}
               rowHeight={rowIndex => (rowIndex === rows ? bottomPadding : columnHeight)}
-              style={{ height, width }}
+              style={{ height, width: gridWidth }}
             />
           </div>
         );

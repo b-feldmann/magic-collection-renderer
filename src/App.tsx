@@ -51,6 +51,14 @@ const { confirm } = Modal;
 
 const NO_CARD = '-1';
 
+// Closed heights of the statistics sheet, see collectionStats.module.scss.
+const STATS_PREVIEW_HEIGHT = 300;
+const STATS_HIDDEN_HEIGHT = 56;
+// The grid runs behind the sheet by its corner radius so cards continue under
+// the rounded corners instead of ending in a straight line above them.
+const STATS_CORNER_OVERLAP = 18;
+const LAST_ROW_GAP = 12;
+
 // Shared tab definitions so the collection grid and the sidebar filter counts
 // agree on which cards belong to each tab.
 const CARD_TABS: { name: string; filter: (o: CardInterface) => boolean }[] = [
@@ -327,7 +335,11 @@ const App: React.FC = () => {
         <Col
           span={collectionSpan}
           className={`${styles.collection} ${styles.collectionStatsHost}`}
-          style={{ paddingBottom: statsClosedState === 'hidden' ? 56 : 300 }}
+          style={{
+            paddingBottom:
+              (statsClosedState === 'hidden' ? STATS_HIDDEN_HEIGHT : STATS_PREVIEW_HEIGHT) -
+              STATS_CORNER_OVERLAP,
+          }}
         >
           <Tabs
             activeKey={activeTabKey}
@@ -353,7 +365,7 @@ const App: React.FC = () => {
                   <CardCollection
                     cards={filteredCollection.filter(tabObj.filter)}
                     allCards={mergedCollection}
-                    bottomPadding={16}
+                    bottomPadding={LAST_ROW_GAP + STATS_CORNER_OVERLAP}
                     currentEditId={cardEditId}
                     onSelectVariant={switchCardVariant}
                     editCard={id => {

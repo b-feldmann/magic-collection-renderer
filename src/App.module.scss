@@ -1,5 +1,6 @@
 $muse-card-shadow: 0 20px 27px rgba(0, 0, 0, 0.05);
-$muse-card-radius: 12px;
+$muse-card-radius: 15px;
+$muse-card-border: 1px solid #e3e8de;
 
 // Clamped widths for the floating "Muse card" panels. The middle `calc()` is
 // the fluid viewport-proportional width; the min/max keep the panels usable on
@@ -30,7 +31,9 @@ $editor-width: clamp(516px, calc(100vw / 24 * 21 / 24 * 6 - 16px), 516px);
     width: $editor-width;
     // This fixed panel must not inherit Col span={6}'s 25% width cap.
     max-width: none;
+    box-sizing: border-box;
     background: #fff;
+    border: $muse-card-border;
     border-radius: $muse-card-radius;
     box-shadow: $muse-card-shadow;
   }
@@ -48,8 +51,8 @@ $editor-width: clamp(516px, calc(100vw / 24 * 21 / 24 * 6 - 16px), 516px);
     flex-direction: column;
     padding: 0;
     background: #fff;
-    border: 1px solid #e3e8de;
-    border-radius: 15px;
+    border: $muse-card-border;
+    border-radius: $muse-card-radius;
     box-shadow: $muse-card-shadow;
     overflow: hidden;
   }
@@ -101,7 +104,7 @@ $editor-width: clamp(516px, calc(100vw / 24 * 21 / 24 * 6 - 16px), 516px);
     // its controls take their space as real flex items, so the reserve would
     // squeeze the tabs/grid to zero width there.
     .collection {
-      margin-right: calc(#{$editor-width} + 16px);
+      margin-right: calc(#{$editor-width} + 18px);
     }
   }
 
@@ -120,9 +123,18 @@ $editor-width: clamp(516px, calc(100vw / 24 * 21 / 24 * 6 - 16px), 516px);
   // leaves a taller card viewport than Preview. Expansion overlays that viewport.
   .collectionStatsHost {
     --collection-stats-preview-height: 300px;
+    // Keeps the scrollbar thumb clear of the part of the grid behind the sheet.
+    --collection-scrollbar-end-inset: 18px;
+    // The grid's scrollbar sits in the gap past this column's right edge.
+    --collection-scrollbar-gutter: 10px;
     position: relative;
     box-sizing: border-box;
     isolation: isolate;
+
+    // Tabs and cards start on the column's edge, 8px from the sidebar.
+    .tabs {
+      margin-left: 0;
+    }
   }
 
   .tabs {
@@ -160,8 +172,8 @@ $editor-width: clamp(516px, calc(100vw / 24 * 21 / 24 * 6 - 16px), 516px);
     flex: none;
     width: 100%;
     padding: 0;
-    border: 1px solid #e3e8de;
-    border-radius: 15px;
+    border: $muse-card-border;
+    border-radius: $muse-card-radius;
     box-shadow: $muse-card-shadow;
     overflow: hidden;
 

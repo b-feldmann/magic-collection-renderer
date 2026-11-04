@@ -6,7 +6,7 @@
     content: '';
     position: absolute;
     left: 0;
-    right: 0;
+    right: var(--collection-scrollbar-gutter, 0);
     height: 10px;
     z-index: 1;
     pointer-events: none;
@@ -33,11 +33,15 @@
 .collection {
   //padding-left: 14px;
   overflow-x: hidden !important;
+
+  &::-webkit-scrollbar-track {
+    margin-bottom: var(--collection-scrollbar-end-inset, 0);
+  }
 }
 
 .cardBox {
   position: relative;
-  padding: 8px;
+  padding: 4px;
 }
 
 .newComments {
@@ -54,7 +58,7 @@
 
 .cardControls {
   position: absolute;
-  bottom: 0;
+  bottom: 6px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 2;

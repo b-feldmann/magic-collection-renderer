@@ -18,6 +18,32 @@
       sans-serif;
     color: #141414;
   }
+
+  /* Slim scrollbars everywhere: a 6px thumb centered in a 10px scrollbar. */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #b9cbbf content-box;
+    border: 2px solid transparent;
+    border-radius: 5px;
+  }
+
+  ::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+
+  /* Firefox ignores ::-webkit-scrollbar and can't set an exact width. It still
+     passes selector(::-webkit-scrollbar), so detect it by a -moz- property.
+     Chrome must not get these: scrollbar-width turns off ::-webkit-scrollbar. */
+  @supports (-moz-appearance: none) {
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: #b9cbbf transparent;
+    }
+  }
 }
 
 @layer components {
