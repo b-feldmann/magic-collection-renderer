@@ -163,6 +163,45 @@ describe('getColor - hybrid mana costs', () => {
     expect(result.orderedCost).toBe('{2}{rb}');
   });
 
+  it.each([
+    ['{u}{r}{ur}', '{u}{ur}{r}'],
+    ['{ur}{r}{u}', '{u}{ur}{r}'],
+    ['{2}{r}{ur}{u}', '{2}{u}{ur}{r}'],
+    ['{u}{r}{ru}{ur}', '{u}{ru}{ur}{r}'],
+    ['{w}{r}{wr}', '{r}{wr}{w}'],
+    ['{G}{W}{GW}', '{G}{GW}{W}'],
+    ['{up}{r}{ur}', '{up}{ur}{r}'],
+  ])('orders the hybrid between its two colours in %s', (cost, expected) => {
+    expect(getColor(cost).orderedCost).toBe(expected);
+  });
+
+  it.each([
+    ['only one of the hybrid colours has a pip', '{ur}{u}', '{u}{ur}'],
+    ['a hybrid brings in a third colour', '{u}{r}{ub}', '{u}{r}{ub}'],
+    ['one hybrid of several is off the pair', '{u}{ur}{r}{wb}', '{u}{r}{ur}{wb}'],
+    ['there are three pip colours', '{w}{u}{r}{ur}', '{u}{r}{w}{ur}'],
+  ])('keeps hybrids after the pips when %s', (_, cost, expected) => {
+    expect(getColor(cost).orderedCost).toBe(expected);
+  });
+
+  it.each([
+    ['{ur}', true],
+    ['{2}{ur}{ru}', true],
+    ['{x}{gw}', true],
+    ['{u}{ur}', false],
+    ['{up}{ur}', false],
+    ['{ur}{ub}', false],
+    ['{u}{r}', false],
+    ['{2}{u}', false],
+    ['', false],
+  ])('flags %s as two-colour hybrid: %s', (cost, expected) => {
+    expect(getColor(cost).isTwoColorHybrid).toBe(expected);
+  });
+
+  it('keeps two-colour hybrid costs gold for filters and statistics', () => {
+    expect(getColor('{ur}').color).toBe(ColorType.Gold);
+  });
+
   it('land colour identity includes hybrid pips from rules text', () => {
     const result = cardToColor(
       face({ cardTypes: [CardType.Land], cardText: ['{T}: Add {r} or {b}.', '{T}: Add {gw}.'] }),

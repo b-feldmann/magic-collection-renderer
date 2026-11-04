@@ -69,7 +69,7 @@
  * `parts/prepareRulesRight/<color|combo>.png`.
  *
  * An optional CLI argument list runs only the named generators, e.g.
- * `node scripts/generate-parts.cjs omen` (keys: m15, frame, levelerFrame,
+ * `node scripts/generate-parts.cjs omen` (keys: m15, frame, hybridMainframe, levelerFrame,
  * variants, adventure, omen, prepare, leveler, planeswalker,
  * planeswalkerNickname, token, nickname, crown). Without arguments every
  * generator runs, as before.
@@ -357,6 +357,31 @@ async function generateM15FrameParts() {
   }
 }
 
+// Two-color mainframes for cards paid with hybrid mana only, in the regular and
+// extended art styles (normal and Nyx). Both color frames are blended whole (an
+// opaque mask keeps every pixel), writing `<combo>.png` and `<combo>Thumb.png`
+// next to the single-color frames.
+const HYBRID_MAINFRAME_DIRS = ['m15/regular', 'm15/nyx', 'extended', 'extended/nyx'];
+
+async function generateHybridMainframes() {
+  for (const relativeDir of HYBRID_MAINFRAME_DIRS) {
+    const dir = path.join(MAINFRAMES_DIR, relativeDir);
+    for (const suffix of ['', 'Thumb']) {
+      const frames = new Map();
+      for (const color of new Set(COMBINATIONS.join(''))) {
+        frames.set(color, await Jimp.read(path.join(dir, `${color}${suffix}.png`)));
+      }
+      for (const combo of COMBINATIONS) {
+        const [left, right] = [frames.get(combo[0]), frames.get(combo[1])];
+        const { width, height } = left.bitmap;
+        const opaque = new Jimp({ width, height, color: 0xffffffff });
+        await carveCombo(left, right, opaque).write(path.join(dir, `${combo}${suffix}.png`));
+        console.log(`mainframes/${relativeDir}  ✓ ${combo}${suffix}.png`);
+      }
+    }
+  }
+}
+
 // Leveler frame parts use the same regular and Nyx M15 sources as the full
 // frame parts, clipped to the leveler frame silhouette.
 async function generateM15LevelerFrameParts() {
@@ -439,6 +464,7 @@ async function run() {
     }
   }
   if (selected('frame')) await generateM15FrameParts();
+  if (selected('hybridMainframe')) await generateHybridMainframes();
   if (selected('levelerFrame')) await generateM15LevelerFrameParts();
   if (selected('levelerLevels')) await generateM15LevelParts();
   if (selected('variants')) await generateVariantPinlines();

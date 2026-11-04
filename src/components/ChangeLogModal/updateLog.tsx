@@ -741,4 +741,17 @@ updateLog.push({
   ],
 });
 
+updateLog.push({
+  version: '4.2.1',
+  title: 'Mana Order',
+  content: [
+    {
+      type: ChangeLogFeatureType.Changed,
+      feature: 'Hybrid mana is now ordered between its two colors.',
+      description:
+        'If a mana cost has symbols of exactly two colors, hybrid symbols of those colors are placed between them, e.g. {u}{ur}{r}.',
+    },
+  ],
+});
+
 export default updateLog;

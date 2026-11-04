@@ -43,6 +43,8 @@ import {
   getEldAlternateAdventureRulesLeft,
   getExtendedMainframe,
   getFallbackCover,
+  getHybridMainframe,
+  getHybridPtColor,
   getInnerCrown,
   getInventionMainframe,
   getInventionPt,
@@ -310,9 +312,22 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
       color = ColorType.Gold;
     }
   }
+  // A two-color card paid with hybrid mana only gets a two-color frame instead of
+  // gold. Only the regular and extended frames have these assets. It stays
+  // ColorType.Gold everywhere else, e.g. in the collection filters.
+  const isHybridFrame =
+    manaColor.isTwoColorHybrid &&
+    !isLand &&
+    !isToken &&
+    !isInvention &&
+    !isAdventure &&
+    !isOmen &&
+    !isPrepared &&
+    artStyle !== CardArtStyles.Borderless;
+  const ptColor = isHybridFrame ? getHybridPtColor(allColors) : color;
   let mainframe;
   let pt = getPt(
-    color,
+    ptColor,
     isArtifact,
     vehicle,
     isNickname,
@@ -357,19 +372,19 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
       : '';
   let titlePart = isLand
     ? getLandTitlePart(landColors)
-    : getTitlePart(allColors, isArtifact, isToken);
+    : getTitlePart(allColors, isArtifact, isToken, isHybridFrame);
   let typePart = isLand
     ? isToken
       ? getTokenLandTypePart()
       : getLandTypePart(landColors)
-    : getTypePart(allColors, isArtifact, isToken);
+    : getTypePart(allColors, isArtifact, isToken, isHybridFrame);
   let rulesPart = isEvolution
     ? getLevelerRules(allColors)
     : isLand
       ? isToken
         ? getRulesPart(landColors, isArtifact, true)
         : getLandRulesPart(landColors)
-      : getRulesPart(allColors, isArtifact, isToken);
+      : getRulesPart(allColors, isArtifact, isToken, isHybridFrame);
   if (isAdventure || isOmen || isPrepared || isEvolution) {
     rulesPart = '';
   }
@@ -383,7 +398,10 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
     mainframe = getEldAlternateAdventureMainframe(color);
     pt = getAdventurePt(color);
   } else if (artStyle === CardArtStyles.Extended) {
-    mainframe = getExtendedMainframe(color, isLand, isArtifact, vehicle, isEnchantment);
+    mainframe =
+      isHybridFrame && !isArtifact
+        ? getHybridMainframe(allColors, isEnchantment, true)
+        : getExtendedMainframe(color, isLand, isArtifact, vehicle, isEnchantment);
     typePart = '';
   } else if (artStyle === CardArtStyles.Borderless) {
     mainframe = getBorderlessMainframe(color, isLand, isArtifact, isNickname);
@@ -403,6 +421,8 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
     mainframe = getOmenMainframe(color, isEnchantment);
   } else if (isPrepared) {
     mainframe = getPrepareMainframe(color, isEnchantment);
+  } else if (isHybridFrame && !isArtifact) {
+    mainframe = getHybridMainframe(allColors, isEnchantment);
   } else {
     mainframe = getColorMainframe(color, isEnchantment, isArtifact, vehicle);
   }
@@ -487,7 +507,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
     (hasSecondEvolution && areStatsEqual(level2Stats, cardStats));
   const showLevelSpecificPt = hasStats && !hasIncompleteLevelStats && !hasLevelStatsMatchingDefault;
   const standardPt = isEvolution
-    ? getPt(color, isArtifact, vehicle, isNickname, artStyle === CardArtStyles.Borderless, isLand)
+    ? getPt(ptColor, isArtifact, vehicle, isNickname, artStyle === CardArtStyles.Borderless, isLand)
     : pt;
 
   return (

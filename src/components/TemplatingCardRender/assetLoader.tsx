@@ -337,6 +337,87 @@ import LowResGoldMainframeNyx from './images/mainframes/m15/nyx/mThumb.png';
 import LowResColorlessMainframeNyx from './images/mainframes/m15/nyx/aThumb.png';
 import LowResArtefactMainframeNyx from './images/mainframes/m15/nyx/aThumb.png';
 
+import HybridWuMainframe from './images/mainframes/m15/regular/wu.png';
+import LowResHybridWuMainframe from './images/mainframes/m15/regular/wuThumb.png';
+import HybridUbMainframe from './images/mainframes/m15/regular/ub.png';
+import LowResHybridUbMainframe from './images/mainframes/m15/regular/ubThumb.png';
+import HybridBrMainframe from './images/mainframes/m15/regular/br.png';
+import LowResHybridBrMainframe from './images/mainframes/m15/regular/brThumb.png';
+import HybridRgMainframe from './images/mainframes/m15/regular/rg.png';
+import LowResHybridRgMainframe from './images/mainframes/m15/regular/rgThumb.png';
+import HybridGwMainframe from './images/mainframes/m15/regular/gw.png';
+import LowResHybridGwMainframe from './images/mainframes/m15/regular/gwThumb.png';
+import HybridWbMainframe from './images/mainframes/m15/regular/wb.png';
+import LowResHybridWbMainframe from './images/mainframes/m15/regular/wbThumb.png';
+import HybridUrMainframe from './images/mainframes/m15/regular/ur.png';
+import LowResHybridUrMainframe from './images/mainframes/m15/regular/urThumb.png';
+import HybridBgMainframe from './images/mainframes/m15/regular/bg.png';
+import LowResHybridBgMainframe from './images/mainframes/m15/regular/bgThumb.png';
+import HybridRwMainframe from './images/mainframes/m15/regular/rw.png';
+import LowResHybridRwMainframe from './images/mainframes/m15/regular/rwThumb.png';
+import HybridGuMainframe from './images/mainframes/m15/regular/gu.png';
+import LowResHybridGuMainframe from './images/mainframes/m15/regular/guThumb.png';
+import HybridWuNyxMainframe from './images/mainframes/m15/nyx/wu.png';
+import LowResHybridWuNyxMainframe from './images/mainframes/m15/nyx/wuThumb.png';
+import HybridUbNyxMainframe from './images/mainframes/m15/nyx/ub.png';
+import LowResHybridUbNyxMainframe from './images/mainframes/m15/nyx/ubThumb.png';
+import HybridBrNyxMainframe from './images/mainframes/m15/nyx/br.png';
+import LowResHybridBrNyxMainframe from './images/mainframes/m15/nyx/brThumb.png';
+import HybridRgNyxMainframe from './images/mainframes/m15/nyx/rg.png';
+import LowResHybridRgNyxMainframe from './images/mainframes/m15/nyx/rgThumb.png';
+import HybridGwNyxMainframe from './images/mainframes/m15/nyx/gw.png';
+import LowResHybridGwNyxMainframe from './images/mainframes/m15/nyx/gwThumb.png';
+import HybridWbNyxMainframe from './images/mainframes/m15/nyx/wb.png';
+import LowResHybridWbNyxMainframe from './images/mainframes/m15/nyx/wbThumb.png';
+import HybridUrNyxMainframe from './images/mainframes/m15/nyx/ur.png';
+import LowResHybridUrNyxMainframe from './images/mainframes/m15/nyx/urThumb.png';
+import HybridBgNyxMainframe from './images/mainframes/m15/nyx/bg.png';
+import LowResHybridBgNyxMainframe from './images/mainframes/m15/nyx/bgThumb.png';
+import HybridRwNyxMainframe from './images/mainframes/m15/nyx/rw.png';
+import LowResHybridRwNyxMainframe from './images/mainframes/m15/nyx/rwThumb.png';
+import HybridGuNyxMainframe from './images/mainframes/m15/nyx/gu.png';
+import LowResHybridGuNyxMainframe from './images/mainframes/m15/nyx/guThumb.png';
+import HybridExtendedWuMainframe from './images/mainframes/extended/wu.png';
+import LowResHybridExtendedWuMainframe from './images/mainframes/extended/wuThumb.png';
+import HybridExtendedUbMainframe from './images/mainframes/extended/ub.png';
+import LowResHybridExtendedUbMainframe from './images/mainframes/extended/ubThumb.png';
+import HybridExtendedBrMainframe from './images/mainframes/extended/br.png';
+import LowResHybridExtendedBrMainframe from './images/mainframes/extended/brThumb.png';
+import HybridExtendedRgMainframe from './images/mainframes/extended/rg.png';
+import LowResHybridExtendedRgMainframe from './images/mainframes/extended/rgThumb.png';
+import HybridExtendedGwMainframe from './images/mainframes/extended/gw.png';
+import LowResHybridExtendedGwMainframe from './images/mainframes/extended/gwThumb.png';
+import HybridExtendedWbMainframe from './images/mainframes/extended/wb.png';
+import LowResHybridExtendedWbMainframe from './images/mainframes/extended/wbThumb.png';
+import HybridExtendedUrMainframe from './images/mainframes/extended/ur.png';
+import LowResHybridExtendedUrMainframe from './images/mainframes/extended/urThumb.png';
+import HybridExtendedBgMainframe from './images/mainframes/extended/bg.png';
+import LowResHybridExtendedBgMainframe from './images/mainframes/extended/bgThumb.png';
+import HybridExtendedRwMainframe from './images/mainframes/extended/rw.png';
+import LowResHybridExtendedRwMainframe from './images/mainframes/extended/rwThumb.png';
+import HybridExtendedGuMainframe from './images/mainframes/extended/gu.png';
+import LowResHybridExtendedGuMainframe from './images/mainframes/extended/guThumb.png';
+import HybridExtendedWuNyxMainframe from './images/mainframes/extended/nyx/wu.png';
+import LowResHybridExtendedWuNyxMainframe from './images/mainframes/extended/nyx/wuThumb.png';
+import HybridExtendedUbNyxMainframe from './images/mainframes/extended/nyx/ub.png';
+import LowResHybridExtendedUbNyxMainframe from './images/mainframes/extended/nyx/ubThumb.png';
+import HybridExtendedBrNyxMainframe from './images/mainframes/extended/nyx/br.png';
+import LowResHybridExtendedBrNyxMainframe from './images/mainframes/extended/nyx/brThumb.png';
+import HybridExtendedRgNyxMainframe from './images/mainframes/extended/nyx/rg.png';
+import LowResHybridExtendedRgNyxMainframe from './images/mainframes/extended/nyx/rgThumb.png';
+import HybridExtendedGwNyxMainframe from './images/mainframes/extended/nyx/gw.png';
+import LowResHybridExtendedGwNyxMainframe from './images/mainframes/extended/nyx/gwThumb.png';
+import HybridExtendedWbNyxMainframe from './images/mainframes/extended/nyx/wb.png';
+import LowResHybridExtendedWbNyxMainframe from './images/mainframes/extended/nyx/wbThumb.png';
+import HybridExtendedUrNyxMainframe from './images/mainframes/extended/nyx/ur.png';
+import LowResHybridExtendedUrNyxMainframe from './images/mainframes/extended/nyx/urThumb.png';
+import HybridExtendedBgNyxMainframe from './images/mainframes/extended/nyx/bg.png';
+import LowResHybridExtendedBgNyxMainframe from './images/mainframes/extended/nyx/bgThumb.png';
+import HybridExtendedRwNyxMainframe from './images/mainframes/extended/nyx/rw.png';
+import LowResHybridExtendedRwNyxMainframe from './images/mainframes/extended/nyx/rwThumb.png';
+import HybridExtendedGuNyxMainframe from './images/mainframes/extended/nyx/gu.png';
+import LowResHybridExtendedGuNyxMainframe from './images/mainframes/extended/nyx/guThumb.png';
+
 import UnstableBasicLandWhiteMainframe from './images/mainframes/lands/unstable/W.png';
 import UnstableBasicLandBlueMainframe from './images/mainframes/lands/unstable/U.png';
 import UnstableBasicLandBlackMainframe from './images/mainframes/lands/unstable/B.png';
@@ -2547,6 +2628,81 @@ const getTitleTypeVariant = (colors: ColorType[], isArtifact: boolean): PartVari
   return '';
 };
 
+// Two-color frames for cards paid with hybrid mana only: the two color frames
+// blended left to right, in the same order as the two-color parts.
+const HYBRID_MAINFRAMES: Record<string, ImageResData> = {
+  wu: { highRes: HybridWuMainframe, lowRes: LowResHybridWuMainframe },
+  ub: { highRes: HybridUbMainframe, lowRes: LowResHybridUbMainframe },
+  br: { highRes: HybridBrMainframe, lowRes: LowResHybridBrMainframe },
+  rg: { highRes: HybridRgMainframe, lowRes: LowResHybridRgMainframe },
+  gw: { highRes: HybridGwMainframe, lowRes: LowResHybridGwMainframe },
+  wb: { highRes: HybridWbMainframe, lowRes: LowResHybridWbMainframe },
+  ur: { highRes: HybridUrMainframe, lowRes: LowResHybridUrMainframe },
+  bg: { highRes: HybridBgMainframe, lowRes: LowResHybridBgMainframe },
+  rw: { highRes: HybridRwMainframe, lowRes: LowResHybridRwMainframe },
+  gu: { highRes: HybridGuMainframe, lowRes: LowResHybridGuMainframe },
+};
+
+const HYBRID_NYX_MAINFRAMES: Record<string, ImageResData> = {
+  wu: { highRes: HybridWuNyxMainframe, lowRes: LowResHybridWuNyxMainframe },
+  ub: { highRes: HybridUbNyxMainframe, lowRes: LowResHybridUbNyxMainframe },
+  br: { highRes: HybridBrNyxMainframe, lowRes: LowResHybridBrNyxMainframe },
+  rg: { highRes: HybridRgNyxMainframe, lowRes: LowResHybridRgNyxMainframe },
+  gw: { highRes: HybridGwNyxMainframe, lowRes: LowResHybridGwNyxMainframe },
+  wb: { highRes: HybridWbNyxMainframe, lowRes: LowResHybridWbNyxMainframe },
+  ur: { highRes: HybridUrNyxMainframe, lowRes: LowResHybridUrNyxMainframe },
+  bg: { highRes: HybridBgNyxMainframe, lowRes: LowResHybridBgNyxMainframe },
+  rw: { highRes: HybridRwNyxMainframe, lowRes: LowResHybridRwNyxMainframe },
+  gu: { highRes: HybridGuNyxMainframe, lowRes: LowResHybridGuNyxMainframe },
+};
+
+const HYBRID_EXTENDED_MAINFRAMES: Record<string, ImageResData> = {
+  wu: { highRes: HybridExtendedWuMainframe, lowRes: LowResHybridExtendedWuMainframe },
+  ub: { highRes: HybridExtendedUbMainframe, lowRes: LowResHybridExtendedUbMainframe },
+  br: { highRes: HybridExtendedBrMainframe, lowRes: LowResHybridExtendedBrMainframe },
+  rg: { highRes: HybridExtendedRgMainframe, lowRes: LowResHybridExtendedRgMainframe },
+  gw: { highRes: HybridExtendedGwMainframe, lowRes: LowResHybridExtendedGwMainframe },
+  wb: { highRes: HybridExtendedWbMainframe, lowRes: LowResHybridExtendedWbMainframe },
+  ur: { highRes: HybridExtendedUrMainframe, lowRes: LowResHybridExtendedUrMainframe },
+  bg: { highRes: HybridExtendedBgMainframe, lowRes: LowResHybridExtendedBgMainframe },
+  rw: { highRes: HybridExtendedRwMainframe, lowRes: LowResHybridExtendedRwMainframe },
+  gu: { highRes: HybridExtendedGuMainframe, lowRes: LowResHybridExtendedGuMainframe },
+};
+
+const HYBRID_EXTENDED_NYX_MAINFRAMES: Record<string, ImageResData> = {
+  wu: { highRes: HybridExtendedWuNyxMainframe, lowRes: LowResHybridExtendedWuNyxMainframe },
+  ub: { highRes: HybridExtendedUbNyxMainframe, lowRes: LowResHybridExtendedUbNyxMainframe },
+  br: { highRes: HybridExtendedBrNyxMainframe, lowRes: LowResHybridExtendedBrNyxMainframe },
+  rg: { highRes: HybridExtendedRgNyxMainframe, lowRes: LowResHybridExtendedRgNyxMainframe },
+  gw: { highRes: HybridExtendedGwNyxMainframe, lowRes: LowResHybridExtendedGwNyxMainframe },
+  wb: { highRes: HybridExtendedWbNyxMainframe, lowRes: LowResHybridExtendedWbNyxMainframe },
+  ur: { highRes: HybridExtendedUrNyxMainframe, lowRes: LowResHybridExtendedUrNyxMainframe },
+  bg: { highRes: HybridExtendedBgNyxMainframe, lowRes: LowResHybridExtendedBgNyxMainframe },
+  rw: { highRes: HybridExtendedRwNyxMainframe, lowRes: LowResHybridExtendedRwNyxMainframe },
+  gu: { highRes: HybridExtendedGuNyxMainframe, lowRes: LowResHybridExtendedGuNyxMainframe },
+};
+
+export const getHybridMainframe = (
+  colors: ColorType[],
+  isEnchantment = false,
+  isExtended = false,
+): ImageResData => {
+  const frames = isExtended
+    ? isEnchantment
+      ? HYBRID_EXTENDED_NYX_MAINFRAMES
+      : HYBRID_EXTENDED_MAINFRAMES
+    : isEnchantment
+      ? HYBRID_NYX_MAINFRAMES
+      : HYBRID_MAINFRAMES;
+  return frames[getTwoColorVariant(colors)];
+};
+
+// The P/T box sits on the right of the card, so a hybrid card takes the color
+// of the frame's right half.
+export const getHybridPtColor = (colors: ColorType[]): ColorType =>
+  colors.find(color => getSingleColorVariant(color) === getTwoColorVariant(colors)[1]) ??
+  ColorType.Gold;
+
 const TITLE_PARTS: Record<PartVariant, string> = {
   '': '',
   w: WhiteTitle,
@@ -2852,16 +3008,36 @@ const TOKEN_RULES_PARTS: Record<PartVariant, string> = {
 const getTokenPartVariant = (colors: ColorType[]): PartVariant =>
   colors.length === 2 ? getTwoColorVariant(colors) : '';
 
-export const getTitlePart = (colors: ColorType[], isArtifact: boolean, isToken = false) =>
-  isToken ? '' : TITLE_PARTS[getTitleTypeVariant(colors, isArtifact)];
+// Hybrid cards show their two colors on every part instead of the golden one.
+export const getTitlePart = (
+  colors: ColorType[],
+  isArtifact: boolean,
+  isToken = false,
+  isHybrid = false,
+) =>
+  isToken
+    ? ''
+    : TITLE_PARTS[isHybrid ? getTwoColorVariant(colors) : getTitleTypeVariant(colors, isArtifact)];
 
-export const getTypePart = (colors: ColorType[], isArtifact: boolean, isToken = false) =>
-  isToken ? '' : TYPE_PARTS[getTitleTypeVariant(colors, isArtifact)];
+export const getTypePart = (
+  colors: ColorType[],
+  isArtifact: boolean,
+  isToken = false,
+  isHybrid = false,
+) =>
+  isToken
+    ? ''
+    : TYPE_PARTS[isHybrid ? getTwoColorVariant(colors) : getTitleTypeVariant(colors, isArtifact)];
 
-export const getRulesPart = (colors: ColorType[], isArtifact: boolean, isToken = false) =>
+export const getRulesPart = (
+  colors: ColorType[],
+  isArtifact: boolean,
+  isToken = false,
+  isHybrid = false,
+) =>
   isToken
     ? TOKEN_RULES_PARTS[getTokenPartVariant(colors)]
-    : RULES_PARTS[getRulesVariant(colors, isArtifact)];
+    : RULES_PARTS[isHybrid ? getTwoColorVariant(colors) : getRulesVariant(colors, isArtifact)];
 
 // Lands only get frame parts when their card-text color identity has exactly
 // two colors: the land ('l') title/type parts plus the two-color text part.

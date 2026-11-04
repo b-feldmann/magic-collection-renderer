@@ -66,7 +66,13 @@ export const getBasicLandColor = (basicLandType: string) => {
 export const getColor = (
   manaCost: string = '',
   tokenColors?: string[],
-): { color: ColorType; allColors: ColorType[]; orderedCost: string; hexColor: string } => {
+): {
+  color: ColorType;
+  allColors: ColorType[];
+  orderedCost: string;
+  hexColor: string;
+  isTwoColorHybrid: boolean;
+} => {
   if (tokenColors && tokenColors.length > 0) {
     const selected = tokenColors.filter(t =>
       (Object.values(ColorType) as string[]).includes(t),
@@ -82,6 +88,7 @@ export const getColor = (
       allColors: selected,
       orderedCost: '',
       hexColor: colorToColorHex(overrideColor),
+      isTwoColorHybrid: false,
     };
   }
 
@@ -105,6 +112,7 @@ export const getColor = (
       allColors,
       orderedCost: '',
       hexColor: colorToColorHex(parsedColor),
+      isTwoColorHybrid: false,
     };
 
   const addColor = (type: ColorType, cost: string) => {
@@ -168,6 +176,13 @@ export const getColor = (
     allColors,
     orderedCost: getOrdering(colorDict),
     hexColor: colorToColorHex(parsedColor),
+    // Two colours with no coloured pip of their own means all of them come from
+    // hybrid symbols; generic and X costs don't matter.
+    isTwoColorHybrid:
+      allColors.length === 2 &&
+      [colorDict.white, colorDict.blue, colorDict.black, colorDict.red, colorDict.green].every(
+        pips => pips.length === 0,
+      ),
   };
 };
 
@@ -341,30 +356,46 @@ const getOrdering = (colorDict: ColorDictInterface): string => {
   const R = colorDict.red; // 8
   const G = colorDict.green; // 16
 
+  // With exactly two pip colours, hybrids of that same pair sit between them
+  // (e.g. "{u}{ur}{r}"). Any other hybrid stays with the rest of the cost.
+  const pipColors = [
+    { color: ColorType.White, pips: W },
+    { color: ColorType.Blue, pips: U },
+    { color: ColorType.Black, pips: B },
+    { color: ColorType.Red, pips: R },
+    { color: ColorType.Green, pips: G },
+  ].flatMap(({ color, pips }) => (pips.length > 0 ? [color] : []));
+  const hybrids = colorDict.rest.filter(cost => getHybridColors(cost));
+  const hybridsAreBetween =
+    pipColors.length === 2 &&
+    hybrids.every(cost => getHybridColors(cost)?.every(color => pipColors.includes(color)));
+  const H = hybridsAreBetween ? hybrids : [];
+  const rest = colorDict.rest.filter(cost => !H.includes(cost));
+
   if (binaryColorRepresentation === 1) orderedCost += join(W);
   else if (binaryColorRepresentation === 2) orderedCost += join(U);
-  else if (binaryColorRepresentation === 3) orderedCost += join(W, U);
+  else if (binaryColorRepresentation === 3) orderedCost += join(W, H, U);
   else if (binaryColorRepresentation === 4) orderedCost += join(B);
-  else if (binaryColorRepresentation === 5) orderedCost += join(W, B);
-  else if (binaryColorRepresentation === 6) orderedCost += join(U, B);
+  else if (binaryColorRepresentation === 5) orderedCost += join(W, H, B);
+  else if (binaryColorRepresentation === 6) orderedCost += join(U, H, B);
   else if (binaryColorRepresentation === 7) orderedCost += join(W, U, B);
   else if (binaryColorRepresentation === 8) orderedCost += join(R);
-  else if (binaryColorRepresentation === 9) orderedCost += join(R, W);
-  else if (binaryColorRepresentation === 10) orderedCost += join(U, R);
+  else if (binaryColorRepresentation === 9) orderedCost += join(R, H, W);
+  else if (binaryColorRepresentation === 10) orderedCost += join(U, H, R);
   else if (binaryColorRepresentation === 11) orderedCost += join(U, R, W);
-  else if (binaryColorRepresentation === 12) orderedCost += join(B, R);
+  else if (binaryColorRepresentation === 12) orderedCost += join(B, H, R);
   else if (binaryColorRepresentation === 13) orderedCost += join(R, W, B);
   else if (binaryColorRepresentation === 14) orderedCost += join(U, B, R);
   else if (binaryColorRepresentation === 15) orderedCost += join(W, U, B, R);
   else if (binaryColorRepresentation === 16) orderedCost += join(G);
-  else if (binaryColorRepresentation === 17) orderedCost += join(G, W);
-  else if (binaryColorRepresentation === 18) orderedCost += join(G, U);
+  else if (binaryColorRepresentation === 17) orderedCost += join(G, H, W);
+  else if (binaryColorRepresentation === 18) orderedCost += join(G, H, U);
   else if (binaryColorRepresentation === 19) orderedCost += join(G, W, U);
-  else if (binaryColorRepresentation === 20) orderedCost += join(B, G);
+  else if (binaryColorRepresentation === 20) orderedCost += join(B, H, G);
   else if (binaryColorRepresentation === 21) orderedCost += join(W, B, G);
   else if (binaryColorRepresentation === 22) orderedCost += join(B, G, U);
   else if (binaryColorRepresentation === 23) orderedCost += join(G, W, U, B);
-  else if (binaryColorRepresentation === 24) orderedCost += join(R, G);
+  else if (binaryColorRepresentation === 24) orderedCost += join(R, H, G);
   else if (binaryColorRepresentation === 25) orderedCost += join(R, G, W);
   else if (binaryColorRepresentation === 26) orderedCost += join(G, U, R);
   else if (binaryColorRepresentation === 27) orderedCost += join(R, G, W, U);
@@ -373,7 +404,7 @@ const getOrdering = (colorDict: ColorDictInterface): string => {
   else if (binaryColorRepresentation === 30) orderedCost += join(U, B, R, G);
   else if (binaryColorRepresentation === 31) orderedCost += join(W, U, B, R, G);
 
-  orderedCost += colorDict.rest.map(value => (value ? `{${value}}` : '')).join('');
+  orderedCost += rest.map(value => (value ? `{${value}}` : '')).join('');
 
   return orderedCost;
 };
