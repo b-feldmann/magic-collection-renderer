@@ -743,8 +743,14 @@ updateLog.push({
 
 updateLog.push({
   version: '4.2.1',
-  title: 'Mana Order',
+  title: 'Hybrid Cards',
   content: [
+    {
+      type: ChangeLogFeatureType.Added,
+      feature: 'Two-color frames for hybrid cards.',
+      description:
+        'Cards paid with two-color hybrid mana only now get a two-color frame instead of a gold one in the regular and extended art styles.',
+    },
     {
       type: ChangeLogFeatureType.Changed,
       feature: 'Hybrid mana is now ordered between its two colors.',
