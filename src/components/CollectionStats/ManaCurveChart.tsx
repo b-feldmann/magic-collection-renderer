@@ -36,12 +36,16 @@ const ManaCurveChart = ({
       .filter(category => point[category.key] > 0)
       .map(category => `${point[category.key]} ${category.label}`)
       .join(', ') || 'No cards';
+  // Individual charts label every bar with its count, so only stacked ones need an axis.
+  const showYAxis = !compact && layout === 'stacked';
   const axisTicks = [
     ...new Set([0, Math.ceil(maximum / 3), Math.ceil((maximum * 2) / 3), maximum]),
   ];
 
   return (
-    <figure className={`${styles.chart} ${compact ? styles.compactChart : ''} ${className}`}>
+    <figure
+      className={`${styles.chart} ${compact ? styles.compactChart : ''} ${showYAxis ? '' : styles.noYAxis} ${className}`}
+    >
       <figcaption className={styles.chartHeading}>
         <h3>{title}</h3>
         <span>{countText}</span>
@@ -54,7 +58,7 @@ const ManaCurveChart = ({
             aria-label={`Mana curve by ${title.toLowerCase()}: ${countText}`}
             aria-describedby={descriptionId}
           >
-            {!compact &&
+            {showYAxis &&
               axisTicks.map(tick => (
                 <span
                   className={styles.gridLine}

@@ -232,8 +232,22 @@ $muted-text: #526b5b;
 }
 .singleCharts {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(190px, 100%), 1fr));
   gap: 12px;
+
+  // One height for every chart, whatever its column width: it follows the width of
+  // the sheet (.statsBar is the container), from 100px at 1920px screens up to 150px.
+  .plot {
+    height: clamp(100px, 9.25cqw, 150px);
+  }
+  // Over the plot, so one empty chart doesn't make its whole row taller.
+  .emptyState {
+    position: absolute;
+    inset-inline: 0;
+    top: 50%;
+    margin: 0;
+    text-align: center;
+  }
 }
 .stackedCharts {
   display: grid;
@@ -305,6 +319,9 @@ $muted-text: #526b5b;
   overflow-y: hidden;
   padding: 20px 2px 0 22px;
   margin-top: -20px;
+}
+.noYAxis .plotViewport {
+  padding-left: 2px;
 }
 .plot {
   position: relative;

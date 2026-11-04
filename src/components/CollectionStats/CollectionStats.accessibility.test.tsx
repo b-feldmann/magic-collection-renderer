@@ -1,5 +1,5 @@
 import React from 'react';
-import { render } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { compile } from 'sass';
 import { resolve } from 'node:path';
 import { expect, it } from 'vitest';
@@ -32,6 +32,8 @@ it('keeps essential small chart text readable against its rendered background', 
   document.head.append(sheet);
   try {
     const { container } = render(<CollectionStats fillHeight collection={[]} />);
+    // Only stacked charts have a y axis.
+    fireEvent.click(screen.getByRole('button', { name: 'Stacked' }));
     const selectors = [
       `.${styles.cmcLabel}`,
       `.${styles.axisLabel}`,

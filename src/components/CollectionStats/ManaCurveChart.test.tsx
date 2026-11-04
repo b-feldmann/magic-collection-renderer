@@ -33,6 +33,24 @@ describe('ManaCurveChart', () => {
     expect(screen.getByLabelText('Total at mana value 2: 3 cards')).toBeInTheDocument();
   });
 
+  it('shows a y axis on stacked charts but not on individual ones', () => {
+    const chart = (layout: 'stacked' | 'individual') => (
+      <ManaCurveChart
+        title="Color"
+        data={data}
+        categories={categories}
+        maxCount={20}
+        layout={layout}
+      />
+    );
+    const { rerender } = render(chart('stacked'));
+    expect(screen.getByText('14')).toBeInTheDocument();
+
+    rerender(chart('individual'));
+    expect(screen.queryByText('14')).not.toBeInTheDocument();
+    expect(screen.getByLabelText('Total at mana value 2: 3 cards')).toBeInTheDocument();
+  });
+
   it('uses the supplied shared scale instead of normalizing each single chart', () => {
     render(
       <>
