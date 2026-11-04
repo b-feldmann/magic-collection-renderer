@@ -34,16 +34,28 @@
   padding: 4px;
 }
 
+// Same badge as FavoriteHeart, mirrored into the opposite corner.
 .newComments {
   position: absolute;
-  top: 32px;
-  right: 14px;
+  top: 8px;
+  right: 8px;
   z-index: 3;
-  pointer-events: none;
-  color: #1677ff;
-  font-size: 24px;
+  display: grid;
+  width: 1.5em;
+  height: 1.5em;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.55);
+  font-size: 25px;
   line-height: 1;
-  filter: drop-shadow(0 0 3px white) drop-shadow(0 0 5px lightblue);
+  pointer-events: none;
+  color: #197a43;
+}
+
+// The new-card star takes this corner until the card has been seen.
+.belowStar {
+  top: calc(8px + 1.5em + 6px);
 }
 
 .cardControls {

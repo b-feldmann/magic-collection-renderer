@@ -85,16 +85,6 @@ const Cell = ({
   return (
     <div className={styles.cardBox} style={style} {...ariaAttributes}>
       {isNew && <GlowingStar />}
-      {hasUnreadComments && (
-        <span
-          className={styles.newComments}
-          role="img"
-          aria-label="New comments"
-          title="New comments"
-        >
-          <MessageFilled aria-hidden="true" />
-        </span>
-      )}
       <Spin size="large" spinning={!!card.loading}>
         <ActionHover
           onClick={() => {
@@ -135,6 +125,16 @@ const Cell = ({
         </ActionHover>
       </Spin>
       <FavoriteHeart favorite={card.favorite} />
+      {hasUnreadComments && (
+        <span
+          className={`${styles.newComments} ${isNew ? styles.belowStar : ''}`}
+          role="img"
+          aria-label="New comments"
+          title="New comments"
+        >
+          <MessageFilled aria-hidden="true" />
+        </span>
+      )}
       {(family.length > 1 || card.back) && (
         <div className={styles.cardControls} role="group" aria-label="Card controls">
           {family.length > 1 && (

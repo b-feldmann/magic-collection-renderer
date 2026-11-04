@@ -74,6 +74,34 @@ describe('ManaCurveChart', () => {
     expect(screen.getByTitle('Blue: 1 card at mana value 2')).toHaveStyle({ height: '25%' });
   });
 
+  it('keeps the same bar elements across data changes so they can animate', () => {
+    const chart = (white: number, chartCategories = categories) => (
+      <ManaCurveChart
+        title="Color"
+        data={data.map(point => (point.cmc === 2 ? { ...point, white } : point))}
+        categories={chartCategories}
+        maxCount={4}
+        layout="individual"
+      />
+    );
+    const { rerender } = render(chart(2));
+    const bar = screen.getByTitle('White: 2 cards at mana value 2');
+
+    rerender(chart(4));
+    expect(screen.getByTitle('White: 4 cards at mana value 2')).toBe(bar);
+    expect(bar).toHaveStyle({ height: '100%' });
+
+    // Down to zero, then with the category gone altogether: still there, at no height.
+    rerender(chart(0));
+    expect(bar).toBeInTheDocument();
+    expect(bar).toHaveStyle({ height: '0%' });
+
+    rerender(chart(2, [categories[1]]));
+    expect(bar).toBeInTheDocument();
+    expect(bar).toHaveStyle({ height: '0%' });
+    expect(bar).not.toHaveAttribute('title');
+  });
+
   it('labels overlapping tag counts as tag matches and treats names as text', () => {
     render(
       <ManaCurveChart

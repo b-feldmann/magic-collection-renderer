@@ -7,7 +7,7 @@ import { Mana } from '../Mana/Mana';
 import TextResize from '../TextResize/TextResize';
 
 import { CardType, ColorType, CoverFit, RarityType } from '../../interfaces/enums';
-import { Store, StoreType } from '../../store';
+import { MechanicsContext } from '../../store';
 import { getColor } from '../../utils/cardToColor';
 import { resolveColorIdentity } from '../../utils/getLandColor';
 import { formatTypeLine } from '../../utils/cardTypes';
@@ -59,7 +59,7 @@ const InvocationCardRender = (cardRender: InvocationCardRenderProps) => {
   const { backFace, collectionNumber, collectionSize } = cardRender;
   const { containerWidth = CARD_WIDTH } = cardRender;
 
-  const { mechanics } = useContext<StoreType>(Store);
+  const mechanics = useContext(MechanicsContext);
 
   const resizeFactor = (width: number) => {
     return width / CARD_WIDTH;

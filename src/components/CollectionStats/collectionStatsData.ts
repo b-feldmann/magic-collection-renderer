@@ -100,20 +100,18 @@ export const buildManaCurveData = (
 ): ManaCurveData => {
   const cards = getVariantGroups(collection, allCards).map(group => group[0]);
   const nonlands = cards.filter(card => !isLand(card));
-  const tagTotals = new Map<string, number>();
-  nonlands.forEach(card => {
-    new Set(card.tags || []).forEach(tag => tagTotals.set(tag, (tagTotals.get(tag) || 0) + 1));
-  });
   // Use the full collection so filtering and frequency changes cannot shift tag colors.
   const tagColorByName = new Map(
     [...new Set([...allCards, ...collection].flatMap(card => card.tags || []))]
       .sort((a, b) => a.localeCompare(b))
       .map((tag, index) => [tag, tagColors[index % tagColors.length]]),
   );
-  const tagCategories = [...tagTotals.entries()]
-    .sort(([a, countA], [b, countB]) => countB - countA || a.localeCompare(b))
-    .map(([label], index) => ({
-      key: `tag-${index}`,
+  // Alphabetical, not by frequency, so filtering cannot make the tag charts swap places.
+  const tagCategories = [...new Set(nonlands.flatMap(card => card.tags || []))]
+    .sort((a, b) => a.localeCompare(b))
+    .map(label => ({
+      // Named, not ranked: a tag keeps its key (and its bars) when filtering removes other tags.
+      key: `tag-${label}`,
       label,
       color: tagColorByName.get(label)!,
     }));

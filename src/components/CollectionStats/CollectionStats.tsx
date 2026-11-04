@@ -1,6 +1,7 @@
 import React, { useId, useMemo, useRef, useState } from 'react';
 import CardInterface from '../../interfaces/CardInterface';
 import ManaCurveChart from './ManaCurveChart';
+import MiniManaCurve from './MiniManaCurve';
 import {
   buildManaCurveData,
   ChartCategory,
@@ -235,6 +236,8 @@ const CollectionStats = ({
             </>
           )}
         </div>
+        {/* The color curve is the one that counts every card: lands sit at mana value 0. */}
+        {isMostlyHidden && <MiniManaCurve data={data.colors} categories={colorCategories} />}
         <div className={styles.headingControls}>
           {isExpanded && (
             <div className={styles.layoutSwitch} role="group" aria-label="Chart layout">

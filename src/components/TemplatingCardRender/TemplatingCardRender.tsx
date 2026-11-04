@@ -20,7 +20,7 @@ import {
   PreparedType,
   RarityType,
 } from '../../interfaces/enums';
-import { Store, StoreType } from '../../store';
+import { MechanicsContext } from '../../store';
 import { getColor } from '../../utils/cardToColor';
 import { formatTypeLine } from '../../utils/cardTypes';
 import CardFaceInterface from '../../interfaces/CardFaceInterface';
@@ -164,7 +164,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
   const { backFace, collectionNumber, collectionSize } = cardRenderProps;
   const { containerWidth = CARD_WIDTH, artStyle, coverFit } = cardRenderProps;
 
-  const { mechanics } = useContext<StoreType>(Store);
+  const mechanics = useContext(MechanicsContext);
 
   // The mana cost (rendered top-right) and the title share the same row, so a
   // wider cost must leave the title less room. Measure the cost box and shrink

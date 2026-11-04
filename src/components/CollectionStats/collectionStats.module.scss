@@ -1,6 +1,8 @@
 @use '../../styles/mixins';
 
 $muted-text: #526b5b;
+// Bars, their count labels and the grid lines share one timing so they stay aligned mid-move.
+$bar-transition: 280ms ease;
 
 .statsBar {
   position: absolute;
@@ -131,6 +133,40 @@ $muted-text: #526b5b;
   strong {
     color: #3b6449;
   }
+}
+// Fixed height, so it fits the hidden sheet without making the heading taller.
+// Only shown from 800px up (see the container query below): narrower sheets need the
+// room for the heading text and controls.
+.miniCurve {
+  position: relative;
+  display: none;
+  flex: none;
+  align-self: center;
+  gap: 2px;
+  width: 96px;
+  height: 28px;
+}
+.miniCurveColumn {
+  display: flex;
+  flex: 1;
+  align-items: flex-end;
+  min-width: 0;
+}
+.miniCurveBar {
+  width: 100%;
+  min-height: 3px;
+  border-radius: 2px 2px 0 0;
+  background: #24452f;
+  transition:
+    height $bar-transition,
+    background-color $bar-transition;
+  @starting-style {
+    height: 0 !important;
+  }
+}
+.miniCurveEmptyBar {
+  min-height: 2px;
+  background: #a9b0ab;
 }
 .statsBar .expandButton {
   display: inline-flex;
@@ -353,6 +389,11 @@ $muted-text: #526b5b;
   justify-content: center;
   width: min(42px, 100%);
   border-radius: 2px 2px 0 0;
+  transition: height $bar-transition;
+  // Heights are inline styles, so growing in from zero needs !important to outrank them.
+  @starting-style {
+    height: 0 !important;
+  }
 }
 .segmentCount {
   font-size: 9px;
@@ -369,6 +410,10 @@ $muted-text: #526b5b;
   font-size: 10px;
   font-weight: 600;
   color: #45634e;
+  transition: bottom $bar-transition;
+  @starting-style {
+    bottom: 0 !important;
+  }
 }
 .cmcLabel {
   flex: none;
@@ -382,6 +427,7 @@ $muted-text: #526b5b;
   position: absolute;
   inset-inline: 0;
   border-top: 1px solid #eaf0eb;
+  transition: bottom $bar-transition;
   > span {
     position: absolute;
     left: -22px;
@@ -519,6 +565,22 @@ $muted-text: #526b5b;
 }
 
 @container (min-width: 800px) {
+  .miniCurve {
+    display: flex;
+  }
+
+  // Shrink the intro to its text, so the mini curve sits directly beside it. A grid
+  // because a wrapping flex container would size to all its items on a single line.
+  .sheetHeading.hiddenHeading .headingIntro {
+    display: grid;
+    flex: 0 1 auto;
+    grid-template-columns: auto auto;
+    justify-content: start;
+    .inlineMetrics {
+      grid-column: 1 / -1;
+    }
+  }
+
   .stackedSections {
     grid-template-columns: repeat(2, minmax(0, 1fr));
 
@@ -536,7 +598,11 @@ $muted-text: #526b5b;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .statsBar {
+  .statsBar,
+  .barSegment,
+  .barCount,
+  .gridLine,
+  .miniCurveBar {
     transition: none;
   }
 }

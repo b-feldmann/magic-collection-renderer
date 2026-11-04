@@ -1,4 +1,4 @@
-import React, { useId } from 'react';
+import React, { useId, useState } from 'react';
 import { ChartCategory, ChartLayout, ManaCurvePoint } from './collectionStatsData';
 import styles from './collectionStats.module.scss';
 
@@ -25,6 +25,16 @@ const ManaCurveChart = ({
   className?: string;
 }): React.JSX.Element => {
   const descriptionId = useId();
+  // Every category seen so far keeps its segments mounted, so a bar can shrink to nothing
+  // when filtering removes the category, rather than vanishing at once.
+  const [knownCategories, setKnownCategories] = useState(categories);
+  const newCategories = categories.filter(
+    category => !knownCategories.some(known => known.key === category.key),
+  );
+  if (newCategories.length > 0) setKnownCategories([...knownCategories, ...newCategories]);
+  const stackPositions = new Map(
+    categories.map((category, position) => [category.key, { category, position }]),
+  );
   const maximum = Math.max(1, maxCount);
   const totalAt = (point: ManaCurvePoint) =>
     categories.reduce((sum, category) => sum + (point[category.key] || 0), 0);
@@ -59,10 +69,11 @@ const ManaCurveChart = ({
             aria-describedby={descriptionId}
           >
             {showYAxis &&
-              axisTicks.map(tick => (
+              axisTicks.map((tick, index) => (
                 <span
                   className={styles.gridLine}
-                  key={tick}
+                  // By position, so a line glides to its new height when the scale changes.
+                  key={index}
                   style={{ bottom: `calc(22px + (100% - 22px) * ${tick / maximum})` }}
                   aria-hidden="true"
                 >
@@ -79,20 +90,27 @@ const ManaCurveChart = ({
                   title={`Mana value ${value}: ${describe(point)}`}
                 >
                   <div className={styles.barStack}>
-                    {categories.map(category => {
-                      const segment = point[category.key] || 0;
-                      if (!segment) return null;
+                    {knownCategories.map(known => {
+                      const current = stackPositions.get(known.key);
+                      const category = current?.category ?? known;
+                      const segment = current ? point[category.key] || 0 : 0;
                       return (
                         <span
                           className={styles.barSegment}
                           key={category.key}
-                          title={`${category.label}: ${formatCount(segment, countUnit)} at mana value ${value}`}
+                          title={
+                            segment > 0
+                              ? `${category.label}: ${formatCount(segment, countUnit)} at mana value ${value}`
+                              : undefined
+                          }
                           style={{
                             backgroundColor: category.color,
                             height: `${(segment / maximum) * 100}%`,
+                            // CSS order, not DOM order: moving a node would cancel its transition.
+                            order: current?.position ?? categories.length,
                           }}
                         >
-                          {!compact && layout === 'stacked' && (
+                          {segment > 0 && !compact && layout === 'stacked' && (
                             <span className={styles.segmentCount}>{segment}</span>
                           )}
                         </span>

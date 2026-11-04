@@ -25,19 +25,32 @@ describe('collection statistics data', () => {
     const alphabetical = buildManaCurveData([
       card('Both', '{2}', ['Creature'], ['Aggro', 'Flying']),
     ]);
-    const frequencySorted = buildManaCurveData([
+    const flyingHeavy = buildManaCurveData([
       card('Flying', '{3}', ['Creature'], ['Flying']),
       card('Both', '{2}', ['Creature'], ['Flying', 'Aggro']),
     ]);
-    expect(frequencySorted.tagCategories.map(category => category.label)).toEqual([
-      'Flying',
-      'Aggro',
-    ]);
     for (const category of alphabetical.tagCategories) {
-      expect(
-        frequencySorted.tagCategories.find(entry => entry.label === category.label)?.color,
-      ).toBe(category.color);
+      expect(flyingHeavy.tagCategories.find(entry => entry.label === category.label)?.color).toBe(
+        category.color,
+      );
     }
+  });
+
+  it('orders tags alphabetically whatever their frequency, card order or active filter', () => {
+    const zombies = ['Zombie one', 'Zombie two', 'Zombie three'].map(name =>
+      card(name, '{1}', ['Creature'], ['Zombie']),
+    );
+    const flyers = ['Flyer one', 'Flyer two'].map(name =>
+      card(name, '{2}', ['Creature'], ['Flying']),
+    );
+    const all = [...zombies, ...flyers];
+    const labels = (collection: CardInterface[]) =>
+      buildManaCurveData(collection, all).tagCategories.map(category => category.label);
+
+    // Zombie is the more frequent tag in the full collection, Flying in the filtered one.
+    expect(labels(all)).toEqual(['Flying', 'Zombie']);
+    expect(labels([zombies[0], ...flyers])).toEqual(['Flying', 'Zombie']);
+    expect(labels([...all].reverse())).toEqual(['Flying', 'Zombie']);
   });
 
   it('keeps tag colors when filtering out alphabetically earlier tags', () => {
@@ -218,9 +231,19 @@ describe('collection statistics data', () => {
       card('Second', '{3}', ['Instant'], ['Aggro']),
     ]);
     expect(data.tagCategories.map(c => c.label)).toEqual(['Aggro', 'Flying']);
-    expect(data.tags[2]).toEqual({ cmc: 2, 'tag-0': 1, 'tag-1': 1 });
-    expect(data.tags[3]).toEqual({ cmc: 3, 'tag-0': 1, 'tag-1': 0 });
+    expect(data.tags[2]).toEqual({ cmc: 2, 'tag-Aggro': 1, 'tag-Flying': 1 });
+    expect(data.tags[3]).toEqual({ cmc: 3, 'tag-Aggro': 1, 'tag-Flying': 0 });
     expect(data.summary.nonlandCount).toBe(2);
+  });
+
+  it('keeps a tag key when filtering removes other tags', () => {
+    const aggro = card('Aggro one', '{1}', ['Creature'], ['Aggro']);
+    const flying = card('Flyer', '{2}', ['Creature'], ['Flying']);
+    const secondFlying = card('Second flyer', '{3}', ['Creature'], ['Flying']);
+    const all = [aggro, flying, secondFlying];
+    const keyOf = (collection: typeof all, label: string) =>
+      buildManaCurveData(collection, all).tagCategories.find(c => c.label === label)?.key;
+    expect(keyOf(all, 'Aggro')).toBe(keyOf([aggro], 'Aggro'));
   });
 
   it.each([{ collection: [] }, { collection: [card('Only land', '', ['Land'])] }])(

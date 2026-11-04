@@ -47,7 +47,7 @@ export const setCurrentUser = (dispatch: (value: Action) => void, user: UserInte
 const fixUser = (user: UserInterface) => ({
   ...user,
   seenCards: user.seenCards || [],
-  lastSeenVersion: user.lastSeenVersion || -1,
+  lastSeenVersion: user.lastSeenVersion ?? -1,
 });
 
 export const getUser = (dispatch: (value: Action) => void) => {
@@ -74,36 +74,41 @@ export const getUser = (dispatch: (value: Action) => void) => {
     .catch(() => {});
 };
 
-// The API replaces the entire user document. Serialize writes per user and
-// apply each change to the preceding response rather than a stale UI snapshot.
+type UserChanges = Partial<Pick<UserInterface, 'seenCards' | 'seenComments' | 'lastSeenVersion'>>;
+
+// The API applies only the sent changes, so another tab or device can't lose its
+// reads to this client's outdated copy. Writes are serialized per user so that the
+// newest server response is the one that ends up in the store.
 const pendingUserUpdates = new Map<
   string,
   { latest: UserInterface; request: Promise<UserInterface> }
 >();
 
-const queueUserUpdate = (
+const queueUserUpdate = async (
   dispatch: (value: Action) => void,
   currentUser: UserInterface,
-  update: (user: UserInterface) => UserInterface | undefined,
+  getChanges: (user: UserInterface) => UserChanges | undefined,
 ) => {
+  if (currentUser.uuid === UNKNOWN_CREATOR.uuid) return undefined;
   const queue = pendingUserUpdates.get(currentUser.uuid) || {
     latest: currentUser,
     request: Promise.resolve(currentUser),
   };
   const base = queue.request.catch(() => queue.latest);
   const request = base.then(async user => {
-    const updated = update(user);
-    if (!updated) return user;
-    const result = await axios.put(MIDDLEWARE_ENDPOINT, {
-      user: updated,
-      accessKey: getAccessToken(),
-    });
-    queue.latest = result.data.user;
+    const changes = getChanges(user);
+    if (!changes) return user;
+    const result = await axios.patch(
+      `${MIDDLEWARE_ENDPOINT}/${encodeURIComponent(currentUser.uuid)}`,
+      { ...changes, accessKey: getAccessToken() },
+    );
+    const updated = fixUser(result.data.user);
+    queue.latest = updated;
     dispatch({
       type: UserActionType.UpdateUser,
-      payload: { user: result.data.user },
+      payload: { user: updated },
     });
-    return result.data.user as UserInterface;
+    return updated;
   });
   queue.request = request;
   pendingUserUpdates.set(currentUser.uuid, queue);
@@ -119,9 +124,7 @@ export const addLastSeenVersion = (
   version: number,
   currentUser: UserInterface,
 ) => {
-  queueUserUpdate(dispatch, currentUser, user => ({ ...user, lastSeenVersion: version })).catch(
-    () => {},
-  );
+  queueUserUpdate(dispatch, currentUser, () => ({ lastSeenVersion: version })).catch(() => {});
 };
 
 export const addSeenCard = (
@@ -130,8 +133,8 @@ export const addSeenCard = (
   currentUser: UserInterface,
 ) => {
   queueUserUpdate(dispatch, currentUser, user => {
-    if (user.seenCards.includes(cardUuid)) return;
-    return { ...user, seenCards: [...user.seenCards, cardUuid] };
+    if (user.seenCards.includes(cardUuid)) return undefined;
+    return { seenCards: [cardUuid] };
   }).catch(() => {});
 };
 
@@ -140,12 +143,9 @@ export const addSeenComments = async (
   commentUuids: string[],
   currentUser: UserInterface,
 ) => {
-  if (currentUser.uuid === UNKNOWN_CREATOR.uuid) return;
   return queueUserUpdate(dispatch, currentUser, user => {
-    const seenComments = new Set(user.seenComments || []);
-    const previousSize = seenComments.size;
-    commentUuids.forEach(uuid => seenComments.add(uuid));
-    if (seenComments.size === previousSize) return;
-    return { ...user, seenComments: [...seenComments] };
+    const seen = new Set(user.seenComments || []);
+    const seenComments = [...new Set(commentUuids)].filter(uuid => !seen.has(uuid));
+    return seenComments.length ? { seenComments } : undefined;
   });
 };

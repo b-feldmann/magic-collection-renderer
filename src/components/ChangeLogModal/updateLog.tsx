@@ -717,6 +717,18 @@ updateLog.push({
       description:
         'If an evolution card has empty pt in a displayed level, or the pt are the same as the default pt we do not render level specific pt anymore.',
     },
+    {
+      type: ChangeLogFeatureType.Changed,
+      feature: 'Aligned font sizes, spacing, rounded edges and more',
+    },
+    {
+      type: ChangeLogFeatureType.Fixed,
+      feature: 'Sometime a new card indicator was shown even if no new comment was added to a card',
+    },
+    {
+      type: ChangeLogFeatureType.Fixed,
+      feature: 'Improved performance when loading the collection or filtering cards',
+    },
   ],
 });
 

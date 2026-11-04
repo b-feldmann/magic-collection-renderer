@@ -171,6 +171,32 @@ describe('CollectionStats bottom sheet', () => {
     expect(screen.getAllByRole('figure')).toHaveLength(3);
   });
 
+  it('shows the mana curve of all filtered cards only in the hidden state', () => {
+    localStorage.clear();
+    const curveName = /^Mana curve of all cards/;
+    const collection = [card('Three'), card('Other three', '{3}'), card('Land', '', ['Land'])];
+    const { rerender } = render(<CollectionStats collection={collection} />);
+    expect(screen.queryByRole('img', { name: curveName })).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Hidden' }));
+    const curve = screen.getByRole('img', { name: 'Mana curve of all cards: 3 cards' });
+    expect(within(curve).getByTitle('Mana value 3: 2 cards')).toBeInTheDocument();
+    expect(within(curve).getByTitle('Mana value 0: 1 card')).toBeInTheDocument();
+    expect(within(curve).getByTitle('Mana value 7+: 0 cards')).toBeInTheDocument();
+
+    rerender(<CollectionStats collection={[collection[0]]} />);
+    expect(
+      screen.getByRole('img', { name: 'Mana curve of all cards: 1 card' }),
+    ).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Expand statistics' }));
+    expect(screen.queryByRole('img', { name: curveName })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Collapse statistics' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Preview' }));
+    expect(screen.queryByRole('img', { name: curveName })).not.toBeInTheDocument();
+    localStorage.clear();
+  });
+
   it('starts with only the three stacked previews and opens to individual charts', () => {
     render(<CollectionStats collection={[card('Blue')]} />);
     expect(screen.getAllByRole('figure')).toHaveLength(3);
