@@ -41,8 +41,8 @@ import { MOBILE_COLLECTION_TABS_INSET, UNKNOWN_CREATOR } from './utils/constants
 import useActiveCardTab from './utils/useActiveCardTab';
 import useTabsOverCards from './utils/useTabsOverCards';
 import usePhoneLayout from './utils/usePhoneLayout';
-import cardToColor from './utils/cardToColor';
 import { matchesSelectedTags } from './utils/cardTagFilter';
+import { matchesColorFilter } from './utils/colorFilter';
 import { CardType, ColorType, RarityType, SORT_BY_LABELS, SortByType } from './interfaces/enums';
 import { buildSortAccessors } from './utils/sortAccessors';
 import useLocalStorage from './utils/useLocalStorageHook';
@@ -139,7 +139,7 @@ const MobileApp: React.FC = () => {
     return sortBy(mergedCollection, sortList).filter(
       o =>
         o.name.toLowerCase().includes(deferredNameFilter.toLowerCase()) &&
-        collectionFilter.colors[cardToColor(o.front, o.manaCost).color] &&
+        matchesColorFilter(o, collectionFilter.colors) &&
         collectionFilter.rarity[o.rarity] &&
         o.front.cardTypes.some(type => collectionFilter.types[type]) &&
         collectionFilter.creators[o.creator.uuid] !== false &&

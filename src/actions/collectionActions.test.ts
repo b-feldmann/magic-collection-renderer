@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('./cardActions', () => ({
   addAutomaticCardTags: vi.fn(),
+  normalizeCardManaCosts: vi.fn(),
   refreshCollection: vi.fn(),
   removeUnknownCardTags: vi.fn(),
 }));
@@ -15,7 +16,12 @@ vi.mock('./tagActions', () => ({
 }));
 
 import { loadCollection } from './collectionActions';
-import { addAutomaticCardTags, refreshCollection, removeUnknownCardTags } from './cardActions';
+import {
+  addAutomaticCardTags,
+  normalizeCardManaCosts,
+  refreshCollection,
+  removeUnknownCardTags,
+} from './cardActions';
 import { getMechanics } from './mechanicActions';
 import { getTags } from './tagActions';
 
@@ -30,6 +36,23 @@ describe('loadCollection', () => {
     vi.mocked(getTags).mockReset().mockResolvedValue(['Combo']);
     vi.mocked(removeUnknownCardTags).mockReset().mockResolvedValue();
     vi.mocked(addAutomaticCardTags).mockReset().mockResolvedValue();
+    vi.mocked(normalizeCardManaCosts).mockReset().mockResolvedValue();
+  });
+
+  it('corrects mana costs even when the mechanics could not be loaded', async () => {
+    vi.mocked(getMechanics).mockResolvedValue(undefined);
+
+    await loadCollection(dispatch);
+
+    expect(normalizeCardManaCosts).toHaveBeenCalledWith(dispatch);
+  });
+
+  it('corrects no mana costs when the collection could not be loaded', async () => {
+    vi.mocked(refreshCollection).mockResolvedValue(false);
+
+    await loadCollection(dispatch);
+
+    expect(normalizeCardManaCosts).not.toHaveBeenCalled();
   });
 
   it('adds missing automatic tags after removing unknown ones', async () => {

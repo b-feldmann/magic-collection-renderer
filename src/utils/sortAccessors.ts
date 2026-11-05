@@ -33,25 +33,19 @@ export const buildSortAccessors = (
   secondarySortBy: SortByType,
   annotationAccessor: AnnotationAccessor,
 ): SortAccessor[] => {
-  const accessors: Record<SortByType, SortAccessor[]> = {
-    [SortByType.Color]: [
-      o => Object.values(ColorType).indexOf(cardToColor(o.front, o.manaCost).color),
-      o => o.front.name.toLowerCase(),
-    ],
-    [SortByType.Creator]: [
-      o => (o.creator.uuid === UNKNOWN_CREATOR.uuid ? 'zzzzz' : o.creator.name),
-      o => Object.values(ColorType).indexOf(cardToColor(o.front, o.manaCost).color),
-      o => o.front.name.toLowerCase(),
-    ],
-    [SortByType.LastUpdated]: [o => -1 * getLastUpdated(o, annotationAccessor)],
-    [SortByType.Rarity]: [
-      o => Object.values(RarityType).length - 1 - Object.values(RarityType).indexOf(o.rarity),
-    ],
-    [SortByType.ManaCost]: [o => getConvertedManaCost(o.manaCost), o => o.front.name.toLowerCase()],
-    [SortByType.Name]: [o => o.front.name.toLowerCase()],
+  // One key per sort type, so nothing but the "then by" choice decides primary ties.
+  const keys: Record<SortByType, SortAccessor> = {
+    [SortByType.Color]: o =>
+      Object.values(ColorType).indexOf(cardToColor(o.front, o.manaCost).color),
+    [SortByType.Creator]: o =>
+      o.creator.uuid === UNKNOWN_CREATOR.uuid ? 'zzzzz' : o.creator.name.toLowerCase(),
+    [SortByType.LastUpdated]: o => -1 * getLastUpdated(o, annotationAccessor),
+    [SortByType.Rarity]: o =>
+      Object.values(RarityType).length - 1 - Object.values(RarityType).indexOf(o.rarity),
+    [SortByType.ManaCost]: o => getConvertedManaCost(o.manaCost),
+    [SortByType.Name]: o => o.front.name.toLowerCase(),
   };
 
-  const list: SortAccessor[] = [...accessors[sortBy]];
-  if (secondarySortBy !== sortBy) list.push(...accessors[secondarySortBy]);
-  return list;
+  // Name comes last so the order stays deterministic when both choices tie.
+  return [...new Set([keys[sortBy], keys[secondarySortBy], keys[SortByType.Name]])];
 };

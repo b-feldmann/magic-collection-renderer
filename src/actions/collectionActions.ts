@@ -1,5 +1,10 @@
 import { Action } from '../reducer';
-import { addAutomaticCardTags, refreshCollection, removeUnknownCardTags } from './cardActions';
+import {
+  addAutomaticCardTags,
+  normalizeCardManaCosts,
+  refreshCollection,
+  removeUnknownCardTags,
+} from './cardActions';
 import { getMechanics } from './mechanicActions';
 import { getTags } from './tagActions';
 
@@ -10,7 +15,11 @@ export const loadCollection = async (dispatch: (value: Action) => void): Promise
     getTags(dispatch),
   ]);
 
-  if (!collectionLoaded || !mechanics) return;
+  if (!collectionLoaded) return;
+
+  await normalizeCardManaCosts(dispatch);
+
+  if (!mechanics) return;
 
   // Removing tags is destructive: a failed request or an empty tag catalogue says nothing about
   // which tags really exist, so only clean up against a complete, successful load.

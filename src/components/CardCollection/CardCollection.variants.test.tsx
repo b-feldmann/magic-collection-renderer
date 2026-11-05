@@ -91,6 +91,13 @@ describe('collection variant carousel', () => {
     expect(props.editCard).not.toHaveBeenCalled();
   });
 
+  it('keeps a variant the user picked even when the filter excludes it', () => {
+    render(<CardCollection {...props} cards={[b]} allCards={[a, b]} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Next variant' }));
+    expect(screen.getByTestId('render-a')).toBeVisible();
+    expect(screen.queryByTestId('render-b')).not.toBeInTheDocument();
+  });
+
   it('renders one tile per family and no controls for ordinary cards', () => {
     render(<CardCollection {...props} cards={[a, b, makeCard('ordinary')]} />);
     expect(screen.getByTestId('render-a')).toHaveAttribute('data-collection-size', '2');
@@ -142,9 +149,10 @@ describe('collection variant carousel', () => {
 
   it('admits a matching variant and retains the full family under filtering', () => {
     render(<CardCollection {...props} cards={[b]} allCards={[a, b, makeCard('hidden')]} />);
-    expect(screen.getByText('1 / 2')).toBeVisible();
-    fireEvent.click(screen.getByRole('button', { name: 'Next variant' }));
     expect(screen.getByTestId('render-b')).toBeVisible();
+    expect(screen.getByText('2 / 2')).toBeVisible();
+    fireEvent.click(screen.getByRole('button', { name: 'Next variant' }));
+    expect(screen.getByTestId('render-a')).toBeVisible();
     expect(screen.queryByTestId('render-hidden')).not.toBeInTheDocument();
   });
 

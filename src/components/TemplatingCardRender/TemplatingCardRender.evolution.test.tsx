@@ -183,30 +183,49 @@ describe('TemplatingCardRender - Evolution frame', () => {
     expect(screen.queryByText('4/4')).not.toBeInTheDocument();
   });
 
-  it('renders only the standard P/T when a displayed level has empty P/T', () => {
-    expectStandardPtOnFallback({ level1Stats: '' });
+  it.each([
+    { description: 'level 1 P/T is empty', level1Stats: '' },
+    { description: 'level 1 P/T is unset', level1Stats: undefined },
+    { description: 'level 1 power is empty', level1Stats: '/0' },
+    { description: 'level 1 toughness is empty', level1Stats: '0/' },
+    { description: 'level 1 P/T matches the default P/T', level1Stats: '1/1' },
+  ])('renders only the standard P/T when $description', ({ level1Stats }) => {
+    expectStandardPtOnFallback({ level1Stats });
+  });
+
+  it('renders only the standard P/T when only level 2 has its own P/T', () => {
+    expectStandardPtOnFallback({ level1Stats: undefined, level2Stats: '4/4' });
   });
 
   it.each([
-    { description: 'level 1 P/T is unset', level1Stats: undefined, level2Stats: '4/4' },
-    { description: 'level 2 P/T is unset', level1Stats: '3/3', level2Stats: undefined },
-    { description: 'level 1 power is empty', level1Stats: '/0', level2Stats: '4/4' },
-    { description: 'level 1 toughness is empty', level1Stats: '0/', level2Stats: '4/4' },
-    { description: 'level 2 power is empty', level1Stats: '3/3', level2Stats: '/0' },
-    { description: 'level 2 toughness is empty', level1Stats: '3/3', level2Stats: '0/' },
-  ])('uses standard P/T when $description', ({ level1Stats, level2Stats }) => {
-    expectStandardPtOnFallback({ level1Stats, level2Stats });
+    { description: 'unset', level2Stats: undefined },
+    { description: 'empty', level2Stats: '' },
+    { description: 'blank', level2Stats: '   ' },
+    { description: 'missing its power', level2Stats: '/0' },
+    { description: 'missing its toughness', level2Stats: '0/' },
+  ])('shows 0/0 for level 2 when its P/T is $description', ({ level2Stats }) => {
+    renderEvolution(true, {
+      level1Indicator: 'LEVEL 2-3',
+      level2Indicator: 'LEVEL 4+',
+      level2Stats,
+    });
+
+    expect(allImages().filter(img => img.className.includes('levelerPt'))).toHaveLength(3);
+    expect(screen.getByText('1/1')).toBeInTheDocument();
+    expect(screen.getByText('3/3')).toBeInTheDocument();
+    expect(screen.getByText('0/0').className).toContain('levelerStatsBottom');
   });
 
-  it('renders only the standard P/T when a displayed level matches the default P/T', () => {
-    expectStandardPtOnFallback({ level1Stats: '1/1' });
-  });
+  it('keeps the level P/T when only level 2 matches the default P/T', () => {
+    renderEvolution(true, {
+      level1Indicator: 'LEVEL 2-3',
+      level2Indicator: 'LEVEL 4+',
+      level2Stats: '1/1',
+    });
 
-  it.each([
-    { description: 'the second level has empty P/T', level2Stats: '' },
-    { description: 'the second level matches the default P/T', level2Stats: '1/1' },
-  ])('renders only the standard P/T when $description', ({ level2Stats }) => {
-    expectStandardPtOnFallback({ level2Stats });
+    expect(allImages().filter(img => img.className.includes('levelerPt'))).toHaveLength(3);
+    expect(screen.getByText('3/3')).toBeInTheDocument();
+    expect(screen.getAllByText('1/1')).toHaveLength(2);
   });
 
   it('does not render the level 2 indicator plate when its indicator is unset', () => {

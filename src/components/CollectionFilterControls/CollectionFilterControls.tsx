@@ -164,7 +164,14 @@ const CollectionFilterControls = ({
       stats[key] = 0;
     });
     collection.forEach(card => {
-      stats[cardToColor(card.front, card.manaCost).color] += 1;
+      const { color, allColors } = cardToColor(card.front, card.manaCost);
+      stats[color] += 1;
+      // Gold cards also appear under each of their colors, so they count there too.
+      if (color === ColorType.Gold) {
+        allColors.forEach(cardColor => {
+          stats[cardColor] += 1;
+        });
+      }
       card.front.cardTypes.forEach(t => {
         stats[t] += 1;
       });

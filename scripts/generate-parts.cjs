@@ -99,6 +99,10 @@ const IMAGE_DIR = path.join(
 );
 const MAINFRAMES_DIR = path.join(IMAGE_DIR, 'mainframes');
 const PARTS_DIR = path.join(IMAGE_DIR, 'parts');
+// Masks are always read from PARTS_DIR. Tests set this variable so the frame,
+// levelerFrame and levelerLevels generators write to a temp directory instead of
+// rewriting tracked images, which can collide with OneDrive or a parallel run.
+const FRAME_OUTPUT_DIR = process.env.GENERATE_PARTS_OUTPUT_DIR || PARTS_DIR;
 
 const SOURCE_DIR = path.join(MAINFRAMES_DIR, 'm15');
 const SOURCE_LAND_DIR = path.join(MAINFRAMES_DIR, 'lands');
@@ -163,6 +167,31 @@ function visiblePixelCentroidX(mask) {
     }
   }
   return count > 0 ? sum / count : width / 2;
+}
+
+/**
+ * Smallest rectangle containing every visible pixel of the mask (alpha above the
+ * threshold), in the `{ x, y, w, h }` shape Jimp's crop expects. Throws when the
+ * mask has no visible pixels, since there is nothing to crop to.
+ */
+function visiblePixelBounds(mask) {
+  const { width, height, data } = mask.bitmap;
+  let minX = width;
+  let minY = height;
+  let maxX = -1;
+  let maxY = -1;
+  for (let i = 0; i < data.length; i += 4) {
+    if (data[i + 3] > MASK_ALPHA_THRESHOLD) {
+      const x = (i / 4) % width;
+      const y = Math.floor(i / 4 / width);
+      if (x < minX) minX = x;
+      if (x > maxX) maxX = x;
+      if (y < minY) minY = y;
+      if (y > maxY) maxY = y;
+    }
+  }
+  if (maxX < 0) throw new Error('Mask has no visible pixels');
+  return { x: minX, y: minY, w: maxX - minX + 1, h: maxY - minY + 1 };
 }
 
 /**
@@ -325,7 +354,7 @@ async function generateM15FrameParts() {
 
   for (const style of M15_FRAME_STYLES) {
     const sourceDir = path.join(SOURCE_DIR, style);
-    const outputDir = path.join(PARTS_DIR, 'frame', style);
+    const outputDir = path.join(FRAME_OUTPUT_DIR, 'frame', style);
     if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir, { recursive: true });
 
     let written = 0;
@@ -395,7 +424,7 @@ async function generateM15LevelerFrameParts() {
 
   for (const style of M15_FRAME_STYLES) {
     const sourceDir = path.join(SOURCE_DIR, style);
-    const outputDir = path.join(PARTS_DIR, 'levelerFrame', style);
+    const outputDir = path.join(FRAME_OUTPUT_DIR, 'levelerFrame', style);
     if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir, { recursive: true });
 
     let written = 0;
@@ -421,6 +450,12 @@ async function generateM15LevelerFrameParts() {
 // single-color level separators from the dedicated leveler frames so they can
 // be layered on top of either the regular or Nyx mainframe. Two-color pairs are
 // intentionally not generated for these indicators.
+//
+// Each image is cropped to the visible bounds of its mask, so only the indicator
+// itself is stored. The bounds come from the mask rather than the carved pixels,
+// keeping the size and position the same for every color. Those positions are
+// hardcoded in TemplatingCardRender.module.scss, so update them there if a mask
+// moves or changes size.
 async function generateM15LevelParts() {
   const levels = [
     { type: 'levelerLevelMid', mask: 'levelerLevelMid.svg' },
@@ -432,10 +467,12 @@ async function generateM15LevelParts() {
     if (!fs.existsSync(maskPath)) throw new Error(`Mask image not found: ${maskPath}`);
     const mask = await readMask(maskPath);
     const { width: maskW, height: maskH } = mask.bitmap;
+    const bounds = visiblePixelBounds(mask);
+    console.log(`${type}  x=${bounds.x} y=${bounds.y} w=${bounds.w} h=${bounds.h}`);
 
     for (const style of M15_FRAME_STYLES) {
       const sourceDir = LEVELER_DIR;
-      const outputDir = path.join(PARTS_DIR, type, style);
+      const outputDir = path.join(FRAME_OUTPUT_DIR, type, style);
       if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir, { recursive: true });
 
       for (const color of ['a', ...VARIANT_COLORS, 'm']) {
@@ -443,7 +480,7 @@ async function generateM15LevelParts() {
         if (!fs.existsSync(sourcePath)) continue;
         const frame = await Jimp.read(sourcePath);
         if (!sameSize(frame, maskW, maskH)) frame.resize({ w: maskW, h: maskH });
-        await carveSingle(frame, mask).write(path.join(outputDir, `${color}.png`));
+        await carveSingle(frame, mask).crop(bounds).write(path.join(outputDir, `${color}.png`));
       }
     }
   }

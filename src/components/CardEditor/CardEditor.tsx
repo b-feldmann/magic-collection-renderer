@@ -26,6 +26,7 @@ import EditField from './EditField';
 import ArtworkUpload from './ArtworkUpload';
 import { MUTUALLY_EXCLUSIVE_CARD_TYPES, resolveExclusiveCardTypes } from '../../utils/cardTypes';
 import { getAutomaticCardTags, getCardTags, updateCardTags } from '../../utils/cardTags';
+import { normalizeManaCost } from '../../utils/injectUtils';
 import { createTag } from '../../actions/tagActions';
 
 import CardFaceInterface from '../../interfaces/CardFaceInterface';
@@ -366,6 +367,13 @@ const CardEditor: React.FC<CardEditorInterface> = ({
   collectionRef.current = cards;
 
   const saveEditorSnapshot = (snapshot: CardInterface): Promise<unknown> => {
+    // updateCard corrects the saved cost too, but merging its response would keep the draft's
+    // spelling, because both sides changed the field. Correct the draft here so they match.
+    const manaCost = normalizeManaCost(snapshot.manaCost);
+    if (manaCost !== snapshot.manaCost && draftRef.current.manaCost === snapshot.manaCost) {
+      setTmpCard({ ...draftRef.current, manaCost });
+    }
+
     const saving = updateCard(
       dispatch,
       cloneDeep(

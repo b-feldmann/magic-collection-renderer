@@ -42,6 +42,27 @@ describe('card variant families', () => {
     ).toEqual([['a', 'b', 'c']]);
   });
 
+  it('places a family where its displayed first member sorts', () => {
+    const oldest = card('oldest', ['newer'], 0);
+    const newer = card('newer', ['oldest'], 1);
+    const sorted = [newer, card('middle'), oldest];
+
+    expect(ids(getVariantGroups(sorted))).toEqual([['middle'], ['oldest', 'newer']]);
+  });
+
+  it('places a family by its best match when the displayed member is filtered out', () => {
+    const oldest = card('oldest', ['first', 'last'], 0);
+    const first = card('first', ['oldest'], 1);
+    const last = card('last', ['oldest'], 2);
+    const filtered = [card('before'), first, card('middle'), last];
+
+    expect(ids(getVariantGroups(filtered, [oldest, ...filtered]))).toEqual([
+      ['before'],
+      ['oldest', 'first', 'last'],
+      ['middle'],
+    ]);
+  });
+
   it('includes all family members when only one matches the collection filter', () => {
     const a = card('a', ['b']);
     const b = card('b', ['a']);

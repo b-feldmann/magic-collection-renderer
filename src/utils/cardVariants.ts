@@ -11,6 +11,24 @@ export const withLatestVariantIds = (
   return latest ? { ...snapshot, variantIds: latest.variantIds?.slice() } : snapshot;
 };
 
+const getPositions = (cards: CardInterface[]) =>
+  new Map(cards.map((card, index) => [card.uuid, index]));
+
+// The family's first member, unless the filter excludes it; then its best-placed match.
+const getDefaultVariant = (family: CardInterface[], position: Map<string, number>) => {
+  if (position.has(family[0].uuid)) return family[0];
+  const placeOf = (member: CardInterface) => position.get(member.uuid) ?? Infinity;
+  return family.reduce((best, member) => (placeOf(member) < placeOf(best) ? member : best));
+};
+
+export const getDefaultVariants = (
+  groups: CardInterface[][],
+  cards: CardInterface[],
+): CardInterface[] => {
+  const position = getPositions(cards);
+  return groups.map(group => getDefaultVariant(group, position));
+};
+
 export const getVariantGroups = (
   cards: CardInterface[],
   allCards: CardInterface[] = cards,
@@ -46,7 +64,12 @@ export const getVariantGroups = (
     group.sort((a, b) => a.meta.createdAt - b.meta.createdAt || a.uuid.localeCompare(b.uuid));
     groups.push(group);
   }
-  return groups;
+
+  // A family takes the place of the variant it displays by default.
+  const position = getPositions(cards);
+  const placement = (group: CardInterface[]) =>
+    position.get(getDefaultVariant(group, position).uuid)!;
+  return groups.sort((a, b) => placement(a) - placement(b));
 };
 
 export const getVariantFamily = (card: CardInterface, cards: CardInterface[]): CardInterface[] =>

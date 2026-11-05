@@ -1,5 +1,6 @@
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { Jimp } from 'jimp';
 import { Resvg } from '@resvg/resvg-js';
@@ -7,12 +8,42 @@ import { Resvg } from '@resvg/resvg-js';
 const root = path.resolve(__dirname, '../../..');
 const imageDir = path.join(root, 'src/components/TemplatingCardRender/images');
 
+function visibleBounds(mask: { bitmap: { width: number; height: number; data: Uint8Array } }) {
+  const { width, height, data } = mask.bitmap;
+  let minX = width;
+  let minY = height;
+  let maxX = -1;
+  let maxY = -1;
+  for (let y = 0; y < height; y += 1) {
+    for (let x = 0; x < width; x += 1) {
+      if (data[(y * width + x) * 4 + 3] > 0) {
+        minX = Math.min(minX, x);
+        maxX = Math.max(maxX, x);
+        minY = Math.min(minY, y);
+        maxY = Math.max(maxY, y);
+      }
+    }
+  }
+  return { x: minX, y: minY, w: maxX - minX + 1, h: maxY - minY + 1 };
+}
+
 describe('leveler frame parts generation', () => {
+  let outputDir: string;
+
+  beforeAll(() => {
+    outputDir = fs.mkdtempSync(path.join(os.tmpdir(), 'generate-parts-leveler-'));
+  });
+
+  afterAll(() => {
+    fs.rmSync(outputDir, { recursive: true, force: true });
+  });
+
   it('writes regular and Nyx M15 frames clipped by the leveler frame mask', async () => {
     execFileSync(process.execPath, ['scripts/generate-parts.cjs', 'levelerFrame'], {
       cwd: root,
       timeout: 120_000,
       stdio: 'pipe',
+      env: { ...process.env, GENERATE_PARTS_OUTPUT_DIR: outputDir },
     });
 
     const maskSvg = fs.readFileSync(path.join(imageDir, 'parts/levelerFrame.svg'), 'utf8');
@@ -22,7 +53,7 @@ describe('leveler frame parts generation', () => {
       const source = (
         await Jimp.read(path.join(imageDir, 'mainframes/m15', style, 'w.png'))
       ).resize({ w: mask.bitmap.width, h: mask.bitmap.height });
-      const output = await Jimp.read(path.join(imageDir, 'parts/levelerFrame', style, 'w.png'));
+      const output = await Jimp.read(path.join(outputDir, 'levelerFrame', style, 'w.png'));
 
       expect(output.bitmap.width).toBe(mask.bitmap.width);
       expect(output.bitmap.height).toBe(mask.bitmap.height);
@@ -38,11 +69,12 @@ describe('leveler frame parts generation', () => {
     }
   }, 120_000);
 
-  it('writes regular and Nyx level mid and bottom overlays from their masks', async () => {
+  it('writes regular and Nyx level overlays cropped to their mask bounds', async () => {
     const output = execFileSync(process.execPath, ['scripts/generate-parts.cjs', 'levelerLevels'], {
       cwd: root,
       timeout: 120_000,
       encoding: 'utf8',
+      env: { ...process.env, GENERATE_PARTS_OUTPUT_DIR: outputDir },
     });
 
     expect(output).not.toMatch(
@@ -52,20 +84,31 @@ describe('leveler frame parts generation', () => {
     for (const level of ['levelerLevelMid', 'levelerLevelBottom']) {
       const maskSvg = fs.readFileSync(path.join(imageDir, 'parts', `${level}.svg`), 'utf8');
       const mask = await Jimp.read(new Resvg(maskSvg).render().asPng());
+      const bounds = visibleBounds(mask);
+      expect(bounds.w).toBeLessThan(mask.bitmap.width);
+      expect(bounds.h).toBeLessThan(mask.bitmap.height);
+
       for (const style of ['regular', 'nyx']) {
         const source = (
           await Jimp.read(path.join(imageDir, 'mainframes/levelers/regular/w.png'))
         ).resize({ w: mask.bitmap.width, h: mask.bitmap.height });
-        const output = await Jimp.read(path.join(imageDir, 'parts', level, style, 'w.png'));
+        const output = await Jimp.read(path.join(outputDir, level, style, 'w.png'));
 
-        expect(output.bitmap.width).toBe(mask.bitmap.width);
-        expect(output.bitmap.height).toBe(mask.bitmap.height);
+        expect(output.bitmap.width).toBe(bounds.w);
+        expect(output.bitmap.height).toBe(bounds.h);
 
-        const pixel = (mask.bitmap.width * 100 + 100) * 4;
-        const expectedAlpha = Math.round(
-          (source.bitmap.data[pixel + 3] * mask.bitmap.data[pixel + 3]) / 255,
-        );
-        expect(output.bitmap.data[pixel + 3]).toBe(expectedAlpha);
+        for (let y = 0; y < bounds.h; y += 1) {
+          for (let x = 0; x < bounds.w; x += 1) {
+            const fullCardIndex = ((y + bounds.y) * mask.bitmap.width + x + bounds.x) * 4;
+            const expectedAlpha = Math.round(
+              (source.bitmap.data[fullCardIndex + 3] * mask.bitmap.data[fullCardIndex + 3]) / 255,
+            );
+            const actualAlpha = output.bitmap.data[(y * bounds.w + x) * 4 + 3];
+            if (actualAlpha !== expectedAlpha) {
+              throw new Error(`Unexpected alpha at ${x},${y} for ${style} ${level}`);
+            }
+          }
+        }
       }
     }
   }, 120_000);

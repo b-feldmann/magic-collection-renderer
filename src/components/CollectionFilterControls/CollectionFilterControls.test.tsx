@@ -88,6 +88,25 @@ describe('compact collection filters', () => {
     });
   });
 
+  it('counts gold cards under each of their colors as well as Gold', () => {
+    render(
+      <CollectionFilterControls
+        collection={[
+          { ...first, manaCost: '{u}{r}' },
+          { ...second, manaCost: '{1}{u}' },
+        ]}
+        setCollectionFilter={vi.fn()}
+        setNameFilter={vi.fn()}
+      />,
+    );
+
+    const countFor = (color: string) =>
+      screen.getByRole('checkbox', { name: `${color} color` }).closest('label');
+    expect(countFor('Blue')).toHaveTextContent('2');
+    expect(countFor('Red')).toHaveTextContent('1');
+    expect(countFor('Gold')).toHaveTextContent('1');
+  });
+
   it('starts secondary groups collapsed and makes their real options available on expansion', () => {
     render(
       <CollectionFilterControls

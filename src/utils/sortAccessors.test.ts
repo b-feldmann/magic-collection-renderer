@@ -57,31 +57,49 @@ describe('buildSortAccessors', () => {
     expect(sorted).toEqual(['Variable', 'One']);
   });
 
-  it('defaults to Last Updated primary and Name secondary (newest first, then A-Z)', () => {
+  it('orders Last Updated by exact time, newest first, ahead of the secondary sort', () => {
     const cards = [
-      makeCard({ name: 'Old', front: { name: 'Old' } as any, meta: { lastUpdated: 100 } as any }),
-      makeCard({ name: 'Zed', front: { name: 'Zed' } as any, meta: { lastUpdated: 300 } as any }),
-      makeCard({ name: 'Ann', front: { name: 'Ann' } as any, meta: { lastUpdated: 300 } as any }),
+      makeCard({
+        front: { name: 'Ann' } as any,
+        meta: { lastUpdated: new Date(2026, 0, 2, 9).getTime() } as any,
+      }),
+      makeCard({
+        front: { name: 'Zed' } as any,
+        meta: { lastUpdated: new Date(2026, 0, 2, 18).getTime() } as any,
+      }),
     ];
 
     const accessors = buildSortAccessors(SortByType.LastUpdated, SortByType.Name, NO_ANNOTATIONS);
-    const sorted = sortBy(cards, accessors).map(c => c.front.name);
 
-    expect(sorted).toEqual(['Ann', 'Zed', 'Old']);
+    expect(sortBy(cards, accessors).map(c => c.front.name)).toEqual(['Zed', 'Ann']);
   });
 
-  it('skips the secondary sort when it equals the primary', () => {
+  it.each([SortByType.Color, SortByType.Creator, SortByType.ManaCost, SortByType.LastUpdated])(
+    'lets the secondary sort decide ties within %s',
+    primary => {
+      const lastUpdated = new Date(2026, 0, 1, 12).getTime();
+      const shared = { manaCost: '{1}{U}', meta: { lastUpdated } as any };
+      // Names run against the rarity order, so a hidden name tiebreaker would fail this.
+      const cards = [
+        makeCard({ ...shared, rarity: RarityType.Common, front: { name: 'Alpha' } as any }),
+        makeCard({ ...shared, rarity: RarityType.MythicRare, front: { name: 'Zeta' } as any }),
+      ];
+
+      const accessors = buildSortAccessors(primary, SortByType.Rarity, NO_ANNOTATIONS);
+
+      expect(sortBy(cards, accessors).map(c => c.front.name)).toEqual(['Zeta', 'Alpha']);
+    },
+  );
+
+  it('falls back to name when the primary and secondary sorts tie', () => {
     const cards = [
-      makeCard({ name: 'Beta', front: { name: 'Beta' } as any }),
-      makeCard({ name: 'Alpha', front: { name: 'Alpha' } as any }),
+      makeCard({ front: { name: 'Beta' } as any }),
+      makeCard({ front: { name: 'Alpha' } as any }),
     ];
 
     const accessors = buildSortAccessors(SortByType.Rarity, SortByType.Rarity, NO_ANNOTATIONS);
-    const sorted = sortBy(cards, accessors).map(c => c.front.name);
 
-    expect(accessors).toHaveLength(1);
-    // Only the primary key applies: original order preserved for ties.
-    expect(sorted).toEqual(['Beta', 'Alpha']);
+    expect(sortBy(cards, accessors).map(c => c.front.name)).toEqual(['Alpha', 'Beta']);
   });
 });
 

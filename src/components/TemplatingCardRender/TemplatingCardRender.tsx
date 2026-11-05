@@ -500,12 +500,9 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
   const hasSecondEvolution: boolean =
     isEvolution &&
     (!!level2Indicator || (!!level2Text && level2Text.length > 0 && level2Text[0] !== ''));
-  const hasIncompleteLevelStats =
-    !hasCompleteStats(level1Stats) || (hasSecondEvolution && !hasCompleteStats(level2Stats));
-  const hasLevelStatsMatchingDefault =
-    areStatsEqual(level1Stats, cardStats) ||
-    (hasSecondEvolution && areStatsEqual(level2Stats, cardStats));
-  const showLevelSpecificPt = hasStats && !hasIncompleteLevelStats && !hasLevelStatsMatchingDefault;
+  // Level 1 alone decides: a level 2 without P/T still renders, as 0/0.
+  const showLevelSpecificPt =
+    hasStats && hasCompleteStats(level1Stats) && !areStatsEqual(level1Stats, cardStats);
   const standardPt = isEvolution
     ? getPt(ptColor, isArtifact, vehicle, isNickname, artStyle === CardArtStyles.Borderless, isLand)
     : pt;
@@ -755,7 +752,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
               {showLevelSpecificPt && (
                 <>
                   <img
-                    className={`${styles.pt} ${styles.levelerPt} ${styles.levelerPtMid}`}
+                    className={`${styles.levelerPt} ${styles.pt} ${styles.levelerPtMid}`}
                     src={getLevelerPt(color, isArtifact, vehicle, 'mid')}
                     alt=""
                   />
@@ -807,12 +804,12 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
                   {showLevelSpecificPt && (
                     <>
                       <img
-                        className={`${styles.pt} ${styles.levelerPt} ${styles.levelerPtBottom}`}
+                        className={`${styles.levelerPt} ${styles.pt} ${styles.levelerPtBottom}`}
                         src={getLevelerPt(color, isArtifact, vehicle, 'bottom')}
                         alt=""
                       />
                       <div className={`${styles.stats} ${styles.levelerStatsBottom}`}>
-                        {`${parseStats(level2Stats).power}/${parseStats(level2Stats).toughness}`}
+                        {`${parseStats(level2Stats?.trim()).power}/${parseStats(level2Stats?.trim()).toughness}`}
                       </div>
                     </>
                   )}
@@ -825,7 +822,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
             <div>
               {pt ? (
                 <img
-                  className={`${styles.pt} ${isEvolution && showLevelSpecificPt ? `${styles.levelerPt} ${styles.levelerPtTop}` : ''}`}
+                  className={`${isEvolution && showLevelSpecificPt ? `${styles.levelerPt} ${styles.levelerPtTop}` : ''} ${styles.pt}`}
                   src={showLevelSpecificPt ? pt : standardPt}
                   alt=""
                 />

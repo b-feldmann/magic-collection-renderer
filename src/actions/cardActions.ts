@@ -14,6 +14,7 @@ import { deriveLegacyMainType } from '../utils/cardTypes';
 import { getVariantFamily, withLatestVariantIds } from '../utils/cardVariants';
 import { getAccessToken, deleteAccessToken } from '../utils/accessService';
 import { UNKNOWN_CREATOR } from '../utils/constants';
+import { normalizeManaCost } from '../utils/injectUtils';
 import UserInterface from '../interfaces/UserInterface';
 import AnnotationInterface from '../interfaces/AnnotationInterface';
 import { createImage, getImage } from './imageActions';
@@ -163,7 +164,11 @@ export const createCard = (dispatch: (value: Action) => void, creator: UserInter
 };
 
 const prepareCard = async (updated: CardInterface, uploadImages = true): Promise<CardInterface> => {
-  const parsed = { ...updated, creator: cardCreator(updated.creator) };
+  const parsed = {
+    ...updated,
+    creator: cardCreator(updated.creator),
+    manaCost: normalizeManaCost(updated.manaCost),
+  };
   // `_id`/`__v` are Mongo-internal fields that ride along on cards held in
   // memory from the server (notably freshly POST-created ones). Sending them
   // back in the PUT makes MongoDB's replaceOne reject the update ("immutable
@@ -327,6 +332,25 @@ export const removeUnknownCardTags = (
         const result = await axios.patch(`${MIDDLEWARE_ENDPOINT}/cards/${card.uuid}`, {
           accessKey: getAccessToken(),
           set: { tags: knownTags },
+          unset: [],
+        });
+        publishCard(dispatch, state, result.data.card);
+      }),
+    );
+  });
+
+// Corrects the mana costs of cards last saved before updates normalized them. Same queue and
+// failure handling as removeUnknownCardTags; cards that are already correct are not written.
+export const normalizeCardManaCosts = (dispatch: Dispatch): Promise<void> =>
+  mutateCards(dispatch, async state => {
+    await Promise.allSettled(
+      currentCollection(state, []).map(async card => {
+        const manaCost = normalizeManaCost(card.manaCost);
+        if (manaCost === card.manaCost) return;
+
+        const result = await axios.patch(`${MIDDLEWARE_ENDPOINT}/cards/${card.uuid}`, {
+          accessKey: getAccessToken(),
+          set: { manaCost },
           unset: [],
         });
         publishCard(dispatch, state, result.data.card);

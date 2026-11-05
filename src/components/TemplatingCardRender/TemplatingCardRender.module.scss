@@ -44,8 +44,6 @@
     height: 2100px;
   }
 
-  .levelerLevelMid,
-  .levelerLevelBottom,
   .frame {
     position: absolute;
     top: 0;
@@ -53,6 +51,23 @@
     background-size: cover;
     width: 1500px;
     height: 2100px;
+  }
+
+  // Generated images are cropped to their masks' bounds (see generateM15LevelParts
+  // in scripts/generate-parts.cjs), so these values must match those masks.
+  .levelerLevelMid,
+  .levelerLevelBottom {
+    position: absolute;
+    left: 36px;
+    width: 180px;
+  }
+
+  .levelerLevelMid {
+    top: 1561px;
+  }
+
+  .levelerLevelBottom {
+    top: 1774px;
   }
 
   .tokenMainframe {
@@ -334,41 +349,49 @@
 
   .levelerText {
     top: 1315px;
-    left: 130px;
-    width: 1260px;
+    left: 110px;
+    //left: 130px;
+    width: 1280px;
     height: 205px;
+  }
+
+  .levelerLevel1Text,
+  .levelerLevel2Text {
+    left: 220px;
+    width: 1170px;
   }
 
   .levelerLevel1Text {
     top: 1510px;
-    left: 300px;
-    width: 1090px;
     height: 220px;
   }
 
-  .levelerLevel1TextBackground {
+  .levelerLevel1TextBackground,
+  .levelerLevel2TextBackground {
     position: absolute;
-    top: 0px;
-    left: -190px;
+    left: -120px;
     width: 1276px;
+  }
+
+  .levelerLevel1TextBackground {
+    top: 0px;
     height: 216px;
     background: rgba(0, 0, 0, 0.075);
   }
 
   .levelerLevel2Text {
     top: 1720px;
-    left: 300px;
-    width: 1090px;
     height: 220px;
   }
 
   .levelerLevel2TextBackground {
-    position: absolute;
     top: 5px;
-    left: -190px;
-    width: 1276px;
     height: 220px;
     background: rgba(0, 0, 0, 0.15);
+  }
+
+  .levelerPt {
+    right: 40px !important;
   }
 
   .tokenText {
@@ -585,7 +608,7 @@
   .levelerStatsTop,
   .levelerStatsMid,
   .levelerStatsBottom {
-    left: 1183px;
+    left: 1224px;
     width: 216px;
     height: 124px;
   }
@@ -620,7 +643,7 @@
 
   .levelerIndicator {
     position: absolute;
-    left: 68px;
+    left: 8px;
     width: 210px;
     height: 144px;
     display: flex;
@@ -630,17 +653,17 @@
     box-sizing: border-box;
     text-align: center;
     font-family: 'Gotham Medium', sans-serif;
-    font-size: 1.9em;
+    font-size: 1.7em;
     line-height: 1.15;
     pointer-events: none;
   }
 
   .levelerIndicatorMid {
-    top: 1541px;
+    top: 1551px;
   }
 
   .levelerIndicatorBottom {
-    top: 1755px;
+    top: 1764px;
   }
 
   .collectionBlock,
@@ -714,11 +737,19 @@
   }
 
   .levelerLevelMid {
-    top: 170px;
+    top: 1721px;
   }
 
   .levelerIndicatorMid {
     top: 1711px;
+  }
+
+  .levelerPtTop {
+    top: 1392px;
+  }
+
+  .levelerStatsTop {
+    top: 1401px;
   }
 
   .levelerPtMid {
@@ -732,26 +763,23 @@
 
 .hasStats {
   .levelerText {
-    width: 1020px;
+    width: 1090px;
   }
 
-  .levelerLevel1Text {
-    width: 850px;
-  }
-
+  .levelerLevel1Text,
   .levelerLevel2Text {
-    width: 850px;
+    width: 980px;
   }
 }
 
 .evolutionWithoutLevelPt.hasStats {
   .levelerText {
-    width: 1260px;
+    width: 1280px;
   }
 
   .levelerLevel1Text,
   .levelerLevel2Text {
-    width: 1090px;
+    width: 1170px;
   }
 }
 
@@ -838,12 +866,6 @@
 
   .stats {
     color: white;
-  }
-
-  // Evolution level P/T plates are the light regular plates, not the dark
-  // borderless ones, and their stats are positioned for the regular plate spot.
-  .levelerPt {
-    right: calc(1500px / 746 * 41);
   }
 
   .levelerStatsTop,

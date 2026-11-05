@@ -211,6 +211,26 @@ const CONSECUTIVE_MANA_SYMBOLS = new RegExp(
   'g',
 );
 
+const MANA_COST_TOKENS = /\{[^{}]+\}|[^{}]+/g;
+
+/**
+ * Rewrites a mana cost like "2{b}" to "{2}{b}", which the statistics and filters need. A cost
+ * with stray braces or an unknown symbol is returned as is, since the renderer can't show it.
+ */
+export const normalizeManaCost = (manaCost: string): string => {
+  if (!manaCost) return manaCost;
+
+  const tokens = manaCost.match(MANA_COST_TOKENS) ?? [];
+  // The tokens skip stray braces, so they only add up to the cost if there are none.
+  if (tokens.join('') !== manaCost) return manaCost;
+
+  const symbols = tokens.map(token => (token.startsWith('{') ? token : `{${token}}`));
+  const isKnown = symbols.every(symbol =>
+    MANA_SYMBOL_CONFIG.some(({ toReplace }) => toReplace.test(symbol)),
+  );
+  return isKnown ? symbols.join('') : manaCost;
+};
+
 export const injectManaIcons = (
   text: string | JSX.Element | (string | JSX.Element)[],
   shadow?: boolean,

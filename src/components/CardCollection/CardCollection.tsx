@@ -14,7 +14,7 @@ import { CARD_WIDTH, CARD_HEIGHT } from '../../utils/constants';
 const SCROLLBAR_WIDTH = 10;
 // Space between neighbouring cards: twice the `.cardBox` padding.
 const CARD_GAP = 8;
-import { getVariantGroups } from '../../utils/cardVariants';
+import { getDefaultVariants, getVariantGroups } from '../../utils/cardVariants';
 
 export interface CardCollectionInterface {
   cards?: CardInterface[];
@@ -53,6 +53,7 @@ const CardCollection = ({
   const [hasMoreBelow, setHasMoreBelow] = useState(false);
   const [gridRef, setGridRef] = useGridCallbackRef();
   const groups = useMemo(() => getVariantGroups(cards, allCards), [cards, allCards]);
+  const defaultVariants = useMemo(() => getDefaultVariants(groups, cards), [groups, cards]);
   const previousEditId = useRef('');
   const reportedScrolled = useRef<boolean | null>(null);
   const reportScrolled = useEffectEvent((scrolled: boolean) => {
@@ -93,10 +94,10 @@ const CardCollection = ({
 
   const selectedIds = new Set(Object.values(selectedVariants));
   const visibleCards = groups.map(
-    group =>
+    (group, index) =>
       group.find(card => card.uuid === selectedVariants[group[0].uuid]) ||
       group.find(card => selectedIds.has(card.uuid)) ||
-      group[0],
+      defaultVariants[index],
   );
 
   const toggleShowBackConfig = (id: string) => {

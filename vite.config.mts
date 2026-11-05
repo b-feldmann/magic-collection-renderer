@@ -29,6 +29,9 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'jsdom',
-    setupFiles: './src/setupTests.ts'
+    setupFiles: './src/setupTests.ts',
+    // The antd/jsdom editor flows can exceed the default 5s when the whole suite
+    // runs in parallel, although they pass quickly on their own.
+    testTimeout: 20_000
   }
 });

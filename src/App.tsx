@@ -23,7 +23,6 @@ import './ant-tabs.scss';
 import CollectionFilterControls, {
   CollectionFilterInterface,
 } from './components/CollectionFilterControls/CollectionFilterControls';
-import cardToColor from './utils/cardToColor';
 import { buildSortAccessors } from './utils/sortAccessors';
 import { createCard, EMPTY_CARD } from './actions/cardActions';
 import { loadCollection } from './actions/collectionActions';
@@ -43,6 +42,7 @@ import {
 } from './actions/userActions';
 import { COLLECTION_TABS_INSET, UNKNOWN_CREATOR } from './utils/constants';
 import { matchesSelectedTags } from './utils/cardTagFilter';
+import { matchesColorFilter } from './utils/colorFilter';
 import useActiveCardTab from './utils/useActiveCardTab';
 import useTabsOverCards from './utils/useTabsOverCards';
 
@@ -186,7 +186,7 @@ const App: React.FC = () => {
       sortCardsBy(mergedCollection, sortList).filter(
         o =>
           o.name.toLowerCase().includes(deferredNameFilter.toLowerCase()) &&
-          collectionFilter.colors[cardToColor(o.front, o.manaCost).color] &&
+          matchesColorFilter(o, collectionFilter.colors) &&
           collectionFilter.rarity[o.rarity] &&
           o.front.cardTypes.some(t => collectionFilter.types[t]) &&
           collectionFilter.creators[o.creator.uuid] !== false &&

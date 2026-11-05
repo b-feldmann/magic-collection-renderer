@@ -3,7 +3,51 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it, vi } from 'vitest';
 
 import MechanicInterface from '../interfaces/MechanicInterface';
-import { injectForFlavour, injectForText, injectManaIcons, isBulletText } from './injectUtils';
+import {
+  injectForFlavour,
+  injectForText,
+  injectManaIcons,
+  isBulletText,
+  normalizeManaCost,
+} from './injectUtils';
+
+describe('normalizeManaCost', () => {
+  it.each([
+    ['2{b}', '{2}{b}'],
+    ['{2}b', '{2}{b}'],
+    ['x{R}', '{x}{R}'],
+    ['2', '{2}'],
+    ['wu', '{wu}'],
+    ['2{wu}', '{2}{wu}'],
+  ])('braces the bare symbols in %s', (input, expected) => {
+    expect(normalizeManaCost(input)).toBe(expected);
+  });
+
+  it.each([
+    [''],
+    ['{2}{b}'],
+    ['{b}{2}'],
+    ['{'],
+    ['}'],
+    ['{}'],
+    ['2{'],
+    ['2{b'],
+    ['2{b}}'],
+    ['{{b}}'],
+    ['foo'],
+    ['2{foo}'],
+    ['2 {b}'],
+    ['21{b}'],
+  ])('leaves %s as it is', input => {
+    expect(normalizeManaCost(input)).toBe(input);
+  });
+
+  it('produces what the renderer already shows', () => {
+    const icons = (cost: string) => renderToStaticMarkup(<p>{injectManaIcons(cost)}</p>);
+
+    expect(icons(normalizeManaCost('2{b}'))).toBe(icons('{2}{b}'));
+  });
+});
 
 describe('injectUtils', () => {
   it.each([

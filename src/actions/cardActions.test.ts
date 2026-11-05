@@ -24,6 +24,7 @@ import {
   createCard,
   createCardVariant,
   deleteCard,
+  normalizeCardManaCosts,
   refreshCard,
   refreshCollection,
   removeUnknownCardTags,
@@ -513,6 +514,19 @@ describe('updateCard', () => {
     });
   });
 
+  it.each([
+    ['2{b}', '{2}{b}'],
+    ['{', '{'],
+  ])('saves the mana cost %s as %s', async (manaCost, expected) => {
+    const card = { ...makeCard(`mana-cost-${manaCost}`), manaCost };
+    vi.mocked(axios.patch).mockResolvedValueOnce({ data: { card } });
+
+    await updateCard(() => {}, card);
+
+    const body = vi.mocked(axios.patch).mock.calls[0][1] as { set: Record<string, unknown> };
+    expect(body.set.manaCost).toBe(expected);
+  });
+
   it('does not send Mongo-internal fields when there is no cached baseline', async () => {
     const card = {
       ...makeCard('uuid-1'),
@@ -700,6 +714,74 @@ describe('removeUnknownCardTags', () => {
     expect(dispatch).toHaveBeenCalledWith({
       type: CardActionType.UpdateCard,
       payload: { card: expect.objectContaining({ uuid: 'second', tags: [] }) },
+    });
+  });
+});
+
+describe('normalizeCardManaCosts', () => {
+  const withCost = (uuid: string, manaCost: string): CardInterface => ({
+    ...makeCard(uuid),
+    manaCost,
+  });
+
+  const loadCards = async (dispatch: (value: Action) => void, cards: CardInterface[]) => {
+    vi.mocked(axios.get).mockResolvedValueOnce({ data: { cards } });
+    await refreshCollection(dispatch);
+  };
+
+  beforeEach(() => {
+    vi.mocked(axios.patch).mockReset();
+  });
+
+  it('writes only the costs that need correcting and publishes the saved cards', async () => {
+    const wrong = withCost('wrong', '2{b}');
+    const saved = { ...wrong, manaCost: '{2}{b}' };
+    const dispatch = vi.fn();
+    await loadCards(dispatch, [wrong, withCost('valid', '{2}{b}'), withCost('invalid', '{')]);
+    vi.mocked(axios.patch).mockResolvedValueOnce({ data: { card: saved } });
+
+    await normalizeCardManaCosts(dispatch);
+
+    expect(axios.patch).toHaveBeenCalledTimes(1);
+    expect(axios.patch).toHaveBeenCalledWith(expect.stringContaining('/cards/wrong'), {
+      accessKey: 'test-token',
+      set: { manaCost: '{2}{b}' },
+      unset: [],
+    });
+    expect(dispatch).toHaveBeenCalledWith({
+      type: CardActionType.UpdateCard,
+      payload: { card: expect.objectContaining({ uuid: 'wrong', manaCost: '{2}{b}' }) },
+    });
+  });
+
+  it('writes nothing on the next load once a cost is corrected', async () => {
+    const wrong = withCost('wrong', '2{b}');
+    const dispatch = vi.fn();
+    await loadCards(dispatch, [wrong]);
+    vi.mocked(axios.patch).mockResolvedValueOnce({
+      data: { card: { ...wrong, manaCost: '{2}{b}' } },
+    });
+
+    await normalizeCardManaCosts(dispatch);
+    await normalizeCardManaCosts(dispatch);
+
+    expect(axios.patch).toHaveBeenCalledTimes(1);
+  });
+
+  it('still corrects the other cards when one write fails', async () => {
+    const first = withCost('first', '2{b}');
+    const second = withCost('second', '3{g}');
+    const dispatch = vi.fn();
+    await loadCards(dispatch, [first, second]);
+    vi.mocked(axios.patch)
+      .mockRejectedValueOnce(new Error('offline'))
+      .mockResolvedValueOnce({ data: { card: { ...second, manaCost: '{3}{g}' } } });
+
+    await expect(normalizeCardManaCosts(dispatch)).resolves.toBeUndefined();
+
+    expect(dispatch).toHaveBeenCalledWith({
+      type: CardActionType.UpdateCard,
+      payload: { card: expect.objectContaining({ uuid: 'second', manaCost: '{3}{g}' }) },
     });
   });
 });

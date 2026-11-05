@@ -16,6 +16,11 @@ packaged as an Electron desktop app.
 Build config lives in `vite.config.mts` and `tsconfig.json`. Peer-dependency conflicts from older
 React-ecosystem libs are tolerated via `.npmrc` (`legacy-peer-deps=true`).
 
+## Git
+
+Do not create new branches automatically. Work on the current branch unless the user explicitly
+asks for a new one.
+
 ## Backend requirement (easy to miss)
 
 The app is a pure frontend and needs a separate middleware server (MongoDB-backed):

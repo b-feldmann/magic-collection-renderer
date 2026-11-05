@@ -760,4 +760,29 @@ updateLog.push({
   ],
 });
 
+updateLog.push({
+  version: '4.2.2',
+  title: 'Evolution Template',
+  content: [
+    {
+      type: ChangeLogFeatureType.Changed,
+      feature: 'Aligned evolution pt',
+    },
+    {
+      type: ChangeLogFeatureType.Changed,
+      feature: 'Made level indicator smaller',
+    },
+    {
+      type: ChangeLogFeatureType.Fixed,
+      feature: 'Auto-fix wrong mana cost',
+      description:
+        'The rendering engine supported wrong mana cost (e.g. {b}2) but the statistics did not work on that. Now we automatically fix the mana costs on the card (--> {b}{2}).',
+    },
+    {
+      type: ChangeLogFeatureType.Fixed,
+      feature: 'Fixed Sort "Then By"',
+    },
+  ],
+});
+
 export default updateLog;
