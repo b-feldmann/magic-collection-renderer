@@ -303,6 +303,12 @@
     // The rendered `• ` marker is narrower than a full em in MPlantin.
     padding-left: 0.625em;
     text-indent: -0.625em;
+
+    // text-indent inherits into inline-blocks, which would pull a mana glyph
+    // out of its circular background.
+    :global(.ms) {
+      text-indent: 0;
+    }
   }
 
   .text {
