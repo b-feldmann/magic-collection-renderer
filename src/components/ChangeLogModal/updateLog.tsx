@@ -839,16 +839,4 @@ updateLog.push({
   ],
 });
 
-updateLog.push({
-  version: '4.2.5',
-  title: 'Evolution Backgrounds',
-  content: [
-    {
-      type: ChangeLogFeatureType.Fixed,
-      feature: 'Evolution levels with an indicator now always show their background.',
-      description: 'The background used to be missing as long as the level had no text.',
-    },
-  ],
-});
-
 export default updateLog;
