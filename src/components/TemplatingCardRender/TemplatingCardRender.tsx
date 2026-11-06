@@ -44,6 +44,7 @@ import {
   getExtendedMainframe,
   getFallbackCover,
   getHybridMainframe,
+  getHybridLevelColor,
   getHybridPtColor,
   getInnerCrown,
   getInventionMainframe,
@@ -492,10 +493,13 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
 
   const hasStats: boolean = isCreature || (isArtifact && !!vehicle);
 
+  const levelColors = isHybridFrame ? [getHybridLevelColor(allColors)] : allColors;
   const levelerLevelMid =
-    isEvolution && level1Indicator ? getLevelerLevelPart('mid', allColors, isEnchantment) : null;
+    isEvolution && level1Indicator ? getLevelerLevelPart('mid', levelColors, isEnchantment) : null;
   const levelerLevelBottom =
-    isEvolution && level2Indicator ? getLevelerLevelPart('bottom', allColors, isEnchantment) : null;
+    isEvolution && level2Indicator
+      ? getLevelerLevelPart('bottom', levelColors, isEnchantment)
+      : null;
 
   const hasSecondEvolution: boolean =
     isEvolution &&
@@ -753,7 +757,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
                 <>
                   <img
                     className={`${styles.levelerPt} ${styles.pt} ${styles.levelerPtMid}`}
-                    src={getLevelerPt(color, isArtifact, vehicle, 'mid')}
+                    src={getLevelerPt(ptColor, isArtifact, vehicle, 'mid')}
                     alt=""
                   />
                   <div className={`${styles.stats} ${styles.levelerStatsMid}`}>
@@ -805,7 +809,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
                     <>
                       <img
                         className={`${styles.levelerPt} ${styles.pt} ${styles.levelerPtBottom}`}
-                        src={getLevelerPt(color, isArtifact, vehicle, 'bottom')}
+                        src={getLevelerPt(ptColor, isArtifact, vehicle, 'bottom')}
                         alt=""
                       />
                       <div className={`${styles.stats} ${styles.levelerStatsBottom}`}>

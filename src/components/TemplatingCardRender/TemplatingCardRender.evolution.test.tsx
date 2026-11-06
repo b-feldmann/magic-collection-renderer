@@ -42,6 +42,7 @@ const renderEvolution = (
     level2Indicator: 'LEVEL 4+',
   },
   artStyle?: CardArtStyles,
+  manaCost = '{1}{G}',
 ) =>
   render(
     <Store.Provider value={mockStoreValue}>
@@ -49,7 +50,7 @@ const renderEvolution = (
         name="Test Evolution"
         rarity={RarityType.Common}
         cardID="test-evolution"
-        manaCost="{1}{G}"
+        manaCost={manaCost}
         cardTypes={evolution ? [EVOLUTION, CardType.Creature] : [CardType.Creature]}
         cardText={[]}
         cardStats="1/1"
@@ -89,6 +90,46 @@ const expectStandardPtOnFallback = (levelStats: { level1Stats?: string; level2St
   expect(evolutionPt?.className).toBe(standardPt?.className);
   expect(evolutionStatsClass).toBe(screen.getByText('1/1').className);
 };
+
+describe('TemplatingCardRender - Evolution colors on multicolor cards', () => {
+  const renderWithCost = (manaCost: string) => {
+    renderEvolution(true, undefined, undefined, manaCost);
+    const sources = allImages().map(img => img.getAttribute('src') ?? '');
+    return (path: string) => sources.some(source => source.includes(path));
+  };
+
+  it('uses the first color for the indicators and the second for the P/T on a hybrid card', () => {
+    const has = renderWithCost('{1}{ur}');
+
+    expect(has('parts/levelerLevelMid/regular/u')).toBe(true);
+    expect(has('parts/levelerLevelBottom/regular/u')).toBe(true);
+    expect(has('pt/levelers/top/r')).toBe(true);
+    expect(has('pt/levelers/mid/r')).toBe(true);
+    expect(has('pt/levelers/bottom/r')).toBe(true);
+  });
+
+  it('follows the frame order rather than the order in the mana cost', () => {
+    const has = renderWithCost('{ru}');
+
+    expect(has('parts/levelerLevelMid/regular/u')).toBe(true);
+    expect(has('pt/levelers/mid/r')).toBe(true);
+  });
+
+  it.each([
+    ['plain two-color pips', '{u}{r}'],
+    ['pips next to a hybrid', '{u}{ur}'],
+    ['a hybrid spanning three colors', '{ur}{ub}'],
+    ['three colors', '{u}{r}{g}'],
+  ])('keeps the gold indicators and P/T for %s', (_, manaCost) => {
+    const has = renderWithCost(manaCost);
+
+    expect(has('parts/levelerLevelMid/regular/m')).toBe(true);
+    expect(has('parts/levelerLevelBottom/regular/m')).toBe(true);
+    expect(has('pt/levelers/top/m')).toBe(true);
+    expect(has('pt/levelers/mid/m')).toBe(true);
+    expect(has('pt/levelers/bottom/m')).toBe(true);
+  });
+});
 
 describe('TemplatingCardRender - Evolution frame', () => {
   it('uses the regular frame with level overlays, indicators, and all three P/T rows', () => {

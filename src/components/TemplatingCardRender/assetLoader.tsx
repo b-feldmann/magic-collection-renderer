@@ -2694,11 +2694,18 @@ export const getHybridMainframe = (
   return frames[getTwoColorVariant(colors)];
 };
 
+const getHybridFrameColor = (colors: ColorType[], side: 0 | 1): ColorType =>
+  colors.find(color => getSingleColorVariant(color) === getTwoColorVariant(colors)[side]) ??
+  ColorType.Gold;
+
 // The P/T box sits on the right of the card, so a hybrid card takes the color
 // of the frame's right half.
-export const getHybridPtColor = (colors: ColorType[]): ColorType =>
-  colors.find(color => getSingleColorVariant(color) === getTwoColorVariant(colors)[1]) ??
-  ColorType.Gold;
+export const getHybridPtColor = (colors: ColorType[]): ColorType => getHybridFrameColor(colors, 1);
+
+// The evolution level indicator sits on the left of the card, so a hybrid card
+// takes the color of the frame's left half.
+export const getHybridLevelColor = (colors: ColorType[]): ColorType =>
+  getHybridFrameColor(colors, 0);
 
 const TITLE_PARTS: Record<PartVariant, string> = {
   '': '',

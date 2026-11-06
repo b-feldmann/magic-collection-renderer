@@ -822,13 +822,19 @@ updateLog.push({
 
 updateLog.push({
   version: '4.2.4',
-  title: 'Two-Color Rules Box',
+  title: 'Two-Color Cards',
   content: [
     {
       type: ChangeLogFeatureType.Changed,
       feature: 'Two-color cards now show both colors in the rules box.',
       description:
         'Multicolor cards with exactly two colors use the two-color rules part instead of the gold one. The title and type bars stay gold.',
+    },
+    {
+      type: ChangeLogFeatureType.Changed,
+      feature: 'Hybrid evolution cards now show their colors on the level rows.',
+      description:
+        'The level indicators on the left use the first color and every P/T on the right uses the second color. All other multicolor evolution cards stay gold.',
     },
   ],
 });
