@@ -785,4 +785,39 @@ updateLog.push({
   ],
 });
 
+updateLog.push({
+  version: '4.2.3',
+  title: 'Mechanic References',
+  content: [
+    {
+      type: ChangeLogFeatureType.Changed,
+      feature: 'Mechanics now accept any kind of reference.',
+      description:
+        'Numbers, mana symbols and text all render the same way, e.g. [Ravage two more] becomes Ravage two more (reminder text). Spaces in a reference are kept.',
+    },
+    {
+      type: ChangeLogFeatureType.Changed,
+      feature: 'Mechanics only render with an em dash if you add -- to them.',
+      description:
+        'Write [Ravage -- 1] or [Ravage--1] to get Ravage — 1 followed by the reminder text. Mechanics without -- now always use parentheses, including ones followed by more text like [Enrage] do something.',
+    },
+    {
+      type: ChangeLogFeatureType.Changed,
+      feature: 'Every -- now renders with exactly one space on each side of the em dash.',
+    },
+    {
+      type: ChangeLogFeatureType.Fixed,
+      feature: 'Reminder-only mechanics can now have a reference.',
+      description:
+        '[-Ravage 1] renders only the reminder text with 1 as the reference. Before, it showed the mechanic name and a dash and used -1 as the reference.',
+    },
+    {
+      type: ChangeLogFeatureType.Fixed,
+      feature: 'Detailed images no longer fail to upload.',
+      description:
+        'Some artwork, especially detailed square or portrait images, was too large for the server to accept and could not be saved.',
+    },
+  ],
+});
+
 export default updateLog;

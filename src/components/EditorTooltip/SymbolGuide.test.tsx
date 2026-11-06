@@ -49,10 +49,10 @@ describe('SymbolGuide', () => {
     }
   });
 
-  it('shows the em dash used when rendering a mechanic with a text reference', () => {
+  it('shows the em dash used when rendering a mechanic with a dashed reference', () => {
     render(<SymbolGuide onClose={() => {}} />);
 
-    expect(screen.getByText('[MECHANIC text]')).toBeInTheDocument();
+    expect(screen.getByText('[MECHANIC -- text]')).toBeInTheDocument();
     expect(screen.getByText('MECHANIC — text')).toBeInTheDocument();
   });
 
@@ -80,7 +80,7 @@ describe('SymbolGuide', () => {
     expect(screen.getByText('--', { selector: 'code' })).toBeInTheDocument();
     expect(screen.getByText('* first item', { selector: 'code' })).toBeInTheDocument();
     expect(screen.getByText('- second item', { selector: 'code' })).toBeInTheDocument();
-    expect(screen.getByText('—Indented paragraph')).toBeInTheDocument();
+    expect(screen.getByText('— Indented paragraph')).toBeInTheDocument();
     expect(screen.getByText('• first item')).toBeInTheDocument();
     expect(screen.getByText('• second item')).toBeInTheDocument();
   });

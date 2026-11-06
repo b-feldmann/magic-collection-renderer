@@ -144,6 +144,36 @@ describe('injectUtils', () => {
   });
 
   it.each([
+    ['[-Ravage 1]', '(Draw 1 cards.)'],
+    ['[- Ravage 1]', '(Draw 1 cards.)'],
+    ['[-Ravage -1]', '(Draw -1 cards.)'],
+    ['[-Ravage]', '(Draw  cards.)'],
+    ['[Ravage -]', '(Draw  cards.)'],
+    ['[-Ravage two more]', '(Draw two more cards.)'],
+    ['[Ravage]', 'Ravage (Draw  cards.)'],
+    ['[Ravage -1]', 'Ravage -1 (Draw -1 cards.)'],
+    ['[Ravage two more]', 'Ravage two more (Draw two more cards.)'],
+    ['[Ravage] and more', 'Ravage (Draw  cards.) and more'],
+    ['[Ravage 1] and more', 'Ravage 1 (Draw 1 cards.) and more'],
+    ['[Ravage -- 1]', 'Ravage — 1 Draw 1 cards.'],
+    ['[Ravage--1]', 'Ravage — 1 Draw 1 cards.'],
+    ['[Ravage -- two more]', 'Ravage — two more Draw two more cards.'],
+    ['[Ravage --]', 'Ravage — Draw  cards.'],
+    ['Before -- [Ravage 1] -- after', 'Before — Ravage 1 (Draw 1 cards.) — after'],
+    ['[Unknown--mechanic]', '[Unknown — mechanic]'],
+  ])('renders the mechanic ref and reminder of %s', (line, expected) => {
+    const mechanic: MechanicInterface = {
+      uuid: 'mechanic-1',
+      name: 'Ravage',
+      description: 'Draw {ref} cards.',
+    };
+    const container = document.createElement('div');
+    container.innerHTML = renderToStaticMarkup(<p>{injectForText(line, 'Test', [mechanic])}</p>);
+
+    expect(container.textContent).toBe(expected);
+  });
+
+  it.each([
     ['Pay {w}{u}{1}.', ['1', 'w', 'u']],
     ['Pay {W}{R}{2}, then {G}{B}{X}.', ['2', 'r', 'w', 'x', 'b', 'g']],
     ['Pay {wu}{G}{1}.', ['1', 'g', 'wu']],
@@ -213,6 +243,42 @@ describe('injectUtils', () => {
     expect(markup).toContain('Tap — draw a card');
   });
 
+  it.each([
+    ['Tap--draw a card'],
+    ['Tap --draw a card'],
+    ['Tap-- draw a card'],
+    ['Tap   --   draw a card'],
+  ])('should render exactly one space on each side of the dash in %s', line => {
+    const markup = renderToStaticMarkup(<div>{injectForText(line, 'Test', [])}</div>);
+    expect(markup).toContain('Tap — draw a card');
+  });
+
+  it('should space every -- on a line, including next to formatted text', () => {
+    const container = document.createElement('div');
+    container.innerHTML = renderToStaticMarkup(
+      <div>{injectForText('One--*two*--three', 'Test', [])}</div>,
+    );
+    expect(container.textContent).toBe('One — two — three');
+  });
+
+  it.each([
+    ['[Ravage 1]', 'Ravage 1 (Draw — then say “Go”…  Test it’s 1.)'],
+    ['[-Ravage 1]', '(Draw — then say “Go”…  Test it’s 1.)'],
+    ['[Ravage -- 1]', 'Ravage — 1 Draw — then say “Go”…  Test it’s 1.'],
+  ])('converts dashes, quotes and ellipses in the mechanic text of %s', (line, expected) => {
+    const mechanic: MechanicInterface = {
+      uuid: 'mechanic-1',
+      name: 'Ravage',
+      description: `Draw--then say "Go"... {w} ~ it's {ref}.`,
+    };
+    const container = document.createElement('div');
+    container.innerHTML = renderToStaticMarkup(<p>{injectForText(line, 'Test', [mechanic])}</p>);
+
+    // The double space is where the mana icon sits; it has no text of its own.
+    expect(container.textContent).toBe(expected);
+    expect(container.querySelector('.ms-w')).not.toBeNull();
+  });
+
   it('should render -- together with other injections (mana icons, card name)', () => {
     const markup = renderToStaticMarkup(
       <div>{injectForText('~ attacks -- {w} card', 'Test', [])}</div>,
@@ -241,7 +307,7 @@ describe('injectUtils', () => {
       <p>{injectForText('--Indented paragraph.', 'Test', [])}</p>,
     );
 
-    expect(markup).toContain('—Indented paragraph.');
+    expect(markup).toContain('— Indented paragraph.');
     expect(markup).not.toContain('•');
   });
 });

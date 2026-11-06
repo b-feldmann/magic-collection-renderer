@@ -231,7 +231,7 @@ describe('TemplatingCardRender - prepared spell box', () => {
   it('keeps whitespace-indented double-hyphen lines as indented em-dash paragraphs', () => {
     renderPrepared({ cardText: ['  --Indented paragraph.'] });
 
-    const paragraph = screen.getByText('—Indented paragraph.').closest('p');
+    const paragraph = screen.getByText('— Indented paragraph.').closest('p');
     expect(paragraph?.getAttribute('style')).toBe('margin-left: 0.5em;');
   });
 

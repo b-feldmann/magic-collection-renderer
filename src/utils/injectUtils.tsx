@@ -15,7 +15,8 @@ export const injectForText = (line: string, cardName: string, mechanics: Mechani
 
   return formatCardText(text, part =>
     injectManaIcons(
-      injectName(injectMechanics(injectLongDash(part), mechanics, cardName), cardName),
+      // Mechanics go first: long dashes split the text, which would break up [Mechanic -- ref].
+      injectName(injectLongDash(injectMechanics(part, mechanics, cardName)), cardName),
     ),
   );
 };
@@ -293,8 +294,9 @@ export const injectQuotationMarks = (text: string | JSX.Element | (string | JSX.
 
 export const injectLongDash = (text: string | JSX.Element | (string | JSX.Element)[]) => {
   return injectWithConfig(text, {
-    toReplace: /--/,
-    toInject: '—',
+    // Absorb spaces already around the dash so it always ends up with exactly one on each side.
+    toReplace: / *-- */,
+    toInject: ' — ',
   });
 };
 
@@ -313,7 +315,7 @@ export const injectMechanics = (
     }
 
     const lines = elem.split(/(\[.*\])/).filter(line => line.length > 0);
-    lines.forEach((line, i) => {
+    lines.forEach(line => {
       if (line.indexOf('[') === -1 || line.indexOf(']') === -1) {
         result.push(line);
         return;
@@ -325,23 +327,31 @@ export const injectMechanics = (
         result.push(line);
         return;
       }
-      const cleanedLine = line.replace(usedMechanic.name, '').replace(/\[|\]|\s*/g, '');
-      const injectedRef = usedMechanic.description.replace(/\{ref\}/g, cleanedLine);
+      const rawRef = line
+        .replace(usedMechanic.name, '')
+        .replace(/\[|\]/g, '')
+        .replace(/\}\s+\{/g, '}{')
+        .trim();
+      // Only a dash in front of the name means "reminder only": in [Modular -1] it's part of the ref.
+      const isReminderOnly = rawRef === '-' || /^\[\s*-/.test(line);
+      const refWithDash = isReminderOnly ? rawRef.replace(/^-\s*/, '') : rawRef;
+      const hasLongDash = refWithDash.startsWith('--');
+      const ref = hasLongDash ? refWithDash.replace(/^--\s*/, '') : refWithDash;
+      const injectedRef = usedMechanic.description.replace(/\{ref\}/g, ref);
       const parsedDescription = formatCardText(injectedRef, part =>
-        injectManaIcons(injectName(part, cardName)),
+        injectManaIcons(injectName(injectLongDash(part), cardName)),
       );
-      if (cleanedLine === '-') {
+      if (isReminderOnly) {
         result.push(<span style={{ fontStyle: 'italic' }}>({parsedDescription})</span>);
         return;
       }
-      const braces = i === lines.length - 1 && !!cleanedLine.match(/^\d*$|^(\{.{1,2}\})+$/);
-      if (braces) {
-        result.push(`${usedMechanic.name} ${cleanedLine} (`);
+      if (hasLongDash) {
+        result.push(`${usedMechanic.name} — ${ref ? `${ref} ` : ''}`);
+        result.push(<span>{parsedDescription}</span>);
+      } else {
+        result.push(`${usedMechanic.name} ${ref ? `${ref} ` : ''}(`);
         result.push(<span style={{ fontStyle: 'italic' }}>{parsedDescription}</span>);
         result.push(')');
-      } else {
-        result.push(`${usedMechanic.name} — ${cleanedLine} `);
-        result.push(<span>{parsedDescription}</span>);
       }
     });
   });

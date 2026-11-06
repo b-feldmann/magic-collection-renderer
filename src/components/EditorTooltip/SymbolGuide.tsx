@@ -46,15 +46,20 @@ const MECHANICS = [
   {
     code: '[-MECHANIC]',
     label: 'Reminder only',
-    description: 'Only the description, in italic parentheses. No name or cost.',
+    description: (
+      <>
+        Only the description, in italic parentheses. No name or reference. Add a reference, e.g.{' '}
+        <code>[-MECHANIC 2]</code>, to fill in <code>{'{ref}'}</code>.
+      </>
+    ),
   },
   {
     code: '[MECHANIC {2}]',
-    label: 'Name + cost + reminder',
+    label: 'Name + reference + reminder',
     description: (
       <>
-        The mechanic name, cost, and description. Your cost replaces <code>{'{ref}'}</code> in the
-        description; numbers or mana symbols work.
+        The mechanic name, reference, and description in italic parentheses. Your reference replaces{' '}
+        <code>{'{ref}'}</code> in the description; numbers, mana symbols, or text all work.
       </>
     ),
   },
@@ -68,12 +73,12 @@ const MECHANICS = [
     ),
   },
   {
-    code: '[MECHANIC text]',
-    label: 'Name + dash + text reference',
+    code: '[MECHANIC -- text]',
+    label: 'Name + dash + reference',
     description: (
       <>
-        A text reference renders after an em dash, e.g. <code>MECHANIC — text</code>, followed by
-        the description.
+        With a double dash, the reference renders after an em dash, e.g.{' '}
+        <code>MECHANIC — text</code>, followed by the description without parentheses.
       </>
     ),
   },
@@ -243,7 +248,7 @@ const SymbolGuide = ({ onClose }: { onClose: () => void }): React.JSX.Element =>
               <div className={styles.formattingRow}>
                 <code>--</code>
                 <span>
-                  —Indented paragraph
+                  — Indented paragraph
                   <span className={styles.formattingLabel}>Em dash</span>
                 </span>
               </div>
