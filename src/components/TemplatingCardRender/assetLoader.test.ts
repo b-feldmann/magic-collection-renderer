@@ -337,13 +337,6 @@ describe.each([
     expect(getPart([ColorType.Red, ColorType.Green, ColorType.White], true)).toBe(gold);
   });
 
-  it('renders the gold part on a two-color non-artifact card', () => {
-    const twoColor = getPart([ColorType.White, ColorType.Blue], false);
-    const gold = getPart([ColorType.White, ColorType.Blue, ColorType.Black], true);
-    expect(twoColor).not.toBe('');
-    expect(twoColor).toBe(gold);
-  });
-
   it('renders no part on a mono-colored non-artifact card', () => {
     expect(getPart([ColorType.White], false)).toBe('');
   });
@@ -370,10 +363,25 @@ describe.each([
     expect(wu).not.toBe(mono);
     expect(wu).toBe(gold);
   });
+
+  it('renders the gold part on a two-color non-artifact card', () => {
+    const twoColor = getPart([ColorType.White, ColorType.Blue], false);
+    const gold = getPart([ColorType.White, ColorType.Blue, ColorType.Black], true);
+    expect(twoColor).not.toBe('');
+    expect(twoColor).toBe(gold);
+  });
 });
 
-// The rules part keeps the two-color combo for two-color artifacts.
-describe('getRulesPart (two-color artifact uses combo)', () => {
+// The rules part uses the two-color combo for every two-color card.
+describe('getRulesPart (two-color cards use combo)', () => {
+  it('renders the two-color combo part on a two-color non-artifact card', () => {
+    const wu = getRulesPart([ColorType.White, ColorType.Blue], false);
+    const gold = getRulesPart([ColorType.White, ColorType.Blue, ColorType.Black], true);
+    expect(wu).toContain('/rules/wu.png');
+    expect(wu).not.toBe(gold);
+    expect(getRulesPart([ColorType.Blue, ColorType.White], false)).toBe(wu);
+  });
+
   it('renders the two-color combo part on a two-colored artifact', () => {
     const wu = getRulesPart([ColorType.White, ColorType.Blue], true);
     const mono = getRulesPart([ColorType.White], true);

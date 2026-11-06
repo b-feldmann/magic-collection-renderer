@@ -2596,19 +2596,16 @@ const getSingleColorVariant = (color: ColorType): PartVariant => {
 // Selection logic for the rules (text box) frame part:
 //  - artifacts (non-colorless): part matches the card's colors
 //      (single color, two-color combo, or gold for 3+)
-//  - non-artifact cards with exactly two colors: golden ('m') part
+//  - non-artifact cards with exactly two colors: two-color combo part
 //  - everything else: no part ('')
-// Note this differs from the pinline for two-color non-artifacts, which the
-// user wants rendered as the golden part rather than the two-color combo.
 const getRulesVariant = (colors: ColorType[], isArtifact: boolean): PartVariant => {
+  if (colors.length === 2) return getTwoColorVariant(colors);
+
   if (isArtifact) {
     if (colors.length === 0) return '';
     if (colors.length === 1) return getSingleColorVariant(colors[0]);
-    if (colors.length === 2) return getTwoColorVariant(colors);
     return 'm';
   }
-
-  if (colors.length === 2) return 'm';
 
   return '';
 };
@@ -3008,7 +3005,8 @@ const TOKEN_RULES_PARTS: Record<PartVariant, string> = {
 const getTokenPartVariant = (colors: ColorType[]): PartVariant =>
   colors.length === 2 ? getTwoColorVariant(colors) : '';
 
-// Hybrid cards show their two colors on every part instead of the golden one.
+// Hybrid cards show their two colors on the title and type parts instead of the
+// golden one. The rules part shows them on every two-color card.
 export const getTitlePart = (
   colors: ColorType[],
   isArtifact: boolean,
@@ -3029,15 +3027,10 @@ export const getTypePart = (
     ? ''
     : TYPE_PARTS[isHybrid ? getTwoColorVariant(colors) : getTitleTypeVariant(colors, isArtifact)];
 
-export const getRulesPart = (
-  colors: ColorType[],
-  isArtifact: boolean,
-  isToken = false,
-  isHybrid = false,
-) =>
+export const getRulesPart = (colors: ColorType[], isArtifact: boolean, isToken = false) =>
   isToken
     ? TOKEN_RULES_PARTS[getTokenPartVariant(colors)]
-    : RULES_PARTS[isHybrid ? getTwoColorVariant(colors) : getRulesVariant(colors, isArtifact)];
+    : RULES_PARTS[getRulesVariant(colors, isArtifact)];
 
 // Lands only get frame parts when their card-text color identity has exactly
 // two colors: the land ('l') title/type parts plus the two-color text part.

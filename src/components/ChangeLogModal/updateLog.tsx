@@ -820,4 +820,17 @@ updateLog.push({
   ],
 });
 
+updateLog.push({
+  version: '4.2.4',
+  title: 'Two-Color Rules Box',
+  content: [
+    {
+      type: ChangeLogFeatureType.Changed,
+      feature: 'Two-color cards now show both colors in the rules box.',
+      description:
+        'Multicolor cards with exactly two colors use the two-color rules part instead of the gold one. The title and type bars stay gold.',
+    },
+  ],
+});
+
 export default updateLog;

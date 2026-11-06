@@ -109,4 +109,27 @@ describe('TemplatingCardRender - two-color hybrid frame', () => {
     expect(card.has('mainframes/m15/regular/m')).toBe(true);
     expect(card.has('mainframes/m15/regular/ur')).toBe(false);
   });
+
+  it('shows the two-color rules part on a gold two-color card', () => {
+    const card = renderCard('{u}{r}');
+
+    expect(card.has('mainframes/m15/regular/m')).toBe(true);
+    expect(card.has('parts/title/m')).toBe(true);
+    expect(card.has('parts/type/m')).toBe(true);
+    expect(card.has('parts/rules/ur')).toBe(true);
+    expect(card.has('parts/rules/m')).toBe(false);
+  });
+
+  it('shows the two-color rules part on an extended two-color card', () => {
+    const card = renderCard('{u}{r}', [CardType.Creature], CardArtStyles.Extended);
+
+    expect(card.has('mainframes/extended/m')).toBe(true);
+    expect(card.has('parts/rules/ur')).toBe(true);
+  });
+
+  it('shows no rules part on a card with three colors', () => {
+    const card = renderCard('{u}{r}{g}');
+
+    expect(card.sources.some(source => source.includes('parts/rules/'))).toBe(false);
+  });
 });

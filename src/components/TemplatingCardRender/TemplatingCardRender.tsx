@@ -384,7 +384,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
       ? isToken
         ? getRulesPart(landColors, isArtifact, true)
         : getLandRulesPart(landColors)
-      : getRulesPart(allColors, isArtifact, isToken, isHybridFrame);
+      : getRulesPart(allColors, isArtifact, isToken);
   if (isAdventure || isOmen || isPrepared || isEvolution) {
     rulesPart = '';
   }
