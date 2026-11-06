@@ -719,30 +719,32 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
 
           {isEvolution ? (
             <>
-              {level1Text?.length ? (
+              {level1Text?.length || level1Indicator ? (
                 <div className={`${styles.text} ${styles.levelerText} ${styles.levelerLevel1Text}`}>
                   <div className={styles.levelerLevel1TextBackground}></div>
-                  <TextResize
-                    defaultFontSize={42}
-                    maxFontSize={56}
-                    minFontSize={38}
-                    lineHeight={1.1}
-                    className={styles.textWrap}
-                  >
-                    <div>
-                      {level1Text.map((val, i) => (
-                        <p
-                          key={`level-1-text-${cardID}-${i}`}
-                          className={isBulletText(val) ? styles.bulletText : undefined}
-                          style={
-                            val.trimStart().startsWith('--') ? { marginLeft: '0.5em' } : undefined
-                          }
-                        >
-                          {injectForText(val, name, mechanics)}
-                        </p>
-                      ))}
-                    </div>
-                  </TextResize>
+                  {level1Text?.length ? (
+                    <TextResize
+                      defaultFontSize={42}
+                      maxFontSize={56}
+                      minFontSize={38}
+                      lineHeight={1.1}
+                      className={styles.textWrap}
+                    >
+                      <div>
+                        {level1Text.map((val, i) => (
+                          <p
+                            key={`level-1-text-${cardID}-${i}`}
+                            className={isBulletText(val) ? styles.bulletText : undefined}
+                            style={
+                              val.trimStart().startsWith('--') ? { marginLeft: '0.5em' } : undefined
+                            }
+                          >
+                            {injectForText(val, name, mechanics)}
+                          </p>
+                        ))}
+                      </div>
+                    </TextResize>
+                  ) : null}
                 </div>
               ) : null}
               {levelerLevelMid ? (
@@ -767,34 +769,36 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
               )}
               {hasSecondEvolution && (
                 <>
-                  {level2Text?.length ? (
+                  {level2Text?.length || level2Indicator ? (
                     <div
                       className={`${styles.text} ${styles.levelerText} ${styles.levelerLevel2Text}`}
                     >
                       <div className={styles.levelerLevel2TextBackground}></div>
-                      <TextResize
-                        defaultFontSize={42}
-                        maxFontSize={56}
-                        minFontSize={38}
-                        lineHeight={1.1}
-                        className={styles.textWrap}
-                      >
-                        <div>
-                          {level2Text.map((val, i) => (
-                            <p
-                              key={`level-2-text-${cardID}-${i}`}
-                              className={isBulletText(val) ? styles.bulletText : undefined}
-                              style={
-                                val.trimStart().startsWith('--')
-                                  ? { marginLeft: '0.5em' }
-                                  : undefined
-                              }
-                            >
-                              {injectForText(val, name, mechanics)}
-                            </p>
-                          ))}
-                        </div>
-                      </TextResize>
+                      {level2Text?.length ? (
+                        <TextResize
+                          defaultFontSize={42}
+                          maxFontSize={56}
+                          minFontSize={38}
+                          lineHeight={1.1}
+                          className={styles.textWrap}
+                        >
+                          <div>
+                            {level2Text.map((val, i) => (
+                              <p
+                                key={`level-2-text-${cardID}-${i}`}
+                                className={isBulletText(val) ? styles.bulletText : undefined}
+                                style={
+                                  val.trimStart().startsWith('--')
+                                    ? { marginLeft: '0.5em' }
+                                    : undefined
+                                }
+                              >
+                                {injectForText(val, name, mechanics)}
+                              </p>
+                            ))}
+                          </div>
+                        </TextResize>
+                      ) : null}
                     </div>
                   ) : null}
                   {levelerLevelBottom ? (

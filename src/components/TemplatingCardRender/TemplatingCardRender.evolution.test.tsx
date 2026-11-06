@@ -34,6 +34,7 @@ const renderEvolution = (
   indicators: {
     level1Indicator?: string;
     level2Indicator?: string;
+    level1Text?: string[];
     level2Text?: string[];
     level1Stats?: string;
     level2Stats?: string;
@@ -90,6 +91,48 @@ const expectStandardPtOnFallback = (levelStats: { level1Stats?: string; level2St
   expect(evolutionPt?.className).toBe(standardPt?.className);
   expect(evolutionStatsClass).toBe(screen.getByText('1/1').className);
 };
+
+describe('TemplatingCardRender - Evolution level backgrounds', () => {
+  const level1Background = () => document.querySelector('[class*="levelerLevel1TextBackground"]');
+  const level2Background = () => document.querySelector('[class*="levelerLevel2TextBackground"]');
+
+  it('renders the backgrounds for filled indicators without level text', () => {
+    renderEvolution(true, {
+      level1Indicator: 'LEVEL 2-3',
+      level2Indicator: 'LEVEL 4+',
+      level1Text: [],
+      level2Text: [],
+    });
+
+    expect(level1Background()).toBeInTheDocument();
+    expect(level2Background()).toBeInTheDocument();
+    expect(screen.getByText('LEVEL 2-3')).toBeInTheDocument();
+    expect(screen.getByText('LEVEL 4+')).toBeInTheDocument();
+  });
+
+  it('renders only the background of the level with a filled indicator', () => {
+    renderEvolution(true, { level1Indicator: 'LEVEL 2+', level1Text: [], level2Text: [] });
+
+    expect(level1Background()).toBeInTheDocument();
+    expect(level2Background()).toBeNull();
+  });
+
+  it('renders no backgrounds without indicators or level text', () => {
+    renderEvolution(true, { level1Text: [], level2Text: [] });
+
+    expect(level1Background()).toBeNull();
+    expect(level2Background()).toBeNull();
+  });
+
+  it('still renders the level text next to its indicator', () => {
+    renderEvolution();
+
+    expect(level1Background()).toBeInTheDocument();
+    expect(level2Background()).toBeInTheDocument();
+    expect(screen.getByText('Level 1 ability')).toBeInTheDocument();
+    expect(screen.getByText('Level 2 ability')).toBeInTheDocument();
+  });
+});
 
 describe('TemplatingCardRender - Evolution colors on multicolor cards', () => {
   const renderWithCost = (manaCost: string) => {
