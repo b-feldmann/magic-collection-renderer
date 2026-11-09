@@ -136,25 +136,6 @@ interface TemplatingCardRenderProps {
   containerWidth?: number;
 }
 
-const areStatsEqual = (stats: string | undefined, defaultStats: string | undefined): boolean => {
-  if (!stats?.trim() || !defaultStats?.trim()) return false;
-
-  const parsedStats = parseStats(stats);
-  const parsedDefaultStats = parseStats(defaultStats);
-
-  return (
-    parsedStats.power.trim() === parsedDefaultStats.power.trim() &&
-    parsedStats.toughness.trim() === parsedDefaultStats.toughness.trim()
-  );
-};
-
-const hasCompleteStats = (stats: string | undefined): boolean => {
-  if (!stats?.trim()) return false;
-
-  const [power, toughness, ...extraParts] = stats.split('/');
-  return extraParts.length === 0 && !!power.trim() && !!toughness.trim();
-};
-
 const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
   const { legendary, vehicle, nickname, cardTypes, basicLandType, rarity } = cardRenderProps;
   const { name, manaCost, cardStats, cover, creator } = cardRenderProps;
@@ -504,12 +485,8 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
   const hasSecondEvolution: boolean =
     isEvolution &&
     (!!level2Indicator || (!!level2Text && level2Text.length > 0 && level2Text[0] !== ''));
-  // Level 1 alone decides: a level 2 without P/T still renders, as 0/0.
-  const showLevelSpecificPt =
-    hasStats && hasCompleteStats(level1Stats) && !areStatsEqual(level1Stats, cardStats);
-  const standardPt = isEvolution
-    ? getPt(ptColor, isArtifact, vehicle, isNickname, artStyle === CardArtStyles.Borderless, isLand)
-    : pt;
+  // Evolution cards with stats always render the level P/T; an empty level P/T shows as 0/0.
+  const showLevelSpecificPt = isEvolution && hasStats;
 
   return (
     <div style={{ height: `${getHeight(containerWidth)}px` }}>
@@ -536,7 +513,6 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
             ${isNickname && styles.nicknameFrame}
             ${isEnchantment && styles.enchantment}
             ${isEvolution && styles.evolution}
-            ${isEvolution && !showLevelSpecificPt && styles.evolutionWithoutLevelPt}
             ${!hasSecondEvolution && styles.hasNoSecondEvolution}
             ${isLand && styles.land}
             ${isArtifact && styles.artifact}
@@ -763,7 +739,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
                     alt=""
                   />
                   <div className={`${styles.stats} ${styles.levelerStatsMid}`}>
-                    {`${parseStats(level1Stats).power}/${parseStats(level1Stats).toughness}`}
+                    {`${parseStats(level1Stats?.trim()).power}/${parseStats(level1Stats?.trim()).toughness}`}
                   </div>
                 </>
               )}
@@ -830,13 +806,13 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
             <div>
               {pt ? (
                 <img
-                  className={`${isEvolution && showLevelSpecificPt ? `${styles.levelerPt} ${styles.levelerPtTop}` : ''} ${styles.pt}`}
-                  src={showLevelSpecificPt ? pt : standardPt}
+                  className={`${showLevelSpecificPt ? `${styles.levelerPt} ${styles.levelerPtTop}` : ''} ${styles.pt}`}
+                  src={pt}
                   alt=""
                 />
               ) : null}
               <div
-                className={`${styles.stats} ${isEvolution && showLevelSpecificPt ? styles.levelerStatsTop : ''}`}
+                className={`${styles.stats} ${showLevelSpecificPt ? styles.levelerStatsTop : ''}`}
               >
                 {`${parseStats(cardStats).power}/${parseStats(cardStats).toughness}`}
               </div>

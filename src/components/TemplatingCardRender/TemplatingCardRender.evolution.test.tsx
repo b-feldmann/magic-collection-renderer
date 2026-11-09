@@ -71,27 +71,6 @@ const renderEvolution = (
 
 const allImages = () => Array.from(document.querySelectorAll('img'));
 
-const expectStandardPtOnFallback = (levelStats: { level1Stats?: string; level2Stats?: string }) => {
-  const evolutionRender = renderEvolution(true, levelStats);
-  const evolutionPt = allImages().find(img => img.getAttribute('src')?.includes('/pt/'));
-  const evolutionStatsClass = screen.getByText('1/1').className;
-
-  expect(evolutionPt).toBeDefined();
-  expect(allImages().filter(img => img.className.includes('levelerPt'))).toHaveLength(0);
-  expect(document.querySelector('[class*="levelerStatsMid"]')).toBeNull();
-  expect(document.querySelector('[class*="levelerStatsBottom"]')).toBeNull();
-  expect(document.querySelector('[class*="evolutionWithoutLevelPt"]')).toBeInTheDocument();
-  expect(evolutionStatsClass).not.toContain('levelerStatsTop');
-
-  evolutionRender.unmount();
-  renderEvolution(false);
-
-  const standardPt = allImages().find(img => img.getAttribute('src')?.includes('/pt/'));
-  expect(evolutionPt?.getAttribute('src')).toBe(standardPt?.getAttribute('src'));
-  expect(evolutionPt?.className).toBe(standardPt?.className);
-  expect(evolutionStatsClass).toBe(screen.getByText('1/1').className);
-};
-
 describe('TemplatingCardRender - Evolution level backgrounds', () => {
   const level1Background = () => document.querySelector('[class*="levelerLevel1TextBackground"]');
   const level2Background = () => document.querySelector('[class*="levelerLevel2TextBackground"]');
@@ -191,7 +170,6 @@ describe('TemplatingCardRender - Evolution frame', () => {
     ).toBe(true);
     const ptImages = allImages().filter(img => img.className.includes('levelerPt'));
     expect(ptImages).toHaveLength(3);
-    expect(document.querySelector('[class*="evolutionWithoutLevelPt"]')).toBeNull();
     expect(ptImages.map(img => img.getAttribute('src'))).toEqual(
       expect.arrayContaining([
         expect.stringContaining('pt/levelers/top/g.png'),
@@ -268,17 +246,37 @@ describe('TemplatingCardRender - Evolution frame', () => {
   });
 
   it.each([
-    { description: 'level 1 P/T is empty', level1Stats: '' },
-    { description: 'level 1 P/T is unset', level1Stats: undefined },
-    { description: 'level 1 power is empty', level1Stats: '/0' },
-    { description: 'level 1 toughness is empty', level1Stats: '0/' },
-    { description: 'level 1 P/T matches the default P/T', level1Stats: '1/1' },
-  ])('renders only the standard P/T when $description', ({ level1Stats }) => {
-    expectStandardPtOnFallback({ level1Stats });
-  });
+    { description: 'unset', level1Stats: undefined },
+    { description: 'empty', level1Stats: '' },
+    { description: 'blank', level1Stats: '   ' },
+    { description: 'missing its power', level1Stats: '/0' },
+    { description: 'missing its toughness', level1Stats: '0/' },
+  ])(
+    'still renders the level P/T and shows 0/0 for level 1 when its P/T is $description',
+    ({ level1Stats }) => {
+      renderEvolution(true, {
+        level1Indicator: 'LEVEL 2-3',
+        level2Indicator: 'LEVEL 4+',
+        level1Stats,
+      });
 
-  it('renders only the standard P/T when only level 2 has its own P/T', () => {
-    expectStandardPtOnFallback({ level1Stats: undefined, level2Stats: '4/4' });
+      expect(allImages().filter(img => img.className.includes('levelerPt'))).toHaveLength(3);
+      expect(screen.getByText('1/1').className).toContain('levelerStatsTop');
+      expect(screen.getByText('0/0').className).toContain('levelerStatsMid');
+      expect(screen.getByText('4/4')).toBeInTheDocument();
+    },
+  );
+
+  it('keeps the level P/T when level 1 matches the default P/T', () => {
+    renderEvolution(true, {
+      level1Indicator: 'LEVEL 2-3',
+      level2Indicator: 'LEVEL 4+',
+      level1Stats: '1/1',
+    });
+
+    expect(allImages().filter(img => img.className.includes('levelerPt'))).toHaveLength(3);
+    expect(screen.getAllByText('1/1')).toHaveLength(2);
+    expect(screen.getByText('4/4')).toBeInTheDocument();
   });
 
   it.each([
