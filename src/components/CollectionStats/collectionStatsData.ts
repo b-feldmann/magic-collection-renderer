@@ -162,3 +162,90 @@ export const buildManaCurveData = (
     },
   };
 };
+
+export const draftRoles = ['1-Drop', '2-Drop', '3-Drop', '4-Drop', 'Late-Drop', 'Land'] as const;
+export type DraftRole = (typeof draftRoles)[number];
+export interface ColorCardListEntry {
+  uuid: string;
+  name: string;
+  draftRole: DraftRole;
+  creator: string;
+  tags: string[];
+}
+export const rarityTiers = [
+  { key: 'common', label: 'Commons' },
+  { key: 'uncommon', label: 'Uncommons' },
+  { key: 'rare', label: 'Rares & Mythics' },
+] as const;
+export type RarityTier = (typeof rarityTiers)[number]['key'];
+export interface ColorCardList {
+  category: ChartCategory;
+  tier: RarityTier;
+  tierLabel: string;
+  cards: ColorCardListEntry[];
+  roleCounts: Record<DraftRole, number>;
+}
+
+const getRarityTier = (rarity: RarityType): RarityTier => {
+  if (rarity === RarityType.Uncommon) return 'uncommon';
+  if (rarity === RarityType.Rare || rarity === RarityType.MythicRare) return 'rare';
+  return 'common';
+};
+
+export const getDraftRole = (card: CardInterface): DraftRole => {
+  if (isLand(card)) return 'Land';
+  const manaValue = getConvertedManaCost(card.manaCost || '');
+  if (manaValue >= 5) return 'Late-Drop';
+  // Free spells are played as early as one-drops.
+  return `${Math.max(1, manaValue)}-Drop` as DraftRole;
+};
+
+const buildList = (
+  category: ChartCategory,
+  tier: (typeof rarityTiers)[number],
+  entries: ColorCardListEntry[] = [],
+): ColorCardList => {
+  const cards = entries.sort(
+    (a, b) =>
+      draftRoles.indexOf(a.draftRole) - draftRoles.indexOf(b.draftRole) ||
+      a.name.localeCompare(b.name),
+  );
+  const roleCounts = Object.fromEntries(draftRoles.map(role => [role, 0])) as Record<
+    DraftRole,
+    number
+  >;
+  cards.forEach(card => {
+    roleCounts[card.draftRole] += 1;
+  });
+  return { category, tier: tier.key, tierLabel: tier.label, cards, roleCounts };
+};
+
+/**
+ * One list per color and rarity tier (variants counted once), in color order then
+ * Commons, Uncommons, Rares & Mythics; each sorted by draft role, then name.
+ */
+export const buildColorCardLists = (
+  collection: CardInterface[],
+  allCards: CardInterface[] = collection,
+): ColorCardList[] => {
+  const listKey = (color: string, tier: RarityTier) => `${color}:${tier}`;
+  const lists = new Map<string, ColorCardListEntry[]>();
+  getVariantGroups(collection, allCards).forEach(([card]) => {
+    const color = cardToColor(card.front, card.manaCost).color;
+    const key = listKey(
+      color === ColorType.Gold ? 'multicolor' : color,
+      getRarityTier(card.rarity),
+    );
+    if (!lists.has(key)) lists.set(key, []);
+    lists.get(key)!.push({
+      uuid: card.uuid,
+      name: card.name,
+      draftRole: getDraftRole(card),
+      creator: card.creator?.name || '',
+      tags: card.tags || [],
+    });
+  });
+  return colorCategories.flatMap(category =>
+    rarityTiers.map(tier => buildList(category, tier, lists.get(listKey(category.key, tier.key)))),
+  );
+};

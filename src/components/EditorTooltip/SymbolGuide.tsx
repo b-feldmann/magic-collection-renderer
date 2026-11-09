@@ -77,8 +77,8 @@ const MECHANICS = [
     label: 'Name + dash + reference',
     description: (
       <>
-        With a double dash, the reference renders after an em dash, e.g.{' '}
-        <code>MECHANIC — text</code>, followed by the description without parentheses.
+        With a double dash, the reference follows an em dash with no spaces around it, e.g.{' '}
+        <code>MECHANIC—text</code>, followed by the description in italic parentheses.
       </>
     ),
   },

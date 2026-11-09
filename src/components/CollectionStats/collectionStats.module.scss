@@ -606,3 +606,84 @@ $bar-transition: 280ms ease;
     transition: none;
   }
 }
+
+// Per-color card lists (Name / Draft role / Creator / Tags), below the curves.
+.colorCardList {
+  margin-bottom: 16px;
+  border: 1px solid #e0e8e2;
+  border-radius: 8px;
+  background: #fff;
+  overflow: hidden;
+}
+.colorCardListHeading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 12px;
+  padding: 8px 12px;
+  border-bottom: 1px solid #e0e8e2;
+  border-inline-start: 6px solid var(--color-list-accent, #929fa7);
+  background: #f3f7f4;
+  h3 {
+    margin: 0;
+    color: #294632;
+    font-size: 14px;
+    font-weight: 700;
+  }
+  > span {
+    color: $muted-text;
+    font-size: 11px;
+  }
+}
+.colorCardTableScroll {
+  overflow-x: auto;
+}
+.colorCardTable {
+  width: 100%;
+  min-width: 560px;
+  // Fixed layout with set column widths, so every color/rarity table lines up.
+  table-layout: fixed;
+  border-collapse: collapse;
+  overflow-wrap: anywhere;
+  thead th:nth-child(1) {
+    width: 34%;
+  }
+  thead th:nth-child(2) {
+    width: 16%;
+  }
+  thead th:nth-child(3) {
+    width: 20%;
+  }
+  thead th:nth-child(4) {
+    width: 30%;
+  }
+  font-size: 12px;
+  th,
+  td {
+    padding: 5px 12px;
+    text-align: start;
+    border-bottom: 1px solid #eef3ef;
+    vertical-align: top;
+  }
+  thead th {
+    color: $muted-text;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  tbody th {
+    font-weight: 600;
+    color: #2b4032;
+  }
+  tbody tr:last-child > * {
+    border-bottom: 0;
+  }
+}
+.draftRole {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: 10px;
+  background: #eef3ee;
+  color: #3c6048;
+  white-space: nowrap;
+}

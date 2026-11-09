@@ -53,7 +53,7 @@ describe('SymbolGuide', () => {
     render(<SymbolGuide onClose={() => {}} />);
 
     expect(screen.getByText('[MECHANIC -- text]')).toBeInTheDocument();
-    expect(screen.getByText('MECHANIC — text')).toBeInTheDocument();
+    expect(screen.getByText('MECHANIC—text')).toBeInTheDocument();
   });
 
   it('documents text formatting markers and smart punctuation', () => {

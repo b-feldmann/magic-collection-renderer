@@ -155,10 +155,12 @@ describe('injectUtils', () => {
     ['[Ravage two more]', 'Ravage two more (Draw two more cards.)'],
     ['[Ravage] and more', 'Ravage (Draw  cards.) and more'],
     ['[Ravage 1] and more', 'Ravage 1 (Draw 1 cards.) and more'],
-    ['[Ravage -- 1]', 'Ravage — 1 (Draw 1 cards.)'],
-    ['[Ravage--1]', 'Ravage — 1 (Draw 1 cards.)'],
-    ['[Ravage -- two more]', 'Ravage — two more (Draw two more cards.)'],
-    ['[Ravage --]', 'Ravage — (Draw  cards.)'],
+    ['[Ravage -- 1]', 'Ravage—1 (Draw 1 cards.)'],
+    ['[Ravage--1]', 'Ravage—1 (Draw 1 cards.)'],
+    ['[Ravage -- two more]', 'Ravage—two more (Draw two more cards.)'],
+    ['[Ravage --]', 'Ravage— (Draw  cards.)'],
+    ['[Ravage two -- more]', 'Ravage two — more (Draw two — more cards.)'],
+    ['[Ravage two--more]', 'Ravage two — more (Draw two — more cards.)'],
     ['Before -- [Ravage 1] -- after', 'Before — Ravage 1 (Draw 1 cards.) — after'],
     ['[Unknown--mechanic]', '[Unknown — mechanic]'],
   ])('renders the mechanic ref and reminder of %s', (line, expected) => {
@@ -174,7 +176,7 @@ describe('injectUtils', () => {
   });
 
   it.each([
-    ['[Flashback -- {2}{W}, Sacrifice a creature.]', 'Flashback — , Sacrifice a creature. '],
+    ['[Flashback -- {2}{W}, Sacrifice a creature.]', 'Flashback—, Sacrifice a creature. '],
     ['[Flashback {2}{W}, Sacrifice a creature.]', 'Flashback , Sacrifice a creature. '],
   ])('renders the ref of %s followed by italic reminder text', (line, expectedPrefix) => {
     const reminder =
@@ -285,7 +287,7 @@ describe('injectUtils', () => {
   it.each([
     ['[Ravage 1]', 'Ravage 1 (Draw — then say “Go”…  Test it’s 1.)'],
     ['[-Ravage 1]', '(Draw — then say “Go”…  Test it’s 1.)'],
-    ['[Ravage -- 1]', 'Ravage — 1 (Draw — then say “Go”…  Test it’s 1.)'],
+    ['[Ravage -- 1]', 'Ravage—1 (Draw — then say “Go”…  Test it’s 1.)'],
   ])('converts dashes, quotes and ellipses in the mechanic text of %s', (line, expected) => {
     const mechanic: MechanicInterface = {
       uuid: 'mechanic-1',

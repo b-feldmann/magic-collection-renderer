@@ -2,7 +2,9 @@ import React, { useId, useMemo, useRef, useState } from 'react';
 import CardInterface from '../../interfaces/CardInterface';
 import ManaCurveChart from './ManaCurveChart';
 import MiniManaCurve from './MiniManaCurve';
+import ColorCardLists from './ColorCardLists';
 import {
+  buildColorCardLists,
   buildManaCurveData,
   ChartCategory,
   ChartLayout,
@@ -84,6 +86,10 @@ const CollectionStats = ({
   onStateChange?: (state: 'hidden' | 'preview' | 'expanded') => void;
 }) => {
   const data = useMemo(() => buildManaCurveData(collection, allCards), [collection, allCards]);
+  const colorLists = useMemo(
+    () => buildColorCardLists(collection, allCards),
+    [collection, allCards],
+  );
   const [closedState, setClosedState] = useState<ClosedState>(() => {
     try {
       return localStorage.getItem(CLOSED_STATE_STORAGE_KEY) === 'hidden' ? 'hidden' : 'preview';
@@ -325,6 +331,7 @@ const CollectionStats = ({
               lands. Multicolor cards are counted only in Multicolor. Card types use one primary
               classification per card, with Creature taking precedence.
             </p>
+            <ColorCardLists lists={colorLists} />
           </>
         )}
       </div>

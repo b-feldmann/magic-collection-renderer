@@ -347,9 +347,11 @@ export const injectMechanics = (
         result.push(reminder);
         return;
       }
-      // [Flashback -- {2}{W}] separates name and ref with an em dash instead of a space.
-      const separator = hasLongDash ? ' — ' : ' ';
-      result.push(`${usedMechanic.name}${separator}${ref ? `${ref} ` : ''}`);
+      // A ref starting with -- joins name and ref with an unspaced em dash: [Flashback -- {2}{W}]
+      // gives "Flashback—{2}{W}". A -- later in the ref ([Flashback foo -- bar]) stays spaced,
+      // as injectLongDash renders it afterwards.
+      const prefix = hasLongDash ? `${usedMechanic.name}—` : `${usedMechanic.name} `;
+      result.push(`${prefix}${ref ? `${ref} ` : hasLongDash ? ' ' : ''}`);
       result.push(reminder);
     });
   });

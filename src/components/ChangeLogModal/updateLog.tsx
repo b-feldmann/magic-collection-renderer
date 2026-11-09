@@ -839,4 +839,33 @@ updateLog.push({
   ],
 });
 
+updateLog.push({
+  version: '4.3.0',
+  title: 'Cards by Color',
+  content: [
+    {
+      type: ChangeLogFeatureType.Added,
+      feature: 'The expanded statistics now list every card by color and rarity.',
+      description:
+        'Below the mana curves, each color is split into Commons, Uncommons and Rares & Mythics. Every table shows the card name, its draft role (1-Drop to 4-Drop, Late-Drop for 5+ mana, or Land), the creator and the tags, and its heading counts the cards per draft role.',
+    },
+    {
+      type: ChangeLogFeatureType.Added,
+      feature: 'Uploaded covers can be downloaded as PNG.',
+    },
+    {
+      type: ChangeLogFeatureType.Changed,
+      feature: 'Mechanics with -- now join name and reference with an unspaced em dash.',
+      description:
+        '[Flashback -- {2}{W}] now renders as Flashback—{2}{W}, followed by the reminder text in italic parentheses.',
+    },
+    {
+      type: ChangeLogFeatureType.Changed,
+      feature: 'Evolution cards with stats now always use the evolution P/T rendering.',
+      description:
+        'They no longer fall back to the standard P/T box when a level has empty P/T or the same P/T as the default. A missing level 1 P/T now shows as 0/0.',
+    },
+  ],
+});
+
 export default updateLog;
