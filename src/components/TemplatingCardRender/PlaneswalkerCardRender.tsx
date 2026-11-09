@@ -1,4 +1,4 @@
-import React, { useContext, useLayoutEffect, useRef, useState } from 'react';
+import React, { useContext, useEffectEvent, useLayoutEffect, useRef, useState } from 'react';
 
 import 'mana-font/css/mana.css';
 // @ts-ignore
@@ -26,17 +26,29 @@ import planeswalkerStyles from './Planeswalker.module.scss';
 
 import {
   getFallbackCover,
+  getHoloStamp,
   getLoyaltyIcon,
   getPlaneswalkerMainframe,
   getPlaneswalkerNicknamePlate,
   getPlaneswalkerPinline,
   getRarityIcon,
+  getTwoColorHoloStamps,
+  hasHoloStamp,
 } from './assetLoader';
 import { injectForText, injectManaIcons } from '../../utils/injectUtils';
 import { formatCardText } from '../../utils/formatCardText';
 import ImageLoader from '../ImageLoader/ImageLoader';
 import PlaneswalkerRulesBackground from './PlaneswalkerRulesBackground';
-import { getAbilityLineLayouts } from './planeswalkerGeometry';
+import {
+  AbilityLayout,
+  getDefaultDividers,
+  getIconCenters,
+  layoutAbilities,
+  PLANESWALKER_LINE_HEIGHT,
+  PLANESWALKER_MAX_FONT_SIZE,
+  PLANESWALKER_MIN_FONT_SIZE,
+} from './planeswalkerGeometry';
+import { PRINTED_RULES_SIZES } from './printedTextFit';
 import getRarityCode from '../../utils/getRarityCode';
 import formatCollectorLine from '../../utils/formatCollectorLine';
 import { CARD_WIDTH, CARD_HEIGHT } from '../../utils/constants';
@@ -64,6 +76,34 @@ interface PlaneswalkerCardRenderProps {
   collectionNumber: number;
   collectionSize: number;
   containerWidth?: number;
+}
+
+// The sizes the ability text may use, largest first (0.25pt steps like the
+// rules text, capped at the planeswalker maximum).
+const ABILITY_FONT_SIZES = PRINTED_RULES_SIZES.filter(
+  size => size <= PLANESWALKER_MAX_FONT_SIZE && size >= PLANESWALKER_MIN_FONT_SIZE,
+);
+
+// Where the icon image and the cost go relative to the template icon center
+// (the colon's height), per icon shape.
+// The icon images put their colon at different heights, so each shape gets its
+// own offset (measured against Professor Dellian Fel, SOS).
+const ICON_OFFSET = { up: 7, neutral: 17, down: 28 };
+const NUMBER_OFFSET = { up: 0, neutral: 0, down: 0 };
+
+const iconShape = (loyalty: string) => {
+  if (loyalty.startsWith('+')) return 'up';
+  if (loyalty.startsWith('-') || loyalty.startsWith('−')) return 'down';
+  return 'neutral';
+};
+
+// Printed loyalty costs use a real minus sign, not a hyphen.
+const formatLoyalty = (loyalty: string) => loyalty.replace(/^-/, '−');
+
+interface AbilityFit {
+  key: string;
+  fontSize: number;
+  layout: AbilityLayout;
 }
 
 const PlaneswalkerCardRender = (cardRender: PlaneswalkerCardRenderProps) => {
@@ -126,7 +166,48 @@ const PlaneswalkerCardRender = (cardRender: PlaneswalkerCardRenderProps) => {
   const isTall = lineCount >= 4;
   const isBorderless = artStyle === CardArtStyles.Borderless;
 
-  const lineLayouts = getAbilityLineLayouts(lineCount, isTall);
+  const iconCenters = getIconCenters(lineCount, isTall);
+
+  // All abilities share one font size: the largest step at which every
+  // ability, centered on its icon, keeps its distance to its neighbours and the
+  // box edges (layoutAbilities). Measured from the rendered text, so it reruns
+  // when the text or the loaded fonts change.
+  const abilitiesRef = useRef<HTMLDivElement>(null);
+  const fitKey = `${lineCount}|${isTall}|${cardText.join('\n')}`;
+  const [abilityFit, setAbilityFit] = useState<AbilityFit | null>(null);
+
+  const fitAbilities = useEffectEvent(() => {
+    const container = abilitiesRef.current;
+    if (!container) return;
+    const blocks = Array.from(container.querySelectorAll<HTMLElement>('[data-ability-text]'));
+    let fit: AbilityFit | null = null;
+    for (const fontSize of ABILITY_FONT_SIZES) {
+      container.style.fontSize = `${fontSize}px`;
+      const lineCounts = blocks.map(block =>
+        Math.max(1, Math.round(block.offsetHeight / (PLANESWALKER_LINE_HEIGHT * fontSize))),
+      );
+      fit = { key: fitKey, fontSize, layout: layoutAbilities(lineCounts, fontSize, isTall) };
+      if (fit.layout.fits) break;
+    }
+    if (!fit) return;
+    container.style.fontSize = `${fit.fontSize}px`;
+    setAbilityFit(fit);
+  });
+
+  useLayoutEffect(() => {
+    if (abilityFit?.key !== fitKey) fitAbilities();
+  });
+
+  useLayoutEffect(() => {
+    const { fonts } = document;
+    if (!fonts?.addEventListener) return undefined;
+    const onFontsLoaded = () => fitAbilities();
+    fonts.addEventListener('loadingdone', onFontsLoaded);
+    return () => fonts.removeEventListener('loadingdone', onFontsLoaded);
+  }, []);
+
+  const abilityFontSize = abilityFit?.fontSize ?? PLANESWALKER_MAX_FONT_SIZE;
+  const dividers = abilityFit?.layout.dividers ?? getDefaultDividers(lineCount, isTall);
 
   const colorInfo = manaCost
     ? getColor(manaCost)
@@ -135,6 +216,11 @@ const PlaneswalkerCardRender = (cardRender: PlaneswalkerCardRenderProps) => {
   const mainframe = getPlaneswalkerMainframe(color, isTall, isBorderless);
   const pinline = getPlaneswalkerPinline(allColors, isTall, isBorderless);
   const nicknamePlate = isNickname ? getPlaneswalkerNicknamePlate(color, allColors) : '';
+
+  // Rare and mythic planeswalkers carry the holo stamp too; two-color ones fade
+  // the bump from the left into the right pinline color, like their pinline.
+  const twoColorHoloStamps = hasHoloStamp(rarity) ? getTwoColorHoloStamps(allColors) : null;
+  const holoStamp = hasHoloStamp(rarity) ? (twoColorHoloStamps?.[0] ?? getHoloStamp(color)) : null;
 
   const parsePlaneswalkerLine = (line: string) => {
     if (!line) return { loyalty: '', text: '', loyaltyImage: '' };
@@ -172,7 +258,7 @@ const PlaneswalkerCardRender = (cardRender: PlaneswalkerCardRenderProps) => {
             fallBackColor="black"
             className={`${styles.cover} ${getCoverFitClass(styles, coverFit)} card-cover`}
           />
-          <PlaneswalkerRulesBackground lineCount={lineCount} isTall={isTall} />
+          <PlaneswalkerRulesBackground dividers={dividers} isTall={isTall} />
           <ImageLoader
             src={mainframe.highRes}
             lowResSrc={mainframe.lowRes}
@@ -182,6 +268,17 @@ const PlaneswalkerCardRender = (cardRender: PlaneswalkerCardRenderProps) => {
           {pinline ? <img className={styles.pinline} src={pinline} alt="" /> : null}
           {isNickname && nicknamePlate ? (
             <img className={`${styles.pinline} ${styles.nickname}`} src={nicknamePlate} alt="" />
+          ) : null}
+          {holoStamp ? (
+            <img className={styles.holoStamp} src={holoStamp} alt="" data-testid="holo-stamp" />
+          ) : null}
+          {holoStamp && twoColorHoloStamps ? (
+            <img
+              className={`${styles.holoStamp} ${styles.holoStampFade}`}
+              src={twoColorHoloStamps[1]}
+              alt=""
+              data-testid="holo-stamp-fade"
+            />
           ) : null}
           <ImageLoader src={getRarityIcon(rarity)} alt="" className={styles.rarity} />
 
@@ -218,39 +315,35 @@ const PlaneswalkerCardRender = (cardRender: PlaneswalkerCardRenderProps) => {
             </TextResize>
           </div>
 
-          <div>
+          <div ref={abilitiesRef} style={{ fontSize: `${abilityFontSize}px` }}>
             {cardText.map((val, i) => {
               const { loyalty, text, loyaltyImage } = parsePlaneswalkerLine(val);
-              const layout = lineLayouts[i];
+              const shape = iconShape(loyalty);
+              const textTop = abilityFit?.layout.textTops[i] ?? iconCenters[i];
               return (
                 <div key={`pw-line-${cardID}-${i}`}>
+                  {loyalty ? (
+                    <>
+                      <div
+                        className={planeswalkerStyles.loyaltyIcon}
+                        style={{ top: `${iconCenters[i] + ICON_OFFSET[shape]}px` }}
+                      >
+                        {loyaltyImage ? <img src={loyaltyImage} alt="" /> : null}
+                      </div>
+                      <div
+                        className={planeswalkerStyles.loyaltyNumber}
+                        style={{ top: `${iconCenters[i] + NUMBER_OFFSET[shape]}px` }}
+                      >
+                        <p>{formatLoyalty(loyalty)}</p>
+                      </div>
+                    </>
+                  ) : null}
                   <div
-                    className={`${planeswalkerStyles.loyaltyIcon} ${
-                      loyalty === '0' ? planeswalkerStyles.loyaltyIconNeutral : ''
-                    }`}
-                    style={{ top: `${layout.iconTop}px` }}
-                  >
-                    {loyaltyImage ? <img src={loyaltyImage} alt="" /> : null}
-                  </div>
-                  <div
-                    className={`${planeswalkerStyles.loyaltyIcon} ${
-                      loyalty === '0' ? planeswalkerStyles.loyaltyIconNeutral : ''
-                    }`}
-                    style={{ top: `${layout.iconTop}px` }}
-                  >
-                    <p>{loyalty}</p>
-                  </div>
-                  <div
+                    data-ability-text
                     className={`${planeswalkerStyles.loyaltyText} ${!loyalty ? planeswalkerStyles.loyaltyTextNoIcon : ''}`}
-                    style={{ top: `${layout.textTop}px`, height: `${layout.textHeight}px` }}
+                    style={{ top: `${textTop}px` }}
                   >
-                    <TextResize
-                      defaultFontSize={42}
-                      maxFontSize={56}
-                      minFontSize={38}
-                      lineHeight={1.1}
-                      className={styles.textWrap}
-                    >
+                    <div className={styles.textWrap}>
                       <div
                         style={
                           text.trimStart().startsWith('--')
@@ -260,7 +353,7 @@ const PlaneswalkerCardRender = (cardRender: PlaneswalkerCardRenderProps) => {
                       >
                         {injectForText(text, name, mechanics)}
                       </div>
-                    </TextResize>
+                    </div>
                   </div>
                 </div>
               );

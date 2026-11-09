@@ -1,5 +1,5 @@
 import React from 'react';
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 
@@ -94,5 +94,42 @@ describe('PlaneswalkerCardRender - type line auto-resize', () => {
     const followingParagraph = getParagraph(textLines[1]);
     expect(firstParagraph?.style.paddingLeft).toBe('0.5em');
     expect(followingParagraph?.style.paddingLeft).toBe('');
+  });
+});
+
+describe('PlaneswalkerCardRender - loyalty costs and holo stamp', () => {
+  it('prints negative loyalty costs with a minus sign', () => {
+    renderPlaneswalker(['+2|Gain life.', '-3|Destroy a creature.']);
+
+    expect(screen.getByText('+2')).toBeInTheDocument();
+    expect(screen.getByText('−3')).toBeInTheDocument();
+    expect(screen.queryByText('-3')).not.toBeInTheDocument();
+  });
+
+  it('stamps rare and mythic planeswalkers', () => {
+    renderPlaneswalker();
+
+    expect(screen.getByTestId('holo-stamp')).toBeInTheDocument();
+  });
+
+  it('fades the stamp bump between the two colors of a two-color planeswalker', () => {
+    render(
+      <Store.Provider value={mockStoreValue}>
+        <PlaneswalkerCardRender
+          name="Professor Dellian Fel"
+          rarity={RarityType.MythicRare}
+          cardID="dellian"
+          manaCost="{2}{B}{G}"
+          cardTypes={[CardType.Planeswalker]}
+          cardText={['+2|You gain 3 life.']}
+          cardStats="5"
+          collectionNumber={1}
+          collectionSize={10}
+        />
+      </Store.Provider>,
+    );
+
+    expect(screen.getByTestId('holo-stamp').getAttribute('src')).toMatch(/holoStamp\/b\.png/);
+    expect(screen.getByTestId('holo-stamp-fade').getAttribute('src')).toMatch(/holoStamp\/g\.png/);
   });
 });

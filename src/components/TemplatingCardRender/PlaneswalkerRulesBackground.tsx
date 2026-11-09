@@ -11,7 +11,8 @@ import {
 } from './planeswalkerGeometry';
 
 interface PlaneswalkerRulesBackgroundProps {
-  lineCount: number;
+  /** Band boundaries between the abilities (see layoutAbilities). */
+  dividers: number[];
   isTall: boolean;
   className?: string;
 }
@@ -31,11 +32,13 @@ const loadImage = (src: string): Promise<HTMLImageElement> =>
  * a CSS mask) so it survives DOM rasterization during PDF export.
  */
 const PlaneswalkerRulesBackground = ({
-  lineCount,
+  dividers: boundaries,
   isTall,
   className,
 }: PlaneswalkerRulesBackgroundProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  // Redraw only when a boundary actually moved, not on every new array.
+  const boundaryKey = boundaries.map(boundary => boundary.toFixed(1)).join(',');
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -45,7 +48,8 @@ const PlaneswalkerRulesBackground = ({
 
     let cancelled = false;
 
-    const dividers = getAbilityDividers(lineCount, isTall);
+    const bandBoundaries = boundaryKey ? boundaryKey.split(',').map(Number) : [];
+    const dividers = getAbilityDividers(bandBoundaries);
     const sources = [
       getPlaneswalkerRulesMask(isTall),
       getPlaneswalkerAbilityDivider(true),
@@ -60,7 +64,7 @@ const PlaneswalkerRulesBackground = ({
 
         // Fill the alternating bands across the full width; the mask clips the
         // left/right edges, rounded corners and loyalty-plate notch.
-        getAbilityBands(lineCount, isTall).forEach(band => {
+        getAbilityBands(bandBoundaries, isTall).forEach(band => {
           ctx.fillStyle = band.light ? PLANESWALKER_BAND_LIGHT : PLANESWALKER_BAND_DARK;
           ctx.fillRect(0, band.top, CARD_WIDTH, band.height);
         });
@@ -90,7 +94,7 @@ const PlaneswalkerRulesBackground = ({
     return () => {
       cancelled = true;
     };
-  }, [lineCount, isTall]);
+  }, [boundaryKey, isTall]);
 
   return (
     <canvas

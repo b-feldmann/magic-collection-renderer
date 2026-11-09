@@ -142,17 +142,19 @@
     left: 0;
   }
 
-  // Holo stamp bounds from Card Conjurer's M15 holo stamp pack (1500x2100
-  // space): the frame-colored bump is 192x96 at (654, 1889); the bare oval is
-  // 134x67 at (683, 1918). Measured against the 2026 prints (Holo-Engineer
-  // TRK 201/470, Armus TRK 91) the bump sits 11px higher and its oval is ≈4px
-  // taller, so the bump is moved up and stretched vertically.
+  // Holo stamp bump (1500x2100 space), drawn to the 2026 prints (Holo-Engineer
+  // TRK 201/470, Armus TRK 91, Dellian Fel): the pinline rises from x≈661 to
+  // x≈839 in a half-ellipse peaking at y≈1900, in the pinline's own color and
+  // thickness, with soft shoulders where it meets the flat pinline
+  // (y 1938-1950). The oval is 130x67 at (685, 1920). The asset is 204x104
+  // card px at 2x resolution and only covers the bump, so the frame's pinline
+  // and bottom border show on either side and below it.
   .holoStamp {
     position: absolute;
-    left: 654px;
+    left: 648px;
     top: 1888px;
-    width: 192px;
-    height: 100px;
+    width: 204px;
+    height: 104px;
     pointer-events: none;
   }
 
@@ -295,8 +297,8 @@
   .cost {
     position: absolute;
     font-size: 1.8em;
-    top: 104px;
-    right: calc(1500px / 746 * 56);
+    top: 106px;
+    right: calc(1500px / 746 * 56 - 2px);
     text-align: right;
   }
 
@@ -305,7 +307,7 @@
   }
 
   .cost > * {
-    margin-left: 12.5px;
+    margin-left: 9px;
   }
 
   // Printed mana symbols use lighter, less saturated circles than mana-font's
@@ -335,7 +337,7 @@
   // circle box down by the same factor (mana-font: 0.95em font, 1.3em circle,
   // 1.35em line height).
   .cost :global(.ms-cost) {
-    font-size: 1.235em;
+    font-size: 1.3em;
     width: 1em;
     height: 1em;
     line-height: 1.04em;
@@ -362,8 +364,8 @@
   // mana-font's shadow is in em too; keep its printed size.
   .cost :global(.ms-cost.ms-shadow) {
     box-shadow:
-      -0.046em 0.054em 0 #111,
-      0 0.046em 0 #111;
+      -0.04em 0.09em 0 #111,
+      0 0.09em 0 #111;
   }
 
   // Hybrid / two-brid / Phyrexian-hybrid halves are positioned in em inside

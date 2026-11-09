@@ -1,50 +1,50 @@
-// Vertical positions (top/height) are supplied inline from
-// planeswalkerGeometry.ts so the text aligns with the equal-height ability
-// bands drawn by PlaneswalkerRulesBackground.
+// Vertical positions (top) come from layoutAbilities in planeswalkerGeometry.ts;
+// the font size is set on the abilities container. Measured on 2026 prints:
+// the ink starts at x≈274 and lines run out at x≈1371.
 .loyaltyText {
   font-family: 'MPlantin', sans-serif;
   position: absolute;
-  font-size: 1.625em;
-  left: 280px;
-  width: 1102px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+  line-height: 0.97;
+  left: 272px;
+  width: 1100px;
 }
 
 // Abilities without a loyalty marker have no icon column to clear,
 // so the text starts more left and uses the freed-up width.
 .loyaltyTextNoIcon {
   left: 198px;
-  width: 1200px;
+  width: 1174px;
 }
 
+// The loyalty icon image, centered on its `top` (see ICON_OFFSET).
 .loyaltyIcon {
   position: absolute;
   left: 146px;
-  // Nudge the loyalty icon (and its number) slightly below the band center.
-  margin-top: 25px;
   transform: translateX(-50%) translateY(-50%);
-  color: white;
-  font-family: MPlantin, sans-serif;
-  font-size: 1.8em;
 
   img {
+    display: block;
     width: 220px !important;
-    height: 100% !important;
-  }
-
-  p {
-    margin-top: -44px;
+    height: auto !important;
   }
 }
 
-// The neutral icon sits lower/flatter than the arrows, so drop its number a bit
-// further so it stays centered on the icon.
-.loyaltyIconNeutral {
-  margin-top: 19px;
+// The loyalty cost, centered on its `top` in the icon's body. Printed in
+// Beleren Bold (which, unlike MPlantin, has a real minus sign), a little right
+// of the icon's middle and with the sign close to the digit.
+.loyaltyNumber {
+  position: absolute;
+  left: 155px;
+  letter-spacing: -2px;
+  transform: translateX(-50%) translateY(-50%);
+  color: white;
+  font-family: 'Beleren Bold', sans-serif;
+  // In px: the abilities container around it carries the ability font size.
+  font-size: 66px;
+  line-height: 1;
+  white-space: nowrap;
 
   p {
-    margin-top: -28px;
+    margin: 0;
   }
 }
