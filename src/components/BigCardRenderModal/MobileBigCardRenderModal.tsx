@@ -6,6 +6,7 @@ import CardFaceInterface from '../../interfaces/CardFaceInterface';
 import styles from './BigCardRenderModal.module.scss';
 import { NonMemoCardRender as CardRender } from '../TemplatingCardRender/index';
 import { CARD_WIDTH, CARD_HEIGHT } from '../../utils/constants';
+import snapCardWidth from '../../utils/snapCardWidth';
 import FavoriteHeart from '../FavoriteHeart/FavoriteHeart';
 import AntIcon from '../AntIcon/AntIcon';
 
@@ -153,7 +154,7 @@ const MobileBigCardRenderModal = ({
   const modalMaxWidth = width - sideMargin * 2;
   const modalMaxHeight = height - hOffset;
 
-  const cardWidth = Math.min(modalMaxWidth, modalMaxHeight * dimFactor);
+  const cardWidth = snapCardWidth(Math.min(modalMaxWidth, modalMaxHeight * dimFactor));
 
   return (
     <Modal

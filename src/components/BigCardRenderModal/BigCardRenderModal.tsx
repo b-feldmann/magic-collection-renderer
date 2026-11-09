@@ -22,6 +22,7 @@ import { getVariantAnnotations, getVariantFamily } from '../../utils/cardVariant
 import { getImage } from '../../actions/imageActions';
 import { isLoadingCover } from '../../utils/cover';
 import useUnreadComments from '../../useUnreadComments';
+import snapCardWidth from '../../utils/snapCardWidth';
 
 interface BigCardRenderModalProps {
   card: CardInterface;
@@ -151,8 +152,10 @@ const BigCardRenderModal = ({
   const responsiveSingleCardWidth = stackSingleCard
     ? Math.max(0, Math.min(modalMaxWidth, desktopViewWidth, stackedCardMaxHeight * dimFactor))
     : modalSingleCardWidth;
-  const singleCardWidth = rowLayout ? modalDoubleCardWidth / 2 : responsiveSingleCardWidth;
-  const fullCardWidth = rowLayout ? modalDoubleCardWidth : responsiveSingleCardWidth;
+  const singleCardWidth = snapCardWidth(
+    rowLayout ? modalDoubleCardWidth / 2 : responsiveSingleCardWidth,
+  );
+  const fullCardWidth = rowLayout ? singleCardWidth * 2 : singleCardWidth;
   const cardHeight = singleCardWidth / dimFactor;
 
   const annotationWidth = stackedLayout ? fullCardWidth : desktopViewWidth - singleCardWidth - 16;
@@ -301,7 +304,7 @@ const BigCardRenderModal = ({
       className={styles.modalCardViewWrapper}
       style={{ left: (sidebarSpace - editorSpace) / 2 }}
       wrapClassName="card-view"
-      classNames={{ mask: 'card-view' }}
+      classNames={{ mask: 'card-view', body: styles.modalBody }}
       title={`View ${card.name}`}
       open={visible}
       onOk={hide}

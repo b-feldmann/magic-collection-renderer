@@ -70,7 +70,7 @@ it('supplies consistent touch sizing to all mobile editor controls without chang
 it.each([
   { width: 320, height: 720, contentWidth: 280, cardWidth: 280 },
   { width: 390, height: 844, contentWidth: 350, cardWidth: 350 },
-  { width: 844, height: 390, contentWidth: 804, cardWidth: 257.14285714285717 },
+  { width: 844, height: 390, contentWidth: 804, cardWidth: 255 },
 ])(
   'uses twenty-pixel side margins for a $width-pixel viewport without stretching the card',
   ({ width, height, contentWidth, cardWidth }) => {

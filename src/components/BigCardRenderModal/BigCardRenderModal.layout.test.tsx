@@ -7,11 +7,15 @@ import BigCardRenderModal from './BigCardRenderModal';
 import { EMPTY_CARD } from '../../actions/cardActions';
 import { CARD_HEIGHT, CARD_WIDTH } from '../../utils/constants';
 import styles from './BigCardRenderModal.module.scss';
+import snapCardWidth from '../../utils/snapCardWidth';
 
 // Vitest stubs CSS modules, so apply the real positioning rules to the modal.
 const modalCss = compileString(
   readFileSync('src/components/BigCardRenderModal/BigCardRenderModal.module.scss', 'utf8'),
-).css.replace(/\.(view|modalCardViewWrapper)\b/g, (_, name: string) => `.${styles[name]}`);
+).css.replace(
+  /\.(view|modalCardViewWrapper|modalBody)\b/g,
+  (_, name: string) => `.${styles[name]}`,
+);
 
 vi.mock('../TemplatingCardRender/index', () => ({
   NonMemoCardRender: () => <div>Card face</div>,
@@ -48,10 +52,18 @@ describe('desktop card and chat layout', () => {
       );
 
       const modal = document.querySelector(`.${styles.modalCardViewWrapper}`) as HTMLElement;
+      const body = document.querySelector(`.${styles.modalBody}`) as HTMLElement;
       const view = document.querySelector(`.${styles.view}`) as HTMLElement;
       expect(parseFloat(getComputedStyle(modal).top)).toBeCloseTo(window.innerHeight / 2);
-      // Offset by half the content's own height, including comments and controls.
-      expect(getComputedStyle(view).transform).toBe('translate(-50%, -50%)');
+      // A zero-sized flex body centres the complete content (comments and controls
+      // included) on that point through layout, without a blurring half-pixel transform.
+      expect(view.parentElement).toBe(body);
+      const bodyStyle = getComputedStyle(body);
+      expect(bodyStyle.display).toBe('flex');
+      expect(bodyStyle.alignItems).toBe('center');
+      expect(bodyStyle.justifyContent).toBe('center');
+      expect(bodyStyle.height).toBe('0px');
+      expect(getComputedStyle(view).transform).toBe('none');
     },
   );
 
@@ -98,7 +110,7 @@ describe('desktop card and chat layout', () => {
       } else {
         expect(cardWidth + chatWidth + 16).toBeCloseTo(viewWidth);
         if (width === 1920) {
-          expect(cardWidth).toBeCloseTo((880 * CARD_WIDTH) / CARD_HEIGHT);
+          expect(cardWidth).toBe(snapCardWidth((880 * CARD_WIDTH) / CARD_HEIGHT));
         }
       }
       cleanup();
@@ -140,7 +152,10 @@ describe('desktop card and chat layout', () => {
       );
       expect(parseFloat(chat.style.width)).toBeCloseTo(parseFloat(cardGroup.style.width));
       // Reclaim horizontal chat space for a larger card when switching layouts.
-      if (width === 1440) expect(cardHeight).toBeCloseTo(492);
+      if (width === 1440)
+        expect(cardHeight).toBeCloseTo(
+          (snapCardWidth(492 * (CARD_WIDTH / CARD_HEIGHT)) * CARD_HEIGHT) / CARD_WIDTH,
+        );
     }
   });
 
@@ -161,6 +176,6 @@ describe('desktop card and chat layout', () => {
     fireEvent(window, new Event('resize'));
 
     expect(view.style.flexDirection).toBe('column');
-    expect(parseFloat(view.style.width)).toBeCloseTo(156);
+    expect(parseFloat(view.style.width)).toBe(snapCardWidth(156));
   });
 });

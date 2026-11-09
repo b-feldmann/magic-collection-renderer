@@ -89,4 +89,44 @@ describe('RotateToMouse', () => {
     expect(firstFrameOffset).toBeGreaterThan(0);
     expect(firstFrameOffset).toBeLessThan(7);
   });
+
+  it('removes the tilt and cover transforms once the card settles back at rest', () => {
+    const frames: FrameRequestCallback[] = [];
+    vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback) => {
+      frames.push(callback);
+      return frames.length;
+    });
+
+    const { container } = render(
+      <RotateToMouse>
+        <div className="card-cover" />
+      </RotateToMouse>,
+    );
+    const wrapper = container.firstElementChild as HTMLElement;
+    const inner = wrapper.firstElementChild as HTMLElement;
+    const cover = inner.firstElementChild as HTMLElement;
+    vi.spyOn(inner, 'getBoundingClientRect').mockReturnValue(new DOMRect(0, 0, 100, 200));
+
+    const runFrames = () => {
+      let time = 0;
+      // Bounded so a spring that never settles fails instead of hanging.
+      for (let i = 0; i < 10000 && frames.length > 0; i += 1) {
+        time += 16;
+        const frame = frames.shift()!;
+        act(() => frame(time));
+      }
+    };
+
+    fireEvent.mouseEnter(wrapper, { clientX: 100, clientY: 200 });
+    runFrames();
+    expect(inner.style.transform).toMatch(/rotateX/);
+    expect(cover.style.transform).toMatch(/scale/);
+
+    fireEvent.mouseLeave(wrapper);
+    runFrames();
+
+    // An identity 3D transform would keep the card on a resampled GPU layer.
+    expect(inner.style.transform).toBe('');
+    expect(cover.style.transform).toBe('');
+  });
 });

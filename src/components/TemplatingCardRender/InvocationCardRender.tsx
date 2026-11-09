@@ -85,9 +85,9 @@ const InvocationCardRender = (cardRender: InvocationCardRenderProps) => {
       <div
         id={`card-id-${cardID}`}
         style={{
-          transform: `scale(${resizeFactor(containerWidth)})`,
-          transformOrigin: 'top left',
-          width: `${(CARD_WIDTH / containerWidth) * 100}%`,
+          // `zoom` (not `transform: scale`) lays the card out at its real size, so
+          // edges and text snap to device pixels instead of being resampled.
+          zoom: resizeFactor(containerWidth),
         }}
       >
         <div

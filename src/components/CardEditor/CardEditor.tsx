@@ -1128,7 +1128,6 @@ const CardEditor: React.FC<CardEditorInterface> = ({
       }}
     >
       <div className={styles.editor}>
-        <canvas id="cover-resize-canvas" className={styles.canvas} />
         <header className={styles.editorHeader}>
           <h2>Card editor</h2>
           <Flex className={styles.headerActions} wrap gap={6}>

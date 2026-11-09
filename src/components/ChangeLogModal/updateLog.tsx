@@ -868,4 +868,77 @@ updateLog.push({
   ],
 });
 
+updateLog.push({
+  version: '4.4.0',
+  title: 'Rendering Update',
+  content: [
+    {
+      type: ChangeLogFeatureType.Changed,
+      feature: 'Cards now look like current (2026) printed Magic cards.',
+      description:
+        'Fonts, sizes and spacing were measured against official prints and adjusted to match them within a few pixels: title, mana cost, type line, set symbol, rules text, flavour text, P/T box and the bottom info lines.',
+    },
+    {
+      type: ChangeLogFeatureType.Changed,
+      feature: 'Rules text is set at the printed size and only shrinks when it has to.',
+      description:
+        'Short texts use the full printed size and line spacing. Longer texts shrink just enough to fit while keeping the printed line and paragraph spacing, and their first line stays at the printed height, so larger text no longer sits lower in the box. Options of modal spells ("choose one —") sit closer together than regular paragraphs.',
+    },
+    {
+      type: ChangeLogFeatureType.Changed,
+      feature: 'Flavour text matches print.',
+      description:
+        'It has the same size as the rules text, sits below a thin faded separator at the printed distance (the same at every text size), and attributions read "—Name" without a space. Trailing spaces no longer leave a gap before the closing quote, the quote after a period is kerned, and spaced ellipses (". . .") are set tighter.',
+    },
+    {
+      type: ChangeLogFeatureType.Changed,
+      feature: 'The mana cost looks like print.',
+      description:
+        'The symbols fill their circles like on real cards, and the circles use the lighter colors of the official mana symbols.',
+    },
+    {
+      type: ChangeLogFeatureType.Changed,
+      feature: 'Mana symbols in rules text are smaller and sit on the baseline.',
+    },
+    {
+      type: ChangeLogFeatureType.Changed,
+      feature: 'Type lines use an em dash and the printed type order.',
+      description:
+        'For example "Legendary Creature — Human Wizard", "Instant — Adventure", or "Artifact Creature" no matter in which order the types were picked.',
+    },
+    {
+      type: ChangeLogFeatureType.Changed,
+      feature: 'The collector line shows the rarity and a four-digit number, like current prints.',
+      description: 'For example "U 0005" instead of "005/014 U".',
+    },
+    {
+      type: ChangeLogFeatureType.Changed,
+      feature: 'The copyright line is set in the rules text font with a printed-style ©.',
+    },
+    {
+      type: ChangeLogFeatureType.Added,
+      feature: 'Rare and mythic rare cards show the holo stamp at the bottom of the card.',
+      description:
+        'The stamp takes the color of the frame. Borderless cards show only the silver oval; tokens get no stamp.',
+    },
+    {
+      type: ChangeLogFeatureType.Added,
+      feature: 'Reminder and flavour text use a real italic font.',
+      description: 'Italic text is now as narrow as on print, so lines wrap at the same words.',
+    },
+    {
+      type: ChangeLogFeatureType.Added,
+      feature: 'Higher quality cover images are now supported.',
+      description:
+        'Uploaded covers are kept at up to 1600 px on the longest edge (previously 360 × 510), so artwork stays sharp in the big card view. Covers uploaded before this update are still stored at the old, low resolution. We recommend uploading those again, especially the ones that look blurry.',
+    },
+    {
+      type: ChangeLogFeatureType.Changed,
+      feature: 'Uploaded covers download in their stored format instead of PNG.',
+      description:
+        'The download is the stored image as is (usually WebP), so it is smaller and loses no quality.',
+    },
+  ],
+});
+
 export default updateLog;

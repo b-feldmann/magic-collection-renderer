@@ -95,17 +95,33 @@ const RotateToMouse = ({
       lastFrameTimeRef.current = null;
     }
 
-    ref.current?.style.setProperty(
-      'transform',
-      `rotateX(${-rotation.y}deg) rotateY(${rotation.x}deg)`,
-    );
+    // Drop the transforms entirely once back at rest: even an identity 3D
+    // transform keeps the card on a GPU layer that is resampled (blurred).
+    const tiltAtRest = rotation.x === 0 && rotation.y === 0 && velocity.x === 0 && velocity.y === 0;
+    const coverAtRest =
+      cover.x === 0 &&
+      cover.y === 0 &&
+      cover.scale === 1 &&
+      coverVelocity.x === 0 &&
+      coverVelocity.y === 0 &&
+      coverVelocity.scale === 0;
+
+    if (tiltAtRest) ref.current?.style.removeProperty('transform');
+    else
+      ref.current?.style.setProperty(
+        'transform',
+        `rotateX(${-rotation.y}deg) rotateY(${rotation.x}deg)`,
+      );
 
     if (covers) {
       for (let i = 0; i < covers.length; i += 1) {
-        (covers.item(i) as HTMLElement | null)?.style.setProperty(
-          'transform',
-          `translateX(${cover.x}px) translateY(${cover.y}px) scale(${cover.scale})`,
-        );
+        const coverElement = covers.item(i) as HTMLElement | null;
+        if (coverAtRest) coverElement?.style.removeProperty('transform');
+        else
+          coverElement?.style.setProperty(
+            'transform',
+            `translateX(${cover.x}px) translateY(${cover.y}px) scale(${cover.scale})`,
+          );
       }
     }
 

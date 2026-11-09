@@ -255,9 +255,20 @@
   min-height: var(--control-height);
 }
 
+// A zero-sized flex container centres the oversized view on its origin through
+// layout. Unlike `translate(-50%, -50%)`, layout offsets snap to device pixels,
+// so odd content sizes cannot shift the card by half a pixel and blur it.
+.modalBody {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 0;
+  height: 0;
+}
+
 .view {
   display: flex;
-  transform: translate(-50%, -50%);
+  flex-shrink: 0;
   // Let the rotated card (RotateToMouse) extend past the modal body without
   // being clipped or generating scrollbars.
   overflow: visible !important;

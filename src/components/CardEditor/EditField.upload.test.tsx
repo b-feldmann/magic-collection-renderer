@@ -6,11 +6,11 @@ import '@testing-library/jest-dom/vitest';
 
 import EditField from './EditField';
 import ArtworkUpload from './ArtworkUpload';
-import downloadImageAsPng from '../../utils/downloadImageAsPng';
+import downloadImage from '../../utils/downloadImage';
 
-// PNG conversion needs a real canvas; only the call is asserted here.
-vi.mock('../../utils/downloadImageAsPng', () => ({
-  default: vi.fn(() => Promise.resolve()),
+// jsdom cannot save files; only the call is asserted here.
+vi.mock('../../utils/downloadImage', () => ({
+  default: vi.fn(),
 }));
 
 // The real resize needs a browser canvas; pass the base64 straight through.
@@ -169,28 +169,26 @@ describe('EditField upload-input', () => {
     expect(screen.queryByRole('button', { name: /remove cover/i })).not.toBeInTheDocument();
   });
 
-  it('downloads an uploaded cover as PNG', () => {
-    const download = vi.mocked(downloadImageAsPng);
+  it('downloads an uploaded cover as stored', () => {
+    const download = vi.mocked(downloadImage);
     download.mockClear();
-    render(<Harness initialCover="base64:pic.jpg|data:image/jpeg;base64,xx" />);
+    render(<Harness initialCover="base64:pic.jpg|data:image/webp;base64,xx" />);
 
-    fireEvent.click(screen.getByRole('button', { name: /download cover as png/i }));
+    fireEvent.click(screen.getByRole('button', { name: /download cover/i }));
 
-    expect(download).toHaveBeenCalledWith('data:image/jpeg;base64,xx', 'pic.jpg');
+    expect(download).toHaveBeenCalledWith('data:image/webp;base64,xx', 'pic.jpg');
   });
 
   it('disables the download while the uploaded image is still loading', () => {
     render(<Harness initialCover="loading:pic.jpg" />);
 
-    expect(screen.getByRole('button', { name: /download cover as png/i })).toBeDisabled();
+    expect(screen.getByRole('button', { name: /download cover/i })).toBeDisabled();
   });
 
-  it('offers no PNG download for URL covers', () => {
+  it('offers no download for URL covers', () => {
     render(<Harness initialCover="url:https://example.com/x.jpg" />);
 
-    expect(
-      screen.queryByRole('button', { name: /download cover as png/i }),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /download cover/i })).not.toBeInTheDocument();
   });
 
   it('hides the remove control when no cover is set', () => {

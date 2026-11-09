@@ -1,4 +1,4 @@
-import { Button, Input, Listy, message, Radio, Select, Space, Switch, Tag } from 'antd';
+import { Button, Input, Listy, Radio, Select, Space, Switch, Tag } from 'antd';
 import { PaperClipOutlined } from '@ant-design/icons';
 import CrownOutlined from '@ant-design/icons/CrownOutlined';
 import DownloadOutlined from '@ant-design/icons/DownloadOutlined';
@@ -8,7 +8,7 @@ import AntIcon from '../AntIcon/AntIcon';
 import React, { useId } from 'react';
 import styles from './styles.module.scss';
 import { getCoverFileName, getCoverImageData, isUploadedCover } from '../../utils/cover';
-import downloadImageAsPng from '../../utils/downloadImageAsPng';
+import downloadImage from '../../utils/downloadImage';
 import { ColorType, RarityType } from '../../interfaces/enums';
 import { getRarityIcon } from '../TemplatingCardRender/assetLoader';
 import { injectManaIcons } from '../../utils/injectUtils';
@@ -110,15 +110,11 @@ const UploadInput = ({
           <Button
             shape="circle"
             size="small"
-            aria-label="Download cover as PNG"
-            title="Download as PNG"
+            aria-label="Download cover"
+            title="Download"
             icon={<DownloadOutlined />}
             disabled={!imageData}
-            onClick={() => {
-              downloadImageAsPng(imageData, fileName).catch(() =>
-                message.error('The image could not be downloaded'),
-              );
-            }}
+            onClick={() => downloadImage(imageData, fileName)}
           />
         ) : null}
         {coverValue ? (
