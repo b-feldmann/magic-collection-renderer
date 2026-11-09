@@ -266,6 +266,12 @@
   height: 0;
 }
 
+// card-modal.scss pulls modal body children up by 1px; centring halves that
+// into a half-pixel offset, so keep the view's margin box equal to its border box.
+.modalCardViewWrapper .modalBody > .view {
+  margin: 0;
+}
+
 .view {
   display: flex;
   flex-shrink: 0;
