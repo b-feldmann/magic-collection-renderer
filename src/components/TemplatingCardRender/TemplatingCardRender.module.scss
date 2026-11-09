@@ -333,10 +333,10 @@
   // 1.35em line height). The circle is 1.3em of the cost font: 34.4px at a
   // 744px-wide card, 39px apart (Emeritus of Truce, 2026 print).
   .cost :global(.ms-cost) {
-    font-size: 1.3em;
-    width: 1em;
-    height: 1em;
-    line-height: 1.04em;
+    font-size: 1.2em;
+    width: 1.15em;
+    height: 1.15em;
+    line-height: 1.15em;
   }
 
   // Generic (numeric / X) symbols: mana-font's numerals are thinner than the
