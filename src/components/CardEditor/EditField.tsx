@@ -1,12 +1,14 @@
-import { Button, Input, Listy, Radio, Select, Space, Switch, Tag } from 'antd';
+import { Button, Input, Listy, message, Radio, Select, Space, Switch, Tag } from 'antd';
 import { PaperClipOutlined } from '@ant-design/icons';
 import CrownOutlined from '@ant-design/icons/CrownOutlined';
+import DownloadOutlined from '@ant-design/icons/DownloadOutlined';
 import DownOutlined from '@ant-design/icons/DownOutlined';
 
 import AntIcon from '../AntIcon/AntIcon';
 import React, { useId } from 'react';
 import styles from './styles.module.scss';
-import { getCoverFileName, isUploadedCover } from '../../utils/cover';
+import { getCoverFileName, getCoverImageData, isUploadedCover } from '../../utils/cover';
+import downloadImageAsPng from '../../utils/downloadImageAsPng';
 import { ColorType, RarityType } from '../../interfaces/enums';
 import { getRarityIcon } from '../TemplatingCardRender/assetLoader';
 import { injectManaIcons } from '../../utils/injectUtils';
@@ -69,6 +71,8 @@ const UploadInput = ({
   const coverValue = getValue(fieldKey);
   const uploaded = isUploadedCover(coverValue);
   const fileName = getCoverFileName(coverValue);
+  // Empty while an uploaded image is still being fetched from the middleware.
+  const imageData = getCoverImageData(coverValue);
 
   return (
     <div
@@ -102,6 +106,21 @@ const UploadInput = ({
             onChange={e => saveValue(fieldKey, `url:${e.target.value}`)}
           />
         )}
+        {uploaded ? (
+          <Button
+            shape="circle"
+            size="small"
+            aria-label="Download cover as PNG"
+            title="Download as PNG"
+            icon={<DownloadOutlined />}
+            disabled={!imageData}
+            onClick={() => {
+              downloadImageAsPng(imageData, fileName).catch(() =>
+                message.error('The image could not be downloaded'),
+              );
+            }}
+          />
+        ) : null}
         {coverValue ? (
           <Button
             shape="circle"
