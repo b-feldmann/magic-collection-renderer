@@ -133,4 +133,26 @@ describe('PlaneswalkerCardRender - loyalty costs and holo stamp', () => {
       /holoStamp\/two\/planeswalker\/bg\.png/,
     );
   });
+
+  it('uses the planeswalker bump in the frame color on a single-color planeswalker', () => {
+    render(
+      <Store.Provider value={mockStoreValue}>
+        <PlaneswalkerCardRender
+          name="Chandra"
+          rarity={RarityType.MythicRare}
+          cardID="chandra"
+          manaCost="{2}{R}{R}"
+          cardTypes={[CardType.Planeswalker]}
+          cardText={['+1|Add {R}{R}.']}
+          cardStats="4"
+          collectionNumber={1}
+          collectionSize={10}
+        />
+      </Store.Provider>,
+    );
+
+    expect(screen.getByTestId('holo-stamp').getAttribute('src')).toMatch(
+      /holoStamp\/planeswalker\/r\.png/,
+    );
+  });
 });

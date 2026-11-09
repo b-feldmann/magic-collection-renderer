@@ -26,9 +26,9 @@ import planeswalkerStyles from './Planeswalker.module.scss';
 
 import {
   getFallbackCover,
-  getHoloStamp,
   getLoyaltyIcon,
   getPlaneswalkerMainframe,
+  getPlaneswalkerHoloStamp,
   getPlaneswalkerNicknamePlate,
   getPlaneswalkerPinline,
   getRarityIcon,
@@ -220,7 +220,8 @@ const PlaneswalkerCardRender = (cardRender: PlaneswalkerCardRenderProps) => {
   // Rare and mythic planeswalkers carry the holo stamp too; on two-color ones
   // the bump runs through the pinline's fade from one color into the other.
   const holoStamp = hasHoloStamp(rarity)
-    ? (getTwoColorHoloStamp(allColors, 'planeswalker') ?? getHoloStamp(color))
+    ? (getTwoColorHoloStamp(allColors, 'planeswalker') ??
+      getPlaneswalkerHoloStamp(color, isTall, isBorderless))
     : null;
 
   const parsePlaneswalkerLine = (line: string) => {

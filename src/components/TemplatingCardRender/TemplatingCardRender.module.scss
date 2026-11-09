@@ -1112,6 +1112,10 @@
 }
 
 .planeswalker {
+  .holoStamp {
+    top: 1890px !important;
+  }
+
   .title {
     top: 82px;
     color: black !important;
@@ -1157,6 +1161,10 @@
 }
 
 .borderless {
+  .holoStamp {
+    top: 1886px;
+  }
+
   .cover {
     left: 0 !important;
     top: 0 !important;

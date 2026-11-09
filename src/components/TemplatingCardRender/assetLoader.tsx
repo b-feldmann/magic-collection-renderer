@@ -169,6 +169,15 @@ import HoloStampTwoPlaneswalkerUR from './images/holoStamp/two/planeswalker/ur.p
 import HoloStampTwoPlaneswalkerBG from './images/holoStamp/two/planeswalker/bg.png';
 import HoloStampTwoPlaneswalkerRW from './images/holoStamp/two/planeswalker/rw.png';
 import HoloStampTwoPlaneswalkerGU from './images/holoStamp/two/planeswalker/gu.png';
+// Single-color planeswalker bumps, colored like the frame's own pinline.
+import HoloStampPlaneswalkerWhite from './images/holoStamp/planeswalker/w.png';
+import HoloStampPlaneswalkerBlue from './images/holoStamp/planeswalker/u.png';
+import HoloStampPlaneswalkerBlack from './images/holoStamp/planeswalker/b.png';
+import HoloStampPlaneswalkerRed from './images/holoStamp/planeswalker/r.png';
+import HoloStampPlaneswalkerGreen from './images/holoStamp/planeswalker/g.png';
+import HoloStampPlaneswalkerGold from './images/holoStamp/planeswalker/m.png';
+import HoloStampPlaneswalkerColorless from './images/holoStamp/planeswalker/c.png';
+import HoloStampPlaneswalkerColorlessTallBorderless from './images/holoStamp/planeswalker/c-tall-borderless.png';
 
 import VehicleMainframe from './images/mainframes/m15/regular/v.png';
 import ArtefactMainframe from './images/mainframes/m15/regular/a.png';
@@ -3222,6 +3231,27 @@ export const getTwoColorHoloStamp = (
   if (colors.length !== 2) return null;
   return TWO_COLOR_HOLO_STAMPS_BY_FRAME[frame][getTwoColorVariant(colors)] ?? null;
 };
+
+const PLANESWALKER_HOLO_STAMPS: Record<ColorType, string> = {
+  [ColorType.White]: HoloStampPlaneswalkerWhite,
+  [ColorType.Blue]: HoloStampPlaneswalkerBlue,
+  [ColorType.Black]: HoloStampPlaneswalkerBlack,
+  [ColorType.Red]: HoloStampPlaneswalkerRed,
+  [ColorType.Green]: HoloStampPlaneswalkerGreen,
+  [ColorType.Gold]: HoloStampPlaneswalkerGold,
+  [ColorType.Colorless]: HoloStampPlaneswalkerColorless,
+};
+
+/**
+ * The holo stamp bump for a single-color planeswalker frame. Planeswalker
+ * frames draw their pinline higher than M15 frames (y 1926-1936, black outline
+ * above), so the bump has the same shape as the two-color planeswalker bumps.
+ * Only the colorless tall borderless frame uses a lighter grey pinline.
+ */
+export const getPlaneswalkerHoloStamp = (color: ColorType, isTall = false, isBorderless = false) =>
+  color === ColorType.Colorless && isTall && isBorderless
+    ? HoloStampPlaneswalkerColorlessTallBorderless
+    : PLANESWALKER_HOLO_STAMPS[color];
 
 /**
  * The holo stamp for a frame: the frame-colored bump around the silver oval,
