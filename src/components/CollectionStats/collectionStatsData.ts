@@ -169,6 +169,7 @@ export interface ColorCardListEntry {
   uuid: string;
   name: string;
   draftRole: DraftRole;
+  cardType: string;
   creator: string;
   tags: string[];
 }
@@ -241,6 +242,8 @@ export const buildColorCardLists = (
       uuid: card.uuid,
       name: card.name,
       draftRole: getDraftRole(card),
+      // All types, e.g. "Artifact Creature"; supertypes and subtypes are left out.
+      cardType: (card.front.cardTypes || []).join(' '),
       creator: card.creator?.name || '',
       tags: card.tags || [],
     });

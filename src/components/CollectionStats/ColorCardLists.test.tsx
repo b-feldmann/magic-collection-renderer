@@ -69,7 +69,9 @@ describe('CollectionStats color card lists', () => {
     render(
       <CollectionStats
         fillHeight
-        collection={[card('Tadpole', '{U}', ['Creature'], ['Evolve', 'Counters'], 'Benni')]}
+        collection={[
+          card('Tadpole', '{U}', ['Artifact', 'Creature'], ['Evolve', 'Counters'], 'Benni'),
+        ]}
       />,
     );
     const lists = screen.getByRole('region', { name: 'Cards by color' });
@@ -78,8 +80,9 @@ describe('CollectionStats color card lists', () => {
       within(blue)
         .getAllByRole('columnheader')
         .map(header => header.textContent),
-    ).toEqual(['Name', 'Draft role', 'Creator', 'Tags']);
+    ).toEqual(['Name', 'Card type', 'Draft role', 'Creator', 'Tags']);
     const row = within(blue).getByRole('row', { name: /Tadpole/ });
+    expect(within(row).getByText('Artifact Creature')).toBeInTheDocument();
     expect(within(row).getByText('1-Drop')).toBeInTheDocument();
     expect(within(row).getByText('Benni')).toBeInTheDocument();
     expect(within(row).getByText('Evolve, Counters')).toBeInTheDocument();

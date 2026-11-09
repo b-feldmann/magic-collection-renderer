@@ -847,7 +847,7 @@ updateLog.push({
       type: ChangeLogFeatureType.Added,
       feature: 'The expanded statistics now list every card by color and rarity.',
       description:
-        'Below the mana curves, each color is split into Commons, Uncommons and Rares & Mythics. Every table shows the card name, its draft role (1-Drop to 4-Drop, Late-Drop for 5+ mana, or Land), the creator and the tags, and its heading counts the cards per draft role.',
+        'Below the mana curves, each color is split into Commons, Uncommons and Rares & Mythics. Every table shows the card name, its card type, its draft role (1-Drop to 4-Drop, Late-Drop for 5+ mana, or Land), the creator and the tags, and its heading counts the cards per draft role.',
     },
     {
       type: ChangeLogFeatureType.Added,

@@ -25,6 +25,7 @@ const ColorCardTable = ({ list }: { list: ColorCardList }) => {
           <thead>
             <tr>
               <th scope="col">Name</th>
+              <th scope="col">Card type</th>
               <th scope="col">Draft role</th>
               <th scope="col">Creator</th>
               <th scope="col">Tags</th>
@@ -34,6 +35,7 @@ const ColorCardTable = ({ list }: { list: ColorCardList }) => {
             {cards.map(card => (
               <tr key={card.uuid}>
                 <th scope="row">{card.name}</th>
+                <td>{card.cardType}</td>
                 <td>
                   <span className={styles.draftRole}>{card.draftRole}</span>
                 </td>
