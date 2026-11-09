@@ -691,3 +691,12 @@ $bar-transition: 280ms ease;
   color: #3c6048;
   white-space: nowrap;
 }
+.previewRow:hover > * {
+  background: #f3f7f4;
+}
+.cardPreviewPopover :global(.ant-popover-inner) {
+  padding: 6px;
+}
+.cardPreview {
+  width: 280px;
+}

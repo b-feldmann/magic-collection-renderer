@@ -1,8 +1,15 @@
 import React from 'react';
+import CardHoverPreview from './CardHoverPreview';
 import { ColorCardList, draftRoles } from './collectionStatsData';
 import styles from './collectionStats.module.scss';
 
-const ColorCardTable = ({ list }: { list: ColorCardList }) => {
+const ColorCardTable = ({
+  list,
+  collectionSize,
+}: {
+  list: ColorCardList;
+  collectionSize: number;
+}) => {
   const { category, tier, tierLabel, cards, roleCounts } = list;
   const headingId = `color-card-list-${category.key}-${tier}`;
   const roleSummary = draftRoles
@@ -33,15 +40,22 @@ const ColorCardTable = ({ list }: { list: ColorCardList }) => {
           </thead>
           <tbody>
             {cards.map(card => (
-              <tr key={card.uuid}>
-                <th scope="row">{card.name}</th>
-                <td>{card.cardType}</td>
-                <td>
-                  <span className={styles.draftRole}>{card.draftRole}</span>
-                </td>
-                <td>{card.creator}</td>
-                <td>{card.tags.join(', ')}</td>
-              </tr>
+              <CardHoverPreview
+                key={card.uuid}
+                card={card.card}
+                collectionNumber={card.collectionNumber}
+                collectionSize={collectionSize}
+              >
+                <tr className={styles.previewRow}>
+                  <th scope="row">{card.name}</th>
+                  <td>{card.cardType}</td>
+                  <td>
+                    <span className={styles.draftRole}>{card.draftRole}</span>
+                  </td>
+                  <td>{card.creator}</td>
+                  <td>{card.tags.join(', ')}</td>
+                </tr>
+              </CardHoverPreview>
             ))}
           </tbody>
         </table>
@@ -52,6 +66,7 @@ const ColorCardTable = ({ list }: { list: ColorCardList }) => {
 
 const ColorCardLists = ({ lists }: { lists: ColorCardList[] }) => {
   const filled = lists.filter(list => list.cards.length > 0);
+  const collectionSize = lists.reduce((sum, list) => sum + list.cards.length, 0);
   return (
     <section className={styles.curveSection} aria-label="Cards by color">
       <div className={styles.sectionHeading}>
@@ -61,7 +76,13 @@ const ColorCardLists = ({ lists }: { lists: ColorCardList[] }) => {
       {filled.length === 0 ? (
         <p className={styles.sectionNote}>No cards to list.</p>
       ) : (
-        filled.map(list => <ColorCardTable key={`${list.category.key}-${list.tier}`} list={list} />)
+        filled.map(list => (
+          <ColorCardTable
+            key={`${list.category.key}-${list.tier}`}
+            list={list}
+            collectionSize={collectionSize}
+          />
+        ))
       )}
     </section>
   );

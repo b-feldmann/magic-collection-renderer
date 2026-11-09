@@ -1,9 +1,18 @@
 import React from 'react';
-import { render, screen, within } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import CardInterface from '../../interfaces/CardInterface';
 import CollectionStats from './CollectionStats';
 import { buildColorCardLists } from './collectionStatsData';
+
+// The card render in the hover preview measures itself; jsdom has no ResizeObserver.
+if (!globalThis.ResizeObserver) {
+  globalThis.ResizeObserver = class {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  };
+}
 
 const card = (
   name: string,
@@ -88,5 +97,14 @@ describe('CollectionStats color card lists', () => {
     expect(within(row).getByText('Evolve, Counters')).toBeInTheDocument();
     // Colors without cards get no table.
     expect(within(lists).queryByRole('region', { name: /^White/ })).not.toBeInTheDocument();
+  });
+
+  it('shows the rendered card in a popup while hovering its row', async () => {
+    render(<CollectionStats fillHeight collection={[card('Tadpole', '{U}')]} />);
+    const lists = screen.getByRole('region', { name: 'Cards by color' });
+    const row = within(lists).getByRole('row', { name: /Tadpole/ });
+    expect(screen.queryByRole('img', { name: 'Preview of Tadpole' })).not.toBeInTheDocument();
+    fireEvent.mouseEnter(row);
+    expect(await screen.findByRole('img', { name: 'Preview of Tadpole' })).toBeInTheDocument();
   });
 });

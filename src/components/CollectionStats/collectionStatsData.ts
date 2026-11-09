@@ -172,6 +172,10 @@ export interface ColorCardListEntry {
   cardType: string;
   creator: string;
   tags: string[];
+  /** The card itself, for the hover preview. */
+  card: CardInterface;
+  /** 1-based position in the shown collection, as printed on the rendered card. */
+  collectionNumber: number;
 }
 export const rarityTiers = [
   { key: 'common', label: 'Commons' },
@@ -231,7 +235,7 @@ export const buildColorCardLists = (
 ): ColorCardList[] => {
   const listKey = (color: string, tier: RarityTier) => `${color}:${tier}`;
   const lists = new Map<string, ColorCardListEntry[]>();
-  getVariantGroups(collection, allCards).forEach(([card]) => {
+  getVariantGroups(collection, allCards).forEach(([card], index) => {
     const color = cardToColor(card.front, card.manaCost).color;
     const key = listKey(
       color === ColorType.Gold ? 'multicolor' : color,
@@ -246,6 +250,8 @@ export const buildColorCardLists = (
       cardType: (card.front.cardTypes || []).join(' '),
       creator: card.creator?.name || '',
       tags: card.tags || [],
+      card,
+      collectionNumber: index + 1,
     });
   });
   return colorCategories.flatMap(category =>
