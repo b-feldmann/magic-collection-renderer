@@ -158,11 +158,6 @@
     pointer-events: none;
   }
 
-  // Right half of a two-color bump, faded in over the left color's bump.
-  .holoStampFade {
-    mask-image: linear-gradient(to right, transparent 30%, black 70%);
-  }
-
   .holoStampPlain {
     left: 683px;
     top: 1918px;
@@ -297,8 +292,8 @@
   .cost {
     position: absolute;
     font-size: 1.8em;
-    top: 106px;
-    right: calc(1500px / 746 * 56 - 2px);
+    top: 104px;
+    right: calc(1500px / 746 * 56);
     text-align: right;
   }
 
@@ -335,7 +330,8 @@
   // In the printed mana cost the glyph nearly fills its circle: ≈1.3x
   // mana-font's glyph in a circle of the same size. Scale the glyph up and the
   // circle box down by the same factor (mana-font: 0.95em font, 1.3em circle,
-  // 1.35em line height).
+  // 1.35em line height). The circle is 1.3em of the cost font: 34.4px at a
+  // 744px-wide card, 39px apart (Emeritus of Truce, 2026 print).
   .cost :global(.ms-cost) {
     font-size: 1.3em;
     width: 1em;
@@ -361,7 +357,8 @@
     }
   }
 
-  // mana-font's shadow is in em too; keep its printed size.
+  // The printed shadow is a solid crescent below the circle, slightly to the
+  // left: ≈3px thick at the bottom of a 744px-wide card, ≈1px on the left.
   .cost :global(.ms-cost.ms-shadow) {
     box-shadow:
       -0.04em 0.09em 0 #111,
@@ -369,7 +366,8 @@
   }
 
   // Hybrid / two-brid / Phyrexian-hybrid halves are positioned in em inside
-  // a 1.3em circle; keep mana-font's metrics for them.
+  // a 1.3em circle; keep mana-font's metrics for them, scaled to the circle
+  // size of the other cost symbols.
   @each $hybrid
     in (
       wu
@@ -405,7 +403,7 @@
     )
   {
     .cost :global(.ms-cost.ms-#{$hybrid}) {
-      font-size: 0.95em;
+      font-size: 1em;
       width: 1.3em;
       height: 1.3em;
       line-height: 1.35em;
@@ -413,8 +411,8 @@
 
     .cost :global(.ms-cost.ms-shadow.ms-#{$hybrid}) {
       box-shadow:
-        -0.06em 0.07em 0 #111,
-        0 0.06em 0 #111;
+        -0.052em 0.117em 0 #111,
+        0 0.117em 0 #111;
     }
   }
 
@@ -932,12 +930,12 @@
     right: 95px;
   }
 
-  // Printed cost symbols are ≈66px wide with ≈13px gaps, right-aligned to
-  // x≈1384.
+  // Printed cost symbols are ≈69px wide with ≈9px gaps (78px apart),
+  // right-aligned to x≈1386 (Emeritus of Truce, 2026 print).
   .cost {
     font-size: 1.6em;
-    top: 112px;
-    right: 116px;
+    top: 114px;
+    right: 114px;
   }
 
   // Printed paragraphs have no outer margin (the block is vertically centered

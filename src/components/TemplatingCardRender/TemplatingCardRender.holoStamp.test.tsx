@@ -86,23 +86,25 @@ describe('TemplatingCardRender - holo stamp', () => {
   it('shows only the oval on single-color borderless cards', () => {
     renderCard({ rarity: RarityType.Rare, artStyle: CardArtStyles.Borderless });
     expect(stamp()?.getAttribute('src')).toMatch(/holoStamp\/stamp\.png/);
-    expect(screen.queryByTestId('holo-stamp-fade')).not.toBeInTheDocument();
   });
 
-  it('fades the bump from the left into the right pinline color on two-color borderless cards', () => {
+  it('runs the bump through the borderless pinline fade on two-color borderless cards', () => {
     renderCard({
       rarity: RarityType.MythicRare,
       artStyle: CardArtStyles.Borderless,
       manaCost: '{3}{R}{W}',
     });
-    expect(stamp()?.getAttribute('src')).toMatch(/holoStamp\/r\.png/);
-    expect(screen.getByTestId('holo-stamp-fade').getAttribute('src')).toMatch(/holoStamp\/w\.png/);
+    expect(stamp()?.getAttribute('src')).toMatch(/holoStamp\/two\/borderless\/rw\.png/);
   });
 
-  it('keeps the gold bump on regular two-color cards', () => {
+  it('runs the bump through the pinline fade on regular two-color cards', () => {
     renderCard({ rarity: RarityType.Rare, manaCost: '{3}{R}{W}' });
+    expect(stamp()?.getAttribute('src')).toMatch(/holoStamp\/two\/rw\.png/);
+  });
+
+  it('keeps the gold bump on cards with three or more colors', () => {
+    renderCard({ rarity: RarityType.Rare, manaCost: '{2}{R}{W}{G}' });
     expect(stamp()?.getAttribute('src')).toMatch(/holoStamp\/m\.png/);
-    expect(screen.queryByTestId('holo-stamp-fade')).not.toBeInTheDocument();
   });
 
   it('never stamps tokens', () => {

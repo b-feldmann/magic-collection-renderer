@@ -124,8 +124,8 @@ import InnerCrownGreen from './images/crown/m15InnerCrownGNyx.png';
 import InnerCrownGold from './images/crown/m15InnerCrownMNyx.png';
 
 import Black from './images/black.png';
-// M15 holo stamp (Card Conjurer img/frames/m15/holoStamps): the frame-colored
-// bump around the silver oval, plus the bare oval for frames without a bump.
+// Holo stamp bumps redrawn to the 2026 prints: the pinline arches over the
+// silver oval in its own color. Plus the bare oval for frames without a bump.
 import HoloStampWhite from './images/holoStamp/w.png';
 import HoloStampBlue from './images/holoStamp/u.png';
 import HoloStampBlack from './images/holoStamp/b.png';
@@ -136,6 +136,39 @@ import HoloStampColorless from './images/holoStamp/c.png';
 import HoloStampArtifact from './images/holoStamp/a.png';
 import HoloStampLand from './images/holoStamp/l.png';
 import HoloStampPlain from './images/holoStamp/stamp.png';
+// Two-color bumps: the band runs through the pinline's fade (regular /
+// extended and borderless pinlines use different colors).
+import HoloStampTwoWU from './images/holoStamp/two/wu.png';
+import HoloStampTwoUB from './images/holoStamp/two/ub.png';
+import HoloStampTwoBR from './images/holoStamp/two/br.png';
+import HoloStampTwoRG from './images/holoStamp/two/rg.png';
+import HoloStampTwoGW from './images/holoStamp/two/gw.png';
+import HoloStampTwoWB from './images/holoStamp/two/wb.png';
+import HoloStampTwoUR from './images/holoStamp/two/ur.png';
+import HoloStampTwoBG from './images/holoStamp/two/bg.png';
+import HoloStampTwoRW from './images/holoStamp/two/rw.png';
+import HoloStampTwoGU from './images/holoStamp/two/gu.png';
+import HoloStampTwoBorderlessWU from './images/holoStamp/two/borderless/wu.png';
+import HoloStampTwoBorderlessUB from './images/holoStamp/two/borderless/ub.png';
+import HoloStampTwoBorderlessBR from './images/holoStamp/two/borderless/br.png';
+import HoloStampTwoBorderlessRG from './images/holoStamp/two/borderless/rg.png';
+import HoloStampTwoBorderlessGW from './images/holoStamp/two/borderless/gw.png';
+import HoloStampTwoBorderlessWB from './images/holoStamp/two/borderless/wb.png';
+import HoloStampTwoBorderlessUR from './images/holoStamp/two/borderless/ur.png';
+import HoloStampTwoBorderlessBG from './images/holoStamp/two/borderless/bg.png';
+import HoloStampTwoBorderlessRW from './images/holoStamp/two/borderless/rw.png';
+import HoloStampTwoBorderlessGU from './images/holoStamp/two/borderless/gu.png';
+// Planeswalker pinlines sit higher and the bump is narrower, with a black outline.
+import HoloStampTwoPlaneswalkerWU from './images/holoStamp/two/planeswalker/wu.png';
+import HoloStampTwoPlaneswalkerUB from './images/holoStamp/two/planeswalker/ub.png';
+import HoloStampTwoPlaneswalkerBR from './images/holoStamp/two/planeswalker/br.png';
+import HoloStampTwoPlaneswalkerRG from './images/holoStamp/two/planeswalker/rg.png';
+import HoloStampTwoPlaneswalkerGW from './images/holoStamp/two/planeswalker/gw.png';
+import HoloStampTwoPlaneswalkerWB from './images/holoStamp/two/planeswalker/wb.png';
+import HoloStampTwoPlaneswalkerUR from './images/holoStamp/two/planeswalker/ur.png';
+import HoloStampTwoPlaneswalkerBG from './images/holoStamp/two/planeswalker/bg.png';
+import HoloStampTwoPlaneswalkerRW from './images/holoStamp/two/planeswalker/rw.png';
+import HoloStampTwoPlaneswalkerGU from './images/holoStamp/two/planeswalker/gu.png';
 
 import VehicleMainframe from './images/mainframes/m15/regular/v.png';
 import ArtefactMainframe from './images/mainframes/m15/regular/a.png';
@@ -3131,26 +3164,63 @@ export const getRarityIcon = (rarity: RarityType) => {
 export const hasHoloStamp = (rarity: RarityType) =>
   rarity === RarityType.Rare || rarity === RarityType.MythicRare;
 
-const HOLO_STAMP_BY_VARIANT: Record<string, string> = {
-  w: HoloStampWhite,
-  u: HoloStampBlue,
-  b: HoloStampBlack,
-  r: HoloStampRed,
-  g: HoloStampGreen,
+const TWO_COLOR_HOLO_STAMPS: Record<string, string> = {
+  wu: HoloStampTwoWU,
+  ub: HoloStampTwoUB,
+  br: HoloStampTwoBR,
+  rg: HoloStampTwoRG,
+  gw: HoloStampTwoGW,
+  wb: HoloStampTwoWB,
+  ur: HoloStampTwoUR,
+  bg: HoloStampTwoBG,
+  rw: HoloStampTwoRW,
+  gu: HoloStampTwoGU,
+};
+
+const TWO_COLOR_BORDERLESS_HOLO_STAMPS: Record<string, string> = {
+  wu: HoloStampTwoBorderlessWU,
+  ub: HoloStampTwoBorderlessUB,
+  br: HoloStampTwoBorderlessBR,
+  rg: HoloStampTwoBorderlessRG,
+  gw: HoloStampTwoBorderlessGW,
+  wb: HoloStampTwoBorderlessWB,
+  ur: HoloStampTwoBorderlessUR,
+  bg: HoloStampTwoBorderlessBG,
+  rw: HoloStampTwoBorderlessRW,
+  gu: HoloStampTwoBorderlessGU,
+};
+
+const TWO_COLOR_PLANESWALKER_HOLO_STAMPS: Record<string, string> = {
+  wu: HoloStampTwoPlaneswalkerWU,
+  ub: HoloStampTwoPlaneswalkerUB,
+  br: HoloStampTwoPlaneswalkerBR,
+  rg: HoloStampTwoPlaneswalkerRG,
+  gw: HoloStampTwoPlaneswalkerGW,
+  wb: HoloStampTwoPlaneswalkerWB,
+  ur: HoloStampTwoPlaneswalkerUR,
+  bg: HoloStampTwoPlaneswalkerBG,
+  rw: HoloStampTwoPlaneswalkerRW,
+  gu: HoloStampTwoPlaneswalkerGU,
+};
+
+const TWO_COLOR_HOLO_STAMPS_BY_FRAME = {
+  regular: TWO_COLOR_HOLO_STAMPS,
+  borderless: TWO_COLOR_BORDERLESS_HOLO_STAMPS,
+  planeswalker: TWO_COLOR_PLANESWALKER_HOLO_STAMPS,
 };
 
 /**
- * Two-color borderless frames fade their pinline from the left color into the
- * right one, and the 2026 prints run the holo stamp bump through the same fade.
- * Returns the [left, right] bumps in pinline order, or null for any other
- * color count.
+ * Two-color frames fade their pinline from one color into the other right
+ * under the holo stamp, and the 2026 prints run the bump through the same fade
+ * (Lorehold, the Historian and Professor Dellian Fel, SOS). Returns the bump for
+ * that frame's pinline, or null for any other color count.
  */
-export const getTwoColorHoloStamps = (colors: ColorType[]): [string, string] | null => {
+export const getTwoColorHoloStamp = (
+  colors: ColorType[],
+  frame: keyof typeof TWO_COLOR_HOLO_STAMPS_BY_FRAME = 'regular',
+): string | null => {
   if (colors.length !== 2) return null;
-  const variant = getTwoColorVariant(colors);
-  const left = HOLO_STAMP_BY_VARIANT[variant[0]];
-  const right = HOLO_STAMP_BY_VARIANT[variant[1]];
-  return left && right ? [left, right] : null;
+  return TWO_COLOR_HOLO_STAMPS_BY_FRAME[frame][getTwoColorVariant(colors)] ?? null;
 };
 
 /**

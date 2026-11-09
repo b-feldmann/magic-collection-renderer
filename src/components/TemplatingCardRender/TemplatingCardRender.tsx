@@ -49,7 +49,7 @@ import {
   getHybridLevelColor,
   getHybridPtColor,
   getHoloStamp,
-  getTwoColorHoloStamps,
+  getTwoColorHoloStamp,
   getInnerCrown,
   getInventionMainframe,
   getInventionPt,
@@ -415,19 +415,19 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
   }
 
   // Rares and mythics carry the holo stamp in the bottom border. Tokens and the
-  // full-bleed Invention showcase have none. Borderless cards show only the
-  // oval, except two-color ones: their pinline fades from one color into the
-  // other and the bump follows that fade (2026 prints).
+  // full-bleed Invention showcase have none. Two-color frames fade their
+  // pinline from one color into the other under the stamp and the bump runs
+  // through that fade (2026 prints); other borderless cards show only the oval.
   const isBorderless = artStyle === CardArtStyles.Borderless;
   const showsHoloStamp = hasHoloStamp(rarity) && !isToken && !isInvention;
-  const twoColorHoloStamps =
-    showsHoloStamp && isBorderless && !isArtifact && !isLand
-      ? getTwoColorHoloStamps(allColors)
+  const twoColorHoloStamp =
+    showsHoloStamp && !isLand && pinline
+      ? getTwoColorHoloStamp(allColors, isBorderless ? 'borderless' : 'regular')
       : null;
   const holoStamp = showsHoloStamp
-    ? (twoColorHoloStamps?.[0] ?? getHoloStamp(color, isArtifact, isLand, isBorderless))
+    ? (twoColorHoloStamp ?? getHoloStamp(color, isArtifact, isLand, isBorderless))
     : null;
-  const isPlainHoloStamp = isBorderless && !twoColorHoloStamps;
+  const isPlainHoloStamp = isBorderless && !twoColorHoloStamp;
 
   // The full-width M15 rules box, typeset like print (see printedTextFit).
   const isPrintedRulesText = !(isAdventure || isOmen || isPrepared || isEvolution || isToken);
@@ -572,14 +572,6 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
               src={holoStamp}
               alt=""
               data-testid="holo-stamp"
-            />
-          ) : null}
-          {holoStamp && twoColorHoloStamps ? (
-            <img
-              className={`${styles.holoStamp} ${styles.holoStampFade}`}
-              src={twoColorHoloStamps[1]}
-              alt=""
-              data-testid="holo-stamp-fade"
             />
           ) : null}
 

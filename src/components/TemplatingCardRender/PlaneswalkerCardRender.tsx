@@ -32,7 +32,7 @@ import {
   getPlaneswalkerNicknamePlate,
   getPlaneswalkerPinline,
   getRarityIcon,
-  getTwoColorHoloStamps,
+  getTwoColorHoloStamp,
   hasHoloStamp,
 } from './assetLoader';
 import { injectForText, injectManaIcons } from '../../utils/injectUtils';
@@ -217,10 +217,11 @@ const PlaneswalkerCardRender = (cardRender: PlaneswalkerCardRenderProps) => {
   const pinline = getPlaneswalkerPinline(allColors, isTall, isBorderless);
   const nicknamePlate = isNickname ? getPlaneswalkerNicknamePlate(color, allColors) : '';
 
-  // Rare and mythic planeswalkers carry the holo stamp too; two-color ones fade
-  // the bump from the left into the right pinline color, like their pinline.
-  const twoColorHoloStamps = hasHoloStamp(rarity) ? getTwoColorHoloStamps(allColors) : null;
-  const holoStamp = hasHoloStamp(rarity) ? (twoColorHoloStamps?.[0] ?? getHoloStamp(color)) : null;
+  // Rare and mythic planeswalkers carry the holo stamp too; on two-color ones
+  // the bump runs through the pinline's fade from one color into the other.
+  const holoStamp = hasHoloStamp(rarity)
+    ? (getTwoColorHoloStamp(allColors, 'planeswalker') ?? getHoloStamp(color))
+    : null;
 
   const parsePlaneswalkerLine = (line: string) => {
     if (!line) return { loyalty: '', text: '', loyaltyImage: '' };
@@ -271,14 +272,6 @@ const PlaneswalkerCardRender = (cardRender: PlaneswalkerCardRenderProps) => {
           ) : null}
           {holoStamp ? (
             <img className={styles.holoStamp} src={holoStamp} alt="" data-testid="holo-stamp" />
-          ) : null}
-          {holoStamp && twoColorHoloStamps ? (
-            <img
-              className={`${styles.holoStamp} ${styles.holoStampFade}`}
-              src={twoColorHoloStamps[1]}
-              alt=""
-              data-testid="holo-stamp-fade"
-            />
           ) : null}
           <ImageLoader src={getRarityIcon(rarity)} alt="" className={styles.rarity} />
 

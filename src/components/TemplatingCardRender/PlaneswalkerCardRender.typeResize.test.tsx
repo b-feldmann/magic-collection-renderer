@@ -112,7 +112,7 @@ describe('PlaneswalkerCardRender - loyalty costs and holo stamp', () => {
     expect(screen.getByTestId('holo-stamp')).toBeInTheDocument();
   });
 
-  it('fades the stamp bump between the two colors of a two-color planeswalker', () => {
+  it('runs the stamp bump through the pinline fade of a two-color planeswalker', () => {
     render(
       <Store.Provider value={mockStoreValue}>
         <PlaneswalkerCardRender
@@ -129,7 +129,8 @@ describe('PlaneswalkerCardRender - loyalty costs and holo stamp', () => {
       </Store.Provider>,
     );
 
-    expect(screen.getByTestId('holo-stamp').getAttribute('src')).toMatch(/holoStamp\/b\.png/);
-    expect(screen.getByTestId('holo-stamp-fade').getAttribute('src')).toMatch(/holoStamp\/g\.png/);
+    expect(screen.getByTestId('holo-stamp').getAttribute('src')).toMatch(
+      /holoStamp\/two\/planeswalker\/bg\.png/,
+    );
   });
 });
