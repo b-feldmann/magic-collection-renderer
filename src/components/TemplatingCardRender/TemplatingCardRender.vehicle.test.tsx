@@ -54,7 +54,7 @@ describe('TemplatingCardRender - Vehicle (artifact + vehicle flag)', () => {
     expect(screen.getByText('3/2')).toBeInTheDocument();
   });
 
-  it('renders the type line as "Artifact – Vehicle"', () => {
+  it('renders the type line as "Artifact — Vehicle"', () => {
     renderCard([CardType.Artifact], true);
 
     expect(screen.getByText(/Vehicle/)).toBeInTheDocument();

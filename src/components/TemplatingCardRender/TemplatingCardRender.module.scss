@@ -3,6 +3,14 @@
   src: url('font/MPlantin.ttf');
 }
 
+// The real italic cut (narrower than the regular face). Without it the
+// browser slants the regular face, which sets reminder text ≈8% too wide.
+@font-face {
+  font-family: 'MPlantin';
+  font-style: italic;
+  src: url('font/MPlantinItalic.ttf');
+}
+
 @font-face {
   font-family: 'Gotham Medium';
   src: url('font/GothamMedium.ttf');
@@ -134,6 +142,25 @@
     left: 0;
   }
 
+  // Holo stamp bounds from Card Conjurer's M15 holo stamp pack (1500x2100
+  // space), moved 8px up to match the 2026 prints: the frame-colored bump is
+  // 192x96 at (654, 1889); the bare oval is 134x67 at (683, 1918).
+  .holoStamp {
+    position: absolute;
+    left: 654px;
+    top: 1889px;
+    width: 192px;
+    height: 96px;
+    pointer-events: none;
+  }
+
+  .holoStampPlain {
+    left: 683px;
+    top: 1918px;
+    width: 134px;
+    height: 67px;
+  }
+
   .pinline,
   .titlePart,
   .typePart,
@@ -235,7 +262,7 @@
     font-family: 'Beleren Bold', sans-serif;
     position: absolute;
     font-size: 2em;
-    top: 1190px;
+    top: 1187px;
     left: calc(1500px / 746 * 65);
     // Bound the type line so TextResize can shrink long type lines before
     // they collide with the rarity icon on the right. Keep it single-line.
@@ -272,6 +299,96 @@
 
   .cost > * {
     margin-left: 12.5px;
+  }
+
+  // Printed mana symbols use lighter, less saturated circles than mana-font's
+  // defaults (these are the colors of the official symbol artwork). The
+  // variables also feed mana-font's hybrid halves.
+  --ms-mana-w: #fffbd5;
+  --ms-mana-u: #aae0fa;
+  --ms-mana-b: #cbc2bf;
+  --ms-mana-r: #f9aa8f;
+  --ms-mana-g: #9bd3ae;
+  --ms-mana-c: #cac5c0;
+
+  // (.ms-untap keeps its own black circle.)
+  :global(.ms-cost:not(.ms-untap)) {
+    background-color: #cac5c0;
+  }
+
+  @each $color, $hex in (w: #fffbd5, u: #aae0fa, b: #cbc2bf, r: #f9aa8f, g: #9bd3ae) {
+    :global(.ms-cost.ms-#{$color}),
+    :global(.ms-cost.ms-#{$color}p) {
+      background-color: $hex;
+    }
+  }
+
+  // In the printed mana cost the glyph nearly fills its circle: ≈1.3x
+  // mana-font's glyph in a circle of the same size. Scale the glyph up and the
+  // circle box down by the same factor (mana-font: 0.95em font, 1.3em circle,
+  // 1.35em line height).
+  .cost :global(.ms-cost) {
+    font-size: 1.235em;
+    width: 1em;
+    height: 1em;
+    line-height: 1.04em;
+  }
+
+  // mana-font's shadow is in em too; keep its printed size.
+  .cost :global(.ms-cost.ms-shadow) {
+    box-shadow:
+      -0.046em 0.054em 0 #111,
+      0 0.046em 0 #111;
+  }
+
+  // Hybrid / two-brid / Phyrexian-hybrid halves are positioned in em inside
+  // a 1.3em circle; keep mana-font's metrics for them.
+  @each $hybrid
+    in (
+      wu
+        wb
+        ub
+        ur
+        br
+        bg
+        rw
+        rg
+        gw
+        gu
+        2w
+        2u
+        2b
+        2r
+        2g
+        cw
+        cu
+        cb
+        cr
+        cg
+        wup
+        wbp
+        ubp
+        urp
+        brp
+        bgp
+        rwp
+        rgp
+        gwp
+        gup
+    )
+  {
+    .cost :global(.ms-cost.ms-#{$hybrid}) {
+      font-size: 0.95em;
+      width: 1.3em;
+      height: 1.3em;
+      line-height: 1.35em;
+    }
+
+    .cost :global(.ms-cost.ms-shadow.ms-#{$hybrid}) {
+      box-shadow:
+        -0.06em 0.07em 0 #111,
+        0 0.06em 0 #111;
+    }
   }
 
   .rarity {
@@ -330,10 +447,10 @@
     font-family: 'MPlantin', sans-serif;
     position: absolute;
     font-size: 1.625em;
-    top: 1318px;
+    top: 1321px;
     height: 596px;
     left: 132px;
-    width: 1236px;
+    width: 1244px;
     pointer-events: none;
 
     p {
@@ -374,7 +491,7 @@
   }
 
   .levelerLevel1TextBackground {
-    top: 0px;
+    top: 0;
     height: 216px;
     background: rgba(0, 0, 0, 0.075);
   }
@@ -588,7 +705,8 @@
   .pt {
     position: absolute;
     width: 282px;
-    bottom: calc(2100px / 1400 * 54);
+    // Measured on 2026 prints: the P/T box sits ≈9px higher than 2100/1400*54.
+    bottom: 90px;
     right: calc(1500px / 746 * 41);
   }
 
@@ -596,7 +714,7 @@
     font-family: 'Beleren Bold Small Caps', sans-serif;
     font-size: 2.3em;
     position: absolute;
-    top: 1890px;
+    top: 1880px;
     height: 90px;
     left: 1194px;
     width: 197px;
@@ -677,25 +795,49 @@
 
   .collectionBlock {
     letter-spacing: 2.92px;
-    left: 98px;
-    top: 1950px;
+    left: 92px;
+    top: 1946px;
   }
 
   .collectionBlock2 {
-    left: 98px;
-    top: 1990px;
+    left: 92px;
+    top: 1983px;
+  }
+
+  // The printed legal line is set in MPlantin, not in the collector-info font.
+  .copyright,
+  .copyrightStats {
+    font-family: 'MPlantin', serif;
   }
 
   .copyright {
     text-align: right;
-    right: 98px;
-    top: 1950px;
+    right: 94px;
+    top: 1955px;
   }
 
   .copyrightStats {
     text-align: right;
-    right: 98px;
-    top: 1990px;
+    right: 94px;
+    top: 1988px;
+  }
+
+  // Printed ©: a hairline circle (≈26px, as tall as the capitals) sitting on
+  // the baseline (overflow: hidden puts an inline-block's baseline at its
+  // bottom edge), around a small bold C (≈13x14px).
+  .copyrightSign {
+    display: inline-block;
+    box-sizing: border-box;
+    overflow: hidden;
+    vertical-align: baseline;
+    font-size: 0.6em;
+    width: 26px;
+    height: 26px;
+    line-height: 24px;
+    border: 1px solid currentColor;
+    border-radius: 50%;
+    text-align: center;
+    -webkit-text-stroke: 1.2px currentColor;
   }
 
   .brush {
@@ -719,6 +861,153 @@
     display: flex;
     justify-content: center;
     text-align: center;
+  }
+}
+
+// Typography of the regular M15 renderer (TemplatingCardRender only), measured
+// against official M15 printings scaled to the 1500x2100 design space. The
+// reference is the 2026 prints (Brad Boimler and Holo-Engineer, TRK); older
+// prints (Conflagrate, UMA 2018) sit a pixel or two off in places. Sits before
+// the art-style modifiers below so they still win at equal specificity.
+.m15 {
+  // Title and type line ink starts ≈22px right of the bar outline, like print.
+  .title,
+  .type {
+    left: 126px;
+  }
+
+  .title {
+    left: 127px;
+    top: 110px;
+  }
+
+  // On 2026 prints the set symbol's ink is ≈85px tall, centered at y≈1236 and
+  // ends at x≈1382 (our icons fill ≈82% of their box). margin-top (not top)
+  // keeps the token frame's own top offset intact.
+  .rarity {
+    height: 102px;
+    margin-top: -5px;
+    right: 95px;
+  }
+
+  // Printed cost symbols are ≈66px wide with ≈13px gaps, right-aligned to
+  // x≈1384.
+  .cost {
+    font-size: 1.6em;
+    top: 112px;
+    right: 116px;
+  }
+
+  // Printed paragraphs have no outer margin (the block is vertically centered
+  // in the box) and ≈24px extra leading between paragraphs at every text size.
+  .text p {
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+
+  .text p + p {
+    margin-top: 24px;
+  }
+
+  // The options of a modal spell ("choose one —" bullets) sit closer together
+  // than regular paragraphs on print: ≈11px instead of 24px extra leading,
+  // including the gap between the "choose one —" line and the first bullet.
+  .text p + p.bulletText {
+    margin-top: 11px;
+  }
+
+  // Printed flavour text is the rules text size. The gap between the last
+  // rules line box and the first flavour line box is a fixed ≈60px at every
+  // text size (it does not grow with the font: at 75px an em-based gap is
+  // ≈13px too tall). The separator is a thin faded rule ≈25px above the first
+  // flavour line box, centered on the box, taking no space itself.
+  // MPlantin Italic's side bearings set every flavour line ≈5px further right
+  // than print (most visibly an opening quote or a capital T).
+  .text .flavour {
+    position: relative;
+    font-size: 1em;
+    margin-top: 60px;
+    // A relative offset, so the lines still wrap at the same width.
+    left: -5px;
+  }
+
+  .text .flavourSeparator {
+    position: absolute;
+    top: -26.5px;
+    // + 5px undoes the flavour block's italic offset.
+    left: calc(0.75% + 5px);
+    width: 97%;
+    height: 3px;
+    margin: 0;
+    box-shadow: none;
+    background: linear-gradient(
+      to right,
+      transparent,
+      rgba(0, 0, 0, 0.25) 12%,
+      rgba(0, 0, 0, 0.25) 88%,
+      transparent
+    );
+  }
+
+  // Print centers rules text that fits at full size, but text that had to
+  // shrink starts at the top of the box (the leftover space goes below it).
+  .text > [data-shrunk='true'] {
+    justify-content: flex-start;
+    box-sizing: border-box;
+    padding-top: 3px;
+  }
+
+  // Regular rules box: shrunk text keeps its first baseline at a fixed height
+  // on print (≈1372px, measured on TRK at 62-69px), so larger text does not
+  // sit lower. With 0.97 leading the first baseline is 0.8em below the line
+  // box top. The box reaches 12px higher than .text (inside the text box
+  // frame) so large text can move up without clipping; the 12px padding keeps
+  // the usable area, and centered full-size text, where they were.
+  .text > .printedRulesText {
+    box-sizing: border-box;
+    margin-top: -12px;
+    height: calc(100% + 12px) !important;
+    padding-top: 12px;
+  }
+
+  .text > .printedRulesText[data-shrunk='true'] {
+    padding-top: max(0px, calc(63.5px - 0.8em));
+  }
+
+  // Measured flavour gap (last rules cap top to first flavour cap top, minus
+  // one line) is ≈61px on print at every size. With this box's leading that
+  // takes a slightly larger margin for shrunk text (0.97) than at full size
+  // (0.985).
+  .text > .printedRulesText[data-shrunk='true'] .flavour {
+    margin-top: 64px;
+  }
+
+  .text > .printedRulesText[data-shrunk='false'] .flavour {
+    margin-top: 58px;
+  }
+
+  // A closing quote after a period/comma nearly touches it on print.
+  .flavour .kernedQuote {
+    margin-left: -0.25em;
+  }
+
+  // Printed P/T digits are ≈6% larger than 2.3em.
+  .stats {
+    font-size: 2.43em;
+  }
+
+  // Inline mana symbols are ≈0.78em of the rules text wide, span from just
+  // above the cap height to the baseline and keep a small gap to a following
+  // symbol.
+  .text i {
+    position: relative;
+    top: -0.2em;
+    margin-top: 0;
+    font-size: 0.6em;
+  }
+
+  .text i + i {
+    margin-left: 0.13em;
   }
 }
 
@@ -793,6 +1082,7 @@
   }
 
   .type {
+    top: 1190px;
     color: black !important;
   }
 
@@ -984,6 +1274,10 @@
     color: black;
   }
 
+  .copyright {
+    font-family: 'Gotham Medium', sans-serif;
+  }
+
   .collectionBlock {
     left: 130.87px;
     top: 1908.72px;
@@ -1055,7 +1349,7 @@
   }
 
   .type {
-    top: 1196px;
+    top: 1191px;
   }
 }
 

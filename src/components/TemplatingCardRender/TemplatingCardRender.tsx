@@ -27,6 +27,7 @@ import CardFaceInterface from '../../interfaces/CardFaceInterface';
 import { CARD_HEIGHT, CARD_WIDTH } from '../../utils/constants';
 
 import styles from './TemplatingCardRender.module.scss';
+import LegalLine from './LegalLine';
 import {
   getAdventureMainframe,
   getAdventurePinline,
@@ -46,6 +47,7 @@ import {
   getHybridMainframe,
   getHybridLevelColor,
   getHybridPtColor,
+  getHoloStamp,
   getInnerCrown,
   getInventionMainframe,
   getInventionPt,
@@ -71,6 +73,7 @@ import {
   getTokenLandTypePart,
   getTokenMainframe,
   getTypePart,
+  hasHoloStamp,
 } from './assetLoader';
 import { injectForText, injectManaIcons, isBulletText } from '../../utils/injectUtils';
 import { formatCardText } from '../../utils/formatCardText';
@@ -81,7 +84,7 @@ import BasicLandCardRender from './BasicLandCardRender';
 import InvocationCardRender from './InvocationCardRender';
 import getRarityCode from '../../utils/getRarityCode';
 import parseStats from '../../utils/parseStats';
-import parseCollectionNumber from '../../utils/parseCollectionNumber';
+import formatCollectorLine from '../../utils/formatCollectorLine';
 import PlaneswalkerCardRender from './PlaneswalkerCardRender';
 import FlavourText from './FlavourText';
 import getLandColor, { resolveColorIdentity } from '../../utils/getLandColor.ts';
@@ -409,6 +412,14 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
     mainframe = getColorMainframe(color, isEnchantment, isArtifact, vehicle);
   }
 
+  // Rares and mythics carry the holo stamp in the bottom border. Tokens and the
+  // full-bleed Invention showcase have none; borderless cards show only the oval.
+  const isBorderless = artStyle === CardArtStyles.Borderless;
+  const holoStamp =
+    hasHoloStamp(rarity) && !isToken && !isInvention
+      ? getHoloStamp(color, isArtifact, isLand, isBorderless)
+      : null;
+
   const black = getBlack();
   let crownBlack: ReactElement | null = null;
   let crownExtendedArtFix: ReactElement | null = null;
@@ -504,7 +515,8 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
             height: `${CARD_HEIGHT}px`,
           }}
           className={`
-            ${styles.cardRender} 
+            ${styles.cardRender}
+            ${styles.m15}
             ${artStyle === CardArtStyles.Borderless && styles.borderless}
             ${artStyle === CardArtStyles.EldAlternateArt && styles.eldAlternateArt}
             ${color === ColorType.Gold && styles.gold}
@@ -542,6 +554,15 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
 
           {pinline ? <img className={styles.pinline} src={pinline} alt="" /> : null}
 
+          {holoStamp ? (
+            <img
+              className={`${styles.holoStamp} ${isBorderless ? styles.holoStampPlain : ''}`}
+              src={holoStamp}
+              alt=""
+              data-testid="holo-stamp"
+            />
+          ) : null}
+
           {adventureRulesLeft ? (
             <img className={styles.adventureRulesLeft} src={adventureRulesLeft} alt="" />
           ) : null}
@@ -568,7 +589,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
           ) : null}
           {isAdventure && adventureType ? (
             <div className={styles.adventureTypeLine}>
-              {formatCardText(`${adventureType} – Adventure`)}
+              {formatCardText(`${adventureType} — Adventure`)}
             </div>
           ) : null}
           {isAdventure && adventureText && adventureText.length > 0 ? (
@@ -608,7 +629,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
             </div>
           ) : null}
           {isOmen && omenType ? (
-            <div className={styles.omenTypeLine}>{formatCardText(`${omenType} – Omen`)}</div>
+            <div className={styles.omenTypeLine}>{formatCardText(`${omenType} — Omen`)}</div>
           ) : null}
           {isOmen && omenText && omenText.length > 0 ? (
             <div className={styles.omenText}>
@@ -830,13 +851,13 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
             className={`${styles.title} ${isToken ? styles.tokenTitle : ''}`}
             style={titleWidth !== undefined ? { width: `${titleWidth}px` } : undefined}
           >
-            <TextResize defaultFontSize={75} maxFontSize={75} minFontSize={40}>
+            <TextResize defaultFontSize={80} maxFontSize={80} minFontSize={40}>
               {formatCardText(name)}
             </TextResize>
           </div>
           {isNickname && <div className={styles.nicknameText}>{formatCardText(nickname)}</div>}
           <div className={`${styles.type} ${isToken ? styles.tokenType : ''}`}>
-            <TextResize defaultFontSize={67} maxFontSize={67} minFontSize={38}>
+            <TextResize defaultFontSize={68} maxFontSize={68} minFontSize={38}>
               {formatCardText(formatTypeLine(cardRenderProps as unknown as CardFaceInterface))}
             </TextResize>
           </div>
@@ -848,12 +869,22 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
               isEvolution ? styles.levelerText : ''
             }`}
           >
+            {/* Printed M15 rules text is 9pt MPlantin (≈76px in the 1500px design
+                space) with ≈0.985 leading at full size and ≈0.97 once it had to shrink;
+                it only shrinks when the text overflows, and then keeps that leading and
+                the paragraph gaps, as print does. */}
             <TextResize
               defaultFontSize={42}
-              maxFontSize={isAdventure || isOmen || isPrepared ? 50 : 56}
+              maxFontSize={isAdventure || isOmen || isPrepared ? 50 : 76}
               minFontSize={38}
-              lineHeight={1.1}
-              className={styles.textWrap}
+              lineHeight={isAdventure || isOmen || isPrepared ? 1.1 : 0.97}
+              fullSizeLineHeight={isAdventure || isOmen || isPrepared ? undefined : 0.985}
+              fixedSpacing={!(isAdventure || isOmen || isPrepared)}
+              className={`${styles.textWrap} ${
+                isAdventure || isOmen || isPrepared || isEvolution || isToken
+                  ? ''
+                  : styles.printedRulesText
+              }`}
             >
               <div>
                 {cardText.map((val, i) => (
@@ -871,8 +902,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
           </div>
 
           <div className={styles.collectionBlock}>
-            {`${parseCollectionNumber(collectionNumber)}/${parseCollectionNumber(collectionSize)}`}
-            {` ${getRarityCode(rarity)}`}
+            {formatCollectorLine(collectionNumber, getRarityCode(rarity))}
           </div>
           <div className={styles.collectionBlock2}>
             MFS &#x2022; EN
@@ -888,7 +918,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
                 : styles.copyright
             }
           >
-            &#8482; &amp; &#169; 2019 BJennWare
+            <LegalLine />
           </div>
         </div>
       </div>

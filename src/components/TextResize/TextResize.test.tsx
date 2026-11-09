@@ -77,6 +77,61 @@ describe('TextResize', () => {
     expect(fitted('Some text')).toHaveStyle({ fontSize: '20px' });
   });
 
+  it('flags text that had to shrink, and only that text', () => {
+    const { unmount } = render(renderText());
+    expect(fitted('Some text').dataset.shrunk).toBe('true');
+    unmount();
+
+    boxHeight = 200;
+    render(renderText());
+    expect(fitted('Some text').dataset.shrunk).toBe('false');
+  });
+
+  it('keeps line height and paragraph margins when fixedSpacing is set', () => {
+    render(
+      <TextResize maxFontSize={80} minFontSize={20} lineHeight={0.97} fixedSpacing>
+        <p>Some text</p>
+      </TextResize>,
+    );
+    const box = fitted('Some text');
+    expect(box).toHaveStyle({ fontSize: '50px', lineHeight: '0.97' });
+    // The stylesheet's paragraph margins stay in charge (no scaled override).
+    expect(screen.getByText('Some text').style.marginTop).toBe('');
+  });
+
+  it('uses the full-size line height only while the text fits at the maximum size', () => {
+    const renderFullSize = () =>
+      render(
+        <TextResize
+          maxFontSize={80}
+          minFontSize={20}
+          lineHeight={0.97}
+          fullSizeLineHeight={0.985}
+          fixedSpacing
+        >
+          <p>Some text</p>
+        </TextResize>,
+      );
+    const { unmount } = renderFullSize();
+    // Shrunk to 50px: the regular leading.
+    expect(fitted('Some text')).toHaveStyle({ fontSize: '50px', lineHeight: '0.97' });
+    unmount();
+
+    boxHeight = 200;
+    renderFullSize();
+    expect(fitted('Some text')).toHaveStyle({ fontSize: '80px', lineHeight: '0.985' });
+  });
+
+  it('tightens line height and paragraph margins while shrinking by default', () => {
+    render(
+      <TextResize maxFontSize={80} minFontSize={20} lineHeight={0.97}>
+        <p>Some text</p>
+      </TextResize>,
+    );
+    expect(fitted('Some text').style.lineHeight).not.toBe('0.97');
+    expect(screen.getByText('Some text').style.marginTop).not.toBe('');
+  });
+
   it('does not re-measure when a re-render leaves the content unchanged', () => {
     const { rerender } = render(renderText());
     measurements = 0;

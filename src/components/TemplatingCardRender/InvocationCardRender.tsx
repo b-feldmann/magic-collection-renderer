@@ -14,6 +14,7 @@ import { formatTypeLine } from '../../utils/cardTypes';
 import CardFaceInterface from '../../interfaces/CardFaceInterface';
 
 import styles from './TemplatingCardRender.module.scss';
+import LegalLine from './LegalLine';
 import {
   getFallbackCover,
   getInvocationMainframe,
@@ -154,7 +155,9 @@ const InvocationCardRender = (cardRender: InvocationCardRenderProps) => {
             </span>
             <span className={styles.artist}>{creator}</span>
           </div>
-          <div className={styles.copyright}>&#8482; &amp; &#169; 2019 BJennWare</div>
+          <div className={styles.copyright}>
+            <LegalLine />
+          </div>
         </div>
       </div>
     </div>

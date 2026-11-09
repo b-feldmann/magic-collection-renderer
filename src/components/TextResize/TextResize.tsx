@@ -14,6 +14,18 @@ export interface TextResizeProps {
   maxFontSize?: number;
   minFontSize?: number;
   lineHeight?: number;
+  /**
+   * Line height (in em) used while the text still fits at maxFontSize. Printed
+   * card text that didn't have to shrink is set a little looser than shrunk
+   * text. Defaults to `lineHeight`.
+   */
+  fullSizeLineHeight?: number;
+  /**
+   * Keep the line height (in em) and the paragraph margins (in px) constant
+   * while shrinking, like printed card text. By default both tighten as the
+   * font shrinks.
+   */
+  fixedSpacing?: boolean;
   className?: string;
   children: React.ReactNode;
 }
@@ -41,6 +53,8 @@ const TextResize: React.FC<TextResizeProps> = ({
   maxFontSize = 32,
   minFontSize = 14,
   lineHeight = 1.2,
+  fullSizeLineHeight,
+  fixedSpacing = false,
   className,
   children,
 }) => {
@@ -49,7 +63,7 @@ const TextResize: React.FC<TextResizeProps> = ({
   const lastFit = useRef<{ content: string; width: number; height: number } | null>(null);
 
   const contentKey = (el: HTMLElement) =>
-    `${minFontSize}|${maxFontSize}|${lineHeight}|${el.innerHTML}`;
+    `${minFontSize}|${maxFontSize}|${lineHeight}|${fullSizeLineHeight}|${fixedSpacing}|${el.innerHTML}`;
 
   const fit = useEffectEvent(() => {
     const el = containerRef.current;
@@ -70,8 +84,12 @@ const TextResize: React.FC<TextResizeProps> = ({
     const applyScale = (size: number) => {
       const scale = size / maxFontSize;
       el.style.fontSize = `${size}px`;
-      el.style.lineHeight = ((lineHeight * (1 + scale)) / 2).toFixed(2);
-      if (scale < 1) {
+      const lineHeightAtSize =
+        size >= maxFontSize && fullSizeLineHeight !== undefined ? fullSizeLineHeight : lineHeight;
+      el.style.lineHeight = fixedSpacing
+        ? String(lineHeightAtSize)
+        : ((lineHeightAtSize * (1 + scale)) / 2).toFixed(2);
+      if (scale < 1 && !fixedSpacing) {
         const marginScale = Math.sqrt(scale);
         paragraphs.forEach((p, i) => {
           p.style.marginTop = `${baseMargins[i].top * marginScale}px`;
@@ -87,6 +105,8 @@ const TextResize: React.FC<TextResizeProps> = ({
 
     const fitsAt = (size: number) => {
       applyScale(size);
+      // Styles keyed on data-shrunk (e.g. padding) must apply while measuring.
+      el.dataset.shrunk = String(size < maxFontSize);
       return el.scrollHeight <= el.clientHeight && el.scrollWidth <= el.clientWidth;
     };
 
@@ -104,6 +124,8 @@ const TextResize: React.FC<TextResizeProps> = ({
       size = fitting;
       applyScale(size);
     }
+    // Lets CSS style shrunk text differently (e.g. top-align it like print).
+    el.dataset.shrunk = String(size < maxFontSize);
     setFontSize(size);
     lastFit.current = { content: contentKey(el), width: el.clientWidth, height: el.clientHeight };
   });

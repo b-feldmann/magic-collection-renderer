@@ -156,6 +156,21 @@ describe('formatTypeLine', () => {
     );
   });
 
+  it('prints the types in printed order, whatever order they were picked in', () => {
+    expect(formatTypeLine(face({ cardTypes: [CardType.Creature, CardType.Artifact] }))).toBe(
+      'Artifact Creature',
+    );
+    expect(
+      formatTypeLine(face({ cardTypes: [CardType.Creature, CardType.Artifact], legendary: true })),
+    ).toBe('Legendary Artifact Creature');
+    expect(formatTypeLine(face({ cardTypes: [CardType.Creature, CardType.Land] }))).toBe(
+      'Land Creature',
+    );
+    expect(
+      formatTypeLine(face({ cardTypes: [CardType.Creature, CardType.Artifact, CardType.Token] })),
+    ).toBe('Token Artifact Creature');
+  });
+
   it('prefixes legendary and prints Token/BasicLand from the type list', () => {
     expect(formatTypeLine(face({ cardTypes: [CardType.BasicLand], legendary: true }))).toBe(
       'Legendary Basic Land',
@@ -165,15 +180,15 @@ describe('formatTypeLine', () => {
     );
   });
 
-  it('appends subtypes after an en dash', () => {
+  it('appends subtypes after an em dash', () => {
     expect(
       formatTypeLine(face({ cardTypes: [CardType.Creature], cardSubTypes: 'Elf Warrior' })),
-    ).toBe('Creature – Elf Warrior');
+    ).toBe('Creature — Elf Warrior');
   });
 
   it('injects Vehicle for artifact vehicles', () => {
     expect(formatTypeLine(face({ cardTypes: [CardType.Artifact], vehicle: true }))).toBe(
-      'Artifact – Vehicle',
+      'Artifact — Vehicle',
     );
   });
 

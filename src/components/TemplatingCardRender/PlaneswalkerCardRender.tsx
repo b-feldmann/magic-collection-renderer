@@ -21,6 +21,7 @@ import { formatTypeLine } from '../../utils/cardTypes';
 import CardFaceInterface from '../../interfaces/CardFaceInterface';
 
 import styles from './TemplatingCardRender.module.scss';
+import LegalLine from './LegalLine';
 import planeswalkerStyles from './Planeswalker.module.scss';
 
 import {
@@ -37,7 +38,7 @@ import ImageLoader from '../ImageLoader/ImageLoader';
 import PlaneswalkerRulesBackground from './PlaneswalkerRulesBackground';
 import { getAbilityLineLayouts } from './planeswalkerGeometry';
 import getRarityCode from '../../utils/getRarityCode';
-import parseCollectionNumber from '../../utils/parseCollectionNumber';
+import formatCollectorLine from '../../utils/formatCollectorLine';
 import { CARD_WIDTH, CARD_HEIGHT } from '../../utils/constants';
 import getCoverFitClass from './getCoverFitClass';
 
@@ -68,7 +69,7 @@ interface PlaneswalkerCardRenderProps {
 const PlaneswalkerCardRender = (cardRender: PlaneswalkerCardRenderProps) => {
   const { name, manaCost, cardStats, cover, coverFit, creator } = cardRender;
   const { cardText, cardID } = cardRender;
-  const { backFace, collectionNumber, collectionSize, rarity } = cardRender;
+  const { backFace, collectionNumber, rarity } = cardRender;
   const { containerWidth = CARD_WIDTH, artStyle } = cardRender;
 
   const mechanics = useContext(MechanicsContext);
@@ -267,8 +268,7 @@ const PlaneswalkerCardRender = (cardRender: PlaneswalkerCardRenderProps) => {
           </div>
 
           <div className={styles.collectionBlock}>
-            {`${parseCollectionNumber(collectionNumber)}/${parseCollectionNumber(collectionSize)}`}
-            {` ${getRarityCode(rarity)}`}
+            {formatCollectorLine(collectionNumber, getRarityCode(rarity))}
           </div>
           <div className={styles.collectionBlock2}>
             MFS &#x2022; EN
@@ -277,7 +277,9 @@ const PlaneswalkerCardRender = (cardRender: PlaneswalkerCardRenderProps) => {
             </span>
             <span className={styles.artist}>{creator}</span>
           </div>
-          <div className={styles.copyrightStats}>&#8482; &amp; &#169; 2019 BJennWare</div>
+          <div className={styles.copyrightStats}>
+            <LegalLine />
+          </div>
         </div>
       </div>
     </div>

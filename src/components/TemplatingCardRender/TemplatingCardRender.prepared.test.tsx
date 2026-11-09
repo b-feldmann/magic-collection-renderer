@@ -180,7 +180,7 @@ describe('TemplatingCardRender - prepared spell box', () => {
 
     // The prepare type line carries no suffix (user decision).
     expect(screen.getByText('Instant')).toBeInTheDocument();
-    expect(screen.queryByText('Instant – Prepared')).toBeNull();
+    expect(screen.queryByText('Instant — Prepared')).toBeNull();
     expect(screen.getByText('Scry 2, then draw a card.')).toBeInTheDocument();
   });
 
@@ -192,7 +192,7 @@ describe('TemplatingCardRender - prepared spell box', () => {
     });
 
     expect(screen.getByText('Sorcery')).toBeInTheDocument();
-    expect(screen.queryByText('Sorcery – Prepared')).toBeNull();
+    expect(screen.queryByText('Sorcery — Prepared')).toBeNull();
   });
 
   it('renders no prepare spell elements for a card without the Prepared type', () => {

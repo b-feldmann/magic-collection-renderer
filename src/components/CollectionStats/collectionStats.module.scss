@@ -700,3 +700,11 @@ $bar-transition: 280ms ease;
 .cardPreview {
   width: 280px;
 }
+// Long press opens the card preview on touch screens; keep the browser's text
+// selection and link callout out of the way.
+@media (pointer: coarse) {
+  .previewRow {
+    -webkit-touch-callout: none;
+    user-select: none;
+  }
+}

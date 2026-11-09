@@ -124,6 +124,18 @@ import InnerCrownGreen from './images/crown/m15InnerCrownGNyx.png';
 import InnerCrownGold from './images/crown/m15InnerCrownMNyx.png';
 
 import Black from './images/black.png';
+// M15 holo stamp (Card Conjurer img/frames/m15/holoStamps): the frame-colored
+// bump around the silver oval, plus the bare oval for frames without a bump.
+import HoloStampWhite from './images/holoStamp/w.png';
+import HoloStampBlue from './images/holoStamp/u.png';
+import HoloStampBlack from './images/holoStamp/b.png';
+import HoloStampRed from './images/holoStamp/r.png';
+import HoloStampGreen from './images/holoStamp/g.png';
+import HoloStampGold from './images/holoStamp/m.png';
+import HoloStampColorless from './images/holoStamp/c.png';
+import HoloStampArtifact from './images/holoStamp/a.png';
+import HoloStampLand from './images/holoStamp/l.png';
+import HoloStampPlain from './images/holoStamp/stamp.png';
 
 import VehicleMainframe from './images/mainframes/m15/regular/v.png';
 import ArtefactMainframe from './images/mainframes/m15/regular/a.png';
@@ -3113,4 +3125,39 @@ export const getRarityIcon = (rarity: RarityType) => {
   if (rarity === RarityType.Rare) return RareIcon;
   if (rarity === RarityType.Uncommon) return UncommonIcon;
   return CommonIcon;
+};
+
+/** Real cards carry the holo stamp on rares and mythic rares only. */
+export const hasHoloStamp = (rarity: RarityType) =>
+  rarity === RarityType.Rare || rarity === RarityType.MythicRare;
+
+/**
+ * The holo stamp for a frame: the frame-colored bump around the silver oval,
+ * or just the oval (`plain`) for frames that have no bottom border to bump.
+ */
+export const getHoloStamp = (
+  color: ColorType,
+  isArtifact = false,
+  isLand = false,
+  plain = false,
+) => {
+  if (plain) return HoloStampPlain;
+  if (isArtifact) return HoloStampArtifact;
+  if (isLand) return HoloStampLand;
+  switch (color) {
+    case ColorType.White:
+      return HoloStampWhite;
+    case ColorType.Blue:
+      return HoloStampBlue;
+    case ColorType.Black:
+      return HoloStampBlack;
+    case ColorType.Red:
+      return HoloStampRed;
+    case ColorType.Green:
+      return HoloStampGreen;
+    case ColorType.Gold:
+      return HoloStampGold;
+    default:
+      return HoloStampColorless;
+  }
 };

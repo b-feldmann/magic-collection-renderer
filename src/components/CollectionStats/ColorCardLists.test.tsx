@@ -1,6 +1,6 @@
 import React from 'react';
-import { fireEvent, render, screen, within } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { act, fireEvent, render, screen, within } from '@testing-library/react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import CardInterface from '../../interfaces/CardInterface';
 import CollectionStats from './CollectionStats';
 import { buildColorCardLists } from './collectionStatsData';
@@ -101,10 +101,53 @@ describe('CollectionStats color card lists', () => {
 
   it('shows the rendered card in a popup while hovering its row', async () => {
     render(<CollectionStats fillHeight collection={[card('Tadpole', '{U}')]} />);
-    const lists = screen.getByRole('region', { name: 'Cards by color' });
-    const row = within(lists).getByRole('row', { name: /Tadpole/ });
-    expect(screen.queryByRole('img', { name: 'Preview of Tadpole' })).not.toBeInTheDocument();
+    const row = previewRow();
+    expect(queryPreview()).not.toBeInTheDocument();
     fireEvent.mouseEnter(row);
     expect(await screen.findByRole('img', { name: 'Preview of Tadpole' })).toBeInTheDocument();
+  });
+});
+
+const previewRow = () =>
+  within(screen.getByRole('region', { name: 'Cards by color' })).getByRole('row', {
+    name: /Tadpole/,
+  });
+const queryPreview = () => screen.queryByRole('img', { name: 'Preview of Tadpole' });
+const touch = (x = 10, y = 10) => ({ touches: [{ clientX: x, clientY: y }] });
+const wait = (ms: number) =>
+  act(() => {
+    vi.advanceTimersByTime(ms);
+  });
+
+describe('CollectionStats card preview on touch screens', () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('opens on a long press but not on a tap', () => {
+    vi.useFakeTimers();
+    render(<CollectionStats fillHeight collection={[card('Tadpole', '{U}')]} />);
+    const row = previewRow();
+    fireEvent.touchStart(row, touch());
+    wait(200);
+    fireEvent.touchEnd(row);
+    // The mouseenter a browser emulates after a tap must not open it either.
+    fireEvent.mouseEnter(row);
+    wait(1000);
+    expect(queryPreview()).not.toBeInTheDocument();
+
+    fireEvent.touchStart(row, touch());
+    wait(600);
+    expect(queryPreview()).toBeInTheDocument();
+  });
+
+  it('does not open when the finger moves to scroll', () => {
+    vi.useFakeTimers();
+    render(<CollectionStats fillHeight collection={[card('Tadpole', '{U}')]} />);
+    const row = previewRow();
+    fireEvent.touchStart(row, touch(10, 10));
+    fireEvent.touchMove(row, touch(10, 60));
+    wait(600);
+    expect(queryPreview()).not.toBeInTheDocument();
   });
 });

@@ -349,7 +349,7 @@ describe('TemplatingCardRender - adventure spell box', () => {
     expect(costBox).toBeDefined();
     expect(costBox!.querySelectorAll('.ms').length).toBeGreaterThan(0);
 
-    expect(screen.getByText('Instant – Adventure')).toBeInTheDocument();
+    expect(screen.getByText('Instant — Adventure')).toBeInTheDocument();
     expect(
       screen.getByText('Until end of turn, target creature loses flying.'),
     ).toBeInTheDocument();
@@ -362,7 +362,7 @@ describe('TemplatingCardRender - adventure spell box', () => {
       adventureText: ['Chop.'],
     });
 
-    expect(screen.getByText('Sorcery – Adventure')).toBeInTheDocument();
+    expect(screen.getByText('Sorcery — Adventure')).toBeInTheDocument();
   });
 
   it('renders no adventure spell elements for a card without adventure data', () => {

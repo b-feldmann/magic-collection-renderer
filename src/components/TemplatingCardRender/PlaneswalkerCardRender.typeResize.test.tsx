@@ -78,7 +78,7 @@ describe('PlaneswalkerCardRender - type line auto-resize', () => {
   it('renders the full type line inside the resize wrapper', () => {
     renderPlaneswalker();
 
-    expect(getTypeResizeWrapper()?.textContent).toBe('Legendary Planeswalker – Jace');
+    expect(getTypeResizeWrapper()?.textContent).toBe('Legendary Planeswalker — Jace');
   });
 
   it('indents a complete -- paragraph without indenting the next ability', () => {

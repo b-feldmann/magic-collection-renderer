@@ -14,6 +14,7 @@ import {
 import { getBasicLandColor } from '../../utils/cardToColor';
 
 import styles from './TemplatingCardRender.module.scss';
+import LegalLine from './LegalLine';
 import {
   getBasicLandSymbols,
   getFallbackCover,
@@ -21,7 +22,7 @@ import {
   getRarityIcon,
 } from './assetLoader';
 import ImageLoader from '../ImageLoader/ImageLoader';
-import parseCollectionNumber from '../../utils/parseCollectionNumber';
+import formatCollectorLine from '../../utils/formatCollectorLine';
 import { CARD_HEIGHT, CARD_WIDTH } from '../../utils/constants';
 import getCoverFitClass from './getCoverFitClass';
 
@@ -55,7 +56,7 @@ const basicLandTypeToColor = (landType: BasicLandType) => {
 };
 
 const BasicLandCardRender = (cardRender: BasicLandCardRenderProps) => {
-  const { creator, collectionNumber, collectionSize } = cardRender;
+  const { creator, collectionNumber } = cardRender;
   const { landType, cover, coverFit, artStyle, cardID } = cardRender;
   const { containerWidth = CARD_WIDTH } = cardRender;
 
@@ -123,10 +124,7 @@ const BasicLandCardRender = (cardRender: BasicLandCardRenderProps) => {
             </div>
           )}
 
-          <div className={styles.collectionBlock}>
-            {`${parseCollectionNumber(collectionNumber)}/${parseCollectionNumber(collectionSize)}`}
-            {' L'}
-          </div>
+          <div className={styles.collectionBlock}>{formatCollectorLine(collectionNumber, 'L')}</div>
           <div className={styles.collectionBlock2}>
             MFS &#x2022; EN
             <span className={styles.brush}>
@@ -134,7 +132,9 @@ const BasicLandCardRender = (cardRender: BasicLandCardRenderProps) => {
             </span>
             <span className={styles.artist}>{creator}</span>
           </div>
-          <div className={styles.copyright}>&#8482; &amp; &#169; 2019 BJennWare</div>
+          <div className={styles.copyright}>
+            <LegalLine />
+          </div>
         </div>
       </div>
     </div>

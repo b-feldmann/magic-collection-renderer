@@ -50,7 +50,7 @@ const renderCard = () =>
 // The `.type` box. It must contain a TextResize wrapper (a div with an inline
 // font-size) so long type lines shrink instead of colliding with the rarity
 // icon. Without measurable overflow in jsdom, TextResize stays at its default
-// size, which must be the current CSS size (2em on the 33.33px base = 67px).
+// size, which is the print-measured type size (≈68px in the 1500px design space).
 const getTypeBox = () =>
   Array.from(document.querySelectorAll<HTMLElement>('div')).find(
     el => el.className.includes('type') && el.textContent?.includes('Creature'),
@@ -69,15 +69,15 @@ describe('TemplatingCardRender - type line auto-resize', () => {
     expect(getTypeResizeWrapper()).not.toBeNull();
   });
 
-  it('keeps the current font size (67px) as the default and max size', () => {
+  it('keeps the print-measured font size (68px) as the default and max size', () => {
     renderCard();
 
-    expect(getTypeResizeWrapper()?.style.fontSize).toBe('67px');
+    expect(getTypeResizeWrapper()?.style.fontSize).toBe('68px');
   });
 
   it('renders the full type line inside the resize wrapper', () => {
     renderCard();
 
-    expect(getTypeResizeWrapper()?.textContent).toBe('Legendary Creature – Human Wizard');
+    expect(getTypeResizeWrapper()?.textContent).toBe('Legendary Creature — Human Wizard');
   });
 });

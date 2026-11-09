@@ -101,15 +101,39 @@ export const deriveLegacyMainType = (face: CardFaceInterface): CardMainType => {
   return CardMainType.Creature;
 };
 
+// Printed type lines list the types in a fixed order, whatever order they were
+// picked in: "Token Artifact Creature", "Enchantment Creature", "Artifact Land",
+// "Land Creature". Creature always comes last among the card types; anything
+// not listed keeps its picked position relative to the others, after them.
+const TYPE_LINE_ORDER: CardType[] = [
+  CardType.Token,
+  CardType.BasicLand,
+  CardType.Enchantment,
+  CardType.Artifact,
+  CardType.Land,
+  CardType.Planeswalker,
+  CardType.Instant,
+  CardType.Sorcery,
+  CardType.Creature,
+];
+
+const typeLineRank = (type: CardType) => {
+  const rank = TYPE_LINE_ORDER.indexOf(type);
+  return rank === -1 ? TYPE_LINE_ORDER.length : rank;
+};
+
 export const formatTypeLine = (face: CardFaceInterface): string => {
   const types = Array.isArray(face.cardTypes)
-    ? face.cardTypes.filter(
-        cardType =>
-          cardType !== CardType.Adventure &&
-          cardType !== CardType.Omen &&
-          cardType !== CardType.Prepared &&
-          cardType !== CardType.Evolution,
-      )
+    ? face.cardTypes
+        .filter(
+          cardType =>
+            cardType !== CardType.Adventure &&
+            cardType !== CardType.Omen &&
+            cardType !== CardType.Prepared &&
+            cardType !== CardType.Evolution,
+        )
+        // filter() returned a fresh array, so sorting it in place is safe.
+        .sort((a, b) => typeLineRank(a) - typeLineRank(b))
     : [];
 
   // Token and BasicLand are CardType members already in `types`; only
@@ -121,5 +145,5 @@ export const formatTypeLine = (face: CardFaceInterface): string => {
     .filter(Boolean)
     .join(' ');
 
-  return subtypes ? `${left} – ${subtypes}` : left;
+  return subtypes ? `${left} — ${subtypes}` : left;
 };

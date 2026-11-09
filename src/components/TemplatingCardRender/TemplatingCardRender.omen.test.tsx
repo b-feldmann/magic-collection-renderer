@@ -208,7 +208,7 @@ describe('TemplatingCardRender - omen spell box', () => {
     expect(costBox).toBeDefined();
     expect(costBox!.querySelectorAll('.ms').length).toBeGreaterThan(0);
 
-    expect(screen.getByText('Instant – Omen')).toBeInTheDocument();
+    expect(screen.getByText('Instant — Omen')).toBeInTheDocument();
     expect(screen.getByText('Scry 2, then draw a card.')).toBeInTheDocument();
   });
 
@@ -219,7 +219,7 @@ describe('TemplatingCardRender - omen spell box', () => {
       omenText: ['Destroy target creature.'],
     });
 
-    expect(screen.getByText('Sorcery – Omen')).toBeInTheDocument();
+    expect(screen.getByText('Sorcery — Omen')).toBeInTheDocument();
   });
 
   it('renders no omen spell elements for a card without the Omen type', () => {
