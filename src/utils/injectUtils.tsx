@@ -341,18 +341,16 @@ export const injectMechanics = (
       const parsedDescription = formatCardText(injectedRef, part =>
         injectManaIcons(injectName(injectLongDash(part), cardName)),
       );
+      // The reminder text and its parentheses are italic, as printed on real cards.
+      const reminder = <span style={{ fontStyle: 'italic' }}>({parsedDescription})</span>;
       if (isReminderOnly) {
-        result.push(<span style={{ fontStyle: 'italic' }}>({parsedDescription})</span>);
+        result.push(reminder);
         return;
       }
-      if (hasLongDash) {
-        result.push(`${usedMechanic.name} — ${ref ? `${ref} ` : ''}`);
-        result.push(<span>{parsedDescription}</span>);
-      } else {
-        result.push(`${usedMechanic.name} ${ref ? `${ref} ` : ''}(`);
-        result.push(<span style={{ fontStyle: 'italic' }}>{parsedDescription}</span>);
-        result.push(')');
-      }
+      // [Flashback -- {2}{W}] separates name and ref with an em dash instead of a space.
+      const separator = hasLongDash ? ' — ' : ' ';
+      result.push(`${usedMechanic.name}${separator}${ref ? `${ref} ` : ''}`);
+      result.push(reminder);
     });
   });
 
