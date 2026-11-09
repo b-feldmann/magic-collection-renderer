@@ -28,6 +28,7 @@ import { CARD_HEIGHT, CARD_WIDTH } from '../../utils/constants';
 
 import styles from './TemplatingCardRender.module.scss';
 import LegalLine from './LegalLine';
+import { PRINTED_RULES_SIZES, printedRulesInkFits } from './printedTextFit';
 import {
   getAdventureMainframe,
   getAdventurePinline,
@@ -48,6 +49,7 @@ import {
   getHybridLevelColor,
   getHybridPtColor,
   getHoloStamp,
+  getTwoColorHoloStamps,
   getInnerCrown,
   getInventionMainframe,
   getInventionPt,
@@ -413,12 +415,22 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
   }
 
   // Rares and mythics carry the holo stamp in the bottom border. Tokens and the
-  // full-bleed Invention showcase have none; borderless cards show only the oval.
+  // full-bleed Invention showcase have none. Borderless cards show only the
+  // oval, except two-color ones: their pinline fades from one color into the
+  // other and the bump follows that fade (2026 prints).
   const isBorderless = artStyle === CardArtStyles.Borderless;
-  const holoStamp =
-    hasHoloStamp(rarity) && !isToken && !isInvention
-      ? getHoloStamp(color, isArtifact, isLand, isBorderless)
+  const showsHoloStamp = hasHoloStamp(rarity) && !isToken && !isInvention;
+  const twoColorHoloStamps =
+    showsHoloStamp && isBorderless && !isArtifact && !isLand
+      ? getTwoColorHoloStamps(allColors)
       : null;
+  const holoStamp = showsHoloStamp
+    ? (twoColorHoloStamps?.[0] ?? getHoloStamp(color, isArtifact, isLand, isBorderless))
+    : null;
+  const isPlainHoloStamp = isBorderless && !twoColorHoloStamps;
+
+  // The full-width M15 rules box, typeset like print (see printedTextFit).
+  const isPrintedRulesText = !(isAdventure || isOmen || isPrepared || isEvolution || isToken);
 
   const black = getBlack();
   let crownBlack: ReactElement | null = null;
@@ -556,10 +568,18 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
 
           {holoStamp ? (
             <img
-              className={`${styles.holoStamp} ${isBorderless ? styles.holoStampPlain : ''}`}
+              className={`${styles.holoStamp} ${isPlainHoloStamp ? styles.holoStampPlain : ''}`}
               src={holoStamp}
               alt=""
               data-testid="holo-stamp"
+            />
+          ) : null}
+          {holoStamp && twoColorHoloStamps ? (
+            <img
+              className={`${styles.holoStamp} ${styles.holoStampFade}`}
+              src={twoColorHoloStamps[1]}
+              alt=""
+              data-testid="holo-stamp-fade"
             />
           ) : null}
 
@@ -872,7 +892,8 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
             {/* Printed M15 rules text is 9pt MPlantin (≈76px in the 1500px design
                 space) with ≈0.985 leading at full size and ≈0.97 once it had to shrink;
                 it only shrinks when the text overflows, and then keeps that leading and
-                the paragraph gaps, as print does. */}
+                the paragraph gaps, as print does. Shrunk sizes come in 0.25pt steps and
+                the last line's ink keeps clear of the box bottom (printedTextFit). */}
             <TextResize
               defaultFontSize={42}
               maxFontSize={isAdventure || isOmen || isPrepared ? 50 : 76}
@@ -880,11 +901,9 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
               lineHeight={isAdventure || isOmen || isPrepared ? 1.1 : 0.97}
               fullSizeLineHeight={isAdventure || isOmen || isPrepared ? undefined : 0.985}
               fixedSpacing={!(isAdventure || isOmen || isPrepared)}
-              className={`${styles.textWrap} ${
-                isAdventure || isOmen || isPrepared || isEvolution || isToken
-                  ? ''
-                  : styles.printedRulesText
-              }`}
+              sizeSteps={isPrintedRulesText ? PRINTED_RULES_SIZES : undefined}
+              fits={isPrintedRulesText ? printedRulesInkFits : undefined}
+              className={`${styles.textWrap} ${isPrintedRulesText ? styles.printedRulesText : ''}`}
             >
               <div>
                 {cardText.map((val, i) => (

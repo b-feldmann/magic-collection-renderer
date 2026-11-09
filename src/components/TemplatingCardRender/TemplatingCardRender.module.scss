@@ -143,15 +143,22 @@
   }
 
   // Holo stamp bounds from Card Conjurer's M15 holo stamp pack (1500x2100
-  // space), moved 8px up to match the 2026 prints: the frame-colored bump is
-  // 192x96 at (654, 1889); the bare oval is 134x67 at (683, 1918).
+  // space): the frame-colored bump is 192x96 at (654, 1889); the bare oval is
+  // 134x67 at (683, 1918). Measured against the 2026 prints (Holo-Engineer
+  // TRK 201/470, Armus TRK 91) the bump sits 11px higher and its oval is ≈4px
+  // taller, so the bump is moved up and stretched vertically.
   .holoStamp {
     position: absolute;
     left: 654px;
-    top: 1899px;
+    top: 1888px;
     width: 192px;
-    height: 96px;
+    height: 100px;
     pointer-events: none;
+  }
+
+  // Right half of a two-color bump, faded in over the left color's bump.
+  .holoStampFade {
+    mask-image: linear-gradient(to right, transparent 30%, black 70%);
   }
 
   .holoStampPlain {
@@ -332,6 +339,24 @@
     width: 1em;
     height: 1em;
     line-height: 1.04em;
+  }
+
+  // Generic (numeric / X) symbols: mana-font's numerals are thinner than the
+  // printed ones. Thicken them with a stroke everywhere (cost and rules text).
+  // In the cost they would otherwise get the 1.3x color-glyph scale above,
+  // which makes them too tall and lets "10" spill out of its circle; the
+  // printed numeral is ≈0.8 of the circle, centered (2026 prints).
+  @each $n in (0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 x y z) {
+    :global(.ms-cost.ms-#{$n})::before {
+      display: inline-block;
+      -webkit-text-stroke: 0.06em currentColor;
+      transform: translateY(-0.06em);
+    }
+
+    .cost :global(.ms-cost.ms-#{$n})::before {
+      font-size: 0.8em;
+      transform: translateY(-0.08em);
+    }
   }
 
   // mana-font's shadow is in em too; keep its printed size.
@@ -793,33 +818,43 @@
     position: absolute;
   }
 
+  // The printed collector info is a lighter cut than our Gotham Medium (≈2px
+  // stems at print size vs ≈2.6px). The text sits on the black border, so a
+  // black stroke (painted over the fill) shaves the glyphs down to that weight.
+  .collectionBlock,
+  .collectionBlock2 {
+    left: 96px;
+    -webkit-text-stroke: 1px #000;
+  }
+
   .collectionBlock {
     letter-spacing: 2.92px;
-    left: 92px;
-    top: 1946px;
+    // The print leaves a wider gap between the rarity letter and the number.
+    word-spacing: 6px;
+    top: 1948px;
   }
 
   .collectionBlock2 {
-    left: 92px;
-    top: 1983px;
+    letter-spacing: 2px;
+    top: 1987px;
   }
 
   // The printed legal line is set in MPlantin, not in the collector-info font.
+  // Its lines are left-aligned in a column that starts at x≈893 (2026 prints:
+  // "© 2026 CBS." starts flush with the "™ & © … Wizards of the Coast" below).
   .copyright,
   .copyrightStats {
     font-family: 'MPlantin', serif;
+    text-align: left;
+    left: 893px;
   }
 
   .copyright {
-    text-align: right;
-    right: 94px;
-    top: 1955px;
+    top: 1951px;
   }
 
   .copyrightStats {
-    text-align: right;
-    right: 94px;
-    top: 1988px;
+    top: 1986px;
   }
 
   // Printed ©: a hairline circle (≈26px, as tall as the capitals) sitting on
@@ -840,17 +875,22 @@
     -webkit-text-stroke: 1.2px currentColor;
   }
 
+  // The printed artist nib is ≈19% larger than mana-font's at this size and
+  // keeps its full weight.
   .brush {
     position: absolute;
-    top: -2.08px;
-    margin-left: 16.67px;
+    top: -8px;
+    margin-left: 18.67px;
     margin-right: 8.33px;
+    font-size: 1.19em;
+    -webkit-text-stroke: 0;
   }
 
   .artist {
     font-family: 'Beleren Bold Small Caps', sans-serif;
     letter-spacing: 2.08px;
-    margin-left: 58.33px;
+    margin-left: 60.33px;
+    -webkit-text-stroke: 0;
   }
 
   .landSymbol > div {
@@ -1272,10 +1312,14 @@
   .collectionBlock2,
   .copyright {
     color: black;
+    // Black text on the light Invocation frame: no weight-trimming stroke.
+    -webkit-text-stroke: 0;
   }
 
   .copyright {
     font-family: 'Gotham Medium', sans-serif;
+    text-align: right;
+    left: auto;
   }
 
   .collectionBlock {

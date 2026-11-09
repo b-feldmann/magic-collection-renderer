@@ -163,6 +163,40 @@ describe('TextResize', () => {
     act(() => fontListeners.forEach(listener => listener()));
     expect(measurements).toBeGreaterThan(0);
   });
+
+  it('only shrinks to the given size steps', () => {
+    // 50px would fit, but the steps jump from 52.5 straight to 47.5.
+    render(
+      <TextResize maxFontSize={80} minFontSize={20} sizeSteps={[80, 57.5, 52.5, 47.5, 42.5]}>
+        <p>Some text</p>
+      </TextResize>,
+    );
+    expect(fitted('Some text')).toHaveStyle({ fontSize: '47.5px' });
+  });
+
+  it('falls back to the smallest step when no step fits', () => {
+    boxHeight = 10;
+    render(
+      <TextResize maxFontSize={80} minFontSize={20} sizeSteps={[80, 60, 40]}>
+        <p>Some text</p>
+      </TextResize>,
+    );
+    expect(fitted('Some text')).toHaveStyle({ fontSize: '40px' });
+  });
+
+  it('also requires the extra fit check to pass', () => {
+    // The box alone would allow 50px.
+    render(
+      <TextResize
+        maxFontSize={80}
+        minFontSize={20}
+        fits={el => parseFloat(el.style.fontSize) <= 40}
+      >
+        <p>Some text</p>
+      </TextResize>,
+    );
+    expect(fitted('Some text')).toHaveStyle({ fontSize: '40px' });
+  });
 });
 
 describe('TemplatingCardRender store subscription', () => {

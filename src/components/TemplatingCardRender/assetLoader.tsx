@@ -3131,6 +3131,28 @@ export const getRarityIcon = (rarity: RarityType) => {
 export const hasHoloStamp = (rarity: RarityType) =>
   rarity === RarityType.Rare || rarity === RarityType.MythicRare;
 
+const HOLO_STAMP_BY_VARIANT: Record<string, string> = {
+  w: HoloStampWhite,
+  u: HoloStampBlue,
+  b: HoloStampBlack,
+  r: HoloStampRed,
+  g: HoloStampGreen,
+};
+
+/**
+ * Two-color borderless frames fade their pinline from the left color into the
+ * right one, and the 2026 prints run the holo stamp bump through the same fade.
+ * Returns the [left, right] bumps in pinline order, or null for any other
+ * color count.
+ */
+export const getTwoColorHoloStamps = (colors: ColorType[]): [string, string] | null => {
+  if (colors.length !== 2) return null;
+  const variant = getTwoColorVariant(colors);
+  const left = HOLO_STAMP_BY_VARIANT[variant[0]];
+  const right = HOLO_STAMP_BY_VARIANT[variant[1]];
+  return left && right ? [left, right] : null;
+};
+
 /**
  * The holo stamp for a frame: the frame-colored bump around the silver oval,
  * or just the oval (`plain`) for frames that have no bottom border to bump.

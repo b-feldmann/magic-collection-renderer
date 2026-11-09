@@ -26,6 +26,14 @@ export interface TextResizeProps {
    * font shrinks.
    */
   fixedSpacing?: boolean;
+  /**
+   * Only these font sizes may be used (printed text shrinks in fixed steps).
+   * Sizes outside [minFontSize, maxFontSize] are ignored; maxFontSize is always
+   * tried first. By default every whole pixel size is allowed.
+   */
+  sizeSteps?: number[];
+  /** An additional fit check, run after the box overflow check passes. */
+  fits?: (el: HTMLDivElement) => boolean;
   className?: string;
   children: React.ReactNode;
 }
@@ -55,6 +63,8 @@ const TextResize: React.FC<TextResizeProps> = ({
   lineHeight = 1.2,
   fullSizeLineHeight,
   fixedSpacing = false,
+  sizeSteps,
+  fits,
   className,
   children,
 }) => {
@@ -63,7 +73,7 @@ const TextResize: React.FC<TextResizeProps> = ({
   const lastFit = useRef<{ content: string; width: number; height: number } | null>(null);
 
   const contentKey = (el: HTMLElement) =>
-    `${minFontSize}|${maxFontSize}|${lineHeight}|${fullSizeLineHeight}|${fixedSpacing}|${el.innerHTML}`;
+    `${minFontSize}|${maxFontSize}|${lineHeight}|${fullSizeLineHeight}|${fixedSpacing}|${sizeSteps?.join(',')}|${el.innerHTML}`;
 
   const fit = useEffectEvent(() => {
     const el = containerRef.current;
@@ -107,21 +117,45 @@ const TextResize: React.FC<TextResizeProps> = ({
       applyScale(size);
       // Styles keyed on data-shrunk (e.g. padding) must apply while measuring.
       el.dataset.shrunk = String(size < maxFontSize);
-      return el.scrollHeight <= el.clientHeight && el.scrollWidth <= el.clientWidth;
+      return (
+        el.scrollHeight <= el.clientHeight &&
+        el.scrollWidth <= el.clientWidth &&
+        (fits ? fits(el) : true)
+      );
     };
 
     let size = maxFontSize;
     if (!fitsAt(size) && size > minFontSize) {
-      // Binary search for the largest fitting size; minFontSize is used even if
-      // the text still overflows there.
-      let fitting = minFontSize;
-      let overflowing = maxFontSize;
-      while (overflowing - fitting > 1) {
-        const middle = Math.floor((fitting + overflowing) / 2);
-        if (fitsAt(middle)) fitting = middle;
-        else overflowing = middle;
+      if (sizeSteps) {
+        // Largest allowed step that fits; the smallest one is used even if
+        // the text still overflows there.
+        const steps = sizeSteps
+          .filter(step => step < maxFontSize && step >= minFontSize)
+          .sort((a, b) => b - a);
+        if (steps.length) {
+          let fitting = steps.length - 1;
+          let overflowing = -1;
+          while (fitting - overflowing > 1) {
+            const middle = Math.floor((fitting + overflowing) / 2);
+            if (fitsAt(steps[middle])) fitting = middle;
+            else overflowing = middle;
+          }
+          size = steps[fitting];
+        } else {
+          size = minFontSize;
+        }
+      } else {
+        // Binary search for the largest fitting size; minFontSize is used even
+        // if the text still overflows there.
+        let fitting = minFontSize;
+        let overflowing = maxFontSize;
+        while (overflowing - fitting > 1) {
+          const middle = Math.floor((fitting + overflowing) / 2);
+          if (fitsAt(middle)) fitting = middle;
+          else overflowing = middle;
+        }
+        size = fitting;
       }
-      size = fitting;
       applyScale(size);
     }
     // Lets CSS style shrunk text differently (e.g. top-align it like print).
