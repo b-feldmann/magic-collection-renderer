@@ -352,7 +352,7 @@
     }
 
     .cost :global(.ms-cost.ms-#{$n})::before {
-      font-size: 0.8em;
+      font-size: 0.9em;
       transform: translateY(-0.08em);
     }
   }
