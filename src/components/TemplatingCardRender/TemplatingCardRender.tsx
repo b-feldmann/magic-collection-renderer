@@ -31,10 +31,10 @@ import LegalLine from './LegalLine';
 import {
   PRINTED_HALF_BOX_SIZES,
   PRINTED_RULES_SIZES,
-  placePrintedRules,
+  afterPrintedRulesFit,
+  beforePrintedRulesFit,
   printedRulesBoxFits,
   printedRulesInkFits,
-  resetPrintedRulesPlacement,
 } from './printedTextFit';
 import {
   getAdventureMainframe,
@@ -931,8 +931,8 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
               sizeSteps={rulesSizeSteps}
               boxFits={isPrintedRulesText ? printedRulesBoxFits : undefined}
               fits={isPrintedRulesText ? printedRulesInkFits : undefined}
-              beforeFit={isPrintedRulesText ? resetPrintedRulesPlacement : undefined}
-              afterFit={isPrintedRulesText ? placePrintedRules : undefined}
+              beforeFit={isPrintedRulesText ? beforePrintedRulesFit : undefined}
+              afterFit={isPrintedRulesText ? afterPrintedRulesFit : undefined}
               className={`${styles.textWrap} ${isPrintedRulesText ? styles.printedRulesText : ''}`}
             >
               <div>

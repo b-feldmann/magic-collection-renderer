@@ -1,3 +1,5 @@
+import { balancePrintedLines, resetPrintedLines } from './printedLineBreaks';
+
 // How printed M15 rules text shrinks, measured on 2026 prints (TRK, SOS) in
 // the 1500x2100 design space.
 
@@ -56,6 +58,21 @@ export const placePrintedRules = (el: HTMLDivElement) => {
   }
   el.dataset.placement = 'high';
   if (el.scrollHeight > el.clientHeight) el.dataset.placement = 'box';
+};
+
+/** TextResize `beforeFit` for printed rules text: measure unbalanced, top-aligned text. */
+export const beforePrintedRulesFit = (el: HTMLDivElement) => {
+  resetPrintedLines(el);
+  resetPrintedRulesPlacement(el);
+};
+
+/**
+ * TextResize `afterFit` for printed rules text: re-break the lines like print
+ * (keeping their count, so the fitted size still holds), then place the text.
+ */
+export const afterPrintedRulesFit = (el: HTMLDivElement) => {
+  balancePrintedLines(el);
+  placePrintedRules(el);
 };
 
 let measureContext: CanvasRenderingContext2D | null | undefined;
