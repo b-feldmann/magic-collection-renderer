@@ -498,18 +498,19 @@
     }
   }
 
+  // The text column matches the regular rules box (x 132-1376, as on the 2026
+  // prints); the level boxes start right of their level arrows.
   .levelerText {
     top: 1315px;
-    left: 120px;
-    //left: 130px;
-    width: 1270px;
+    left: 132px;
+    width: 1244px;
     height: 205px;
   }
 
   .levelerLevel1Text,
   .levelerLevel2Text {
     left: 220px;
-    width: 1170px;
+    width: 1156px;
   }
 
   .levelerLevel1Text {
@@ -1015,7 +1016,7 @@
     // + 5px undoes the flavour block's italic offset.
     left: calc(0.75% + 5px);
     width: 97%;
-    height: 3px;
+    height: 3.5px;
     margin: 0;
     box-shadow: none;
     background: linear-gradient(
@@ -1103,6 +1104,41 @@
     margin-top: 58px;
   }
 
+  // An evolution card's rules and level boxes (sized together by
+  // fitEvolutionText) get the printed rules text's spacing correction and
+  // flavour gap; they stay vertically centered in their bands.
+  .text > .printedLevelerText {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    contain: layout paint;
+    letter-spacing: -0.006em;
+    word-spacing: 0.036em;
+  }
+
+  // Regular rules text keeps its 24px paragraph gap (11px between bullets,
+  // 58px before flavour) at every size, as print does. Evolution text shrinks
+  // much further to fit its half- or third-height boxes, where fixed gaps would
+  // take a far larger share of the room; they scale with the text instead, in
+  // the proportions of full-size (76px) print.
+  .text > .printedLevelerText p + p {
+    margin-top: 0.316em;
+  }
+
+  .text > .printedLevelerText p + p.bulletText {
+    margin-top: 0.145em;
+  }
+
+  .text > .printedLevelerText .flavour {
+    margin-top: 0.763em;
+    letter-spacing: normal;
+    word-spacing: normal;
+  }
+
+  .text > .printedLevelerText .flavourSeparator {
+    top: -0.349em;
+  }
+
   // A closing quote after a period/comma nearly touches it on print.
   .flavour .kernedQuote {
     margin-left: -0.25em;
@@ -1169,7 +1205,7 @@
 
 .hasStats {
   .levelerText {
-    width: 1090px;
+    width: 1078px;
   }
 
   .levelerLevel1Text,

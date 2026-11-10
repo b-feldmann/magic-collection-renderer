@@ -1,6 +1,13 @@
 // may find images here https://github.com/Investigamer/cardconjurer/tree/master/img/frames
 
-import React, { ReactElement, useContext, useLayoutEffect, useRef, useState } from 'react';
+import React, {
+  ReactElement,
+  useContext,
+  useEffectEvent,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
 
 import 'mana-font/css/mana.css';
 // @ts-ignore
@@ -36,6 +43,7 @@ import {
   printedRulesBoxFits,
   printedRulesInkFits,
 } from './printedTextFit';
+import { EVOLUTION_TEXT_ATTRIBUTE, fitEvolutionText } from './evolutionTextFit';
 import {
   getAdventureMainframe,
   getAdventurePinline,
@@ -152,6 +160,35 @@ interface TemplatingCardRenderProps {
 // Truce, 2026: 52px line pitch at 52.8px).
 const HALF_BOX_LINE_HEIGHT = 0.985;
 
+interface EvolutionTextProps {
+  text: string[];
+  keyPrefix: string;
+  name: string;
+  mechanics: React.ContextType<typeof MechanicsContext>;
+  children?: React.ReactNode;
+}
+
+/** One of an evolution card's text boxes; `fitEvolutionText` sizes them together. */
+const EvolutionText = ({ text, keyPrefix, name, mechanics, children }: EvolutionTextProps) => (
+  <div
+    className={`${styles.textWrap} ${styles.printedLevelerText}`}
+    {...{ [EVOLUTION_TEXT_ATTRIBUTE]: '' }}
+  >
+    <div>
+      {text.map((val, i) => (
+        <p
+          key={`${keyPrefix}-${i}`}
+          className={isBulletText(val) ? styles.bulletText : undefined}
+          style={val.trimStart().startsWith('--') ? { marginLeft: '0.5em' } : undefined}
+        >
+          {injectForText(val, name, mechanics)}
+        </p>
+      ))}
+      {children}
+    </div>
+  </div>
+);
+
 const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
   const { legendary, vehicle, nickname, cardTypes, basicLandType, rarity } = cardRenderProps;
   const { name, manaCost, cardStats, cover, creator } = cardRenderProps;
@@ -202,6 +239,56 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
     observer.observe(costEl);
     return () => observer.disconnect();
   }, [manaCost, backFace, cardTypes]);
+
+  // An evolution card's rules box and level boxes share one printed font
+  // size (see evolutionTextFit). Fitting measures the rendered boxes, so it
+  // reruns when anything that changes their content or size changes, and when
+  // fonts load.
+  const cardRef = useRef<HTMLDivElement>(null);
+  const evolutionFitKey = useRef<string | null>(null);
+  const evolutionFitMechanics = useRef<typeof mechanics | null>(null);
+  const isEvolutionCard = cardTypes.includes(CardType.Evolution);
+  const evolutionKey = isEvolutionCard
+    ? JSON.stringify([
+        name,
+        cardTypes,
+        vehicle,
+        cardText,
+        flavourText,
+        flavourAuthor,
+        level1Text,
+        level2Text,
+        level1Indicator,
+        level2Indicator,
+      ])
+    : null;
+
+  const fitEvolution = useEffectEvent(() => {
+    const card = cardRef.current;
+    if (!card || evolutionKey === null) return;
+    fitEvolutionText(
+      Array.from(card.querySelectorAll<HTMLElement>(`[${EVOLUTION_TEXT_ATTRIBUTE}]`)),
+    );
+    evolutionFitKey.current = evolutionKey;
+    evolutionFitMechanics.current = mechanics;
+  });
+
+  useLayoutEffect(() => {
+    if (
+      evolutionKey !== null &&
+      (evolutionFitKey.current !== evolutionKey || evolutionFitMechanics.current !== mechanics)
+    ) {
+      fitEvolution();
+    }
+  });
+
+  useLayoutEffect(() => {
+    const { fonts } = document;
+    if (!isEvolutionCard || !fonts?.addEventListener) return undefined;
+    const onFontsLoaded = () => fitEvolution();
+    fonts.addEventListener('loadingdone', onFontsLoaded);
+    return () => fonts.removeEventListener?.('loadingdone', onFontsLoaded);
+  }, [isEvolutionCard]);
 
   const stripCoverValue = (value?: string) => getCoverImageSrc(value);
 
@@ -550,6 +637,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
         }}
       >
         <div
+          ref={cardRef}
           style={{
             width: `${CARD_WIDTH}px`,
             height: `${CARD_HEIGHT}px`,
@@ -767,27 +855,12 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
                 <div className={`${styles.text} ${styles.levelerText} ${styles.levelerLevel1Text}`}>
                   <div className={styles.levelerLevel1TextBackground}></div>
                   {level1Text?.length ? (
-                    <TextResize
-                      defaultFontSize={42}
-                      maxFontSize={56}
-                      minFontSize={38}
-                      lineHeight={1.1}
-                      className={styles.textWrap}
-                    >
-                      <div>
-                        {level1Text.map((val, i) => (
-                          <p
-                            key={`level-1-text-${cardID}-${i}`}
-                            className={isBulletText(val) ? styles.bulletText : undefined}
-                            style={
-                              val.trimStart().startsWith('--') ? { marginLeft: '0.5em' } : undefined
-                            }
-                          >
-                            {injectForText(val, name, mechanics)}
-                          </p>
-                        ))}
-                      </div>
-                    </TextResize>
+                    <EvolutionText
+                      text={level1Text}
+                      keyPrefix={`level-1-text-${cardID}`}
+                      name={name}
+                      mechanics={mechanics}
+                    />
                   ) : null}
                 </div>
               ) : null}
@@ -819,29 +892,12 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
                     >
                       <div className={styles.levelerLevel2TextBackground}></div>
                       {level2Text?.length ? (
-                        <TextResize
-                          defaultFontSize={42}
-                          maxFontSize={56}
-                          minFontSize={38}
-                          lineHeight={1.1}
-                          className={styles.textWrap}
-                        >
-                          <div>
-                            {level2Text.map((val, i) => (
-                              <p
-                                key={`level-2-text-${cardID}-${i}`}
-                                className={isBulletText(val) ? styles.bulletText : undefined}
-                                style={
-                                  val.trimStart().startsWith('--')
-                                    ? { marginLeft: '0.5em' }
-                                    : undefined
-                                }
-                              >
-                                {injectForText(val, name, mechanics)}
-                              </p>
-                            ))}
-                          </div>
-                        </TextResize>
+                        <EvolutionText
+                          text={level2Text}
+                          keyPrefix={`level-2-text-${cardID}`}
+                          name={name}
+                          mechanics={mechanics}
+                        />
                       ) : null}
                     </div>
                   ) : null}
@@ -921,33 +977,48 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
                 it only shrinks when the text overflows, and then keeps that leading and
                 the paragraph gaps, as print does. Shrunk sizes come in 0.25pt steps and
                 the last line's ink keeps clear of the box bottom (printedTextFit). */}
-            <TextResize
-              defaultFontSize={42}
-              maxFontSize={rulesMaxFontSize}
-              minFontSize={38}
-              lineHeight={rulesLineHeight}
-              fullSizeLineHeight={isPrintedRulesText ? 0.985 : undefined}
-              fixedSpacing={!(isAdventure || isOmen)}
-              sizeSteps={rulesSizeSteps}
-              boxFits={isPrintedRulesText ? printedRulesBoxFits : undefined}
-              fits={isPrintedRulesText ? printedRulesInkFits : undefined}
-              beforeFit={isPrintedRulesText ? beforePrintedRulesFit : undefined}
-              afterFit={isPrintedRulesText ? afterPrintedRulesFit : undefined}
-              className={`${styles.textWrap} ${isPrintedRulesText ? styles.printedRulesText : ''}`}
-            >
-              <div>
-                {cardText.map((val, i) => (
-                  <p
-                    key={`card-text-${cardID}-${i}`}
-                    className={isBulletText(val) ? styles.bulletText : undefined}
-                    style={val.trimStart().startsWith('--') ? { marginLeft: '0.5em' } : undefined}
-                  >
-                    {injectForText(val, name, mechanics)}
-                  </p>
-                ))}
+            {isEvolution ? (
+              <EvolutionText
+                text={cardText}
+                keyPrefix={`card-text-${cardID}`}
+                name={name}
+                mechanics={mechanics}
+              >
                 <FlavourText name={name} flavourText={flavourText} flavourAuthor={flavourAuthor} />
-              </div>
-            </TextResize>
+              </EvolutionText>
+            ) : (
+              <TextResize
+                defaultFontSize={42}
+                maxFontSize={rulesMaxFontSize}
+                minFontSize={38}
+                lineHeight={rulesLineHeight}
+                fullSizeLineHeight={isPrintedRulesText ? 0.985 : undefined}
+                fixedSpacing={!(isAdventure || isOmen)}
+                sizeSteps={rulesSizeSteps}
+                boxFits={isPrintedRulesText ? printedRulesBoxFits : undefined}
+                fits={isPrintedRulesText ? printedRulesInkFits : undefined}
+                beforeFit={isPrintedRulesText ? beforePrintedRulesFit : undefined}
+                afterFit={isPrintedRulesText ? afterPrintedRulesFit : undefined}
+                className={`${styles.textWrap} ${isPrintedRulesText ? styles.printedRulesText : ''}`}
+              >
+                <div>
+                  {cardText.map((val, i) => (
+                    <p
+                      key={`card-text-${cardID}-${i}`}
+                      className={isBulletText(val) ? styles.bulletText : undefined}
+                      style={val.trimStart().startsWith('--') ? { marginLeft: '0.5em' } : undefined}
+                    >
+                      {injectForText(val, name, mechanics)}
+                    </p>
+                  ))}
+                  <FlavourText
+                    name={name}
+                    flavourText={flavourText}
+                    flavourAuthor={flavourAuthor}
+                  />
+                </div>
+              </TextResize>
+            )}
           </div>
 
           <div className={styles.collectionBlock}>
