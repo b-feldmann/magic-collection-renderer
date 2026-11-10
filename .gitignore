@@ -24,6 +24,7 @@ yarn-error.log*
 .idea/
 
 renders/
+prints/
 
 # Local agent mockups and verification logs
 .superpowers/
