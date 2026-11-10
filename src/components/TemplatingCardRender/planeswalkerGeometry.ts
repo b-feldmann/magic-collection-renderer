@@ -150,10 +150,20 @@ export const layoutAbilities = (
     return lineCounts[donor] <= 1;
   });
 
+  // A single line is centered on its loyalty icon (where the colon sits), as
+  // far as its band allows: on Professor Dellian Fel (SOS, 2026) the 0 and -3
+  // lines sit ≈10px below their band centers, level with the icon. Longer
+  // abilities are centered in their band.
+  const icons = getIconCenters(count, isTall);
+  const centers = inkHeights.map((height, i) => {
+    const bandCenter = (edges[i] + edges[i + 1]) / 2;
+    if (lineCounts[i] > 1) return bandCenter;
+    const half = needed[i] / 2;
+    return Math.min(Math.max(icons[i], edges[i] + half), edges[i + 1] - half);
+  });
+
   return {
-    textTops: inkHeights.map(
-      (height, i) => (edges[i] + edges[i + 1]) / 2 - height / 2 - CAP_TOP * fontSize,
-    ),
+    textTops: inkHeights.map((height, i) => centers[i] - height / 2 - CAP_TOP * fontSize),
     dividers,
     fits: bandsFit && shiftsFit,
   };

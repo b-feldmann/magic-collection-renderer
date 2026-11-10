@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import {
   placePrintedRules,
+  PRINTED_RULES_SIZES,
   printedRulesBoxFits,
   resetPrintedRulesPlacement,
 } from './printedTextFit';
@@ -51,6 +52,19 @@ describe('placePrintedRules', () => {
     const el = box(true, true);
     placePrintedRules(el);
     expect(el.dataset.placement).toBe('box');
+  });
+
+  it('centers text that only shrank a little in the whole box, even when it fits high', () => {
+    // Mica, Reader of Ruins (SOS, 2026) at 70.7px is centered; Armus at 68.6px sits high.
+    const mica = box(true, false);
+    mica.style.fontSize = `${PRINTED_RULES_SIZES[3]}px`;
+    placePrintedRules(mica);
+    expect(mica.dataset.placement).toBe('box');
+
+    const armus = box(true, false);
+    armus.style.fontSize = `${PRINTED_RULES_SIZES[4]}px`;
+    placePrintedRules(armus);
+    expect(armus.dataset.placement).toBe('high');
   });
 
   it('leaves full-size text unplaced', () => {

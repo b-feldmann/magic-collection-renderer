@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   getAbilityBands,
   getDefaultDividers,
+  getIconCenters,
   layoutAbilities,
   PLANESWALKER_MAX_FONT_SIZE,
 } from './planeswalkerGeometry';
@@ -23,6 +24,16 @@ describe('planeswalker ability layout', () => {
       expect(top).toBeGreaterThan(bands[i].top);
       expect(top).toBeLessThan(bands[i].top + bands[i].height);
     });
+  });
+
+  it('centers a single-line ability on its loyalty icon, not its band', () => {
+    // Professor Dellian Fel: the 0 ability sits level with its icon, below the band center.
+    const size = PLANESWALKER_MAX_FONT_SIZE;
+    const layout = layoutAbilities([1, 1, 1, 3], size, true);
+    const [band] = getAbilityBands(layout.dividers, true).slice(1, 2);
+    const capCenter = layout.textTops[1] + (0.125 + 0.68 / 2) * size;
+    expect(capCenter).toBeCloseTo(getIconCenters(4, true)[1], 5);
+    expect(capCenter).toBeGreaterThan(band.top + band.height / 2);
   });
 
   it('grows a band into a neighbour that holds a single line', () => {

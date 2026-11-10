@@ -15,6 +15,10 @@ export const PRINTED_RULES_SIZES: number[] = [
   ...Array.from({ length: 18 }, (_, n) => Math.round((FULL_SIZE - STEP * (n + 0.5)) * 100) / 100),
 ];
 
+// Shrunk text at this size or larger (70.72px, the third shrink step) is
+// centered in the whole box (see placePrintedRules).
+export const BOX_PLACEMENT_MIN_SIZE = PRINTED_RULES_SIZES[3] - 0.01;
+
 /**
  * The font sizes for the two half-width boxes of a Prepared frame (largest
  * first). They sit on whole 0.25pt steps: on Emeritus of Truce (SOS, 2026) the
@@ -48,12 +52,19 @@ export const resetPrintedRulesPlacement = (el: HTMLDivElement) => {
  * Positions fitted shrunk rules text like print (2026 TRK/SOS): centered high
  * in the box (y≈1607) when it fits there, otherwise centered in the whole box
  * like full-size text (Brad Boimler), and top-aligned when it doesn't even fit
- * that (Captain Benjamin Sisko). The CSS for each placement is keyed on
- * `data-placement`.
+ * that (Captain Benjamin Sisko). Text that only shrank a little (70.7px and
+ * up, i.e. above Armus's 68.6px) is always centered in the whole box like
+ * full-size text: Mica, Reader of Ruins (SOS) at 70.7px would fit high but is
+ * printed ≈15px lower, centered like Brad. The CSS for each placement is keyed
+ * on `data-placement`.
  */
 export const placePrintedRules = (el: HTMLDivElement) => {
   if (el.dataset.shrunk !== 'true') {
     delete el.dataset.placement;
+    return;
+  }
+  if (parseFloat(el.style.fontSize) >= BOX_PLACEMENT_MIN_SIZE) {
+    el.dataset.placement = 'box';
     return;
   }
   el.dataset.placement = 'high';
