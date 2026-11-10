@@ -36,7 +36,7 @@ const FlavourText = ({ name, flavourText = '', flavourAuthor }: FlavourTextProps
   const closingQuote = author || typedClosingQuote;
 
   return (
-    <div className={styles.flavour}>
+    <div className={styles.flavour} data-flavour>
       <div className={styles.flavourSeparator} />
       {author ? '“' : null}
       {injectForFlavour(text, name)}

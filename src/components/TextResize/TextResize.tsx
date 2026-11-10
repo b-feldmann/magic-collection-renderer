@@ -32,8 +32,17 @@ export interface TextResizeProps {
    * tried first. By default every whole pixel size is allowed.
    */
   sizeSteps?: number[];
+  /**
+   * Replaces the box overflow check (by default the content may overflow the
+   * box neither vertically nor horizontally).
+   */
+  boxFits?: (el: HTMLDivElement) => boolean;
   /** An additional fit check, run after the box overflow check passes. */
   fits?: (el: HTMLDivElement) => boolean;
+  /** Runs before every fit, e.g. to undo placement that must not affect measuring. */
+  beforeFit?: (el: HTMLDivElement) => void;
+  /** Runs once the final size is applied, e.g. to position the fitted text. */
+  afterFit?: (el: HTMLDivElement) => void;
   className?: string;
   children: React.ReactNode;
 }
@@ -64,7 +73,10 @@ const TextResize: React.FC<TextResizeProps> = ({
   fullSizeLineHeight,
   fixedSpacing = false,
   sizeSteps,
+  boxFits,
   fits,
+  beforeFit,
+  afterFit,
   className,
   children,
 }) => {
@@ -78,6 +90,7 @@ const TextResize: React.FC<TextResizeProps> = ({
   const fit = useEffectEvent(() => {
     const el = containerRef.current;
     if (!el) return;
+    beforeFit?.(el);
 
     const paragraphs = Array.from(el.querySelectorAll<HTMLElement>('p'));
     paragraphs.forEach(p => {
@@ -117,11 +130,10 @@ const TextResize: React.FC<TextResizeProps> = ({
       applyScale(size);
       // Styles keyed on data-shrunk (e.g. padding) must apply while measuring.
       el.dataset.shrunk = String(size < maxFontSize);
-      return (
-        el.scrollHeight <= el.clientHeight &&
-        el.scrollWidth <= el.clientWidth &&
-        (fits ? fits(el) : true)
-      );
+      const fitsBox = boxFits
+        ? boxFits(el)
+        : el.scrollHeight <= el.clientHeight && el.scrollWidth <= el.clientWidth;
+      return fitsBox && (fits ? fits(el) : true);
     };
 
     let size = maxFontSize;
@@ -160,6 +172,7 @@ const TextResize: React.FC<TextResizeProps> = ({
     }
     // Lets CSS style shrunk text differently (e.g. top-align it like print).
     el.dataset.shrunk = String(size < maxFontSize);
+    afterFit?.(el);
     setFontSize(size);
     lastFit.current = { content: contentKey(el), width: el.clientWidth, height: el.clientHeight };
   });

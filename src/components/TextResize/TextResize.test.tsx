@@ -197,6 +197,35 @@ describe('TextResize', () => {
     );
     expect(fitted('Some text')).toHaveStyle({ fontSize: '40px' });
   });
+
+  it('lets boxFits replace the box overflow check', () => {
+    // The box alone would allow 50px; this check allows text twice as tall.
+    render(
+      <TextResize
+        maxFontSize={80}
+        minFontSize={20}
+        boxFits={el => el.scrollHeight <= el.clientHeight * 2}
+      >
+        <p>Some text</p>
+      </TextResize>,
+    );
+    expect(fitted('Some text')).toHaveStyle({ fontSize: '80px' });
+  });
+
+  it('runs beforeFit ahead of measuring and afterFit once the final size is applied', () => {
+    const calls: string[] = [];
+    render(
+      <TextResize
+        maxFontSize={80}
+        minFontSize={20}
+        beforeFit={el => calls.push(`before ${el.dataset.shrunk ?? 'unfitted'}`)}
+        afterFit={el => calls.push(`after ${el.style.fontSize} ${el.dataset.shrunk}`)}
+      >
+        <p>Some text</p>
+      </TextResize>,
+    );
+    expect(calls).toEqual(['before unfitted', 'after 50px true']);
+  });
 });
 
 describe('TemplatingCardRender store subscription', () => {

@@ -855,34 +855,38 @@
     -webkit-text-stroke: 1px #000;
   }
 
+  // Vertical positions measured against the text box's bottom border on ten
+  // 2026 prints (TRK, SOS): the collector lines sit ≈4px, the legal line ≈5px
+  // (≈7px without a P/T box, Interjection) lower than they used to here.
   .collectionBlock {
     letter-spacing: 2.92px;
     // No extra word spacing: on every 2026 print (TRK, SOS) the number starts
     // at x≈143, ≈22px after the rarity letter, which a plain space gives.
-    top: 1948px;
+    top: 1952px;
   }
 
   .collectionBlock2 {
     letter-spacing: 2px;
-    top: 1987px;
+    top: 1991px;
   }
 
   // The printed legal line is set in MPlantin, not in the collector-info font.
-  // Its lines are left-aligned in a column that starts at x≈893 (2026 prints:
-  // "© 2026 CBS." starts flush with the "™ & © … Wizards of the Coast" below).
+  // It ends under the P/T box: "™ & © 2026 Wizards of the Coast" ends at
+  // x≈1394 on every 2026 print, so ours is right-aligned to that edge.
   .copyright,
   .copyrightStats {
     font-family: 'MPlantin', serif;
-    text-align: left;
-    left: 893px;
+    text-align: right;
+    left: auto;
+    right: 105px;
   }
 
   .copyright {
-    top: 1951px;
+    top: 1958px;
   }
 
   .copyrightStats {
-    top: 1986px;
+    top: 1991px;
   }
 
   // Printed ©: a hairline circle (≈26px, as tall as the capitals) sitting on
@@ -1038,10 +1042,9 @@
     padding-top: 0;
   }
 
-  // Regular rules box: shrunk text keeps its first baseline at a fixed height
-  // on print (≈1372px, measured on TRK at 62-69px), so larger text does not
-  // sit lower. With 0.97 leading the first baseline is 0.8em below the line
-  // box top. The box reaches 12px higher than .text (inside the text box
+  // Regular rules box: shrunk text never starts above a first baseline of
+  // ≈1372px on print (see the centering below). With 0.97 leading the first
+  // baseline is 0.8em below the line box top. The box reaches 12px higher than .text (inside the text box
   // frame) so large text can move up without clipping; the 12px padding keeps
   // the usable area, and centered full-size text, where they were.
   .text > .printedRulesText {
@@ -1049,18 +1052,51 @@
     margin-top: -12px;
     height: calc(100% + 12px) !important;
     padding-top: 12px;
+    // Lorehold, the Historian (SOS, 2026, 76px): printed word gaps are ≈2px
+    // wider than ours, while words are ≈1.2% narrower (print kerns, our
+    // MPlantin has no kerning table). Tightening the letters and widening the
+    // spaces matches both; line lengths stay within ±7px of print.
+    letter-spacing: -0.006em;
+    word-spacing: 0.036em;
   }
 
+  // Shrunk text is fitted top-aligned (first baseline ≈1372px, never higher)
+  // and then placed by `placePrintedRules` (data-placement), as measured on
+  // 2026 prints (line box center / first baseline):
+  // - 'high': text that fits there is centered on y≈1607: Holo-Engineer
+  //   62.3px 1605 / 1372, The Dawning Archaic 66.5px 1608 / 1381, Armus
+  //   68.6px 1605 / 1371. A fixed spacer below the text (box bottom 1917 -
+  //   2 * 1607 + the area's top) moves the center up there.
+  // - 'box': longer text is centered in the whole area like full-size text
+  //   (≈1619): Brad Boimler 64.4px 1619 / 1378.
+  // - `safe` keeps text too tall even for that at the top: Captain Benjamin
+  //   Sisko 66.5px / 1372.
   .text > .printedRulesText[data-shrunk='true'] {
     padding-top: max(0px, calc(63.5px - 0.8em));
   }
 
-  // Measured flavour gap (last rules cap top to first flavour cap top, minus
-  // one line) is ≈61px on print at every size. With this box's leading that
-  // takes a slightly larger margin for shrunk text (0.97) than at full size
-  // (0.985).
-  .text > .printedRulesText[data-shrunk='true'] .flavour {
-    margin-top: 64px;
+  .text > .printedRulesText[data-shrunk='true'][data-placement] {
+    justify-content: safe center;
+  }
+
+  .text > .printedRulesText[data-shrunk='true'][data-placement='high']::after {
+    content: '';
+    flex: 0 0 calc(12px + max(0px, calc(63.5px - 0.8em)));
+  }
+
+  // Measured flavour gap (last rules baseline to first flavour baseline, minus
+  // one line pitch): Brad Boimler 60 and Holo-Engineer 60.6 (shrunk), Grapple
+  // with Death 63 and Assault Drone 60 (full size). Rules and flavour share
+  // font size and leading, so the margin is the gap itself. Full-size text
+  // keeps 58px: with more, Assault Drone no longer fits at full size, which it
+  // does on print.
+  // Italic flavour lines already match print length without the roman
+  // spacing correction above (Holo-Engineer's "…that the final" fits on print
+  // and only fits here without it).
+  .text > .printedRulesText .flavour {
+    margin-top: 61px;
+    letter-spacing: normal;
+    word-spacing: normal;
   }
 
   .text > .printedRulesText[data-shrunk='false'] .flavour {

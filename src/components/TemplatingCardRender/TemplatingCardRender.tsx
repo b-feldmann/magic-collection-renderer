@@ -28,7 +28,14 @@ import { CARD_HEIGHT, CARD_WIDTH } from '../../utils/constants';
 
 import styles from './TemplatingCardRender.module.scss';
 import LegalLine from './LegalLine';
-import { PRINTED_HALF_BOX_SIZES, PRINTED_RULES_SIZES, printedRulesInkFits } from './printedTextFit';
+import {
+  PRINTED_HALF_BOX_SIZES,
+  PRINTED_RULES_SIZES,
+  placePrintedRules,
+  printedRulesBoxFits,
+  printedRulesInkFits,
+  resetPrintedRulesPlacement,
+} from './printedTextFit';
 import {
   getAdventureMainframe,
   getAdventurePinline,
@@ -922,7 +929,10 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
               fullSizeLineHeight={isPrintedRulesText ? 0.985 : undefined}
               fixedSpacing={!(isAdventure || isOmen)}
               sizeSteps={rulesSizeSteps}
+              boxFits={isPrintedRulesText ? printedRulesBoxFits : undefined}
               fits={isPrintedRulesText ? printedRulesInkFits : undefined}
+              beforeFit={isPrintedRulesText ? resetPrintedRulesPlacement : undefined}
+              afterFit={isPrintedRulesText ? placePrintedRules : undefined}
               className={`${styles.textWrap} ${isPrintedRulesText ? styles.printedRulesText : ''}`}
             >
               <div>

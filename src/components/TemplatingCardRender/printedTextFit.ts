@@ -25,11 +25,38 @@ export const PRINTED_HALF_BOX_SIZES: number[] = Array.from(
 );
 
 // The lowest ink of the last line, descenders included, stays this far above
-// the bottom of the rules box: Brad Boimler (no descender on its last line)
-// fits with its ink 19px above it, while Armus at the next size up (70.7)
-// would end ≈13px above it (≈14.7px in our render) and was printed a step
-// smaller.
-const INK_BOTTOM_INSET = 16;
+// the bottom of the rules box (1917px). Print keeps flavour text clear of the
+// bottom: Brad Boimler (no descender on its last line) fits with its ink 19px
+// above it, while Armus at the next size up (70.7) would end ≈13px above it
+// (≈14.7px in our render) and was printed a step smaller.
+const FLAVOUR_INK_BOTTOM_INSET = 16;
+// Rules text may run much closer to it: Captain Benjamin Sisko is printed at
+// 66.5px with "mana costs." ending ≈8px above it (≈5px in our render, whose
+// last line box then reaches past the box).
+const RULES_INK_BOTTOM_INSET = 2;
+
+/**
+ * Undoes `placePrintedRules`, so fitting measures top-aligned shrunk text.
+ */
+export const resetPrintedRulesPlacement = (el: HTMLDivElement) => {
+  delete el.dataset.placement;
+};
+
+/**
+ * Positions fitted shrunk rules text like print (2026 TRK/SOS): centered high
+ * in the box (y≈1607) when it fits there, otherwise centered in the whole box
+ * like full-size text (Brad Boimler), and top-aligned when it doesn't even fit
+ * that (Captain Benjamin Sisko). The CSS for each placement is keyed on
+ * `data-placement`.
+ */
+export const placePrintedRules = (el: HTMLDivElement) => {
+  if (el.dataset.shrunk !== 'true') {
+    delete el.dataset.placement;
+    return;
+  }
+  el.dataset.placement = 'high';
+  if (el.scrollHeight > el.clientHeight) el.dataset.placement = 'box';
+};
 
 let measureContext: CanvasRenderingContext2D | null | undefined;
 
@@ -81,10 +108,21 @@ const lastLineText = (el: HTMLElement, lastRect: DOMRect) => {
 };
 
 /**
+ * TextResize `boxFits` check for printed rules text. Full-size text has to fit
+ * the box. Shrunk text only has to fit its width: its height is limited by the
+ * ink check (`printedRulesInkFits`), since the last line box of tightly set
+ * rules text may reach past the box while its ink stays inside.
+ */
+export const printedRulesBoxFits = (el: HTMLDivElement): boolean =>
+  el.scrollWidth <= el.clientWidth &&
+  (el.dataset.shrunk === 'true' || el.scrollHeight <= el.clientHeight);
+
+/**
  * TextResize `fits` check for printed rules text: once the text has to shrink,
- * the last line's ink, descenders included, must stay INK_BOTTOM_INSET above
- * the box bottom. Full-size text only has to fit the box (Assault Drone's
- * centered "—The Borg" reaches as low as Armus would have).
+ * the last line's ink, descenders included, must stay above the box bottom by
+ * FLAVOUR_INK_BOTTOM_INSET when it is flavour text, by RULES_INK_BOTTOM_INSET
+ * otherwise. Full-size text only has to fit the box (Assault Drone's centered
+ * "—The Borg" reaches as low as Armus would have).
  */
 export const printedRulesInkFits = (el: HTMLDivElement): boolean => {
   if (el.dataset.shrunk !== 'true') return true;
@@ -110,5 +148,8 @@ export const printedRulesInkFits = (el: HTMLDivElement): boolean => {
 
   const baseline = (lastRect.bottom - box.top) / scale - metrics.fontBoundingBoxDescent;
   const inkBottom = baseline + Math.max(0, metrics.actualBoundingBoxDescent);
-  return inkBottom <= el.clientHeight - INK_BOTTOM_INSET;
+  const inset = last.parentElement?.closest('[data-flavour]')
+    ? FLAVOUR_INK_BOTTOM_INSET
+    : RULES_INK_BOTTOM_INSET;
+  return inkBottom <= el.clientHeight - inset;
 };
