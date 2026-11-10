@@ -160,9 +160,9 @@ describe('injectUtils', () => {
     ['[Ravage -- two more]', 'Ravage—two more (Draw two more cards.)'],
     ['[Ravage --]', 'Ravage— (Draw  cards.)'],
     ['[Ravage two -- more]', 'Ravage two — more (Draw two — more cards.)'],
-    ['[Ravage two--more]', 'Ravage two — more (Draw two — more cards.)'],
+    ['[Ravage two--more]', 'Ravage two—more (Draw two—more cards.)'],
     ['Before -- [Ravage 1] -- after', 'Before — Ravage 1 (Draw 1 cards.) — after'],
-    ['[Unknown--mechanic]', '[Unknown — mechanic]'],
+    ['[Unknown--mechanic]', '[Unknown—mechanic]'],
   ])('renders the mechanic ref and reminder of %s', (line, expected) => {
     const mechanic: MechanicInterface = {
       uuid: 'mechanic-1',
@@ -267,27 +267,28 @@ describe('injectUtils', () => {
   });
 
   it.each([
-    ['Tap--draw a card'],
-    ['Tap --draw a card'],
-    ['Tap-- draw a card'],
-    ['Tap   --   draw a card'],
-  ])('should render exactly one space on each side of the dash in %s', line => {
-    const markup = renderToStaticMarkup(<div>{injectForText(line, 'Test', [])}</div>);
-    expect(markup).toContain('Tap — draw a card');
+    ['Ward--Pay 3 life.', 'Ward—Pay 3 life.'],
+    ['Tap --draw a card', 'Tap —draw a card'],
+    ['Tap-- draw a card', 'Tap— draw a card'],
+    ['Choose one -- ', 'Choose one — '],
+  ])('should keep the spaces around the dash as typed in %s', (line, expected) => {
+    const container = document.createElement('div');
+    container.innerHTML = renderToStaticMarkup(<div>{injectForText(line, 'Test', [])}</div>);
+    expect(container.textContent).toBe(expected);
   });
 
-  it('should space every -- on a line, including next to formatted text', () => {
+  it('should convert every -- on a line, including next to formatted text', () => {
     const container = document.createElement('div');
     container.innerHTML = renderToStaticMarkup(
-      <div>{injectForText('One--*two*--three', 'Test', [])}</div>,
+      <div>{injectForText('One--*two* -- three', 'Test', [])}</div>,
     );
-    expect(container.textContent).toBe('One — two — three');
+    expect(container.textContent).toBe('One—two — three');
   });
 
   it.each([
-    ['[Ravage 1]', 'Ravage 1 (Draw — then say “Go”…  Test it’s 1.)'],
-    ['[-Ravage 1]', '(Draw — then say “Go”…  Test it’s 1.)'],
-    ['[Ravage -- 1]', 'Ravage—1 (Draw — then say “Go”…  Test it’s 1.)'],
+    ['[Ravage 1]', 'Ravage 1 (Draw—then say “Go”…  Test it’s 1.)'],
+    ['[-Ravage 1]', '(Draw—then say “Go”…  Test it’s 1.)'],
+    ['[Ravage -- 1]', 'Ravage—1 (Draw—then say “Go”…  Test it’s 1.)'],
   ])('converts dashes, quotes and ellipses in the mechanic text of %s', (line, expected) => {
     const mechanic: MechanicInterface = {
       uuid: 'mechanic-1',
@@ -327,7 +328,7 @@ describe('injectUtils', () => {
 
   it('keeps the existing double-hyphen em dash convention', () => {
     const markup = renderToStaticMarkup(
-      <p>{injectForText('--Indented paragraph.', 'Test', [])}</p>,
+      <p>{injectForText('-- Indented paragraph.', 'Test', [])}</p>,
     );
 
     expect(markup).toContain('— Indented paragraph.');

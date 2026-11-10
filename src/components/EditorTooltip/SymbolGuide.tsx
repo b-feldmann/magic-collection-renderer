@@ -246,10 +246,17 @@ const SymbolGuide = ({ onClose }: { onClose: () => void }): React.JSX.Element =>
                 </span>
               </div>
               <div className={styles.formattingRow}>
-                <code>--</code>
+                <code>Ward--Pay</code>
+                <span>
+                  Ward—Pay
+                  <span className={styles.formattingLabel}>Em dash, add spaces yourself</span>
+                </span>
+              </div>
+              <div className={styles.formattingRow}>
+                <code>-- text</code>
                 <span>
                   — Indented paragraph
-                  <span className={styles.formattingLabel}>Em dash</span>
+                  <span className={styles.formattingLabel}>At the start of a line</span>
                 </span>
               </div>
               <div className={styles.formattingRow}>

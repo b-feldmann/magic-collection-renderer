@@ -294,9 +294,10 @@ export const injectQuotationMarks = (text: string | JSX.Element | (string | JSX.
 
 export const injectLongDash = (text: string | JSX.Element | (string | JSX.Element)[]) => {
   return injectWithConfig(text, {
-    // Absorb spaces already around the dash so it always ends up with exactly one on each side.
-    toReplace: / *-- */,
-    toInject: ' — ',
+    // Spaces around the dash are kept as typed: "Ward--Pay" gives "Ward—Pay" like print,
+    // "choose one -- " keeps its spaces.
+    toReplace: /--/,
+    toInject: '—',
   });
 };
 
@@ -348,8 +349,8 @@ export const injectMechanics = (
         return;
       }
       // A ref starting with -- joins name and ref with an unspaced em dash: [Flashback -- {2}{W}]
-      // gives "Flashback—{2}{W}". A -- later in the ref ([Flashback foo -- bar]) stays spaced,
-      // as injectLongDash renders it afterwards.
+      // gives "Flashback—{2}{W}". A -- later in the ref ([Flashback foo -- bar]) keeps its
+      // spaces as typed, as injectLongDash renders it afterwards.
       const prefix = hasLongDash ? `${usedMechanic.name}—` : `${usedMechanic.name} `;
       result.push(`${prefix}${ref ? `${ref} ` : hasLongDash ? ' ' : ''}`);
       result.push(reminder);

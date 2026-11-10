@@ -77,7 +77,9 @@ describe('SymbolGuide', () => {
   it('documents em-dash and bullet-list shortcuts', () => {
     render(<SymbolGuide onClose={() => {}} />);
 
-    expect(screen.getByText('--', { selector: 'code' })).toBeInTheDocument();
+    expect(screen.getByText('Ward--Pay', { selector: 'code' })).toBeInTheDocument();
+    expect(screen.getByText('Ward—Pay')).toBeInTheDocument();
+    expect(screen.getByText('-- text', { selector: 'code' })).toBeInTheDocument();
     expect(screen.getByText('* first item', { selector: 'code' })).toBeInTheDocument();
     expect(screen.getByText('- second item', { selector: 'code' })).toBeInTheDocument();
     expect(screen.getByText('— Indented paragraph')).toBeInTheDocument();

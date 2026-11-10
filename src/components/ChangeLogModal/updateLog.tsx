@@ -625,6 +625,12 @@ updateLog.push({
         'Printed type order with an em dash, and a print-style collector line like "U 0005".',
     },
     {
+      type: ChangeLogFeatureType.Changed,
+      feature: '-- no longer adds spaces around the em dash.',
+      description:
+        'Write Ward--Pay 3 life for "Ward—Pay 3 life" like print, and add spaces yourself where you want them, e.g. choose one -- .',
+    },
+    {
       type: ChangeLogFeatureType.Added,
       feature: 'Rare and mythic cards get a holo stamp in the color of the frame.',
     },
