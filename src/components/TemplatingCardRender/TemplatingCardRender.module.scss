@@ -146,9 +146,11 @@
   // TRK 201/470, Armus TRK 91, Dellian Fel): the pinline rises from x≈661 to
   // x≈839 in a half-ellipse peaking at y≈1900, in the pinline's own color and
   // thickness, with soft shoulders where it meets the flat pinline
-  // (y 1938-1950). The oval is 130x67 at (685, 1920). The asset is 204x104
-  // card px at 2x resolution and only covers the bump, so the frame's pinline
-  // and bottom border show on either side and below it.
+  // (y 1938-1950). The oval's silver face spans x 688-815, y 1917-1984 on
+  // every 2026 frame (regular, extended, borderless and planeswalker), inside
+  // a 2px black outline. The asset is 204x104 card px at 2x resolution and
+  // only covers the bump, so the frame's pinline and bottom border show on
+  // either side and below it.
   .holoStamp {
     position: absolute;
     left: 648px;
@@ -158,11 +160,12 @@
     pointer-events: none;
   }
 
+  // The oval-only image (134x67, a 130x63 face) stretched to the same face.
   .holoStampPlain {
-    left: 683px;
-    top: 1918px;
-    width: 134px;
-    height: 67px;
+    left: 686px;
+    top: 1915px;
+    width: 131px;
+    height: 71px;
   }
 
   .pinline,
@@ -331,12 +334,14 @@
   // mana-font's glyph in a circle of the same size. Scale the glyph up and the
   // circle box down by the same factor (mana-font: 0.95em font, 1.3em circle,
   // 1.35em line height). The circle is 1.3em of the cost font: 34.4px at a
-  // 744px-wide card, 39px apart (Emeritus of Truce, 2026 print).
-  .cost :global(.ms-cost) {
+  // 744px-wide card, 39px apart (Emeritus of Truce, 2026 print). The spell
+  // cost in a Prepared frame's box is drawn the same way, a little smaller.
+  .cost :global(.ms-cost),
+  .prepareCost :global(.ms-cost) {
     font-size: 1.2em;
-    width: 1.15em;
-    height: 1.15em;
-    line-height: 1.15em;
+    width: 1.083em;
+    height: 1.083em;
+    line-height: 1.083em;
   }
 
   // Generic (numeric / X) symbols: mana-font's numerals are thinner than the
@@ -351,7 +356,8 @@
       transform: translateY(-0.06em);
     }
 
-    .cost :global(.ms-cost.ms-#{$n})::before {
+    .cost :global(.ms-cost.ms-#{$n})::before,
+    .prepareCost :global(.ms-cost.ms-#{$n})::before {
       font-size: 0.9em;
       transform: translateY(-0.08em);
     }
@@ -359,7 +365,8 @@
 
   // The printed shadow is a solid crescent below the circle, slightly to the
   // left: ≈3px thick at the bottom of a 744px-wide card, ≈1px on the left.
-  .cost :global(.ms-cost.ms-shadow) {
+  .cost :global(.ms-cost.ms-shadow),
+  .prepareCost :global(.ms-cost.ms-shadow) {
     box-shadow:
       -0.04em 0.09em 0 #111,
       0 0.09em 0 #111;
@@ -402,14 +409,16 @@
         gup
     )
   {
-    .cost :global(.ms-cost.ms-#{$hybrid}) {
+    .cost :global(.ms-cost.ms-#{$hybrid}),
+    .prepareCost :global(.ms-cost.ms-#{$hybrid}) {
       font-size: 1em;
       width: 1.3em;
       height: 1.3em;
       line-height: 1.35em;
     }
 
-    .cost :global(.ms-cost.ms-shadow.ms-#{$hybrid}) {
+    .cost :global(.ms-cost.ms-shadow.ms-#{$hybrid}),
+    .prepareCost :global(.ms-cost.ms-shadow.ms-#{$hybrid}) {
       box-shadow:
         -0.052em 0.117em 0 #111,
         0 0.117em 0 #111;
@@ -630,53 +639,70 @@
   // to the y 1878 bottom. The creature's text moves to the left box
   // (x 110-745, y 1313-1937). These values are the plan's derivation from
   // the measured masks; the visual smoke check confirms and tunes them.
+  //
+  // Typography measured on Emeritus of Truce (SOS, 2026): the spell name
+  // starts at x≈780 with its baseline at y≈1386 and shrinks to stay clear of
+  // the cost ("Swords to Plowshares" is ≈55px and ends at x≈1300); the type
+  // is ≈58.6px with its baseline at y≈1489.
   .prepareName {
     font-family: 'Beleren Bold', sans-serif;
     position: absolute;
-    font-size: 1.6em;
     top: 1326px;
-    left: 780px;
-    width: 470px;
-    height: 75px;
+    left: 778px;
+    width: 525px;
+    height: 90px;
     white-space: nowrap;
-    overflow: hidden;
     color: white;
+
+    // Vertically center the name like the card title (see .title).
+    & > div {
+      display: flex;
+      align-items: center;
+    }
   }
 
+  // The spell's cost circle is ≈60px, centered at (1364, 1367).
   .prepareCost {
     position: absolute;
-    top: 1322px;
-    // right edge of the right box is x 1419.4, inset ~15px
-    right: 97px;
-    font-size: 1.5em;
-    text-align: right;
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-start;
+    top: 1337px;
+    right: 106px;
+    font-size: 1.4em;
   }
 
   .prepareCost > * {
-    margin-left: 12.5px;
+    margin-left: 8px;
   }
 
   .prepareTypeLine {
     font-family: 'Beleren Bold', sans-serif;
     position: absolute;
-    font-size: 1.6em;
-    top: 1439px;
-    left: 780px;
+    font-size: 1.758em;
+    top: 1424px;
+    left: 783px;
     color: white;
   }
 
+  // The spell text starts at x≈780 and wraps before x≈1380; its block is
+  // centered on y≈1696 (three 58px lines on Emeritus).
   .prepareText {
     font-family: 'MPlantin', sans-serif;
     position: absolute;
     font-size: 1.25em;
-    top: 1520px;
-    height: 356px;
-    left: 770px;
-    width: 614px;
+    top: 1543px;
+    height: 310px;
+    left: 779px;
+    width: 600px;
 
     p {
-      margin-top: 16px;
-      margin-bottom: 16px;
+      margin-top: 0;
+      margin-bottom: 0;
+    }
+
+    p + p {
+      margin-top: 24px;
     }
 
     i {
@@ -686,12 +712,14 @@
   }
 
   // Constrain the creature's rules text (and flavour) to the frame's left box
-  // while the prepare spell occupies the right one (the omenRightText mirror
-  // across the centerline). Must sit after .text to win at equal specificity.
+  // while the prepare spell occupies the right one. Must sit after .text to
+  // win at equal specificity. On print the ink starts at x≈128 and the column
+  // is ≈609px wide ("When this creature enters," fits at 52.8px, "it's
+  // prepared, you may cast a" does not); the block is centered on y≈1625.
   .prepareLeftText {
-    left: 120px;
-    width: 620px;
-    top: 1320px;
+    left: 127px;
+    width: 609px;
+    top: 1323px;
     height: 610px;
   }
 
@@ -931,10 +959,16 @@
   }
 
   // Printed cost symbols are ≈69px wide with ≈9px gaps (78px apart),
-  // right-aligned to x≈1386 (Emeritus of Truce, 2026 print).
+  // right-aligned to x≈1386 and centered on y≈158 (Emeritus of Truce and
+  // Lorehold, 2026 prints).
+  // Laid out as a flex row so the symbols sit at `top` whatever the metrics
+  // of the inherited UI font (as inline boxes they moved ≈3px when it loaded).
   .cost {
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-start;
     font-size: 1.6em;
-    top: 114px;
+    top: 123px;
     right: 114px;
   }
 
@@ -995,6 +1029,13 @@
     justify-content: flex-start;
     box-sizing: border-box;
     padding-top: 3px;
+  }
+
+  // The Prepared frame's half-width creature box keeps shrunk text centered
+  // (Emeritus of Truce: 11 lines at 52.8px, as much room above as below).
+  .prepareLeftText > [data-shrunk='true'] {
+    justify-content: space-around;
+    padding-top: 0;
   }
 
   // Regular rules box: shrunk text keeps its first baseline at a fixed height
@@ -1130,8 +1171,14 @@
     color: black !important;
   }
 
+  // Same symbol size as the regular frame (the planeswalker render does not
+  // carry the .m15 typography): 69px circles on the 2026 print (Dellian Fel).
   .cost {
-    top: 76px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-start;
+    font-size: 1.6em;
+    top: 93px;
   }
 
   .cover {
@@ -1161,7 +1208,8 @@
 }
 
 .borderless {
-  .holoStamp {
+  // Only the two-color bump moves; the oval-only stamp keeps its own top.
+  .holoStamp:not(.holoStampPlain) {
     top: 1886px;
   }
 

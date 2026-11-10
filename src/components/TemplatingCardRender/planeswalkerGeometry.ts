@@ -32,11 +32,13 @@ export const PLANESWALKER_RULES_REGION: { regular: RulesRegion; tall: RulesRegio
   tall: { top: 1172, height: 754, left: 175, width: 1214 },
 };
 
-// Translucent band fills, sampled from the divider edge rows (white top / grey
-// bottom of abilityLineOdd.png). They overlay the artwork, so the alpha lets the
-// art show through.
-export const PLANESWALKER_BAND_LIGHT = 'rgba(255, 255, 255, 0.608)';
-export const PLANESWALKER_BAND_DARK = 'rgba(164, 163, 164, 0.706)';
+// Translucent band fills; the divider strips (abilityLine*.png) carry the same
+// two colors in their edge rows. They overlay the artwork, so the alpha lets
+// the art show through — only a little on the 2026 prints: over Dellian Fel's
+// dark art the light bands are ≈216 bright and the dark ones ≈192, each
+// varying by no more than ≈±15 with the art beneath.
+export const PLANESWALKER_BAND_LIGHT = 'rgba(255, 255, 255, 0.8)';
+export const PLANESWALKER_BAND_DARK = 'rgba(225, 224, 225, 0.8)';
 
 // Native height of the divider strips (abilityLine*.png are 802x26).
 export const PLANESWALKER_DIVIDER_HEIGHT = 26;

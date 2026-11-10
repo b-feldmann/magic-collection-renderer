@@ -28,7 +28,7 @@ import { CARD_HEIGHT, CARD_WIDTH } from '../../utils/constants';
 
 import styles from './TemplatingCardRender.module.scss';
 import LegalLine from './LegalLine';
-import { PRINTED_RULES_SIZES, printedRulesInkFits } from './printedTextFit';
+import { PRINTED_HALF_BOX_SIZES, PRINTED_RULES_SIZES, printedRulesInkFits } from './printedTextFit';
 import {
   getAdventureMainframe,
   getAdventurePinline,
@@ -140,6 +140,10 @@ interface TemplatingCardRenderProps {
   collectionSize: number;
   containerWidth?: number;
 }
+
+// Leading of the text in a Prepared frame's half-width boxes (Emeritus of
+// Truce, 2026: 52px line pitch at 52.8px).
+const HALF_BOX_LINE_HEIGHT = 0.985;
 
 const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
   const { legendary, vehicle, nickname, cardTypes, basicLandType, rarity } = cardRenderProps;
@@ -432,6 +436,23 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
   // The full-width M15 rules box, typeset like print (see printedTextFit).
   const isPrintedRulesText = !(isAdventure || isOmen || isPrepared || isEvolution || isToken);
 
+  // Rules text metrics. The Prepared frame's half-width boxes are typeset like
+  // print as well, on their own size steps; the Adventure and Omen boxes keep
+  // the generic fit.
+  let rulesMaxFontSize = 76;
+  let rulesLineHeight = 0.97;
+  let rulesSizeSteps: number[] | undefined;
+  if (isPrintedRulesText) {
+    rulesSizeSteps = PRINTED_RULES_SIZES;
+  } else if (isPrepared) {
+    [rulesMaxFontSize] = PRINTED_HALF_BOX_SIZES;
+    rulesLineHeight = HALF_BOX_LINE_HEIGHT;
+    rulesSizeSteps = PRINTED_HALF_BOX_SIZES;
+  } else if (isAdventure || isOmen) {
+    rulesMaxFontSize = 50;
+    rulesLineHeight = 1.1;
+  }
+
   const black = getBlack();
   let crownBlack: ReactElement | null = null;
   let crownExtendedArtFix: ReactElement | null = null;
@@ -674,7 +695,12 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
               appears when its data is set. The type line renders the plain
               prepareType — no "– Prepared" suffix (user decision). */}
           {isPrepared && prepareName ? (
-            <div className={styles.prepareName}>{formatCardText(prepareName)}</div>
+            <div className={styles.prepareName}>
+              {/* Shrinks a long spell name so it stays clear of the spell's cost. */}
+              <TextResize defaultFontSize={58} maxFontSize={58} minFontSize={34}>
+                {formatCardText(prepareName)}
+              </TextResize>
+            </div>
           ) : null}
           {isPrepared && prepareCost ? (
             <div className={styles.prepareCost}>
@@ -688,9 +714,11 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
             <div className={styles.prepareText}>
               <TextResize
                 defaultFontSize={42}
-                maxFontSize={50}
-                minFontSize={28}
-                lineHeight={1.1}
+                maxFontSize={PRINTED_HALF_BOX_SIZES[0]}
+                minFontSize={36}
+                lineHeight={HALF_BOX_LINE_HEIGHT}
+                fixedSpacing
+                sizeSteps={PRINTED_HALF_BOX_SIZES}
                 className={styles.textWrap}
               >
                 <div>
@@ -888,12 +916,12 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
                 the last line's ink keeps clear of the box bottom (printedTextFit). */}
             <TextResize
               defaultFontSize={42}
-              maxFontSize={isAdventure || isOmen || isPrepared ? 50 : 76}
+              maxFontSize={rulesMaxFontSize}
               minFontSize={38}
-              lineHeight={isAdventure || isOmen || isPrepared ? 1.1 : 0.97}
-              fullSizeLineHeight={isAdventure || isOmen || isPrepared ? undefined : 0.985}
-              fixedSpacing={!(isAdventure || isOmen || isPrepared)}
-              sizeSteps={isPrintedRulesText ? PRINTED_RULES_SIZES : undefined}
+              lineHeight={rulesLineHeight}
+              fullSizeLineHeight={isPrintedRulesText ? 0.985 : undefined}
+              fixedSpacing={!(isAdventure || isOmen)}
+              sizeSteps={rulesSizeSteps}
               fits={isPrintedRulesText ? printedRulesInkFits : undefined}
               className={`${styles.textWrap} ${isPrintedRulesText ? styles.printedRulesText : ''}`}
             >

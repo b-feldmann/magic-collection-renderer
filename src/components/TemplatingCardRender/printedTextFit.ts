@@ -13,11 +13,23 @@ export const PRINTED_RULES_SIZES: number[] = [
   ...Array.from({ length: 18 }, (_, n) => Math.round((FULL_SIZE - STEP * (n + 0.5)) * 100) / 100),
 ];
 
+/**
+ * The font sizes for the two half-width boxes of a Prepared frame (largest
+ * first). They sit on whole 0.25pt steps: on Emeritus of Truce (SOS, 2026) the
+ * spell text is 7pt (59.1px) although its box would hold more, and the
+ * creature's text had to shrink to 6.25pt (52.8px).
+ */
+export const PRINTED_HALF_BOX_SIZES: number[] = Array.from(
+  { length: 11 },
+  (_, n) => Math.round((FULL_SIZE - STEP * (n + 8)) * 100) / 100,
+);
+
 // The lowest ink of the last line, descenders included, stays this far above
 // the bottom of the rules box: Brad Boimler (no descender on its last line)
-// fits with its ink 19px above it, while Armus at the next size up would end
-// 8px above it and was printed a step smaller.
-const INK_BOTTOM_INSET = 14;
+// fits with its ink 19px above it, while Armus at the next size up (70.7)
+// would end ≈13px above it (≈14.7px in our render) and was printed a step
+// smaller.
+const INK_BOTTOM_INSET = 16;
 
 let measureContext: CanvasRenderingContext2D | null | undefined;
 
