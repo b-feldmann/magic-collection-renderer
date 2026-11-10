@@ -60,6 +60,7 @@
     "generate:parts": "node scripts/generate-parts.cjs",
     "transparentize:thumbs": "node scripts/transparentize-thumbs.cjs",
     "render:card": "node scripts/render-card/render-card.mjs",
+    "fetch:print": "node scripts/fetch-print.mjs",
     "dev": "nf start",
     "prepare": "husky",
     "predeploy": "npm run build",

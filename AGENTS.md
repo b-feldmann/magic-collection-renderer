@@ -16,6 +16,49 @@ packaged as an Electron desktop app.
 Build config lives in `vite.config.mts` and `tsconfig.json`. Peer-dependency conflicts from older
 React-ecosystem libs are tolerated via `.npmrc` (`legacy-peer-deps=true`).
 
+## Fetching official card images (Scryfall)
+
+`npm run fetch:print -- "<card name>" [--artstyle extended|borderless]` downloads the official
+print image of a card from the Scryfall API into `prints/` (script: `scripts/fetch-print.mjs`).
+Use it to get reference prints for comparing renders. It searches
+`https://api.scryfall.com/cards/search?unique=prints&q=<name>`, keeps exact name matches, and takes
+the first print whose `frame_effects` match the art style:
+
+- no `--artstyle` — neither `extendedart` nor `inverted` → `prints/<name>_.webp`
+- `--artstyle extended` — has `extendedart` → `prints/<name>_extended.webp`
+- `--artstyle borderless` — has `inverted` → `prints/<name>_borderless.webp`
+
+The image comes from `image_uris.display` (front face for double-faced cards). If no print matches
+the art style, the script lists the prints it found with their frame effects and exits with code 1.
+
+## Rendering a card from the collection to PNG
+
+`npm run render:card -- "<card name>" [--key <access key>] [--middleware <url>] [--width <px>]`
+renders a card stored in the middleware with `TemplatingCardRender` and saves it as
+`renders/<card-name>.png` (lowercase, non-alphanumerics → `-`; `renders/` is git-ignored). The
+middleware must be running (see "Backend requirement"). Use it together with `fetch:print` to
+compare a render against the official print.
+
+- `--key` defaults to `$MAGIC_ACCESS_KEY` or `dev-access-key`; `--middleware` defaults to
+  `$MAGIC_MIDDLEWARE_URL` or `http://localhost:8080`; `--width` defaults to 1500 (the card's native
+  1500×2100 size, height follows the 5:7 ratio).
+- The card is looked up via `GET /cards` by case-insensitive exact name (card, front or back face
+  name). A partial name works if it matches exactly one card. Several exact matches (e.g. variants
+  with the same name) are all rendered as `<name>-<uuid prefix>.png`. Double-faced cards also get
+  `<name>-back.png`.
+- Uploaded covers (`loading:` covers) are fetched from `GET /images`, mechanics from
+  `GET /mechanics`. The collector number is the card's position in the collection sorted by name
+  (the app's number depends on the user's sort).
+- How it works: `scripts/render-card/render-card.mjs` fetches the data, starts a Vite dev server on
+  a free port and spawns Electron (`scripts/render-card/electron-main.cjs`), which opens
+  `scripts/render-card/render.html` (entry `src/renderCard/renderCardPage.tsx`) in an offscreen
+  window, calls `window.__renderCard(...)`, waits until images/fonts/text fitting have settled and
+  captures the card with `capturePage`. Animations are disabled on that page so the capture shows
+  the final state. Electron clamps new windows to the screen height, so the window is resized with
+  `setContentSize` after creation.
+- Unknown/ambiguous names, an unreachable middleware or a rejected key print a message and exit
+  with code 1.
+
 ## Git
 
 Do not create new branches automatically. Work on the current branch unless the user explicitly
