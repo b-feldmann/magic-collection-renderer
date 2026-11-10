@@ -1,0 +1,38 @@
+<!doctype html>
+<!-- Headless card render page used by `npm run render:card` (only served by the Vite dev server). -->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <title>Card render</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        background: transparent !important;
+      }
+      #root {
+        position: absolute;
+        top: 0;
+        left: 0;
+      }
+      /* The app fades images in; a capture wants the final state at once. */
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0s !important;
+        animation-delay: 0s !important;
+        transition: none !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/renderCard/renderCardPage.tsx"></script>
+  </body>
+</html>
