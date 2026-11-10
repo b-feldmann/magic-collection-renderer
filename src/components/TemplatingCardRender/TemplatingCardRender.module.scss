@@ -829,8 +829,8 @@
 
   .collectionBlock {
     letter-spacing: 2.92px;
-    // The print leaves a wider gap between the rarity letter and the number.
-    word-spacing: 6px;
+    // No extra word spacing: on every 2026 print (TRK, SOS) the number starts
+    // at x≈143, ≈22px after the rarity letter, which a plain space gives.
     top: 1948px;
   }
 
@@ -1173,10 +1173,14 @@
     border-radius: 60px;
   }
 
+  // The borderless P/T box is smaller than the regular one: on the 2026 print
+  // (Lorehold, SOS) its gold frame spans x≈1167–1415, y≈1864–1985, with the
+  // digits centered in it.
   .pt {
     position: absolute;
-    bottom: calc(2100px / 1400 * 54 + 8px);
-    right: calc(1500px / 746 * 41 - 4px);
+    width: 270px;
+    bottom: 101px;
+    right: 80.5px;
   }
 
   .title {
