@@ -23,6 +23,7 @@ import { getImage } from '../../actions/imageActions';
 import { isLoadingCover } from '../../utils/cover';
 import useUnreadComments from '../../useUnreadComments';
 import snapCardWidth from '../../utils/snapCardWidth';
+import DownloadCardPngButton from './DownloadCardPngButton';
 
 interface BigCardRenderModalProps {
   card: CardInterface;
@@ -353,7 +354,14 @@ const BigCardRenderModal = ({
               </TrainerGalleryHolofoil>
             ))}
           </RotateToMouse>
-          {variantNavigation}
+          <div className={styles.cardActions}>
+            {variantNavigation}
+            <DownloadCardPngButton
+              card={card}
+              collectionNumber={collectionNumber}
+              collectionSize={collectionSize}
+            />
+          </div>
         </div>
         <div
           className={styles.annotationView}

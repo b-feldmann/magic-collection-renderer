@@ -226,6 +226,36 @@ describe('TextResize', () => {
     );
     expect(calls).toEqual(['before unfitted', 'after 50px true']);
   });
+
+  it('runs every fit inside the layout, and only once per content and zoom', () => {
+    let zoom = 0.2;
+    define('currentCSSZoom', () => zoom);
+    const calls: string[] = [];
+    const layout = (el: HTMLDivElement, typeset: () => void) => {
+      calls.push('layout');
+      typeset();
+      calls.push(`fitted ${el.style.fontSize}`);
+    };
+    const tree = () => (
+      <TextResize maxFontSize={80} minFontSize={20} layout={layout}>
+        <p>Some text</p>
+      </TextResize>
+    );
+    try {
+      const { rerender } = render(tree());
+      expect(calls).toEqual(['layout', 'fitted 50px']);
+
+      rerender(tree());
+      expect(calls).toHaveLength(2);
+
+      // The card shown at another size: its pinned line breaks are refitted.
+      zoom = 0.5;
+      rerender(tree());
+      expect(calls).toEqual(['layout', 'fitted 50px', 'layout', 'fitted 50px']);
+    } finally {
+      delete (HTMLElement.prototype as unknown as Record<string, unknown>).currentCSSZoom;
+    }
+  });
 });
 
 describe('TemplatingCardRender store subscription', () => {

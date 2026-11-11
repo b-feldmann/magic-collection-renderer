@@ -9,6 +9,7 @@ import { CARD_WIDTH, CARD_HEIGHT } from '../../utils/constants';
 import snapCardWidth from '../../utils/snapCardWidth';
 import FavoriteHeart from '../FavoriteHeart/FavoriteHeart';
 import AntIcon from '../AntIcon/AntIcon';
+import DownloadCardPngButton from './DownloadCardPngButton';
 
 // Size the controls themselves, including their tags, text and circle buttons,
 // rather than stretching only the outer DOM nodes with mobile CSS.
@@ -147,6 +148,8 @@ const MobileBigCardRenderModal = ({
       : card.front;
 
   const sideMargin = 20;
+  // Keep the card size when only the PNG download is in the controls row; it
+  // scrolls into view like the comments below it.
   const hOffset = variantNavigation || mobileEditor ? 84 : 30;
 
   const dimFactor = CARD_WIDTH / CARD_HEIGHT;
@@ -192,37 +195,40 @@ const MobileBigCardRenderModal = ({
             <FavoriteHeart favorite={card.favorite} />
           </div>
         </div>
-        {(card.back || variantNavigation || mobileEditor) && (
-          <div
-            className={styles.mobileCardControls}
-            role="group"
-            aria-label="Card controls"
-            onClick={closeOnBackgroundClick}
-          >
-            {mobileEditor && (
-              <Button
-                type="primary"
-                aria-label={mobileEditorOpen ? 'Hide editor' : 'Edit card'}
-                icon={<AntIcon type={mobileEditorOpen ? 'up' : 'edit'} />}
-                aria-expanded={mobileEditorOpen}
-                aria-controls={editorId}
-                onClick={mobileEditorOpen ? onHideEditor : onEditCard}
-              >
-                {mobileEditorOpen ? 'Hide editor' : 'Edit card'}
-              </Button>
-            )}
-            {card.back && (
-              <Button
-                aria-label="Show other face"
-                icon={<AntIcon type="swap" />}
-                onClick={() =>
-                  setFaceSelection(selection => ({ ...selection, showBack: !selection.showBack }))
-                }
-              />
-            )}
-            {variantNavigation}
-          </div>
-        )}
+        <div
+          className={styles.mobileCardControls}
+          role="group"
+          aria-label="Card controls"
+          onClick={closeOnBackgroundClick}
+        >
+          {mobileEditor && (
+            <Button
+              type="primary"
+              aria-label={mobileEditorOpen ? 'Hide editor' : 'Edit card'}
+              icon={<AntIcon type={mobileEditorOpen ? 'up' : 'edit'} />}
+              aria-expanded={mobileEditorOpen}
+              aria-controls={editorId}
+              onClick={mobileEditorOpen ? onHideEditor : onEditCard}
+            >
+              {mobileEditorOpen ? 'Hide editor' : 'Edit card'}
+            </Button>
+          )}
+          {card.back && (
+            <Button
+              aria-label="Show other face"
+              icon={<AntIcon type="swap" />}
+              onClick={() =>
+                setFaceSelection(selection => ({ ...selection, showBack: !selection.showBack }))
+              }
+            />
+          )}
+          {variantNavigation}
+          <DownloadCardPngButton
+            card={card}
+            collectionNumber={collectionNumber}
+            collectionSize={collectionSize}
+          />
+        </div>
         {mobileEditor && (
           <section
             id={editorId}

@@ -1,0 +1,16 @@
+// Offscreen (but laid out and painted) so the card can be captured at full size.
+.host {
+  position: fixed;
+  top: 0;
+  left: -100000px;
+  pointer-events: none;
+
+  // The app fades images in; a capture wants the final state at once.
+  :global(*),
+  :global(*::before),
+  :global(*::after) {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+    transition: none !important;
+  }
+}

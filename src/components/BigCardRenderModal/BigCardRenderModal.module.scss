@@ -142,6 +142,21 @@
   }
 }
 
+// Below the card on desktop: variant switcher and the PNG download.
+.cardActions {
+  display: flex;
+  align-items: center;
+  align-self: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+
+  .variantNavigation {
+    margin-top: 0;
+  }
+}
+
 .variantNavigation {
   display: flex;
   align-items: center;
