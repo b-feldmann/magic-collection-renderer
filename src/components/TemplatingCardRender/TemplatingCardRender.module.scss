@@ -1062,27 +1062,16 @@
   }
 
   // Shrunk text is fitted top-aligned (first baseline ≈1372px, never higher)
-  // and then placed by `placePrintedRules` (data-placement), as measured on
-  // 2026 prints (line box center / first baseline):
-  // - 'high': text that fits there is centered on y≈1607: Holo-Engineer
-  //   62.3px 1605 / 1372, The Dawning Archaic 66.5px 1608 / 1381, Armus
-  //   68.6px 1605 / 1371. A fixed spacer below the text (box bottom 1917 -
-  //   2 * 1607 + the area's top) moves the center up there.
-  // - 'box': longer text is centered in the whole area like full-size text
-  //   (≈1619): Brad Boimler 64.4px 1619 / 1378.
-  // - `safe` keeps text too tall even for that at the top: Captain Benjamin
-  //   Sisko 66.5px / 1372.
+  // and then centered in the whole area like full-size text by
+  // `placePrintedRules` (data-placement), ≈1619 as on Brad Boimler (64.4px,
+  // 2026). `safe` keeps text too tall for that at the top: Captain Benjamin
+  // Sisko 66.5px / 1372.
   .text > .printedRulesText[data-shrunk='true'] {
     padding-top: max(0px, calc(63.5px - 0.8em));
   }
 
   .text > .printedRulesText[data-shrunk='true'][data-placement] {
     justify-content: safe center;
-  }
-
-  .text > .printedRulesText[data-shrunk='true'][data-placement='high']::after {
-    content: '';
-    flex: 0 0 calc(12px + max(0px, calc(63.5px - 0.8em)));
   }
 
   // Measured flavour gap (last rules baseline to first flavour baseline, minus

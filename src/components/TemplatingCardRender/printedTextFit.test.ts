@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  beforePrintedRulesFit,
+  printedRulesInkFits,
   placePrintedRules,
-  PRINTED_RULES_SIZES,
   printedRulesBoxFits,
   resetPrintedRulesPlacement,
 } from './printedTextFit';
@@ -29,55 +30,44 @@ describe('printedRulesBoxFits', () => {
   });
 });
 
-// placePrintedRules tries the 'high' placement first and reads the overflow
-// that placement causes (the stylesheet adds a spacer below the text).
-const box = (shrunk: boolean, overflowsWhenHigh: boolean) => {
+const box = (shrunk: boolean) => {
   const el = document.createElement('div');
   el.dataset.shrunk = String(shrunk);
-  Object.defineProperty(el, 'clientHeight', { value: 600 });
-  Object.defineProperty(el, 'scrollHeight', {
-    get: () => (el.dataset.placement === 'high' && overflowsWhenHigh ? 610 : 600),
-  });
   return el;
 };
 
 describe('placePrintedRules', () => {
-  it('centers shrunk text high when it fits there', () => {
-    const el = box(true, false);
+  it.each([62.3, 68.61, 70.72])('centers shrunk text at %spx in the whole box', size => {
+    const el = box(true);
+    el.style.fontSize = `${size}px`;
     placePrintedRules(el);
-    expect(el.dataset.placement).toBe('high');
-  });
-
-  it('centers longer shrunk text in the whole box', () => {
-    const el = box(true, true);
-    placePrintedRules(el);
-    expect(el.dataset.placement).toBe('box');
-  });
-
-  it('centers text that only shrank a little in the whole box, even when it fits high', () => {
-    // Mica, Reader of Ruins (SOS, 2026) at 70.7px is centered; Armus at 68.6px sits high.
-    const mica = box(true, false);
-    mica.style.fontSize = `${PRINTED_RULES_SIZES[3]}px`;
-    placePrintedRules(mica);
-    expect(mica.dataset.placement).toBe('box');
-
-    const armus = box(true, false);
-    armus.style.fontSize = `${PRINTED_RULES_SIZES[4]}px`;
-    placePrintedRules(armus);
-    expect(armus.dataset.placement).toBe('high');
+    expect(el.dataset.placement).toBe('center');
   });
 
   it('leaves full-size text unplaced', () => {
-    const el = box(false, false);
-    el.dataset.placement = 'high';
+    const el = box(false);
+    el.dataset.placement = 'center';
     placePrintedRules(el);
     expect(el.dataset.placement).toBeUndefined();
   });
 
   it('resets the placement so fitting measures top-aligned text', () => {
-    const el = box(true, false);
+    const el = box(true);
     placePrintedRules(el);
     resetPrintedRulesPlacement(el);
     expect(el.dataset.placement).toBeUndefined();
+  });
+});
+
+describe('first line lowering', () => {
+  it('drops the padding left over from earlier fit attempts', () => {
+    const el = box(true);
+    el.style.paddingTop = '9px';
+    beforePrintedRulesFit(el);
+    expect(el.style.paddingTop).toBe('');
+
+    el.style.paddingTop = '9px';
+    printedRulesInkFits(el);
+    expect(el.style.paddingTop).toBe('');
   });
 });

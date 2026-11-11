@@ -15,10 +15,6 @@ export const PRINTED_RULES_SIZES: number[] = [
   ...Array.from({ length: 18 }, (_, n) => Math.round((FULL_SIZE - STEP * (n + 0.5)) * 100) / 100),
 ];
 
-// Shrunk text at this size or larger (70.72px, the third shrink step) is
-// centered in the whole box (see placePrintedRules).
-export const BOX_PLACEMENT_MIN_SIZE = PRINTED_RULES_SIZES[3] - 0.01;
-
 /**
  * The font sizes for the two half-width boxes of a Prepared frame (largest
  * first). They sit on whole 0.25pt steps: on Emeritus of Truce (SOS, 2026) the
@@ -40,6 +36,11 @@ const FLAVOUR_INK_BOTTOM_INSET = 16;
 // 66.5px with "mana costs." ending ≈8px above it (≈5px in our render, whose
 // last line box then reaches past the box).
 const RULES_INK_BOTTOM_INSET = 2;
+// The first line's ink, mana symbols included, starts at least this far below
+// the top of the text area (the light box starts there, under a 7px inner
+// shadow). Print leaves about as much: Captain Benjamin Sisko's caps (66.5px,
+// first baseline 1372) start ≈6px below it.
+const INK_TOP_INSET = 4;
 
 /**
  * Undoes `placePrintedRules`, so fitting measures top-aligned shrunk text.
@@ -49,32 +50,29 @@ export const resetPrintedRulesPlacement = (el: HTMLDivElement) => {
 };
 
 /**
- * Positions fitted shrunk rules text like print (2026 TRK/SOS): centered high
- * in the box (y≈1607) when it fits there, otherwise centered in the whole box
- * like full-size text (Brad Boimler), and top-aligned when it doesn't even fit
- * that (Captain Benjamin Sisko). Text that only shrank a little (70.7px and
- * up, i.e. above Armus's 68.6px) is always centered in the whole box like
- * full-size text: Mica, Reader of Ruins (SOS) at 70.7px would fit high but is
- * printed ≈15px lower, centered like Brad. The CSS for each placement is keyed
- * on `data-placement`.
+ * Positions fitted shrunk rules text: centered in the whole box like
+ * full-size text (Brad Boimler, Mica), and top-aligned when it doesn't fit
+ * that (Captain Benjamin Sisko). The CSS is keyed on `data-placement`, which
+ * is only set after fitting so the fit measures top-aligned text.
  */
 export const placePrintedRules = (el: HTMLDivElement) => {
   if (el.dataset.shrunk !== 'true') {
     delete el.dataset.placement;
     return;
   }
-  if (parseFloat(el.style.fontSize) >= BOX_PLACEMENT_MIN_SIZE) {
-    el.dataset.placement = 'box';
-    return;
-  }
-  el.dataset.placement = 'high';
-  if (el.scrollHeight > el.clientHeight) el.dataset.placement = 'box';
+  el.dataset.placement = 'center';
+};
+
+/** Undoes `lowerPrintedRulesTop`. */
+export const resetPrintedRulesTop = (el: HTMLDivElement) => {
+  el.style.paddingTop = '';
 };
 
 /** TextResize `beforeFit` for printed rules text: measure unbalanced, top-aligned text. */
 export const beforePrintedRulesFit = (el: HTMLDivElement) => {
   resetPrintedLines(el);
   resetPrintedRulesPlacement(el);
+  resetPrintedRulesTop(el);
 };
 
 /**
@@ -83,7 +81,12 @@ export const beforePrintedRulesFit = (el: HTMLDivElement) => {
  */
 export const afterPrintedRulesFit = (el: HTMLDivElement) => {
   balancePrintedLines(el);
+  // The last size tried while fitting may not be the final one, and centered
+  // text may already sit low enough: lower the text where it ends up.
+  resetPrintedRulesTop(el);
   placePrintedRules(el);
+  // Centered text moves down by only half the added padding.
+  for (let i = 0; i < 4 && lowerPrintedRulesTop(el); i += 1);
 };
 
 let measureContext: CanvasRenderingContext2D | null | undefined;
@@ -136,6 +139,88 @@ const lastLineText = (el: HTMLElement, lastRect: DOMRect) => {
 };
 
 /**
+ * The highest ink of the first line, in viewport px: the glyphs (measured per
+ * character, so italic reminder text and brackets count with their own font)
+ * and inline symbols such as mana costs, which rise above the cap height.
+ * Returns null when there is nothing to measure.
+ */
+const firstLineInkTop = (el: HTMLElement, ctx: CanvasRenderingContext2D, scale: number) => {
+  const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+  const range = document.createRange();
+  let lineTop: number | null = null;
+  let lineHeight = 0;
+  let inkTop = Infinity;
+
+  for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+    const content = node.textContent ?? '';
+    const parent = node.parentElement ?? el;
+    let font: string | null = null;
+    for (let c = 0; c < content.length; c += 1) {
+      if (!content[c].trim()) continue;
+      range.setStart(node, c);
+      range.setEnd(node, c + 1);
+      const rect = range.getClientRects()[0];
+      if (!rect) continue;
+      if (lineTop === null) {
+        lineTop = rect.top;
+        lineHeight = rect.height;
+      } else if (rect.top > lineTop + lineHeight / 3) {
+        node = null;
+        break;
+      }
+      if (font === null) {
+        const style = getComputedStyle(parent);
+        font = `${style.fontStyle} ${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
+        ctx.font = font;
+      }
+      const metrics = ctx.measureText(content[c]);
+      const baseline = rect.top + metrics.fontBoundingBoxAscent * scale;
+      inkTop = Math.min(inkTop, baseline - metrics.actualBoundingBoxAscent * scale);
+    }
+    if (!node) break;
+  }
+  if (lineTop === null) return null;
+
+  // Symbols are empty elements (icon fonts), so they have no text to walk.
+  const firstLineBottom = lineTop + lineHeight;
+  el.querySelectorAll('i').forEach(icon => {
+    const rect = icon.getBoundingClientRect();
+    if (rect.height && rect.top < firstLineBottom - lineHeight / 3) {
+      inkTop = Math.min(inkTop, rect.top);
+    }
+  });
+  return inkTop;
+};
+
+/**
+ * Shrunk text starts at a fixed first baseline (see the stylesheet), measured
+ * on 62–68px prints. Text that only shrank a step or two is taller above its
+ * baseline, and inline mana symbols rise higher still: "[In]voluntary Organ
+ * Donation" at 74.9px put its {1}{W} 3.5px into the frame above the box. This
+ * moves such text down until its first line's ink starts INK_TOP_INSET inside
+ * the text area (the box's parent). The bottom ink check then decides whether
+ * it still fits at that size.
+ */
+const lowerPrintedRulesTop = (el: HTMLDivElement): boolean => {
+  if (el.dataset.shrunk !== 'true') return false;
+  const ctx = getMeasureContext();
+  const area = el.parentElement;
+  if (!ctx || !area) return false;
+
+  const box = el.getBoundingClientRect();
+  const scale = el.offsetHeight ? box.height / el.offsetHeight : 1;
+  if (!scale) return false;
+  const inkTop = firstLineInkTop(el, ctx, scale);
+  if (inkTop === null) return false;
+
+  const overlap = (area.getBoundingClientRect().top - inkTop) / scale + INK_TOP_INSET;
+  if (overlap <= 0.5) return false;
+  const padding = parseFloat(getComputedStyle(el).paddingTop) || 0;
+  el.style.paddingTop = `${padding + Math.ceil(overlap)}px`;
+  return true;
+};
+
+/**
  * TextResize `boxFits` check for printed rules text. Full-size text has to fit
  * the box. Shrunk text only has to fit its width: its height is limited by the
  * ink check (`printedRulesInkFits`), since the last line box of tightly set
@@ -153,9 +238,11 @@ export const printedRulesBoxFits = (el: HTMLDivElement): boolean =>
  * "—The Borg" reaches as low as Armus would have).
  */
 export const printedRulesInkFits = (el: HTMLDivElement): boolean => {
+  resetPrintedRulesTop(el);
   if (el.dataset.shrunk !== 'true') return true;
   const ctx = getMeasureContext();
   if (!ctx) return true;
+  lowerPrintedRulesTop(el);
 
   const last = lastTextNode(el);
   if (!last) return true;
