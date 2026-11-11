@@ -643,4 +643,23 @@ updateLog.push({
   ],
 });
 
+updateLog.push({
+  version: '4.5.0',
+  title: 'Rendering Hotfix + Card Downloads',
+  content: [
+    {
+      type: ChangeLogFeatureType.Fixed,
+      feature: 'Cards are now rendered equally on mobile, desktop, in the grid and in the modal',
+    },
+    {
+      type: ChangeLogFeatureType.Added,
+      feature: 'Cards can be downloaded as png',
+    },
+    {
+      type: ChangeLogFeatureType.Added,
+      feature: 'Card Gallery can be downloaded as printable pdf with cut marks',
+    },
+  ],
+});
+
 export default updateLog;
