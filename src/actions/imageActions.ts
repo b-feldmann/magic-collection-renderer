@@ -53,6 +53,16 @@ export const getImage = (dispatch: (value: Action) => void, card: CardInterface,
     });
 };
 
+// Image data of an uploaded cover without putting it into the store (exports
+// that render many cards once don't need to keep every image around).
+export const fetchCoverImage = async (cardUuid: string, face: 0 | 1): Promise<string> => {
+  const result = await axios.get(MIDDLEWARE_ENDPOINT, {
+    params: { accessKey: getAccessToken(), cardUuid, face },
+  });
+  if (!result.data?.base64) throw new Error(`No image stored for card ${cardUuid}, face ${face}`);
+  return result.data.base64;
+};
+
 export const createImage = (
   dispatch: (value: Action) => void,
   base64: string,

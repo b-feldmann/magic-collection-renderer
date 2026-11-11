@@ -32,6 +32,10 @@ import MechanicModal from './components/MechanicModal/MechanicModal';
 import useLocalStorage from './utils/useLocalStorageHook';
 import ChangeLogModal from './components/ChangeLogModal/ChangeLogModal';
 import BigCardRenderModal from './components/BigCardRenderModal/BigCardRenderModal';
+import {
+  CollectionPdfProgress,
+  useCollectionPdfExport,
+} from './components/CollectionPdfExport/CollectionPdfExport';
 import { getAnnotations } from './actions/annotationActions';
 import {
   addSeenCard,
@@ -94,6 +98,7 @@ export const openMechanicEditor = (
 let didInit = false;
 
 const App: React.FC = () => {
+  const pdfExport = useCollectionPdfExport();
   const [tmpCard, setTmpCard] = useState<CardInterface | null>(null);
   const pendingDraftRef = useRef<CardInterface | null>(null);
   const [cardEditId, setCardEditId] = useState<string>(NO_CARD);
@@ -501,7 +506,8 @@ const App: React.FC = () => {
               onCreate={() => createCard(dispatch, currentUser)}
               onEditMechanics={() => openMechanicEditor(setShowCardModal, setMechanicsVisible)}
               onSwitchUser={nextUser => setCurrentUser(dispatch, nextUser)}
-              onDownload={() => downloadCollectionAsJson(filteredCollection)}
+              onDownload={() => downloadCollectionAsJson(visibleCollection)}
+              onDownloadPdf={() => pdfExport.start(visibleCollection, filteredCollection)}
               onReload={refresh}
             />
           </aside>
@@ -510,6 +516,7 @@ const App: React.FC = () => {
           {createGrid(filteredCollection)}
         </Col>
       </Row>
+      <CollectionPdfProgress progress={pdfExport.progress} onCancel={pdfExport.cancel} />
       <BigCardRenderModal
         onSelectVariant={switchCardVariant}
         card={getCard(filteredCollection, cardViewId)}

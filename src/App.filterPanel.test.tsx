@@ -266,6 +266,34 @@ describe('modern collection sidebar', () => {
     expect(screen.getByRole('img', { name: 'Mana curve by color: 1 card' })).toBeInTheDocument();
   });
 
+  it('exports only the cards of the active tab and filters as JSON', async () => {
+    const draft: CardInterface = { ...card, uuid: 'draft', name: 'Draft card' };
+    const approved: CardInterface = {
+      ...card,
+      uuid: 'approved',
+      name: 'Approved card',
+      meta: { ...card.meta, state: CardState.Approved },
+      front: { ...card.front, name: 'Approved card' },
+    };
+    render(
+      <Store.Provider value={{ ...store, cards: [draft, approved] }}>
+        <App />
+      </Store.Provider>,
+    );
+
+    fireEvent.click(screen.getByRole('tab', { name: /Approved cards/ }));
+    fireEvent.click(screen.getByRole('button', { name: 'More collection actions' }));
+    fireEvent.click(await screen.findByRole('menuitem', { name: /Download JSON/ }));
+    expect(JSON.parse(vi.mocked(fileDownload).mock.lastCall![0] as string)).toEqual([approved]);
+
+    fireEvent.change(screen.getByRole('textbox', { name: 'Filter by card name' }), {
+      target: { value: 'No match' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'More collection actions' }));
+    fireEvent.click(await screen.findByRole('menuitem', { name: /Download JSON/ }));
+    expect(JSON.parse(vi.mocked(fileDownload).mock.lastCall![0] as string)).toEqual([]);
+  });
+
   it('keeps the mana curves scoped to the active tab and first variant', () => {
     const firstVariant: CardInterface = {
       ...card,

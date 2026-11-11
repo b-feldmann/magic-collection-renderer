@@ -845,6 +845,10 @@
     color: white;
     font-family: 'Gotham Medium', sans-serif;
     position: absolute;
+    // Single lines whose box is exactly as wide as the text: in image captures
+    // (SVG foreignObject) the text measures a hair wider and would wrap, e.g.
+    // the collector number dropping onto the set line.
+    white-space: nowrap;
   }
 
   // The printed collector info is a lighter cut than our Gotham Medium (≈2px

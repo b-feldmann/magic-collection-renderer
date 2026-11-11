@@ -6,6 +6,7 @@ import CardInterface from '../../interfaces/CardInterface';
 import { MechanicsContext } from '../../store';
 import { isLoadingCover } from '../../utils/cover';
 import { staticAntd } from '../../utils/staticAntd';
+import saveBlob from '../../utils/saveBlob';
 
 interface DownloadCardPngButtonProps {
   card: CardInterface;
@@ -23,18 +24,6 @@ export const toPngFileName = (name: string, back = false) => {
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-+|-+$/g, '') || 'card';
   return `${slug}${back ? '-back' : ''}.png`;
-};
-
-const saveBlob = (blob: Blob, fileName: string) => {
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = fileName;
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-  // Some browsers read the URL after click() returns.
-  setTimeout(() => URL.revokeObjectURL(url), 10_000);
 };
 
 // Renders every face of the card at its native 1500x2100 size and saves each

@@ -29,6 +29,10 @@ import { hasAccessToken, updateAccessToken } from './utils/accessService';
 import MechanicModal from './components/MechanicModal/MechanicModal';
 import ChangeLogModal from './components/ChangeLogModal/ChangeLogModal';
 import BigCardRenderModal from './components/BigCardRenderModal/BigCardRenderModal';
+import {
+  CollectionPdfProgress,
+  useCollectionPdfExport,
+} from './components/CollectionPdfExport/CollectionPdfExport';
 import { getAnnotations } from './actions/annotationActions';
 import {
   addSeenCard,
@@ -75,6 +79,7 @@ const tabKey = (name: string) => `tab-key-${name}`;
 let didInit = false;
 
 const MobileApp: React.FC = () => {
+  const pdfExport = useCollectionPdfExport();
   const [tmpCard, setTmpCard] = useState<CardInterface | null>(null);
   const pendingDraftRef = useRef<CardInterface | null>(null);
   const [cardEditId, setCardEditId] = useState<string>(NO_CARD);
@@ -515,11 +520,13 @@ const MobileApp: React.FC = () => {
               setMechanicsVisible(true);
             }}
             onSwitchUser={nextUser => setCurrentUser(dispatch, nextUser)}
+            onDownloadPdf={() => pdfExport.start(visibleCollection, filteredCollection)}
             onReload={refresh}
           />
         </div>
       </Row>
       <MechanicModal visible={mechanicsVisible} setVisible={setMechanicsVisible} />
+      <CollectionPdfProgress progress={pdfExport.progress} onCancel={pdfExport.cancel} />
       <BigCardRenderModal
         onSelectVariant={switchCardVariant}
         mobile

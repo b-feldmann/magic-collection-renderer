@@ -7,6 +7,7 @@ import PlusOutlined from '@ant-design/icons/PlusOutlined';
 import EditOutlined from '@ant-design/icons/EditOutlined';
 import BarChartOutlined from '@ant-design/icons/BarChartOutlined';
 import DownloadOutlined from '@ant-design/icons/DownloadOutlined';
+import FilePdfOutlined from '@ant-design/icons/FilePdfOutlined';
 import ReloadOutlined from '@ant-design/icons/ReloadOutlined';
 import EllipsisOutlined from '@ant-design/icons/EllipsisOutlined';
 import SwapOutlined from '@ant-design/icons/SwapOutlined';
@@ -22,6 +23,7 @@ interface CollectionActionsProps {
   onSwitchUser: (user: UserInterface) => void;
   onReload: () => void;
   onDownload?: () => void;
+  onDownloadPdf?: () => void;
   onShowStats?: () => void;
   statsExpanded?: boolean;
   mobile?: boolean;
@@ -35,6 +37,7 @@ const CollectionActions = ({
   onSwitchUser,
   onReload,
   onDownload,
+  onDownloadPdf,
   onShowStats,
   statsExpanded = false,
   mobile = false,
@@ -44,6 +47,16 @@ const CollectionActions = ({
   const items = [
     ...(onDownload
       ? [{ key: 'json', label: 'Download JSON', icon: <DownloadOutlined />, onClick: onDownload }]
+      : []),
+    ...(onDownloadPdf
+      ? [
+          {
+            key: 'pdf',
+            label: 'Download PDF (A4 print sheets)',
+            icon: <FilePdfOutlined />,
+            onClick: onDownloadPdf,
+          },
+        ]
       : []),
     { key: 'reload', label: 'Reload collection', icon: <ReloadOutlined />, onClick: onReload },
   ];
