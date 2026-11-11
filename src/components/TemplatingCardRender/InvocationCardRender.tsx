@@ -14,6 +14,7 @@ import { formatTypeLine } from '../../utils/cardTypes';
 import CardFaceInterface from '../../interfaces/CardFaceInterface';
 
 import styles from './TemplatingCardRender.module.scss';
+import { CARD_ZOOM_ATTRIBUTE, fitAtDesignSize } from './designSizeLayout';
 import LegalLine from './LegalLine';
 import {
   getFallbackCover,
@@ -84,6 +85,7 @@ const InvocationCardRender = (cardRender: InvocationCardRenderProps) => {
     <div style={{ height: `${getHeight(containerWidth)}px` }}>
       <div
         id={`card-id-${cardID}`}
+        {...{ [CARD_ZOOM_ATTRIBUTE]: '' }}
         style={{
           // `zoom` (not `transform: scale`) lays the card out at its real size, so
           // edges and text snap to device pixels instead of being resampled.
@@ -129,6 +131,7 @@ const InvocationCardRender = (cardRender: InvocationCardRenderProps) => {
               maxFontSize={56}
               minFontSize={38}
               lineHeight={1.1}
+              layout={fitAtDesignSize}
               className={styles.textWrap}
             >
               <div>

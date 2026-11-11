@@ -21,6 +21,7 @@ import { formatTypeLine } from '../../utils/cardTypes';
 import CardFaceInterface from '../../interfaces/CardFaceInterface';
 
 import styles from './TemplatingCardRender.module.scss';
+import { CARD_ZOOM_ATTRIBUTE, layOutAtDesignSize } from './designSizeLayout';
 import LegalLine from './LegalLine';
 import planeswalkerStyles from './Planeswalker.module.scss';
 
@@ -88,6 +89,9 @@ const ABILITY_FONT_SIZES = PRINTED_RULES_SIZES.filter(
 // (the colon's height), per icon shape.
 // The icon images put their colon at different heights, so each shape gets its
 // own offset (measured against Professor Dellian Fel, SOS).
+// The text block of each ability (see the markup below), whose lines get pinned.
+const ABILITY_TEXT_BLOCKS = '[data-ability-text] > div > div';
+
 const ICON_OFFSET = { up: 7, neutral: 17, down: 28 };
 const NUMBER_OFFSET = { up: 0, neutral: 0, down: 0 };
 
@@ -171,9 +175,10 @@ const PlaneswalkerCardRender = (cardRender: PlaneswalkerCardRenderProps) => {
   // All abilities share one font size: the largest step at which every
   // ability, centered on its icon, keeps its distance to its neighbours and the
   // box edges (layoutAbilities). Measured from the rendered text, so it reruns
-  // when the text or the loaded fonts change.
+  // when the text, the display width (line breaks are pinned per zoom, see
+  // designSizeLayout) or the loaded fonts change.
   const abilitiesRef = useRef<HTMLDivElement>(null);
-  const fitKey = `${lineCount}|${isTall}|${cardText.join('\n')}`;
+  const fitKey = `${lineCount}|${isTall}|${containerWidth}|${cardText.join('\n')}`;
   const [abilityFit, setAbilityFit] = useState<AbilityFit | null>(null);
 
   const fitAbilities = useEffectEvent(() => {
@@ -181,16 +186,24 @@ const PlaneswalkerCardRender = (cardRender: PlaneswalkerCardRenderProps) => {
     if (!container) return;
     const blocks = Array.from(container.querySelectorAll<HTMLElement>('[data-ability-text]'));
     let fit: AbilityFit | null = null;
-    for (const fontSize of ABILITY_FONT_SIZES) {
-      container.style.fontSize = `${fontSize}px`;
-      const lineCounts = blocks.map(block =>
-        Math.max(1, Math.round(block.offsetHeight / (PLANESWALKER_LINE_HEIGHT * fontSize))),
-      );
-      fit = { key: fitKey, fontSize, layout: layoutAbilities(lineCounts, fontSize, isTall) };
-      if (fit.layout.fits) break;
-    }
+    // Measured at the card's design size, with the line breaks pinned after
+    // (see designSizeLayout), so every displayed size wraps the same.
+    layOutAtDesignSize(
+      [container],
+      () => {
+        for (const fontSize of ABILITY_FONT_SIZES) {
+          container.style.fontSize = `${fontSize}px`;
+          const lineCounts = blocks.map(block =>
+            Math.max(1, Math.round(block.offsetHeight / (PLANESWALKER_LINE_HEIGHT * fontSize))),
+          );
+          fit = { key: fitKey, fontSize, layout: layoutAbilities(lineCounts, fontSize, isTall) };
+          if (fit.layout.fits) break;
+        }
+        if (fit) container.style.fontSize = `${fit.fontSize}px`;
+      },
+      ABILITY_TEXT_BLOCKS,
+    );
     if (!fit) return;
-    container.style.fontSize = `${fit.fontSize}px`;
     setAbilityFit(fit);
   });
 
@@ -239,6 +252,7 @@ const PlaneswalkerCardRender = (cardRender: PlaneswalkerCardRenderProps) => {
     <div style={{ height: `${getHeight(containerWidth)}px` }}>
       <div
         id={`card-id-${cardID}`}
+        {...{ [CARD_ZOOM_ATTRIBUTE]: '' }}
         style={{
           // `zoom` (not `transform: scale`) lays the card out at its real size, so
           // edges and text snap to device pixels instead of being resampled.

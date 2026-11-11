@@ -14,6 +14,7 @@ import {
 import { getBasicLandColor } from '../../utils/cardToColor';
 
 import styles from './TemplatingCardRender.module.scss';
+import { CARD_ZOOM_ATTRIBUTE } from './designSizeLayout';
 import LegalLine from './LegalLine';
 import {
   getBasicLandSymbols,
@@ -73,6 +74,7 @@ const BasicLandCardRender = (cardRender: BasicLandCardRenderProps) => {
     <div style={{ height: `${getHeight(containerWidth)}px` }}>
       <div
         id={`card-id-${cardID}`}
+        {...{ [CARD_ZOOM_ATTRIBUTE]: '' }}
         style={{
           // `zoom` (not `transform: scale`) lays the card out at its real size, so
           // edges and text snap to device pixels instead of being resampled.

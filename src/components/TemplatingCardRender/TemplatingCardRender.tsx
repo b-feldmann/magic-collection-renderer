@@ -44,6 +44,7 @@ import {
   printedRulesInkFits,
 } from './printedTextFit';
 import { EVOLUTION_TEXT_ATTRIBUTE, fitEvolutionText } from './evolutionTextFit';
+import { CARD_ZOOM_ATTRIBUTE, fitAtDesignSize, layOutAtDesignSize } from './designSizeLayout';
 import {
   getAdventureMainframe,
   getAdventurePinline,
@@ -260,15 +261,16 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
         level2Text,
         level1Indicator,
         level2Indicator,
+        // Line breaks are pinned per zoom (see designSizeLayout).
+        containerWidth,
       ])
     : null;
 
   const fitEvolution = useEffectEvent(() => {
     const card = cardRef.current;
     if (!card || evolutionKey === null) return;
-    fitEvolutionText(
-      Array.from(card.querySelectorAll<HTMLElement>(`[${EVOLUTION_TEXT_ATTRIBUTE}]`)),
-    );
+    const boxes = Array.from(card.querySelectorAll<HTMLElement>(`[${EVOLUTION_TEXT_ATTRIBUTE}]`));
+    layOutAtDesignSize(boxes, () => fitEvolutionText(boxes));
     evolutionFitKey.current = evolutionKey;
     evolutionFitMechanics.current = mechanics;
   });
@@ -630,6 +632,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
     <div style={{ height: `${getHeight(containerWidth)}px` }}>
       <div
         id={`card-id-${cardID}`}
+        {...{ [CARD_ZOOM_ATTRIBUTE]: '' }}
         style={{
           // `zoom` (not `transform: scale`) lays the card out at its real size, so
           // edges and text snap to device pixels instead of being resampled.
@@ -727,6 +730,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
                 maxFontSize={50}
                 minFontSize={28}
                 lineHeight={1.1}
+                layout={fitAtDesignSize}
                 className={styles.textWrap}
               >
                 <div>
@@ -766,6 +770,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
                 maxFontSize={50}
                 minFontSize={28}
                 lineHeight={1.1}
+                layout={fitAtDesignSize}
                 className={styles.textWrap}
               >
                 <div>
@@ -814,6 +819,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
                 lineHeight={HALF_BOX_LINE_HEIGHT}
                 fixedSpacing
                 sizeSteps={PRINTED_HALF_BOX_SIZES}
+                layout={fitAtDesignSize}
                 className={styles.textWrap}
               >
                 <div>
@@ -999,6 +1005,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
                 fits={isPrintedRulesText ? printedRulesInkFits : undefined}
                 beforeFit={isPrintedRulesText ? beforePrintedRulesFit : undefined}
                 afterFit={isPrintedRulesText ? afterPrintedRulesFit : undefined}
+                layout={fitAtDesignSize}
                 className={`${styles.textWrap} ${isPrintedRulesText ? styles.printedRulesText : ''}`}
               >
                 <div>

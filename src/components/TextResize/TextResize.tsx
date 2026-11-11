@@ -43,6 +43,11 @@ export interface TextResizeProps {
   beforeFit?: (el: HTMLDivElement) => void;
   /** Runs once the final size is applied, e.g. to position the fitted text. */
   afterFit?: (el: HTMLDivElement) => void;
+  /**
+   * Wraps every fit (`typeset` runs beforeFit, the fitting and afterFit), e.g.
+   * to fit with the card laid out at its design size (see designSizeLayout).
+   */
+  layout?: (el: HTMLDivElement, typeset: () => void) => void;
   className?: string;
   children: React.ReactNode;
 }
@@ -65,6 +70,9 @@ const onFontsLoaded = (listener: () => void) => {
   };
 };
 
+// The element's effective CSS zoom (1 where the browser doesn't report it, e.g. jsdom).
+const currentZoom = (el: Element) => el.currentCSSZoom ?? 1;
+
 const TextResize: React.FC<TextResizeProps> = ({
   defaultFontSize = 20,
   maxFontSize = 32,
@@ -77,19 +85,20 @@ const TextResize: React.FC<TextResizeProps> = ({
   fits,
   beforeFit,
   afterFit,
+  layout,
   className,
   children,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [fontSize, setFontSize] = useState<number>(defaultFontSize);
-  const lastFit = useRef<{ content: string; width: number; height: number } | null>(null);
+  const lastFit = useRef<{ content: string; zoom: number; width: number; height: number } | null>(
+    null,
+  );
 
   const contentKey = (el: HTMLElement) =>
     `${minFontSize}|${maxFontSize}|${lineHeight}|${fullSizeLineHeight}|${fixedSpacing}|${sizeSteps?.join(',')}|${el.innerHTML}`;
 
-  const fit = useEffectEvent(() => {
-    const el = containerRef.current;
-    if (!el) return;
+  const typeset = (el: HTMLDivElement) => {
     beforeFit?.(el);
 
     const paragraphs = Array.from(el.querySelectorAll<HTMLElement>('p'));
@@ -174,14 +183,33 @@ const TextResize: React.FC<TextResizeProps> = ({
     el.dataset.shrunk = String(size < maxFontSize);
     afterFit?.(el);
     setFontSize(size);
-    lastFit.current = { content: contentKey(el), width: el.clientWidth, height: el.clientHeight };
+  };
+
+  const fit = useEffectEvent(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    if (layout) layout(el, () => typeset(el));
+    else typeset(el);
+    lastFit.current = {
+      content: contentKey(el),
+      zoom: currentZoom(el),
+      width: el.clientWidth,
+      height: el.clientHeight,
+    };
   });
 
   // Runs after every commit on purpose: `children` is a new object each render,
   // so whether the content really changed can only be told from the DOM.
   useLayoutEffect(() => {
     const el = containerRef.current;
-    if (el && lastFit.current?.content !== contentKey(el)) fit();
+    // A new zoom (the card shown at another size) changes how the text wraps,
+    // and a `layout` may have pinned the breaks for the old one.
+    if (
+      el &&
+      (lastFit.current?.content !== contentKey(el) || lastFit.current.zoom !== currentZoom(el))
+    ) {
+      fit();
+    }
   });
 
   useLayoutEffect(() => {
