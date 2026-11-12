@@ -699,6 +699,9 @@ $bar-transition: 280ms ease;
 }
 .cardPreview {
   width: 280px;
+  // The card art sits at a negative z-index behind the frame; without its own stacking
+  // context it would be painted under the popover's background.
+  isolation: isolate;
 }
 // Long press opens the card preview on touch screens; keep the browser's text
 // selection and link callout out of the way.

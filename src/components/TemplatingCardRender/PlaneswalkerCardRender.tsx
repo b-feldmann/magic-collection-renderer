@@ -184,6 +184,12 @@ const PlaneswalkerCardRender = (cardRender: PlaneswalkerCardRenderProps) => {
   const fitAbilities = useEffectEvent(() => {
     const container = abilitiesRef.current;
     if (!container) return;
+    // A card that isn't laid out (e.g. in a modal that hasn't opened yet)
+    // measures every ability as zero lines. Fitting then would cache a layout
+    // that treats each ability as one line; the frame's ResizeObserver below
+    // fits once the card is shown instead.
+    const frame = container.parentElement;
+    if (!frame || frame.offsetWidth === 0) return;
     const blocks = Array.from(container.querySelectorAll<HTMLElement>('[data-ability-text]'));
     let fit: AbilityFit | null = null;
     // Measured at the card's design size, with the line breaks pinned after
@@ -217,6 +223,18 @@ const PlaneswalkerCardRender = (cardRender: PlaneswalkerCardRenderProps) => {
     const onFontsLoaded = () => fitAbilities();
     fonts.addEventListener('loadingdone', onFontsLoaded);
     return () => fonts.removeEventListener('loadingdone', onFontsLoaded);
+  }, []);
+
+  // Fit again when the card frame gets laid out or resized, e.g. a card first
+  // rendered hidden and shown later (see the guard in fitAbilities).
+  useLayoutEffect(() => {
+    const frame = abilitiesRef.current?.parentElement;
+    if (!frame || typeof ResizeObserver === 'undefined') return undefined;
+    const observer = new ResizeObserver(() => {
+      if (frame.offsetWidth > 0) fitAbilities();
+    });
+    observer.observe(frame);
+    return () => observer.disconnect();
   }, []);
 
   const abilityFontSize = abilityFit?.fontSize ?? PLANESWALKER_MAX_FONT_SIZE;
