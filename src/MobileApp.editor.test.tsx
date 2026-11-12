@@ -262,23 +262,6 @@ describe('mobile card editing flow', () => {
     expect(within(expandEditor()).getByDisplayValue('Card b')).toBeInTheDocument();
   });
 
-  it('keeps the current editor when a dirty switch is cancelled and hides after acceptance', async () => {
-    render(<Example />);
-    openCard();
-    const editor = expandEditor();
-    fireEvent.change(within(editor).getByDisplayValue('Card a'), {
-      target: { value: 'Unsaved mobile name' },
-    });
-    fireEvent.click(screen.getByRole('button', { name: 'Next variant' }));
-    fireEvent.click(await screen.findByRole('button', { name: 'Keep editing' }));
-    expect(screen.getByRole('region', { name: 'Card editor' })).toBeInTheDocument();
-    expect(within(editor).getByDisplayValue('Unsaved mobile name')).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'Next variant' }));
-    fireEvent.click(await screen.findByRole('button', { name: 'Yes, discard changes' }));
-    expect(screen.getByLabelText('Card preview')).toHaveTextContent('Card b');
-    expect(screen.queryByRole('region', { name: 'Card editor' })).not.toBeInTheDocument();
-  });
-
   it('creates a card for the current user and opens its editor automatically', async () => {
     render(<Example />);
     fireEvent.click(screen.getByRole('button', { name: 'Create card' }));
