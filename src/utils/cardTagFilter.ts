@@ -1,3 +1,5 @@
+import { AUTOMATIC_TAG_NAMES } from './cardTags';
+
 export interface CardWithTags {
   tags?: string[];
 }
@@ -20,7 +22,8 @@ export const getAvailableCardTags = (
     new Set(card.tags || []).forEach(tag => counts.set(tag, (counts.get(tag) || 0) + 1));
   });
 
-  return availableTags
+  // Automatic tags are never in the catalogue but can be filtered like any other tag.
+  return [...new Set([...availableTags, ...AUTOMATIC_TAG_NAMES])]
     .filter(tag => counts.has(tag))
     .map(name => ({ name, count: counts.get(name)! }));
 };

@@ -55,6 +55,30 @@ describe('getCardTags', () => {
     },
   );
 
+  it.each(['Discard a card', 'discard', 'Discards', 'Each player discards a card.'])(
+    'finds a mechanic name followed by an "s": %s',
+    cardText => {
+      expect(
+        getAutomaticCardTags(
+          card({ front: { name: 'Test Card', cardTypes: [], cardText: [cardText] } }),
+          [mechanic('Discard')],
+        ),
+      ).toEqual(['Discard']);
+    },
+  );
+
+  it.each(['discarded', 'discarding', 'discardss'])(
+    'does not find a mechanic name with another suffix: %s',
+    cardText => {
+      expect(
+        getAutomaticCardTags(
+          card({ front: { name: 'Test Card', cardTypes: [], cardText: [cardText] } }),
+          [mechanic('Discard')],
+        ),
+      ).toEqual([]);
+    },
+  );
+
   it.each(['Move toward it', 'Warden', 'Awards'])(
     'does not find a mechanic name inside another word: %s',
     cardText => {
@@ -152,6 +176,40 @@ describe('getCardTags', () => {
 
       expect(updateCardTags(previous, next, [discard, cycling])).toEqual(['manual']);
     });
+  });
+
+  it('adds rules-text tags from the rules text of each face but not from flavour text', () => {
+    expect(
+      getAutomaticCardTags(
+        card({
+          front: {
+            name: 'Test Card',
+            cardTypes: [CardType.Creature],
+            cardText: ['{T}: Add {G}.'],
+            flavourText: 'It wanted to destroy target creature.',
+          },
+          back: {
+            name: 'Back',
+            cardTypes: [CardType.Sorcery],
+            cardText: ['Destroy target creature.'],
+          },
+        }),
+        [],
+      ),
+    ).toEqual(['Ramp', 'Creature Removal']);
+    expect(
+      getAutomaticCardTags(
+        card({
+          front: {
+            name: 'Test Card',
+            cardTypes: [],
+            cardText: [],
+            flavourText: 'Destroy target creature.',
+          },
+        }),
+        [],
+      ),
+    ).toEqual([]);
   });
 
   it('adds the Evolution tag for cards using the Evolution type', () => {

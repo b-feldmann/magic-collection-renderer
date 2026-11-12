@@ -3,28 +3,43 @@ import escapeRegExp from 'lodash/escapeRegExp';
 import CardInterface from '../interfaces/CardInterface';
 import MechanicInterface from '../interfaces/MechanicInterface';
 import { CardType } from '../interfaces/enums';
+import { getRulesTextTags, RULES_TEXT_TAG_RULES } from './rulesTextTags';
 
-const faceText = (face: CardInterface['front']): string =>
-  [
+const EVOLUTION_TAG = 'Evolution';
+
+// Tags that are derived from the card itself rather than from a mechanic or the tag catalogue.
+export const AUTOMATIC_TAG_NAMES: string[] = [
+  ...new Set([EVOLUTION_TAG, ...RULES_TEXT_TAG_RULES.map(rule => rule.tag)]),
+];
+
+const joinText = (values: unknown[]): string =>
+  values
+    .flatMap(value => (Array.isArray(value) ? value : [value]))
+    .filter((value): value is string => typeof value === 'string')
+    .join('\n');
+
+// Everything printed in the text boxes except flavour text.
+const faceRulesText = (face: CardInterface['front']): string =>
+  joinText([
     face.cardText,
     face.level1Text,
     face.level2Text,
     face.adventureText,
     face.omenText,
     face.prepareText,
-    face.flavourText,
-  ]
-    .flatMap(value => (Array.isArray(value) ? value : [value]))
-    .filter((value): value is string => typeof value === 'string')
-    .join('\n');
+  ]);
+
+const faceText = (face: CardInterface['front']): string =>
+  joinText([faceRulesText(face), face.flavourText]);
 
 const mechanicNamePatterns = new Map<string, RegExp>();
 
-// Matches the name as a whole word in any letter case, so "Ward" finds "ward" but not "toward".
+// Matches the name as a whole word in any letter case, optionally followed by an "s", so "Discard"
+// finds "discard" and "Discards" but not "discarded", and "Ward" does not find "toward".
 const getMechanicNamePattern = (name: string): RegExp => {
   let pattern = mechanicNamePatterns.get(name);
   if (!pattern) {
-    pattern = new RegExp(`(?<![\\p{L}\\p{N}])${escapeRegExp(name)}(?![\\p{L}\\p{N}])`, 'iu');
+    pattern = new RegExp(`(?<![\\p{L}\\p{N}])${escapeRegExp(name)}s?(?![\\p{L}\\p{N}])`, 'iu');
     mechanicNamePatterns.set(name, pattern);
   }
   return pattern;
@@ -63,8 +78,14 @@ export const getAutomaticCardTags = (
     .map(mechanic => mechanic.name);
 
   if (faces.some(face => face!.cardTypes?.includes(CardType.Evolution))) {
-    automaticTags.push('Evolution');
+    automaticTags.push(EVOLUTION_TAG);
   }
+
+  faces
+    .flatMap(face => getRulesTextTags(faceRulesText(face!), face!.cardTypes || []))
+    .forEach(tag => {
+      if (!automaticTags.includes(tag)) automaticTags.push(tag);
+    });
 
   return automaticTags;
 };

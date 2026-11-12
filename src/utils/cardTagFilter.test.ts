@@ -19,6 +19,16 @@ describe('card tag filtering', () => {
     ]);
   });
 
+  it('lists automatic tags on cards even though they are not in the catalogue', () => {
+    const cards = [{ tags: ['Ramp', 'Favorite'] }, { tags: ['Ramp', 'Evolution'] }];
+
+    expect(getAvailableCardTags(cards, ['Favorite', 'Ramp'])).toEqual([
+      { name: 'Favorite', count: 1 },
+      { name: 'Ramp', count: 2 },
+      { name: 'Evolution', count: 1 },
+    ]);
+  });
+
   it('matches cards containing any selected tag', () => {
     expect(matchesSelectedTags(['Artifact'], ['Artifact', 'Favorite'])).toBe(true);
     expect(matchesSelectedTags(['Favorite'], ['Artifact', 'Favorite'])).toBe(true);
