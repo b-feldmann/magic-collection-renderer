@@ -1,13 +1,6 @@
 // may find images here https://github.com/Investigamer/cardconjurer/tree/master/img/frames
 
-import React, {
-  ReactElement,
-  useContext,
-  useEffectEvent,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from 'react';
+import React, { ReactElement, useContext, useLayoutEffect, useRef, useState } from 'react';
 
 import 'mana-font/css/mana.css';
 // @ts-ignore
@@ -98,6 +91,7 @@ import { formatCardText } from '../../utils/formatCardText';
 import { getCoverImageSrc } from '../../utils/cover';
 import ImageLoader from '../ImageLoader/ImageLoader';
 import getCoverFitClass from './getCoverFitClass';
+import useFitWhenLaidOut from './useFitWhenLaidOut';
 import BasicLandCardRender from './BasicLandCardRender';
 import InvocationCardRender from './InvocationCardRender';
 import getRarityCode from '../../utils/getRarityCode';
@@ -266,7 +260,8 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
       ])
     : null;
 
-  const fitEvolution = useEffectEvent(() => {
+  // Skipped while the card isn't laid out, and run once it is (see useFitWhenLaidOut).
+  const fitEvolution = useFitWhenLaidOut(cardRef, () => {
     const card = cardRef.current;
     if (!card || evolutionKey === null) return;
     const boxes = Array.from(card.querySelectorAll<HTMLElement>(`[${EVOLUTION_TEXT_ATTRIBUTE}]`));
@@ -290,7 +285,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
     const onFontsLoaded = () => fitEvolution();
     fonts.addEventListener('loadingdone', onFontsLoaded);
     return () => fonts.removeEventListener?.('loadingdone', onFontsLoaded);
-  }, [isEvolutionCard]);
+  }, [isEvolutionCard, fitEvolution]);
 
   const stripCoverValue = (value?: string) => getCoverImageSrc(value);
 
