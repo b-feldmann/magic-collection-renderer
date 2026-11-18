@@ -57,9 +57,12 @@ const RulesTextLint = ({ issues, onFix }: RulesTextLintProps): React.JSX.Element
                 <p id={messageId} className={styles.message}>
                   {issue.message}
                 </p>
-                <p className={styles.location}>
-                  Line {issue.line + 1}: <q className={styles.excerpt}>{issue.text}</q>
-                </p>
+                {/* Hints about the whole field (an Aura without Enchant line) have no line. */}
+                {issue.line !== undefined && (
+                  <p className={styles.location}>
+                    Line {issue.line + 1}: <q className={styles.excerpt}>{issue.text}</q>
+                  </p>
+                )}
               </div>
               {issue.fix && (
                 <Button

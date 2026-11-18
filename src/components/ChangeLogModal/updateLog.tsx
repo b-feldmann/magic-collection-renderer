@@ -670,7 +670,7 @@ updateLog.push({
       type: ChangeLogFeatureType.Added,
       feature: 'Templating hints in the card editor',
       description:
-        'The editor points out text that renders wrong (unknown symbols or mechanics, CARDNAME, a typed T: cost) and wording that current cards no longer use, such as "enters the battlefield", "converted mana cost" or the card name instead of "this creature". Most hints fix the line with one click.',
+        'The editor points out text that renders wrong (unknown symbols or mechanics, unclosed { or [, mana or a planeswalker cost typed without symbols, CARDNAME, a typed T: cost) and wording that current cards no longer use, such as "enters the battlefield", "converted mana cost", "draw 2 cards", "When this creature attacks", "remove from the game" or the card name instead of "this creature". Most hints fix the line with one click. Hints about the card as a whole, such as an Aura without an Enchant line, an Equipment without Equip, a Vehicle without Crew, too few modes, an ability cost in a color outside the mana cost or a creature without power and toughness, only explain.',
     },
   ],
 });

@@ -1066,7 +1066,10 @@ const CardEditor: React.FC<CardEditorInterface> = ({
     },
     { key: 'artwork', name: 'Artwork & frame', fields: fieldsFor(ARTWORK_FIELD_KEYS) },
   ].filter(section => section.fields.length > 0);
-  const lintIssues = lintCardFace(getCurrentFace(tmpCard), mechanics);
+  // The mana cost belongs to the front face; the back face's costs aren't checked against it.
+  const lintIssues = lintCardFace(getCurrentFace(tmpCard), mechanics, {
+    manaCost: editBack ? undefined : tmpCard.manaCost,
+  });
   const fixLintIssue = (issue: RulesTextLintIssue) =>
     saveValue(issue.field, applyLintFix((getValue(issue.field) as string[]) || [], issue));
   const renderField = (config: InputConfigInterface) => (

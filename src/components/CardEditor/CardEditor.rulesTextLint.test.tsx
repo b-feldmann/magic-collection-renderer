@@ -46,7 +46,13 @@ const makeCard = (
   uuid: 'lint-test',
   manaCost: '{1}{g}',
   rarity: RarityType.Common,
-  front: { name: 'Grizzled Scout', cardTypes: [CardType.Creature], cardText, ...face },
+  front: {
+    name: 'Grizzled Scout',
+    cardTypes: [CardType.Creature],
+    cardText,
+    cardStats: '2/2',
+    ...face,
+  },
   creator: UNKNOWN_CREATOR,
   meta: {
     comment: '',
@@ -167,5 +173,26 @@ describe('CardEditor - templating hints', () => {
     const levelHints = getHints('Level 1 text');
     expect(fieldOf(levelHints)).toBe('level1Indicator');
     expect(within(levelHints).getAllByRole('listitem')).toHaveLength(2);
+  });
+  it('shows card structure hints without a line or fix', () => {
+    renderEditor(
+      makeCard(['Enchanted creature gets +1/+1.'], {
+        cardTypes: [CardType.Enchantment],
+        cardSubTypes: 'Aura',
+      }),
+    );
+
+    const [item] = within(getHints()).getAllByRole('listitem');
+    expect(item.textContent).toContain('Enchant line');
+    expect(item.textContent).not.toContain('Line 1');
+    expect(within(item).queryByRole('button')).toBeNull();
+  });
+
+  it('shows a missing power and toughness below the stats field', () => {
+    renderEditor(makeCard(['Flying'], { cardStats: '' }));
+
+    const hints = getHints('Power/Toughness');
+    expect(fieldOf(hints)).toBe('cardStats');
+    expect(hints.textContent).toContain('no power and toughness');
   });
 });
