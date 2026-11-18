@@ -1,0 +1,115 @@
+.lint {
+  margin-top: 8px;
+  border: 1px solid #e3e9df;
+  border-radius: var(--control-radius, 8px);
+  background: #fafbf8;
+  font-size: 13px;
+}
+
+.summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  color: #405344;
+  font-weight: 600;
+  cursor: pointer;
+  list-style-position: inside;
+
+  &:focus-visible {
+    outline: 2px solid #2e6347;
+    outline-offset: -2px;
+    border-radius: var(--control-radius, 8px);
+  }
+}
+
+.title {
+  flex: 0 1 auto;
+}
+
+.count {
+  min-width: 20px;
+  padding: 0 7px;
+  border-radius: 10px;
+  background: #e7eee3;
+  color: #2e6347;
+  font-size: 12px;
+  line-height: 20px;
+  text-align: center;
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.list {
+  margin: 0;
+  padding: 0 10px 8px;
+  list-style: none;
+}
+
+.issue {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 4px 8px;
+  padding: 7px 0;
+  border-top: 1px solid #edf0eb;
+}
+
+.icon {
+  padding-top: 2px;
+  color: #4f7b5d;
+
+  .issue[data-severity='warning'] & {
+    color: #b7791f;
+  }
+}
+
+.body {
+  min-width: 0;
+}
+
+.message {
+  margin: 0;
+  color: #35463b;
+}
+
+.location {
+  margin: 2px 0 0;
+  overflow: hidden;
+  color: #6f7b6d;
+  font-size: 12px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.excerpt {
+  font-style: italic;
+}
+
+.fixButton {
+  max-width: 160px;
+
+  > span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+// Narrow editors (phones) put the fix button under the message.
+@container (max-width: 420px) {
+  .issue {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .fixButton {
+    grid-column: 2;
+    justify-self: start;
+  }
+}

@@ -5,7 +5,7 @@ import MechanicInterface from '../interfaces/MechanicInterface';
 import { getColor } from './cardToColor';
 import { formatCardText, smartPunctuation } from './formatCardText';
 
-const BULLET_PREFIX = /^\s*(?:\*(?=\s)|-(?!-))\s*/;
+export const BULLET_PREFIX = /^\s*(?:\*(?=\s)|-(?!-))\s*/;
 
 export const isBulletText = (line: string) => BULLET_PREFIX.test(line);
 
@@ -203,6 +203,16 @@ const MANA_SYMBOL_CONFIG: ManaSymbolConfig[] = [
     cost: true,
   })),
 ];
+
+const ANCHORED_MANA_SYMBOLS = MANA_SYMBOL_CONFIG.map(
+  ({ toReplace }) => new RegExp(`^(?:${toReplace.source})$`),
+);
+// Loyalty costs in rules text ({+1}, {-x}) and the symbol guide's {loy+5} codes.
+const LOYALTY_SYMBOL = /^\{(?:loy[+-]?|[+-])(?:x|\d+)\}$/i;
+
+/** Whether a {…} token is rendered as an icon (mana, tap/untap or loyalty) rather than as text. */
+export const isKnownSymbol = (symbol: string) =>
+  LOYALTY_SYMBOL.test(symbol) || ANCHORED_MANA_SYMBOLS.some(pattern => pattern.test(symbol));
 
 // Tap/untap and unrecognized tokens separate mana runs, just like ordinary text.
 const CONSECUTIVE_MANA_SYMBOLS = new RegExp(

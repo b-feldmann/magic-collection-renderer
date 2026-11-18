@@ -24,9 +24,11 @@ import {
 } from '../../interfaces/enums';
 import EditField from './EditField';
 import ArtworkUpload from './ArtworkUpload';
+import RulesTextLint from './RulesTextLint';
 import { MUTUALLY_EXCLUSIVE_CARD_TYPES, resolveExclusiveCardTypes } from '../../utils/cardTypes';
 import { getAutomaticCardTags, getCardTags, updateCardTags } from '../../utils/cardTags';
 import { normalizeManaCost } from '../../utils/injectUtils';
+import { applyLintFix, lintCardFace, RulesTextLintIssue } from '../../utils/rulesTextLint';
 import { createTag } from '../../actions/tagActions';
 
 import CardFaceInterface from '../../interfaces/CardFaceInterface';
@@ -1064,6 +1066,9 @@ const CardEditor: React.FC<CardEditorInterface> = ({
     },
     { key: 'artwork', name: 'Artwork & frame', fields: fieldsFor(ARTWORK_FIELD_KEYS) },
   ].filter(section => section.fields.length > 0);
+  const lintIssues = lintCardFace(getCurrentFace(tmpCard), mechanics);
+  const fixLintIssue = (issue: RulesTextLintIssue) =>
+    saveValue(issue.field, applyLintFix((getValue(issue.field) as string[]) || [], issue));
   const renderField = (config: InputConfigInterface) => (
     <div
       key={config.key}
@@ -1089,6 +1094,13 @@ const CardEditor: React.FC<CardEditorInterface> = ({
             ? cardToColor(getCurrentFace(tmpCard), tmpCard.manaCost).allColors
             : undefined
         }
+      />
+      {/* Hints sit below the field they're about; level text is the paired part of its field. */}
+      <RulesTextLint
+        issues={lintIssues.filter(
+          issue => issue.field === config.key || issue.field === config.pairedFieldKey,
+        )}
+        onFix={fixLintIssue}
       />
     </div>
   );

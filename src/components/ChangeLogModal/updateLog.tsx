@@ -662,4 +662,17 @@ updateLog.push({
   ],
 });
 
+updateLog.push({
+  version: '4.6.0',
+  title: 'Templating Hints',
+  content: [
+    {
+      type: ChangeLogFeatureType.Added,
+      feature: 'Templating hints in the card editor',
+      description:
+        'The editor points out text that renders wrong (unknown symbols or mechanics, CARDNAME, a typed T: cost) and wording that current cards no longer use, such as "enters the battlefield", "converted mana cost" or the card name instead of "this creature". Most hints fix the line with one click.',
+    },
+  ],
+});
+
 export default updateLog;
