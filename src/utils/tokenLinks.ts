@@ -418,7 +418,14 @@ export const getTokenCardFaces = (cards: CardInterface[]): TokenCardMatch[] =>
 const isSameKind = (token: CreatedToken, face: CardFaceInterface) => {
   if (token.name) return face.name.trim().toLowerCase() === token.name.toLowerCase();
   const faceWords = tokenFaceWords(face);
-  return token.subtypes.every(subtype => faceWords.has(subtype.toLowerCase()));
+  if (!token.subtypes.every(subtype => faceWords.has(subtype.toLowerCase()))) return false;
+  // A predefined token ("a Food token") has its card types even when the text leaves them out:
+  // a Food Goblin artifact creature token isn't a Food token.
+  const predefined = getPredefinedToken(token);
+  if (!predefined) return true;
+  const types = token.cardTypes.length ? token.cardTypes : predefined.cardTypes;
+  const faceTypes: CardType[] = (face.cardTypes || []).filter(type => type !== CardType.Token);
+  return faceTypes.length === types.length && types.every(type => faceTypes.includes(type));
 };
 
 const hasSameStats = (token: CreatedToken, face: CardFaceInterface) =>

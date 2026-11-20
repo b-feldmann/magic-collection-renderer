@@ -275,6 +275,30 @@ describe('getTokenLinks', () => {
     });
   });
 
+  it('does not take a creature token with a predefined subtype for the predefined token', () => {
+    const foodCards = (...faces: Partial<CardFaceInterface>[]) =>
+      getTokenCardFaces(faces.map((face, index) => card(`token-${index}`, face)));
+    const cannonfodder = {
+      name: 'Cannonfodder',
+      cardTypes: [CardType.Creature, CardType.Token, CardType.Artifact],
+      cardSubTypes: 'Food Goblin',
+      cardStats: '0/1',
+    };
+    const food = {
+      name: 'Food',
+      cardTypes: [CardType.Token, CardType.Artifact],
+      cardSubTypes: 'Food',
+    };
+    const text = 'When this creature enters, create a Food token.';
+    const face = { name: 'Test', cardTypes: [CardType.Creature], cardText: [text] };
+    expect(getTokenLinks(face, foodCards(cannonfodder))[0]).toMatchObject({
+      match: undefined,
+      differentStats: undefined,
+      differentDetails: undefined,
+    });
+    expect(getTokenLinks(face, foodCards(cannonfodder, food))[0].match?.face.name).toBe('Food');
+  });
+
   it('reports a token card of the same kind with other power/toughness', () => {
     const [link] = links('Create a 3/3 white Soldier creature token.');
     expect(link.match).toBeUndefined();
