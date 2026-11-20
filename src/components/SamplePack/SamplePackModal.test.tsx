@@ -74,9 +74,9 @@ describe('SamplePackModal', () => {
     // In pack order: the rare, then uncommons, then commons.
     expect(pack[0]).toHaveAccessibleName('Only rare, Rare');
     expect(
-      pack.slice(1, 4).every(item => /, Uncommon$/.test(item.getAttribute('aria-label')!)),
+      pack.slice(1, 5).every(item => /, Uncommon$/.test(item.getAttribute('aria-label')!)),
     ).toBe(true);
-    expect(pack.slice(4).every(item => /, Common$/.test(item.getAttribute('aria-label')!))).toBe(
+    expect(pack.slice(5).every(item => /, Common$/.test(item.getAttribute('aria-label')!))).toBe(
       true,
     );
     expect(pack).toHaveLength(14);

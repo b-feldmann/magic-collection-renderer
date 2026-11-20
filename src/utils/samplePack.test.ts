@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import CardInterface from '../interfaces/CardInterface';
-import { openSamplePack, PACK_LAYOUT } from './samplePack';
+import { openSamplePack } from './samplePack';
 
 const card = (
   name: string,
@@ -39,11 +39,11 @@ const fullSet = [
 const slots = (pack: ReturnType<typeof openSamplePack>) => pack.cards.map(entry => entry.slot);
 
 describe('openSamplePack', () => {
-  it('opens a 15-card pack: rare, three uncommons, ten commons and a basic land', () => {
+  it('opens a 15-card pack: rare, four uncommons, nine commons and a basic land', () => {
     const pack = openSamplePack(fullSet, fullSet, seeded(1));
     expect(pack.cards).toHaveLength(15);
-    expect(slots(pack).filter(slot => slot === 'Common')).toHaveLength(PACK_LAYOUT.commons);
-    expect(slots(pack).filter(slot => slot === 'Uncommon')).toHaveLength(PACK_LAYOUT.uncommons);
+    expect(slots(pack).filter(slot => slot === 'Common')).toHaveLength(9);
+    expect(slots(pack).filter(slot => slot === 'Uncommon')).toHaveLength(4);
     expect(['Rare', 'Mythic Rare']).toContain(slots(pack)[0]);
     expect(pack.cards[pack.cards.length - 1]).toMatchObject({
       slot: 'Basic Land',
@@ -102,6 +102,17 @@ describe('openSamplePack', () => {
     expect(openSamplePack(cards).poolSize).toBe(1);
   });
 
+  it('takes the basic land from the whole collection when the shown cards have none', () => {
+    const shown = fullSet.filter(entry => entry.name !== 'Plains');
+    const pack = openSamplePack(shown, fullSet, seeded(3));
+    expect(pack.cards[pack.cards.length - 1]).toEqual({
+      card: expect.objectContaining({ name: 'Plains' }),
+      slot: 'Basic Land',
+    });
+    expect(pack.shortfalls).toEqual([]);
+    expect(pack.poolSize).toBe(shown.length - 1);
+  });
+
   it('explains the slots the set cannot fill yet', () => {
     const pack = openSamplePack(
       [card('Lonely common', 'Common'), card('Uncommon', 'Uncommon')],
@@ -111,8 +122,8 @@ describe('openSamplePack', () => {
     expect(pack.cards.map(entry => entry.card.name)).toEqual(['Uncommon', 'Lonely common']);
     expect(pack.shortfalls).toEqual([
       'There are no rares or mythic rares, so the rare slot is empty.',
-      'There is only 1 uncommon, so the pack has 1 of 3.',
-      'There is only 1 common, so the pack has 1 of 10.',
+      'There is only 1 uncommon, so the pack has 1 of 4.',
+      'There is only 1 common, so the pack has 1 of 9.',
       'There are no basic land cards, so the land slot is empty.',
     ]);
   });

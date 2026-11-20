@@ -91,6 +91,11 @@ const PackContents = ({
     () => new Map(cards.map((card, index) => [card.uuid, index + 1])),
     [cards],
   );
+  // The basic land can come from outside the filters: it's numbered within the whole collection.
+  const allNumbers = useMemo(
+    () => new Map(allCards.map((card, index) => [card.uuid, index + 1])),
+    [allCards],
+  );
   // The pack keeps the cards it was opened with; show their current state, e.g. a loaded cover.
   const current = useMemo(() => new Map(allCards.map(card => [card.uuid, card])), [allCards]);
   // The cards shrink or grow so the whole pack fits in the modal without scrolling.
@@ -162,16 +167,19 @@ const PackContents = ({
             } as React.CSSProperties
           }
         >
-          {pack.cards.map(entry => (
-            <PackCardView
-              key={entry.card.uuid}
-              entry={entry}
-              card={current.get(entry.card.uuid) ?? entry.card}
-              width={width}
-              collectionNumber={numbers.get(entry.card.uuid) ?? 0}
-              collectionSize={cards.length}
-            />
-          ))}
+          {pack.cards.map(entry => {
+            const shown = numbers.get(entry.card.uuid);
+            return (
+              <PackCardView
+                key={entry.card.uuid}
+                entry={entry}
+                card={current.get(entry.card.uuid) ?? entry.card}
+                width={width}
+                collectionNumber={shown ?? allNumbers.get(entry.card.uuid) ?? 0}
+                collectionSize={shown ? cards.length : allCards.length}
+              />
+            );
+          })}
         </ul>
       </div>
     </div>

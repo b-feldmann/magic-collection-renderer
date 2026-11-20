@@ -4,10 +4,10 @@ import cardToColor from './cardToColor';
 import { getVariantGroups } from './cardVariants';
 
 /**
- * A sample draft booster opened from the set: the classic 15-card draft booster with one rare or
- * mythic, three uncommons, ten commons and a basic land.
+ * A sample draft booster opened from the set: 15 cards with one rare or mythic, four uncommons,
+ * nine commons and a basic land.
  */
-export const PACK_LAYOUT = { rares: 1, uncommons: 3, commons: 10, lands: 1 };
+export const PACK_LAYOUT = { rares: 1, uncommons: 4, commons: 9, lands: 1 };
 // About one pack in eight has a mythic rare in its rare slot.
 export const MYTHIC_CHANCE = 1 / 8;
 
@@ -28,7 +28,7 @@ export interface PackCard {
 
 export interface SamplePack {
   cards: PackCard[];
-  // Slots the set can't fill yet, e.g. "There are only 6 commons, so the pack has 6 of 10."
+  // Slots the set can't fill yet, e.g. "There are only 6 commons, so the pack has 6 of 9."
   shortfalls: string[];
   // Draftable cards the pack was opened from.
   poolSize: number;
@@ -72,7 +72,7 @@ const pickCommons = (commons: CardInterface[], count: number, random: () => numb
 
 /**
  * Opens a sample pack from `cards` (e.g. the cards shown in the current tab). Variants count once;
- * tokens and emblems are left out. `random` returns numbers in [0, 1), for repeatable tests.
+ * tokens and emblems are left out. The basic land comes from `allCards` when `cards` has none. `random` returns numbers in [0, 1), for repeatable tests.
  */
 export const openSamplePack = (
   cards: CardInterface[],
@@ -82,7 +82,14 @@ export const openSamplePack = (
   const pool = getVariantGroups(cards, allCards)
     .map(group => group[0])
     .filter(isDraftable);
-  const lands = pool.filter(isBasicLand);
+  // Every pack has a basic land: when the filters leave out the basic lands, it comes from the
+  // whole collection.
+  const shownLands = pool.filter(isBasicLand);
+  const lands = shownLands.length
+    ? shownLands
+    : getVariantGroups(allCards, allCards)
+        .map(group => group[0])
+        .filter(isBasicLand);
   const nonbasic = pool.filter(card => !isBasicLand(card));
   const ofRarity = (rarity: RarityType) => nonbasic.filter(card => card.rarity === rarity);
   const rares = ofRarity(RarityType.Rare);
