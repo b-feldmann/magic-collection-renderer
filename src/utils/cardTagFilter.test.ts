@@ -23,9 +23,20 @@ describe('card tag filtering', () => {
     const cards = [{ tags: ['Ramp', 'Favorite'] }, { tags: ['Ramp', 'Evolution'] }];
 
     expect(getAvailableCardTags(cards, ['Favorite', 'Ramp'])).toEqual([
+      { name: 'Evolution', count: 1 },
       { name: 'Favorite', count: 1 },
       { name: 'Ramp', count: 2 },
-      { name: 'Evolution', count: 1 },
+    ]);
+  });
+
+  it('sorts the tags alphabetically regardless of letter case', () => {
+    const cards = [{ tags: ['Token Creation', 'combo', 'Flying', 'Card Draw'] }];
+
+    expect(getAvailableCardTags(cards, ['combo', 'Flying']).map(({ name }) => name)).toEqual([
+      'Card Draw',
+      'combo',
+      'Flying',
+      'Token Creation',
     ]);
   });
 

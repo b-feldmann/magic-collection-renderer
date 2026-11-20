@@ -25,6 +25,7 @@ export const getAvailableCardTags = (
   // Automatic tags are never in the catalogue but can be filtered like any other tag.
   return [...new Set([...availableTags, ...AUTOMATIC_TAG_NAMES])]
     .filter(tag => counts.has(tag))
+    .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }))
     .map(name => ({ name, count: counts.get(name)! }));
 };
 
