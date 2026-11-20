@@ -29,10 +29,24 @@ import { MUTUALLY_EXCLUSIVE_CARD_TYPES, resolveExclusiveCardTypes } from '../../
 import { getAutomaticCardTags, getCardTags, updateCardTags } from '../../utils/cardTags';
 import { normalizeManaCost } from '../../utils/injectUtils';
 import { applyLintFix, lintCardFace, RulesTextLintIssue } from '../../utils/rulesTextLint';
+import {
+  getTokenCard,
+  getTokenCardFaces,
+  getTokenCreators,
+  getTokenLinks,
+  getTokenSources,
+} from '../../utils/tokenLinks';
+import TokenLinks, { TokenSources } from './TokenLinks';
 import { createTag } from '../../actions/tagActions';
 
 import CardFaceInterface from '../../interfaces/CardFaceInterface';
-import { createCardVariant, deleteCard, refreshCard, updateCard } from '../../actions/cardActions';
+import {
+  createCardFromTemplate,
+  createCardVariant,
+  deleteCard,
+  refreshCard,
+  updateCard,
+} from '../../actions/cardActions';
 import { withLatestVariantIds } from '../../utils/cardVariants';
 import { Store, StoreType } from '../../store';
 import cardToColor from '../../utils/cardToColor';
@@ -50,6 +64,8 @@ interface CardEditorInterface {
   // Immediate draft tracking, separate from the debounced collection preview.
   onDraftChange?: (card: CardInterface | null) => void;
   onCardDeleted?: (uuid: string) => void;
+  // Opens another card, e.g. the token card a token link points to.
+  onOpenCard?: (uuid: string) => void;
 }
 
 const NO_CARD = '-1';
@@ -327,11 +343,14 @@ const CardEditor: React.FC<CardEditorInterface> = ({
   saveTmpCard: savePreview,
   onDraftChange,
   onCardDeleted,
+  onOpenCard,
 }: CardEditorInterface) => {
   const editorId = useId();
   const { token } = theme.useToken();
   const { dispatch, user, mechanics, tags, currentUser, cards, annotationAccessor } =
     useContext<StoreType>(Store);
+  const tokenCards = useMemo(() => getTokenCardFaces(cards), [cards]);
+  const tokenCreators = useMemo(() => getTokenCreators(cards, mechanics), [cards, mechanics]);
   const serverCard = cards.find(savedCard => savedCard.uuid === card.uuid);
   const selectedServerCard = serverCard || card;
   const saveTmpCard = (draft: CardInterface | null) => {
@@ -359,6 +378,8 @@ const CardEditor: React.FC<CardEditorInterface> = ({
 
   const [editBack, setEditBack] = useState<boolean>(false);
   const [creatingVariant, setCreatingVariant] = useState(false);
+  // The templating hint whose token card is being created.
+  const [creatingTokenKey, setCreatingTokenKey] = useState<string>();
   const [refreshing, setRefreshing] = useState(false);
   const creatingVariantRef = useRef(false);
   const refreshingRef = useRef(false);
@@ -1069,9 +1090,24 @@ const CardEditor: React.FC<CardEditorInterface> = ({
   // The mana cost belongs to the front face; the back face's costs aren't checked against it.
   const lintIssues = lintCardFace(getCurrentFace(tmpCard), mechanics, {
     manaCost: editBack ? undefined : tmpCard.manaCost,
+    rarity: tmpCard.rarity,
+    tokenCards,
   });
+  const tokenLinks = getTokenLinks(getCurrentFace(tmpCard), tokenCards, mechanics);
+  // On a token card: the cards that create its token, shown below its rules text.
+  const tokenSources = getTokenSources(tmpCard, getCurrentFace(tmpCard), cards, tokenCreators);
   const fixLintIssue = (issue: RulesTextLintIssue) =>
-    saveValue(issue.field, applyLintFix((getValue(issue.field) as string[]) || [], issue));
+    issue.fieldFix
+      ? saveValue(issue.fieldFix.field, issue.fieldFix.value)
+      : saveValue(issue.field, applyLintFix((getValue(issue.field) as string[]) || [], issue));
+  const createTokenCard = (issue: RulesTextLintIssue) => {
+    if (!issue.missingToken || creatingTokenKey !== undefined) return;
+    setCreatingTokenKey(issue.key);
+    // The new card opens in the editor; the action reports failures.
+    createCardFromTemplate(dispatch, getTokenCard(issue.missingToken), currentUser)
+      .catch(() => {})
+      .finally(() => setCreatingTokenKey(undefined));
+  };
   const renderField = (config: InputConfigInterface) => (
     <div
       key={config.key}
@@ -1104,7 +1140,16 @@ const CardEditor: React.FC<CardEditorInterface> = ({
           issue => issue.field === config.key || issue.field === config.pairedFieldKey,
         )}
         onFix={fixLintIssue}
+        onCreateToken={createTokenCard}
+        creatingTokenKey={creatingTokenKey}
       />
+      <TokenLinks
+        links={tokenLinks.filter(
+          link => link.token.field === config.key || link.token.field === config.pairedFieldKey,
+        )}
+        onOpenCard={onOpenCard}
+      />
+      {config.key === 'cardText' && <TokenSources sources={tokenSources} onOpenCard={onOpenCard} />}
     </div>
   );
 

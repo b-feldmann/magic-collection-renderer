@@ -21,6 +21,7 @@ import FavoriteHeart from '../FavoriteHeart/FavoriteHeart';
 import { getVariantAnnotations, getVariantFamily } from '../../utils/cardVariants';
 import { getImage } from '../../actions/imageActions';
 import { isLoadingCover } from '../../utils/cover';
+import { isRateableCard } from '../../utils/cardTabs';
 import useUnreadComments from '../../useUnreadComments';
 import snapCardWidth from '../../utils/snapCardWidth';
 import DownloadCardPngButton from './DownloadCardPngButton';
@@ -181,8 +182,11 @@ const BigCardRenderModal = ({
     });
   };
 
+  // Tokens and basic lands aren't rated on their own.
+  const rateable = isRateableCard(card);
+
   const releaseForRatingButton =
-    card.meta.state === CardState.Draft ? (
+    rateable && card.meta.state === CardState.Draft ? (
       <Button ghost danger size="small" onClick={() => updateState(CardState.Rate)}>
         Release for rating
       </Button>
@@ -259,7 +263,7 @@ const BigCardRenderModal = ({
 
   let view: ReactElement | null = null;
   if (card.meta.state === CardState.Draft) view = null;
-  if (card.meta.state === CardState.Rate) view = rateView;
+  if (rateable && card.meta.state === CardState.Rate) view = rateView;
   // view = rateView;
 
   const annotationList = (

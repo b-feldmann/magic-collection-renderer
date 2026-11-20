@@ -40,12 +40,13 @@
  * their two-color combinations, blended from the single-color plates into
  * `m15NicknameTitle<combo>.png`.
  *
- * Token frames have their own pinline, type and rules shapes, so the token
- * parts are carved from the token frames (`mainframes/token/tokenFrame<X>Short.png`)
- * using the dedicated `parts/tokenPinline.png`, `parts/tokenType.png` and
- * `parts/tokenRules.png` masks. The single-color token frames are rendered
- * whole elsewhere, so only the two-color combinations are produced, written to
- * `parts/tokenPinline/<combo>.png`, `parts/tokenType/<combo>.png` and
+ * Token frames have their own pinline, name, type and rules shapes, so the
+ * token parts are carved from the token frames (`mainframes/token/tokenFrame<X>Short.png`)
+ * using the dedicated `parts/tokenPinline.png`, `parts/tokenTitle.png`,
+ * `parts/tokenType.png` and `parts/tokenRules.png` masks. The single-color
+ * token frames are rendered whole elsewhere, so only the two-color
+ * combinations are produced, written to `parts/tokenPinline/<combo>.png`,
+ * `parts/tokenTitle/<combo>.png`, `parts/tokenType/<combo>.png` and
  * `parts/tokenRules/<combo>.png`. In addition, the token land frame
  * (`tokenFrameLShort.png`) is carved with the `tokenType` mask into a single
  * `parts/tokenType/l.png`, so token lands keep a land-shaped type plate that
@@ -520,7 +521,7 @@ async function run() {
   }
 }
 
-// Token pinline, type and rules parts: the token frames differ from the m15
+// Token pinline, name (title), type and rules parts: the token frames differ from the m15
 // frames in these regions, so the color pairs are carved from the token frames
 // (`mainframes/token/tokenFrame<X>Short.png`) using the token-specific masks.
 // Single-color token frames are rendered whole elsewhere, so only the two-color
@@ -529,6 +530,7 @@ const TOKEN_LAND_COLOR = 'l';
 const TOKEN_GOLD_COLOR = 'm';
 const TOKEN_PART_TYPES = [
   { type: 'tokenPinline', mask: 'tokenPinline.png' },
+  { type: 'tokenTitle', mask: 'tokenTitle.png' },
   { type: 'tokenType', mask: 'tokenType.png', singles: [TOKEN_LAND_COLOR, TOKEN_GOLD_COLOR] },
   { type: 'tokenRules', mask: 'tokenRules.png' },
 ];

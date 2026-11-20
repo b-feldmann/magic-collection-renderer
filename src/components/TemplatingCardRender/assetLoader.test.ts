@@ -476,6 +476,15 @@ describe('token parts', () => {
     expect(token).not.toBe(regular);
   });
 
+  it('renders token two-color name and type plates, different from the regular parts', () => {
+    const title = getTitlePart(WU, false, true);
+    const type = getTypePart(WU, false, true);
+    expect(title).not.toBe('');
+    expect(type).not.toBe('');
+    expect(title).not.toBe(getTitlePart(WU, false));
+    expect(type).not.toBe(getTypePart(WU, false));
+  });
+
   it('normalizes color-pair order to the same token asset', () => {
     const UW = [ColorType.Blue, ColorType.White];
     expect(getPinline(UW, false, undefined, true)).toBe(getPinline(WU, false, undefined, true));

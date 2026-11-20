@@ -22,6 +22,7 @@ import axios from 'axios';
 import {
   addAutomaticCardTags,
   createCard,
+  createCardFromTemplate,
   createCardVariant,
   deleteCard,
   normalizeCardManaCosts,
@@ -464,6 +465,58 @@ describe('card variant persistence', () => {
   );
 });
 
+describe('createCardFromTemplate', () => {
+  const template = {
+    name: 'Treasure',
+    front: {
+      name: 'Treasure',
+      cardTypes: [CardType.Token, CardType.Artifact],
+      cardSubTypes: 'Treasure',
+      cardText: ['{t}, Sacrifice this token: Add one mana of any color.'],
+    },
+  };
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(axios.post).mockReset();
+    vi.mocked(axios.put).mockReset();
+    vi.mocked(axios.delete).mockReset();
+    vi.mocked(axios.post).mockResolvedValue({ data: { card: makeCard('allocated') } });
+    vi.mocked(axios.put).mockImplementation(async (_url, body) => ({
+      data: { card: (body as { card: CardInterface }).card },
+    }));
+    vi.mocked(axios.delete).mockResolvedValue({ data: {} });
+  });
+
+  it('saves the template under a new server ID and opens it as a new card', async () => {
+    const dispatch = vi.fn();
+
+    const card = await createCardFromTemplate(dispatch, template, UNKNOWN_CREATOR);
+
+    expect(card).toMatchObject({ uuid: 'allocated', name: 'Treasure', front: template.front });
+    const saved = (vi.mocked(axios.put).mock.calls[0][1] as { card: CardInterface }).card;
+    expect(saved).toMatchObject({ uuid: 'allocated', front: { cardSubTypes: 'Treasure' } });
+    expect(dispatch).toHaveBeenCalledWith({
+      type: CardActionType.CreateCard,
+      payload: { card: expect.objectContaining({ uuid: 'allocated', name: 'Treasure' }) },
+    });
+  });
+
+  it('removes the allocated card when saving fails', async () => {
+    vi.mocked(axios.put).mockRejectedValue(new Error('offline'));
+    const dispatch = vi.fn();
+
+    await expect(createCardFromTemplate(dispatch, template, UNKNOWN_CREATOR)).rejects.toThrow();
+
+    expect(axios.delete).toHaveBeenCalledWith(
+      expect.stringContaining('/cards/allocated'),
+      expect.anything(),
+    );
+    expect(dispatch).not.toHaveBeenCalled();
+    expect(staticAntd.message.error).toHaveBeenCalled();
+  });
+});
+
 describe('updateCard', () => {
   beforeEach(() => {
     vi.mocked(axios.put).mockReset();
@@ -787,7 +840,7 @@ describe('normalizeCardManaCosts', () => {
 });
 
 describe('addAutomaticCardTags', () => {
-  const mechanics = [{ uuid: 'mechanic-1', name: 'Flying', description: '' }];
+  const mechanics = [{ uuid: 'mechanic-1', name: 'Vigilance', description: '' }];
 
   const withText = (uuid: string, text: string, tags?: string[]): CardInterface => ({
     ...makeCard(uuid),
@@ -806,14 +859,14 @@ describe('addAutomaticCardTags', () => {
   });
 
   it('patches only the tags of cards missing an automatic tag and publishes the result', async () => {
-    const missing = withText('missing', 'This creature has flying.', ['Combo']);
-    const tagged = withText('tagged', 'Flying', ['Flying']);
-    const unrelated = withText('unrelated', 'Draw a card', ['Combo']);
-    const untagged = withText('untagged', 'Draw a card');
+    const missing = withText('missing', 'This creature has vigilance.', ['Combo']);
+    const tagged = withText('tagged', 'Vigilance', ['Vigilance']);
+    const unrelated = withText('unrelated', 'Gain 1 life', ['Combo']);
+    const untagged = withText('untagged', 'Gain 1 life');
     const dispatch = vi.fn();
     await loadCards(dispatch, [missing, tagged, unrelated, untagged]);
     vi.mocked(axios.patch).mockResolvedValueOnce({
-      data: { card: { ...missing, tags: ['Combo', 'Flying'] } },
+      data: { card: { ...missing, tags: ['Combo', 'Vigilance'] } },
     });
 
     await addAutomaticCardTags(dispatch, mechanics);
@@ -821,34 +874,38 @@ describe('addAutomaticCardTags', () => {
     expect(axios.patch).toHaveBeenCalledTimes(1);
     expect(axios.patch).toHaveBeenCalledWith(expect.stringContaining('/cards/missing'), {
       accessKey: 'test-token',
-      set: { tags: ['Combo', 'Flying'] },
+      set: { tags: ['Combo', 'Vigilance'] },
       unset: [],
     });
     expect(dispatch).toHaveBeenCalledWith({
       type: CardActionType.UpdateCard,
-      payload: { card: expect.objectContaining({ uuid: 'missing', tags: ['Combo', 'Flying'] }) },
+      payload: { card: expect.objectContaining({ uuid: 'missing', tags: ['Combo', 'Vigilance'] }) },
     });
   });
 
   it('corrects a tag that differs from the mechanic only by case', async () => {
-    const card = withText('card', 'Flying', ['flying']);
+    const card = withText('card', 'Vigilance', ['vigilance']);
     const dispatch = vi.fn();
     await loadCards(dispatch, [card]);
-    vi.mocked(axios.patch).mockResolvedValueOnce({ data: { card: { ...card, tags: ['Flying'] } } });
+    vi.mocked(axios.patch).mockResolvedValueOnce({
+      data: { card: { ...card, tags: ['Vigilance'] } },
+    });
 
     await addAutomaticCardTags(dispatch, mechanics);
 
     expect(axios.patch).toHaveBeenCalledWith(
       expect.stringContaining('/cards/card'),
-      expect.objectContaining({ set: { tags: ['Flying'] } }),
+      expect.objectContaining({ set: { tags: ['Vigilance'] } }),
     );
   });
 
   it('writes nothing on the next load once a card is up to date', async () => {
-    const card = withText('card', 'flying');
+    const card = withText('card', 'vigilance');
     const dispatch = vi.fn();
     await loadCards(dispatch, [card]);
-    vi.mocked(axios.patch).mockResolvedValueOnce({ data: { card: { ...card, tags: ['Flying'] } } });
+    vi.mocked(axios.patch).mockResolvedValueOnce({
+      data: { card: { ...card, tags: ['Vigilance'] } },
+    });
 
     await addAutomaticCardTags(dispatch, mechanics);
     await addAutomaticCardTags(dispatch, mechanics);
@@ -857,19 +914,19 @@ describe('addAutomaticCardTags', () => {
   });
 
   it('still updates the other cards when one write fails', async () => {
-    const first = withText('first', 'flying');
-    const second = withText('second', 'flying');
+    const first = withText('first', 'vigilance');
+    const second = withText('second', 'vigilance');
     const dispatch = vi.fn();
     await loadCards(dispatch, [first, second]);
     vi.mocked(axios.patch)
       .mockRejectedValueOnce(new Error('offline'))
-      .mockResolvedValueOnce({ data: { card: { ...second, tags: ['Flying'] } } });
+      .mockResolvedValueOnce({ data: { card: { ...second, tags: ['Vigilance'] } } });
 
     await expect(addAutomaticCardTags(dispatch, mechanics)).resolves.toBeUndefined();
 
     expect(dispatch).toHaveBeenCalledWith({
       type: CardActionType.UpdateCard,
-      payload: { card: expect.objectContaining({ uuid: 'second', tags: ['Flying'] }) },
+      payload: { card: expect.objectContaining({ uuid: 'second', tags: ['Vigilance'] }) },
     });
   });
 });

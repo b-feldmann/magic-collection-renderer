@@ -40,6 +40,23 @@ const isInstantSpeed = (cardTypes: CardType[], sentences: string[]) =>
 const COMBAT_KEYWORDS =
   'first strike|double strike|indestructible|hexproof|shroud|trample|deathtouch|lifelink|vigilance|menace|flying|reach|protection from';
 
+// Keywords that make a creature hard to block.
+const EVASION_KEYWORDS = 'flying|menace|fear|intimidate|shadow|skulk|horsemanship';
+// Keywords that can stand in a list before an evasion keyword: "gains haste and flying".
+const LISTED_KEYWORDS = `${COMBAT_KEYWORDS}|haste|${EVASION_KEYWORDS}`;
+
+// "Draw a card, then discard a card" and the reverse only filter the hand.
+const LOOT = /\b(?:draw a card, then discard a card|discard a card, then draw a card)\b/;
+const DRAW = new RegExp(
+  // Not the trigger condition of "Whenever you draw a card" / "Whenever an opponent draws".
+  String.raw`(?<!\b(?:whenever|when|each time|the first time) (?:you|a player|an opponent|that player|each player|they) )\bdraws? (?:(?:a|an|${N}|that many|an additional|additional) )?(?:additional )?cards?\b`,
+);
+
+// An activated ability's cost and effect: "{2}{g}, {t}: this creature fights …".
+const ACTIVATED_ABILITY = /^([^:"]+): (.+)$/;
+// Any symbol in a cost except tap and untap: {1}, {x}, {g}, {w/u}, ...
+const MANA_SYMBOL = /\{(?![tq]\})[^}]+\}/;
+
 export const RULES_TEXT_TAG_RULES: RulesTextTagRule[] = [
   {
     tag: 'Creature Removal',
@@ -121,6 +138,65 @@ export const RULES_TEXT_TAG_RULES: RulesTextTagRule[] = [
       /\b(?:card|cards|permanent card|creature card|it|this card)? ?leaves? (?:your|a|an opponent's|any|their|its owner's) graveyards?\b/,
       /\bcards? (?:have )?left your graveyard\b/,
     ],
+  },
+  {
+    tag: 'Evasion',
+    patterns: [
+      // The keyword on its own line or in a keyword list, with or without reminder text.
+      new RegExp(String.raw`(?:^|, )(?:${EVASION_KEYWORDS})(?:,|\.?$| \()`),
+      // Granted: "Creatures you control have flying", "gets +1/+0 and gains haste and menace".
+      new RegExp(
+        String.raw`\b(?:has|have|gains?) (?:(?:${LISTED_KEYWORDS})(?:,? and |, |,? or ))*(?:${EVASION_KEYWORDS})\b`,
+      ),
+      // "can't be blocked", "can't be blocked except by two or more creatures", ...
+      /\bcan't be blocked\b/,
+    ],
+  },
+  {
+    tag: 'Card Draw',
+    // Drawing cards, and Clues (which draw later). One-for-one looting doesn't count.
+    test: sentence =>
+      (DRAW.test(sentence) && !LOOT.test(sentence)) ||
+      /\binvestigates?\b/.test(sentence) ||
+      /\bcreates? [^.]*?\bclue tokens?\b/.test(sentence),
+  },
+  {
+    tag: 'Fixing',
+    patterns: [
+      // "Add one mana of any color", "Add X mana of any one color", "mana of any type".
+      /\badd [^.]*?\bmana of any (?:one )?(?:colou?r|type)\b/,
+      // Dual lands and filters: "Add {W} or {U}.", "Add {R}, {G}, or {W}."
+      /\badd \{[wubrg]\}(?:, \{[wubrg]\})*,? or \{[wubrg]\}/,
+      // Searching for any basic land, or one of several land types.
+      /\bsearch (?:your|their) library for [^.]*?\b(?:basic )?lands? cards?\b/,
+      /\b(?:plains|island|swamp|mountain|forest) or (?:plains|island|swamp|mountain|forest) cards?\b/,
+      /\bcreates? [^.]*?\btreasure tokens?\b/,
+    ],
+  },
+  {
+    tag: 'Counterspell',
+    patterns: [
+      new RegExp(
+        String.raw`\bcounter (?:up to ${N} )?(?:${N} )?target (?:[\w'-]+ )*?(?:spells?|abilit(?:y|ies))\b`,
+      ),
+      /\bcounter (?:that|the chosen|each|all) (?:[\w'-]+ )*?(?:spells?|abilit(?:y|ies))\b/,
+      /\bcounter it\b/,
+    ],
+  },
+  {
+    tag: 'Mana Sink',
+    // A repeatable activated ability that costs mana, so spare mana has a use every turn. Mana
+    // abilities and one-shot abilities that sacrifice or exile the card itself don't count.
+    test: sentence => {
+      const match = sentence.match(ACTIVATED_ABILITY);
+      if (!match) return false;
+      const [, cost, effect] = match;
+      return (
+        MANA_SYMBOL.test(cost) &&
+        !/^add\b/.test(effect) &&
+        !/\b(?:sacrifice|exile) (?:~|this\b|it\b)/.test(cost)
+      );
+    },
   },
 ];
 

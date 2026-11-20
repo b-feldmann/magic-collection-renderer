@@ -675,4 +675,52 @@ updateLog.push({
   ],
 });
 
+updateLog.push({
+  version: '5.0.0',
+  title: 'Limited Design Hints, Tokens and Draft Packs',
+  content: [
+    {
+      type: ChangeLogFeatureType.Added,
+      feature: 'Automatic tags for Evasion, Card Draw, Fixing, Counterspell and Mana Sink.',
+      description:
+        'Cards are tagged from their rules text: flying, menace and "can\'t be blocked"; drawing cards and Clues (but not one-for-one looting); mana of any color, dual mana, land searches and Treasure; countering spells and abilities; and activated abilities that cost mana.',
+    },
+    {
+      type: ChangeLogFeatureType.Added,
+      feature: 'Complexity hints for commons and uncommons',
+      description: `Following New World Order, the editor points out commons with more than 40 words of rules text (reminder text not counted), more than 3 abilities (each keyword and each mode counts, a "Choose one" line doesn't) or static effects on other creatures such as lords and anthems. Uncommons get the looser limits of 60 words and 4 abilities.`,
+    },
+    {
+      type: ChangeLogFeatureType.Added,
+      feature: 'More templating hints',
+      description:
+        'The editor also points out a period doubled around a quoted ability, an activated ability without a colon or with its costs out of order (mana, then {T}, then other costs), keywords below other abilities or Equip above them, the same keyword twice or one that another covers (first strike next to double strike), and text that only works on another card type: an instant that enters the battlefield, Flash on an instant, Enchant or "Enchanted creature" on a card that isn\'t an Aura, "Equipped creature" on a card that isn\'t Equipment, or a planeswalker without loyalty abilities.',
+    },
+    {
+      type: ChangeLogFeatureType.Added,
+      feature: 'Token links',
+      description:
+        'While you edit a card that creates tokens, its token cards are shown below the rules text; click one to edit it. A token card in turn shows the cards that create its token. A hint points out tokens without a token card, or a token card with other power and toughness, and creates the missing token card with one click: its name, types, colors, power/toughness and the abilities from the rules text ("with flying"), or the card of a predefined token: Treasure, Food, Clue, Blood, Gold, Map, Junk, Powerstone, Shard, Lander, Mutagen, Vibranium, Heartwood, Walker and the Role tokens (Monster Role and the others, as Auras). Investigate counts as creating a Clue, also without its reminder text. Tokens created by the reminder text of your own mechanics count too, e.g. [Plunder 2] with "Create {ref} Treasure tokens."',
+    },
+    {
+      type: ChangeLogFeatureType.Added,
+      feature: 'Limited balance in the statistics',
+      description:
+        'A table compares the colors: nonland cards, average mana value, creature count and share, average creature power/toughness, the power spread, and how many cards give Removal, Evasion, Card draw, Tricks, Counters, Fixing and Mana sinks. Filter it by rarity to check the commons on their own, and hover a count to see its cards. The collapsed statistics show creatures, removal, evasion and card draw per color in place of the tag curve.',
+    },
+    {
+      type: ChangeLogFeatureType.Added,
+      feature: 'Sample draft packs',
+      description:
+        "Open a sample pack from the ⋯ menu to see what a booster of the set looks like: a rare (a mythic rare about one pack in eight), three uncommons, ten commons with at least one of each color, and a basic land, opened from the cards in the current tab and filters. Open another pack as often as you like; the pack says which slots the set can't fill yet.",
+    },
+    {
+      type: ChangeLogFeatureType.Added,
+      feature: 'Tokens tab',
+      description:
+        'Token cards have a tab of their own and no longer show up under Card drafts or Cards to rate. Tokens are printed with the cards that make them, so they cannot be released for rating or voted on.',
+    },
+  ],
+});
+
 export default updateLog;

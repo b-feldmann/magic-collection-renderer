@@ -5,7 +5,6 @@ import sortBy from 'lodash/sortBy';
 
 import CardInterface from './interfaces/CardInterface';
 import CollectionActions from './components/CollectionActions/CollectionActions';
-import { CardState } from './interfaces/enums';
 import CardCollection from './components/CardCollection/CardCollection';
 import { getNextVariantId, getVariantGroups, withLatestVariantIds } from './utils/cardVariants';
 import CardEditor from './components/CardEditor/CardEditor';
@@ -29,6 +28,7 @@ import { hasAccessToken, updateAccessToken } from './utils/accessService';
 import MechanicModal from './components/MechanicModal/MechanicModal';
 import ChangeLogModal from './components/ChangeLogModal/ChangeLogModal';
 import BigCardRenderModal from './components/BigCardRenderModal/BigCardRenderModal';
+import SamplePackModal from './components/SamplePack/SamplePackModal';
 import {
   CollectionPdfProgress,
   useCollectionPdfExport,
@@ -43,6 +43,7 @@ import {
 } from './actions/userActions';
 import { MOBILE_COLLECTION_TABS_INSET, UNKNOWN_CREATOR } from './utils/constants';
 import useActiveCardTab from './utils/useActiveCardTab';
+import { CARD_TABS, tabKey } from './utils/cardTabs';
 import useTabsOverCards from './utils/useTabsOverCards';
 import usePhoneLayout from './utils/usePhoneLayout';
 import { matchesSelectedTags } from './utils/cardTagFilter';
@@ -56,24 +57,6 @@ const { confirm } = Modal;
 
 const NO_CARD = '-1';
 
-const CARD_TABS: { name: string; filter: (card: CardInterface) => boolean }[] = [
-  { name: 'All', filter: () => true },
-  {
-    name: 'Card drafts / idea dump',
-    filter: card => card.meta.state === CardState.Draft,
-  },
-  {
-    name: 'Cards to rate',
-    filter: card => card.meta.state === CardState.Rate,
-  },
-  {
-    name: 'Approved cards',
-    filter: card => card.meta.state === CardState.Approved,
-  },
-];
-
-const tabKey = (name: string) => `tab-key-${name}`;
-
 // Guard so the initial data fetch runs once per app load, not again under
 // StrictMode's dev double-mount or on remount.
 let didInit = false;
@@ -85,6 +68,7 @@ const MobileApp: React.FC = () => {
   const [cardEditId, setCardEditId] = useState<string>(NO_CARD);
   const [cardViewId, setCardViewId] = useState<string>(NO_CARD);
   const [showCardModal, setShowCardModal] = useState<boolean>(false);
+  const [showSamplePack, setShowSamplePack] = useState(false);
   const [showCardEditor, setShowCardEditor] = useState(false);
   const [mechanicsVisible, setMechanicsVisible] = useState(false);
   const [cardNameFilter, setCardNameFilter] = useState<string>('');
@@ -521,12 +505,20 @@ const MobileApp: React.FC = () => {
             }}
             onSwitchUser={nextUser => setCurrentUser(dispatch, nextUser)}
             onDownloadPdf={() => pdfExport.start(visibleCollection, filteredCollection)}
+            onOpenSamplePack={() => setShowSamplePack(true)}
             onReload={refresh}
           />
         </div>
       </Row>
       <MechanicModal visible={mechanicsVisible} setVisible={setMechanicsVisible} />
       <CollectionPdfProgress progress={pdfExport.progress} onCancel={pdfExport.cancel} />
+      <SamplePackModal
+        mobile
+        open={showSamplePack}
+        onClose={() => setShowSamplePack(false)}
+        cards={visibleCollection}
+        allCards={mergedCollection}
+      />
       <BigCardRenderModal
         onSelectVariant={switchCardVariant}
         mobile
@@ -541,6 +533,9 @@ const MobileApp: React.FC = () => {
             card={getCardUndefined(filteredCollection, cardEditId)}
             saveTmpCard={setTmpCard}
             onCardDeleted={handleCardDeleted}
+            onOpenCard={id =>
+              openCardInEditor(id, getCard(filteredCollection, cardEditId).name, true)
+            }
             onDraftChange={draft => {
               pendingDraftRef.current = draft;
             }}

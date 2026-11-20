@@ -8,7 +8,7 @@ import { createAnnotation } from '../../actions/annotationActions';
 import { getImage } from '../../actions/imageActions';
 import { UNKNOWN_CREATOR } from '../../utils/constants';
 import CardInterface from '../../interfaces/CardInterface';
-import { CardState } from '../../interfaces/enums';
+import { CardState, CardType } from '../../interfaces/enums';
 import {
   pasteCommentText,
   prepareCommentInputTests,
@@ -468,6 +468,37 @@ it('does not render the rating card for approved cards', async () => {
 
   await waitFor(() => expect(screen.getByText('Comment a')).toBeVisible());
   expect(screen.getByRole('dialog').querySelector('.ant-card')).not.toBeInTheDocument();
+});
+
+it.each([false, true])('does not offer rating for tokens (mobile: %s)', async mobile => {
+  const token = (state: CardState) => ({
+    ...a,
+    variantIds: [],
+    front: { ...a.front, cardTypes: [CardType.Token, CardType.Creature] },
+    meta: { ...a.meta, state },
+  });
+  const props = { visible: true, hide: () => {}, collectionNumber: 1, collectionSize: 1, mobile };
+
+  const draft = token(CardState.Draft);
+  const { unmount } = render(
+    <Store.Provider value={store([draft])}>
+      <BigCardRenderModal {...props} card={draft} />
+    </Store.Provider>,
+  );
+  await waitFor(() => expect(screen.getByText('Comment a')).toBeVisible());
+  expect(screen.queryByRole('button', { name: 'Release for rating' })).not.toBeInTheDocument();
+  unmount();
+
+  // A token released for rating before tokens had their own tab can't be voted on either.
+  const rating = token(CardState.Rate);
+  render(
+    <Store.Provider value={store([rating])}>
+      <BigCardRenderModal {...props} card={rating} />
+    </Store.Provider>,
+  );
+  await waitFor(() => expect(screen.getByText('Comment a')).toBeVisible());
+  expect(screen.queryByRole('group', { name: 'Card rating' })).not.toBeInTheDocument();
+  expect(screen.queryByRole('button', { name: /^Like/ })).not.toBeInTheDocument();
 });
 
 describe('collection-based approval threshold', () => {

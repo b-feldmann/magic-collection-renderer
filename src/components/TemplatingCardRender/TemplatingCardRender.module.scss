@@ -257,12 +257,17 @@
   .tokenTitle {
     text-align: center;
     width: 1248px;
-    color: white;
     pointer-events: none;
 
     div {
       justify-content: center;
     }
+  }
+
+  // The token frame's dark name banner (Treasure, TRK 2026). White tokens keep the black name
+  // of their light banner (Soldier, FRC 2026).
+  .tokenTitleOnDark {
+    color: white;
   }
 
   .type {

@@ -23,11 +23,11 @@ const examples: Example[] = [
       'When ~ enters the battlefield create a food token.\n' +
       '\n' +
       '{t}: Add one mana of any color',
-    tags: ['Ramp'],
+    tags: ['Ramp', 'Fixing'],
   },
   {
     text: 'Search your library for up to two basic land cards, put them onto the battlefield, then shuffle. Create a Food token for each basic land type among lands you control and a Junk token for each basic land type among land cards in your graveyard.',
-    tags: ['Ramp'],
+    tags: ['Ramp', 'Fixing'],
   },
   {
     text:
@@ -38,11 +38,11 @@ const examples: Example[] = [
       'When ~ enters, if you cast it from exile, proliferate.\n' +
       '\n' +
       '{T}: Add X mana of any one color, where X is the number of counters on ~.',
-    tags: ['Ramp'],
+    tags: ['Ramp', 'Fixing'],
   },
   {
     text: '~ deals 3 damage to target creature. When you cast ~ targeting a creature with toughness 4 or greater, you may discard a card. If you do, draw two cards.',
-    tags: ['Creature Removal'],
+    tags: ['Creature Removal', 'Card Draw'],
   },
   {
     text:
@@ -103,15 +103,19 @@ const examples: Example[] = [
 
   // Ramp
   { text: '{T}: Add {G}.', types: creature, tags: ['Ramp'] },
-  { text: '[Flying]\n{T}: Add one mana of any color.', types: creature, tags: ['Ramp'] },
+  {
+    text: '[Flying]\n{T}: Add one mana of any color.',
+    types: creature,
+    tags: ['Ramp', 'Evasion', 'Fixing'],
+  },
   { text: '{T}, Pay 1 life: Add {B}.', types: creature, tags: ['Ramp'] },
   { text: '{T}: Add {G}.', types: [CardType.Land], tags: [] },
   { text: '{T}: Add {C}.', types: [CardType.Artifact], tags: ['Ramp'] },
-  { text: '{T}: Draw a card.', types: creature, tags: [] },
+  { text: '{T}: Draw a card.', types: creature, tags: ['Card Draw'] },
   {
     text: '{T}: Add X mana of any one color, where X is the number of counters on ~.',
     types: creature,
-    tags: ['Ramp'],
+    tags: ['Ramp', 'Fixing'],
   },
 
   // Flicker
@@ -241,18 +245,128 @@ const examples: Example[] = [
     text: 'Whenever one or more cards leave your graveyard, put a +1/+1 counter on this creature.',
     tags: ['Graveyard Leave'],
   },
-  { text: 'When this card leaves your graveyard, draw a card.', tags: ['Graveyard Leave'] },
+  {
+    text: 'When this card leaves your graveyard, draw a card.',
+    tags: ['Graveyard Leave', 'Card Draw'],
+  },
   {
     text: 'At the beginning of your end step, if a card left your graveyard this turn, draw a card.',
-    tags: ['Graveyard Leave'],
+    tags: ['Graveyard Leave', 'Card Draw'],
   },
-  { text: 'Whenever this creature leaves the battlefield, draw a card.', tags: [] },
+  { text: 'Whenever this creature leaves the battlefield, draw a card.', tags: ['Card Draw'] },
+
+  // Evasion
+  { text: 'Flying', types: creature, tags: ['Evasion'] },
+  { text: 'Menace, trample', types: creature, tags: ['Evasion'] },
+  {
+    text: 'Flying (This creature can’t be blocked except by creatures with flying or reach.)',
+    types: creature,
+    tags: ['Evasion'],
+  },
+  { text: 'This creature can’t be blocked.', types: creature, tags: ['Evasion'] },
+  {
+    text: 'This creature can’t be blocked by creatures with power 2 or less.',
+    types: creature,
+    tags: ['Evasion'],
+  },
+  {
+    text: 'Target creature gets +2/+0 and gains haste and flying until end of turn.',
+    types: [CardType.Sorcery],
+    tags: ['Evasion'],
+  },
+  { text: 'Other Birds you control have flying.', types: creature, tags: ['Evasion'] },
+  { text: 'Trample, reach', types: creature, tags: [] },
+  { text: 'Destroy target creature with flying.', tags: ['Creature Removal'] },
+  {
+    text: 'This creature has lifelink as long as you control a creature with flying.',
+    types: creature,
+    tags: [],
+  },
+  { text: 'Target creature loses flying until end of turn.', tags: [] },
+
+  // Card Draw
+  { text: 'Draw two cards.', tags: ['Card Draw'] },
+  { text: 'Target player draws three cards and loses 3 life.', tags: ['Card Draw'] },
+  { text: 'Draw cards equal to the number of creatures you control.', tags: ['Card Draw'] },
+  { text: 'When this creature enters, investigate.', types: creature, tags: ['Card Draw'] },
+  { text: 'Create a Clue token.', tags: ['Card Draw'] },
+  { text: 'Draw two cards, then discard a card.', tags: ['Card Draw'] },
+  { text: '{T}: Draw a card, then discard a card.', types: creature, tags: [] },
+  { text: 'Discard a card, then draw a card.', tags: [] },
+  {
+    text: 'Whenever you draw your second card each turn, put a +1/+1 counter on this creature.',
+    types: creature,
+    tags: [],
+  },
+  { text: 'Whenever an opponent draws a card, they lose 1 life.', tags: [] },
+
+  // Fixing
+  { text: '{T}: Add {W} or {U}.', types: [CardType.Land], tags: ['Fixing'] },
+  { text: '{T}: Add {R}, {G}, or {W}.', types: [CardType.Land], tags: ['Fixing'] },
+  { text: '{T}: Add one mana of any color.', types: [CardType.Land], tags: ['Fixing'] },
+  {
+    text: 'Search your library for a basic land card, reveal it, put it into your hand, then shuffle.',
+    tags: ['Fixing'],
+  },
+  {
+    text: 'Search your library for a Forest or Plains card, put it into your hand, then shuffle.',
+    tags: ['Fixing'],
+  },
+  {
+    text: 'When this creature enters, create a Treasure token.',
+    types: creature,
+    tags: ['Fixing'],
+  },
+  {
+    text: 'Search your library for a Mountain card, put it into your hand, then shuffle.',
+    tags: [],
+  },
+
+  // Counterspell
+  { text: 'Counter target spell.', tags: ['Counterspell'] },
+  {
+    text: 'Counter target noncreature spell unless its controller pays {2}.',
+    tags: ['Counterspell'],
+  },
+  { text: 'Counter target activated or triggered ability.', tags: ['Counterspell'] },
+  { text: 'Counter up to one target creature spell.', tags: ['Counterspell'] },
+  { text: 'This spell can’t be countered.', tags: [] },
+  {
+    text: 'Put a +1/+1 counter on target creature.',
+    types: [CardType.Sorcery],
+    tags: [],
+  },
+
+  // Mana Sink
+  {
+    text: '{1}{R}: This creature gets +1/+0 until end of turn.',
+    types: creature,
+    tags: ['Mana Sink'],
+  },
+  {
+    text: '{X}{G}, {T}: Put X +1/+1 counters on target creature.',
+    types: creature,
+    tags: ['Mana Sink'],
+  },
+  { text: '{5}{G}{G}: Monstrosity 3.', types: creature, tags: ['Mana Sink'] },
+  {
+    text: '{2}, Sacrifice this artifact: Draw a card.',
+    types: [CardType.Artifact],
+    tags: ['Card Draw'],
+  },
+  {
+    text: '{2}{B}, Exile this card from your graveyard: Create a 2/2 black Zombie creature token.',
+    types: creature,
+    tags: [],
+  },
+  { text: '{T}, Pay 1 life: Add {B}.', types: [CardType.Land], tags: [] },
+  { text: 'Equip {2}', types: [CardType.Artifact], tags: [] },
 
   // Combinations
   {
     text: '{T}: Add {G}.\n{2}{G}, {T}: This creature fights target creature you don’t control.',
     types: creature,
-    tags: ['Creature Removal', 'Ramp'],
+    tags: ['Creature Removal', 'Ramp', 'Mana Sink'],
   },
 ];
 

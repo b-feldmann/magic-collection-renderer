@@ -1,7 +1,13 @@
 import CardFaceInterface from '../interfaces/CardFaceInterface';
 import MechanicInterface from '../interfaces/MechanicInterface';
-import { CardType } from '../interfaces/enums';
+import { CardType, RarityType } from '../interfaces/enums';
 import { BULLET_PREFIX, isKnownSymbol } from './injectUtils';
+import {
+  CreatedToken,
+  findLowercaseTokenSubtypes,
+  getTokenLinks,
+  TokenCardMatch,
+} from './tokenLinks';
 
 /**
  * Templating checks for rules text, shown as hints in the card editor.
@@ -40,7 +46,22 @@ export type RulesTextLintRule =
   | 'off-color-cost'
   | 'missing-stats'
   | 'capitalization'
-  | 'missing-period';
+  | 'missing-period'
+  | 'double-punctuation'
+  | 'card-type-text'
+  | 'duplicate-keyword'
+  | 'common-complexity'
+  | 'uncommon-complexity'
+  | 'activated-ability'
+  | 'keyword-placement'
+  | 'token-card';
+
+export interface LintFieldFix {
+  label: string;
+  // The face field to change, and its new value.
+  field: 'cardSubTypes';
+  value: string;
+}
 
 export interface RulesTextLintIssue {
   key: string;
@@ -56,6 +77,10 @@ export interface RulesTextLintIssue {
   text?: string;
   message: string;
   fix?: { label: string; line: string };
+  // A fix that changes another field of the face instead of the line, e.g. adds a subtype.
+  fieldFix?: LintFieldFix;
+  // A token the line creates that has no token card yet, so the editor can create one.
+  missingToken?: CreatedToken;
 }
 
 interface Finding {
@@ -77,7 +102,11 @@ interface LineContext {
   selfNoun: string | null;
   // Card text of a planeswalker, whose abilities are written "cost|text".
   loyaltyAbilities: boolean;
+  // The face has Cleave, whose square brackets mark words that cleaving removes.
+  hasCleave: boolean;
 }
+
+const CLEAVE_BRACKET = /\[\s*cleave\b/i;
 
 interface TextField {
   key: string;
@@ -281,7 +310,7 @@ const unknownSymbols: Check = ({ body }) =>
       message: `${symbol} isn't a known symbol and is shown as typed. Check the symbol guide.`,
     }));
 
-const unknownMechanics: Check = ({ body, mechanics }) => {
+const unknownMechanics: Check = ({ body, mechanics, hasCleave }) => {
   const named = mechanics.filter(mechanic => mechanic.name.trim());
   // Mechanics may not be loaded yet; don't report every bracket then.
   if (!named.length) return [];
@@ -289,6 +318,8 @@ const unknownMechanics: Check = ({ body, mechanics }) => {
   return [...body.matchAll(/\[([^[\]]*)\]/g)].flatMap(match => {
     const content = match[1];
     if (named.some(mechanic => content.includes(mechanic.name))) return [];
+    // With Cleave, other brackets hold the words cleaving removes, not a mechanic.
+    if (hasCleave) return [];
 
     const lowerContent = content.toLowerCase();
     const caseMismatch = named.find(mechanic => lowerContent.includes(mechanic.name.toLowerCase()));
@@ -449,6 +480,16 @@ const createToken: Check = ({ body }) =>
       ]
     : [];
 
+// Token subtypes are capitalized like creature types: "Create a 1/1 white Soldier creature token."
+const tokenSubtypeCase: Check = ({ body }) =>
+  findLowercaseTokenSubtypes(body).map(({ index, word }) => ({
+    rule: 'capitalization',
+    severity: 'suggestion',
+    message: `Token subtypes start with a capital letter: "${capitalize(word)}".`,
+    fixed: replaceAt(body, index, 1, word.charAt(0).toUpperCase()),
+    fixLabel: `Use "${capitalize(word)}"`,
+  }));
+
 const capitalization: Check = ({ body }) => {
   const findings: Finding[] = [];
   if (/^[a-z]/.test(body)) {
@@ -494,6 +535,92 @@ const missingPeriod: Check = ({ body }) => {
       message: 'This ability is a sentence and ends with a period.',
       fixed: `${text}.`,
       fixLabel: 'Add period',
+    },
+  ];
+};
+
+// A quoted ability ends with its own period inside the quote, and the sentence around it doesn't
+// get another one: 'with "{T}: Add {G}."', not 'with "{T}: Add {G}.".' or 'with "{T}: Add {G}".'.
+const PUNCTUATION_FIXES: {
+  pattern: RegExp;
+  replacement: string;
+  message: string;
+  label: string;
+}[] = [
+  {
+    // "… any color.".
+    pattern: /([.!?])(["”])\./g,
+    replacement: '$1$2',
+    message: 'The quoted ability already ends with a period, so no period follows the quote.',
+    label: 'Remove period',
+  },
+  {
+    // "{T}: Add {G}".
+    pattern: /(["“])([^"“”]*:[^"“”]*[^.!?\s])(["”])\./g,
+    replacement: '$1$2.$3',
+    message: 'A quoted ability ends with its period inside the quote: "{T}: Add {G}."',
+    label: 'Move period into quote',
+  },
+  {
+    pattern: /(?<!\.)\.\.(?!\.)/g,
+    replacement: '.',
+    message: 'This line has two periods in a row.',
+    label: 'Remove period',
+  },
+];
+
+const doublePunctuation: Check = ({ body }) =>
+  PUNCTUATION_FIXES.flatMap(({ pattern, replacement, message, label }): Finding[] => {
+    const fixed = body.replace(pattern, replacement);
+    return fixed === body
+      ? []
+      : [{ rule: 'double-punctuation', severity: 'suggestion', message, fixed, fixLabel: label }];
+  });
+
+// A cost of symbols followed by the effect without a colon: "{T} Add {G}."
+const COST_WITHOUT_COLON = /^((?:\{[^{}]+\})+(?:,\s*(?:\{[^{}]+\})+)*)\s+(?=[A-Z~])/;
+
+// Order of the parts of an activated ability's cost: mana, {T}, {Q}, then everything else
+// ("{1}, {T}, Sacrifice this artifact: …").
+const costPartRank = (part: string) => {
+  if (/^\{t\}$/i.test(part)) return 1;
+  if (/^\{(?:ut|q)\}$/i.test(part)) return 2;
+  if (/^(?:\{[^{}]+\})+$/.test(part)) return 0;
+  return 3;
+};
+
+const activatedAbility: Check = ({ body }) => {
+  const missingColon = body.match(COST_WITHOUT_COLON);
+  if (missingColon && (missingColon[1].match(/\{[^{}]*\}/g) ?? []).every(isKnownSymbol)) {
+    const cost = missingColon[1];
+    return [
+      {
+        rule: 'activated-ability',
+        severity: 'suggestion',
+        message: `An activated ability has a colon between its cost and its effect: "${cost}: …".`,
+        fixed: replaceAt(body, cost.length, 0, ':'),
+        fixLabel: 'Add colon',
+      },
+    ];
+  }
+
+  const colon = body.search(/:\s*\S/);
+  const cost = colon > 0 ? body.slice(0, colon) : '';
+  if (!cost || /["“]/.test(cost)) return [];
+  const parts = cost.split(/,\s*/).map(part => part.trim());
+  const ranks = parts.map(costPartRank);
+  if (ranks.every((rank, index) => index === 0 || ranks[index - 1] <= rank)) return [];
+  const sorted = parts
+    .map((part, index) => ({ part, rank: ranks[index] }))
+    .sort((a, b) => a.rank - b.rank)
+    .map(({ part }) => part);
+  return [
+    {
+      rule: 'activated-ability',
+      severity: 'suggestion',
+      message: 'A cost lists mana first, then {T} or {Q}, then other costs.',
+      fixed: sorted.join(', ') + body.slice(colon),
+      fixLabel: 'Reorder cost',
     },
   ];
 };
@@ -828,7 +955,10 @@ const CHECKS: Check[] = [
   article,
   spacing,
   capitalization,
+  tokenSubtypeCase,
   missingPeriod,
+  doublePunctuation,
+  activatedAbility,
 ];
 
 // Splits off the parts of a line that aren't rules text: a planeswalker cost and a bullet.
@@ -839,11 +969,13 @@ const splitLine = (line: string, isPlaneswalker: boolean) => {
   return { prefix: line.slice(0, costEnd) + bullet, body: rest.slice(bullet.length) };
 };
 
-// Checks of a whole field against the rest of the card. They only explain; there's no fix.
+// Checks of a whole field against the rest of the card. They mostly only explain; a few can fix
+// another field of the face.
 interface StructureFinding {
   rule: RulesTextLintRule;
   message: string;
   line?: number;
+  fieldFix?: LintFieldFix;
 }
 
 interface StructureContext {
@@ -860,6 +992,10 @@ type StructureCheck = (context: StructureContext) => StructureFinding[];
 
 const hasSubtype = (face: CardFaceInterface, subtype: string) =>
   (face.cardSubTypes || '').toLowerCase().split(/\s+/).includes(subtype);
+
+// The subtypes with one more at the end ("Cartouche" + "Aura" → "Cartouche Aura").
+const addSubtype = (subtypes: string | undefined, subtype: string) =>
+  [(subtypes || '').trim(), subtype].filter(Boolean).join(' ');
 
 const firstLineIndex = (bodies: string[]) => bodies.findIndex(body => body.trim());
 
@@ -948,7 +1084,183 @@ const offColorCost: StructureCheck = ({ field, bodies, colors }) => {
   });
 };
 
-const STRUCTURE_CHECKS: StructureCheck[] = [enchantLine, equipLine, crewLine, modes, offColorCost];
+const SELF_ENTERS = /^(?:when|whenever) (?:~|this \w+) enters\b/i;
+
+// Text that only works on another card type: an instant that "enters", "Enchanted creature" on
+// a card that isn't an Aura, a planeswalker without loyalty abilities.
+const cardTypeText: StructureCheck = ({ face, field, bodies }) => {
+  if (field.key !== 'cardText') return [];
+  const types = face.cardTypes || [];
+  const findings: StructureFinding[] = [];
+  const isSpell = types.includes(CardType.Instant) || types.includes(CardType.Sorcery);
+  const spellNoun = types.includes(CardType.Instant) ? 'an instant' : 'a sorcery';
+  // Bestow creatures say "Enchanted creature" without being Auras.
+  const bestow = bodies.some(body => /\bbestow\b/i.test(body));
+
+  bodies.forEach((body, line) => {
+    const text = body.trim();
+    if (isSpell && SELF_ENTERS.test(text)) {
+      findings.push({
+        rule: 'card-type-text',
+        line,
+        message: `${capitalize(spellNoun)} never enters the battlefield, so this never triggers.`,
+      });
+    }
+    if (
+      types.includes(CardType.Instant) &&
+      isKeywordLine(text) &&
+      text.split(/,\s*/).some(part => /^flash$/i.test(part.trim()))
+    ) {
+      findings.push({
+        rule: 'card-type-text',
+        line,
+        message:
+          'Instants can already be cast any time you could cast an instant; Flash does nothing.',
+      });
+    }
+    if (/^enchant\b/i.test(text) && !hasSubtype(face, 'aura')) {
+      findings.push({
+        rule: 'card-type-text',
+        line,
+        message: 'Only Auras have an Enchant line. Add the Aura subtype or remove the line.',
+        // Aura is an enchantment subtype; on other types the fix would be wrong too.
+        ...(types.includes(CardType.Enchantment)
+          ? {
+              fieldFix: {
+                label: 'Add Aura subtype',
+                field: 'cardSubTypes' as const,
+                value: addSubtype(face.cardSubTypes, 'Aura'),
+              },
+            }
+          : {}),
+      });
+    } else if (/^enchanted\b/i.test(text) && !hasSubtype(face, 'aura') && !bestow) {
+      findings.push({
+        rule: 'card-type-text',
+        line,
+        message: '"Enchanted …" refers to what an Aura enchants, but this card isn\'t an Aura.',
+      });
+    }
+    if (/^equipped\b/i.test(text) && !hasSubtype(face, 'equipment')) {
+      findings.push({
+        rule: 'card-type-text',
+        line,
+        message:
+          '"Equipped …" refers to what an Equipment is attached to, but this card isn\'t Equipment.',
+      });
+    }
+  });
+
+  // A cost typed as "+1: …" is reported by the loyalty-cost check instead.
+  const hasLoyaltyAbility = (face.cardText || []).some(
+    line => /^[^|]+\|/.test(line) || LOYALTY_COST.test(line),
+  );
+  if (types.includes(CardType.Planeswalker) && !hasLoyaltyAbility) {
+    findings.push({
+      rule: 'card-type-text',
+      message: 'This planeswalker has no loyalty abilities. Write them as "+1|Draw a card."',
+    });
+  }
+  return findings;
+};
+
+// Keywords that another keyword on the card already covers.
+const REDUNDANT_KEYWORDS: [covered: string, by: string, reason: string][] = [
+  ['first strike', 'double strike', 'Double strike already deals first-strike damage'],
+  ['hexproof', 'shroud', 'Shroud already stops your opponents from targeting it'],
+  ['reach', 'flying', 'A creature with flying can already block creatures with flying'],
+];
+
+const duplicateKeywords: StructureCheck = ({ bodies }) => {
+  const seen = new Map<string, number>();
+  const findings: StructureFinding[] = [];
+  bodies.forEach((body, line) => {
+    const text = body.trim();
+    if (!text || !isKeywordLine(text)) return;
+    text.split(/,\s*/).forEach(part => {
+      const keyword = part.replace(/[[\]]/g, '').trim().toLowerCase();
+      if (seen.has(keyword)) {
+        findings.push({
+          rule: 'duplicate-keyword',
+          line,
+          message: `${capitalize(keyword)} is on this card twice; a second instance does nothing.`,
+        });
+      } else {
+        seen.set(keyword, line);
+      }
+    });
+  });
+  REDUNDANT_KEYWORDS.forEach(([covered, by, reason]) => {
+    const line = seen.get(covered);
+    if (line !== undefined && seen.has(by)) {
+      findings.push({
+        rule: 'duplicate-keyword',
+        line,
+        message: `${reason}, so ${covered} does nothing next to ${by}.`,
+      });
+    }
+  });
+  return findings;
+};
+
+// A custom keyword on its own ("[Plunder]") may sit with the keywords or at the bottom.
+const BARE_MECHANIC = /^\[[^\]]*\]$/;
+const EQUIP_LINE = /^(?:equip|reconfigure)\b/i;
+const isPlainKeywordLine = (text: string) =>
+  text.split(/,\s*/).every(part => KEYWORD_START.test(part.trim())) && !EQUIP_LINE.test(text);
+
+// Keywords go at the top of the text box; Equip goes at the bottom.
+const keywordPlacement: StructureCheck = ({ field, bodies, bullets }) => {
+  if (field.key !== 'cardText') return [];
+  const findings: StructureFinding[] = [];
+  let firstOther = -1;
+  bodies.forEach((body, line) => {
+    const text = body.trim();
+    if (!text || bullets[line] || BARE_MECHANIC.test(text) || EQUIP_LINE.test(text)) return;
+    if (!isPlainKeywordLine(text)) {
+      // Other keywords with a cost ("Kicker {1}{G}", "Bestow {3}{W}", "Crew 2") may come first.
+      const costKeyword =
+        !/[.:]/.test(text.replace(/\([^)]*\)/g, '')) && text.split(/\s+/).length <= 4;
+      if (costKeyword) return;
+      if (firstOther < 0) firstOther = line;
+    } else if (firstOther >= 0) {
+      findings.push({
+        rule: 'keyword-placement',
+        line,
+        message:
+          "Keyword abilities go at the top of the text box, before the card's other abilities.",
+      });
+    }
+  });
+
+  const lastEquip = bodies.reduce(
+    (last, body, line) => (EQUIP_LINE.test(body.trim()) ? line : last),
+    -1,
+  );
+  const afterEquip = bodies.findIndex(
+    (body, line) =>
+      line > lastEquip && body.trim() && !bullets[line] && !BARE_MECHANIC.test(body.trim()),
+  );
+  if (lastEquip >= 0 && afterEquip >= 0) {
+    findings.push({
+      rule: 'keyword-placement',
+      line: lastEquip,
+      message: "Equip goes last, after the card's other abilities.",
+    });
+  }
+  return findings;
+};
+
+const STRUCTURE_CHECKS: StructureCheck[] = [
+  enchantLine,
+  equipLine,
+  crewLine,
+  modes,
+  offColorCost,
+  cardTypeText,
+  duplicateKeywords,
+  keywordPlacement,
+];
 
 // Creatures, Vehicles and planeswalkers show stats; without them the box stays empty.
 const missingStats = (face: CardFaceInterface): RulesTextLintIssue[] => {
@@ -984,17 +1296,174 @@ const missingStats = (face: CardFaceInterface): RulesTextLintIssue[] => {
 const isBullet = (line: string, isPlaneswalker: boolean) =>
   BULLET_PREFIX.test(isPlaneswalker ? line.slice(line.indexOf('|') + 1) : line);
 
+// New World Order: commons stay simple so a board of them is easy to read in Limited.
+export const COMMON_MAX_WORDS = 40;
+export const COMMON_MAX_ABILITIES = 3;
+// Uncommons may do more, but still have to be read across the table.
+export const UNCOMMON_MAX_WORDS = 60;
+export const UNCOMMON_MAX_ABILITIES = 4;
+
+interface ComplexityLimits {
+  rule: 'common-complexity' | 'uncommon-complexity';
+  noun: string;
+  words: number;
+  abilities: number;
+  wordsReason: string;
+  // Whether static effects on other creatures are pointed out.
+  boardEffects: boolean;
+}
+
+const COMPLEXITY_LIMITS: Partial<Record<RarityType, ComplexityLimits>> = {
+  [RarityType.Common]: {
+    rule: 'common-complexity',
+    noun: 'common',
+    words: COMMON_MAX_WORDS,
+    abilities: COMMON_MAX_ABILITIES,
+    wordsReason: 'New World Order keeps commons short',
+    boardEffects: true,
+  },
+  [RarityType.Uncommon]: {
+    rule: 'uncommon-complexity',
+    noun: 'uncommon',
+    words: UNCOMMON_MAX_WORDS,
+    abilities: UNCOMMON_MAX_ABILITIES,
+    wordsReason: 'Uncommons stay readable across the table',
+    boardEffects: false,
+  },
+};
+
+// Reminder text in parentheses isn't counted; a mechanic counts as the words in its brackets.
+const countWords = (body: string) =>
+  body
+    .replace(/\([^)]*\)?/g, ' ')
+    .replace(/[[\]]/g, ' ')
+    .split(/\s+/)
+    .filter(word => /[\p{L}\p{N}{~]/u.test(word)).length;
+
+// A static ability that changes other creatures: lords, anthems, "Creatures can't block."
+const BOARD_EFFECT =
+  /^(?:other |each other |all |each )?[^.:,"]*?\b(?:creatures|you control|your opponents control|an opponent controls)\b[^.:,"]*?\b(?:get|gets|have|has|can't|cannot)\b/i;
+const NOT_STATIC = /^(?:when|whenever|at|if|enchanted|equipped|target|~|this)\b/i;
+
+const rarityComplexity = (
+  face: CardFaceInterface,
+  fields: { field: TextField; bodies: string[] }[],
+  limits: ComplexityLimits,
+): RulesTextLintIssue[] => {
+  const types = face.cardTypes || [];
+  const cardText = fields.find(({ field }) => field.key === 'cardText');
+  const issue = (key: string, message: string, line?: number): RulesTextLintIssue => ({
+    key: `cardText:${line ?? 'field'}:${limits.rule}:${key}`,
+    rule: limits.rule,
+    severity: 'suggestion',
+    field: 'cardText',
+    fieldName: 'Card text',
+    line,
+    text: line !== undefined ? (face.cardText || [])[line] : undefined,
+    message,
+  });
+
+  const issues: RulesTextLintIssue[] = [];
+  const words = fields
+    .flatMap(({ bodies }) => bodies)
+    .reduce((sum, body) => sum + countWords(body), 0);
+  if (words > limits.words) {
+    issues.push(
+      issue(
+        'words',
+        `This ${limits.noun} has ${words} words of rules text without reminder text. ${limits.wordsReason}, at about ${limits.words} words or fewer.`,
+      ),
+    );
+  }
+
+  // A bare mode header ("Choose one or both —") isn't an ability; each mode below it is.
+  const bodies = (cardText?.bodies || []).filter(body => {
+    const text = body.trim();
+    return text && !(/^choose\b/i.test(text) && CHOOSE_MODES.test(text));
+  });
+  // Each keyword in a keyword line ("Flying, vigilance") is an ability of its own.
+  const abilities = bodies.reduce(
+    (sum, body) => sum + (isKeywordLine(body.trim()) ? body.split(/,\s*/).length : 1),
+    0,
+  );
+  if (abilities > limits.abilities) {
+    issues.push(
+      issue(
+        'abilities',
+        `This ${limits.noun} has ${abilities} abilities, counting each keyword. ${capitalize(limits.noun)}s usually have at most ${limits.abilities}.`,
+      ),
+    );
+  }
+
+  // One-shot effects of instants and sorceries ("Creatures you control get +1/+1 until end of
+  // turn") don't stay on the board.
+  if (
+    limits.boardEffects &&
+    !types.includes(CardType.Instant) &&
+    !types.includes(CardType.Sorcery)
+  ) {
+    (cardText?.bodies || []).forEach((body, line) => {
+      const text = body.trim();
+      if (NOT_STATIC.test(text) || /until end of turn/i.test(text) || !BOARD_EFFECT.test(text)) {
+        return;
+      }
+      issues.push(
+        issue(
+          'board',
+          'Static effects on other creatures (lords, anthems, "can\'t block") make the board harder to read. New World Order keeps them rare at common.',
+          line,
+        ),
+      );
+    });
+  }
+  return issues;
+};
+
+const tokenCardIssues = (
+  face: CardFaceInterface,
+  tokenCards: TokenCardMatch[],
+  mechanics: MechanicInterface[],
+): RulesTextLintIssue[] =>
+  getTokenLinks(face, tokenCards, mechanics).flatMap(({ token, match, differentStats }, index) => {
+    if (match) return [];
+    const field = TEXT_FIELDS.find(textField => textField.key === token.field);
+    const lines = face[token.field];
+    const kind = token.name || token.subtypes.join(' ');
+    // "… this creates through [Plunder]".
+    const source = token.mechanic ? ` through [${token.mechanic}]` : '';
+    return [
+      {
+        key: `${token.field}:${token.line}:token-card:${index}`,
+        rule: 'token-card' as const,
+        severity: 'suggestion' as const,
+        field: token.field,
+        fieldName: field?.name ?? token.field,
+        line: token.line,
+        text: Array.isArray(lines) ? lines[token.line] : undefined,
+        message: differentStats
+          ? `This creates a ${token.label} token${source}, but the ${differentStats.face.name || kind} token card is ${differentStats.face.cardStats || 'without power/toughness'}.`
+          : `There's no token card for the ${token.label} token this creates${source}. Add one so the token is printed with the set.`,
+        missingToken: token,
+      },
+    ];
+  });
+
 export interface LintOptions {
   // The card's mana cost, to check activated abilities for colors outside it. Leave it out
   // for faces without one of their own (back faces).
   manaCost?: string;
+  // The card's rarity; commons are checked for New World Order complexity.
+  rarity?: RarityType;
+  // The token cards of the collection, to check that every token the card creates has one.
+  // Leave it out to skip the check.
+  tokenCards?: TokenCardMatch[];
 }
 
 /** All templating issues in the rules text of one card face, in field and line order. */
 export const lintCardFace = (
   face: CardFaceInterface,
   mechanics: MechanicInterface[] = [],
-  { manaCost }: LintOptions = {},
+  { manaCost, rarity, tokenCards }: LintOptions = {},
 ): RulesTextLintIssue[] => {
   const types = face.cardTypes || [];
   const isPlaneswalker = types.includes(CardType.Planeswalker);
@@ -1003,7 +1472,12 @@ export const lintCardFace = (
     ? new Set((manaCost.match(/\{[^{}]*\}/g) ?? []).flatMap(symbolColors))
     : null;
 
-  const textIssues = TEXT_FIELDS.filter(field => field.applies(types)).flatMap(field => {
+  const textFields = TEXT_FIELDS.filter(field => field.applies(types));
+  const hasCleave = textFields.some(field => {
+    const lines = face[field.key];
+    return Array.isArray(lines) && lines.some(line => CLEAVE_BRACKET.test(line));
+  });
+  const textIssues = textFields.flatMap(field => {
     const lines = face[field.key];
     if (!Array.isArray(lines)) return [];
     const loyaltyAbilities = isPlaneswalker && field.key === 'cardText';
@@ -1018,6 +1492,7 @@ export const lintCardFace = (
         mechanics,
         selfNoun: field.selfReferences ? selfNoun : null,
         loyaltyAbilities,
+        hasCleave,
       };
 
       return CHECKS.flatMap(check => check(context)).map((finding, index): RulesTextLintIssue => ({
@@ -1053,13 +1528,41 @@ export const lintCardFace = (
       line: finding.line,
       text: finding.line !== undefined ? lines[finding.line] : undefined,
       message: finding.message,
+      ...(finding.fieldFix ? { fieldFix: finding.fieldFix } : {}),
     }));
 
     // Hints about the whole field first, then by line (sort is stable).
     return [...structureIssues, ...lineIssues].sort((a, b) => (a.line ?? -1) - (b.line ?? -1));
   });
 
-  return [...textIssues, ...missingStats(face)];
+  const limits = rarity !== undefined ? COMPLEXITY_LIMITS[rarity] : undefined;
+  const complexityIssues = limits
+    ? rarityComplexity(
+        face,
+        textFields.map(field => {
+          const lines = face[field.key];
+          return {
+            field,
+            bodies: Array.isArray(lines)
+              ? lines.map(line => splitLine(line, isPlaneswalker && field.key === 'cardText').body)
+              : [],
+          };
+        }),
+        limits,
+      )
+    : [];
+
+  // By field, then hints about the whole field first, then by line (sort is stable).
+  const fieldOrder = (key: string) => {
+    const index = TEXT_FIELDS.findIndex(field => field.key === key);
+    return index < 0 ? TEXT_FIELDS.length : index;
+  };
+  return [
+    ...complexityIssues,
+    ...textIssues,
+    ...(tokenCards ? tokenCardIssues(face, tokenCards, mechanics) : []),
+    ...missingStats(face),
+  ].sort((a, b) => fieldOrder(a.field) - fieldOrder(b.field) || (a.line ?? -1) - (b.line ?? -1));
 };
 
 /** The field's lines with one issue's fix applied. */

@@ -408,6 +408,9 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
     artStyle !== CardArtStyles.Borderless;
   const ptColor = isHybridFrame ? getHybridPtColor(allColors) : color;
   let mainframe;
+  // The token frame's name banner is dark except on white tokens, which print the name in black.
+  // Tokens in other frames (extended, borderless) color the name like other cards.
+  let tokenNameOnDark = false;
   let pt = getPt(
     ptColor,
     isArtifact,
@@ -485,6 +488,9 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
         ? getHybridMainframe(allColors, isEnchantment, true)
         : getExtendedMainframe(color, isLand, isArtifact, vehicle, isEnchantment);
     typePart = '';
+    // The two-color token name plate is carved from the token frame and does
+    // not fit the extended frame.
+    if (isToken) titlePart = '';
   } else if (artStyle === CardArtStyles.Borderless) {
     mainframe = getBorderlessMainframe(color, isLand, isArtifact, isNickname);
     titlePart = '';
@@ -495,6 +501,7 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
     pt = getInventionPt();
   } else if (isToken) {
     mainframe = getTokenMainframe(color, isArtifact, isLand);
+    tokenNameOnDark = color !== ColorType.White;
   } else if (isLand) {
     mainframe = getLandMainframe(color, artStyle);
   } else if (isAdventure) {
@@ -952,7 +959,9 @@ const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
 
           <div
             ref={titleRef}
-            className={`${styles.title} ${isToken ? styles.tokenTitle : ''}`}
+            className={`${styles.title} ${isToken ? styles.tokenTitle : ''} ${
+              tokenNameOnDark ? styles.tokenTitleOnDark : ''
+            }`}
             style={titleWidth !== undefined ? { width: `${titleWidth}px` } : undefined}
           >
             <TextResize defaultFontSize={80} maxFontSize={80} minFontSize={40}>

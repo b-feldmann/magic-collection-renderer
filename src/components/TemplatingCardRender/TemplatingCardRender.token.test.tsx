@@ -101,4 +101,40 @@ describe('TemplatingCardRender - token colors', () => {
     expect(pinline).toBeInTheDocument();
     expect(pinline?.getAttribute('src')).toContain('/tokenPinline/wu');
   });
+
+  it('renders two-color name and type plates for a two-color token', () => {
+    renderToken([ColorType.White, ColorType.Blue]);
+
+    const partSrc = (part: string) =>
+      Array.from(document.querySelectorAll('img'))
+        .find(img => img.className.includes(part))
+        ?.getAttribute('src');
+    expect(partSrc('titlePart')).toContain('/tokenTitle/wu');
+    expect(partSrc('typePart')).toContain('/tokenType/wu');
+  });
+
+  it('prints the name in white on the dark banner of the token frame', () => {
+    const nameOnDark = () =>
+      Boolean(
+        document.querySelector('[class*="tokenTitleOnDark"]')?.textContent?.includes('Test Token'),
+      );
+
+    // Only mono-white tokens keep the black name of their light banner.
+    const white = renderToken([ColorType.White]);
+    expect(nameOnDark()).toBe(false);
+    white.unmount();
+
+    [
+      [ColorType.Blue],
+      [ColorType.White, ColorType.Blue],
+      [ColorType.Blue, ColorType.Black],
+      [ColorType.White, ColorType.Black],
+      [ColorType.White, ColorType.Blue, ColorType.Black],
+      undefined,
+    ].forEach(colors => {
+      const token = renderToken(colors);
+      expect(nameOnDark()).toBe(true);
+      token.unmount();
+    });
+  });
 });

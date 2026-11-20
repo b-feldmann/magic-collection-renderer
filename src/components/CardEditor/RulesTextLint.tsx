@@ -8,6 +8,10 @@ import styles from './RulesTextLint.module.scss';
 interface RulesTextLintProps {
   issues: RulesTextLintIssue[];
   onFix: (issue: RulesTextLintIssue) => void;
+  // Creates the token card a "token-card" hint asks for. Without it, the hint has no button.
+  onCreateToken?: (issue: RulesTextLintIssue) => void;
+  // The key of the hint whose token card is being created.
+  creatingTokenKey?: string;
 }
 
 const SEVERITY_LABEL = { warning: 'Warning', suggestion: 'Suggestion' } as const;
@@ -16,7 +20,12 @@ const SEVERITY_LABEL = { warning: 'Warning', suggestion: 'Suggestion' } as const
  * Templating hints for one rules text field, shown below it, with one-click fixes. All issues
  * belong to the same field.
  */
-const RulesTextLint = ({ issues, onFix }: RulesTextLintProps): React.JSX.Element | null => {
+const RulesTextLint = ({
+  issues,
+  onFix,
+  onCreateToken,
+  creatingTokenKey,
+}: RulesTextLintProps): React.JSX.Element | null => {
   const idPrefix = useId();
   const summaryRef = useRef<HTMLElement>(null);
 
@@ -64,14 +73,26 @@ const RulesTextLint = ({ issues, onFix }: RulesTextLintProps): React.JSX.Element
                   </p>
                 )}
               </div>
-              {issue.fix && (
+              {(issue.fix || issue.fieldFix) && (
                 <Button
                   size="small"
                   className={styles.fixButton}
                   aria-describedby={messageId}
                   onClick={() => fix(issue)}
                 >
-                  {issue.fix.label}
+                  {(issue.fix ?? issue.fieldFix)!.label}
+                </Button>
+              )}
+              {issue.missingToken && onCreateToken && (
+                <Button
+                  size="small"
+                  className={styles.fixButton}
+                  aria-describedby={messageId}
+                  loading={creatingTokenKey === issue.key}
+                  disabled={creatingTokenKey !== undefined && creatingTokenKey !== issue.key}
+                  onClick={() => onCreateToken(issue)}
+                >
+                  Create token card
                 </Button>
               )}
             </li>

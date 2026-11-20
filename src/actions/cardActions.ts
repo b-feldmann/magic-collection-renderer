@@ -418,6 +418,43 @@ const withLocalArt = (saved: CardInterface, snapshot: CardInterface): CardInterf
   return card;
 };
 
+/**
+ * Creates a card with the given content, e.g. the token card for a token another card creates.
+ * The card opens in the editor like any new card.
+ */
+export const createCardFromTemplate = (
+  dispatch: Dispatch,
+  template: Pick<CardInterface, 'name' | 'front'> & Partial<CardInterface>,
+  creator: UserInterface,
+): Promise<CardInterface> =>
+  mutateCards(dispatch, async state => {
+    const allocation = await axios.post(`${MIDDLEWARE_ENDPOINT}/cards`, {
+      accessKey: getAccessToken(),
+      creator: cardCreator(creator),
+    });
+    const allocated = sanitizeCard(allocation.data.card);
+    if (!allocated.uuid) throw new Error('Missing allocated card ID');
+    try {
+      const card = await persistCard({
+        ...allocated,
+        ...cloneDeep(template),
+        uuid: allocated.uuid,
+        creator: cardCreator(creator),
+        meta: allocated.meta || EMPTY_CARD().meta,
+      });
+      rememberCard(state, card);
+      dispatch({ type: CardActionType.CreateCard, payload: { card } });
+      return card;
+    } catch (error) {
+      // Don't leave an empty card behind.
+      await Promise.allSettled([removeCard(allocated.uuid)]);
+      throw error;
+    }
+  }).catch(error => {
+    staticAntd.message.error("Couldn't create the card. Please try again.");
+    throw error;
+  });
+
 export const createCardVariant = (
   dispatch: (value: Action) => void,
   source: CardInterface,

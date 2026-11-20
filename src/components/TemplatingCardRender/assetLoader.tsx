@@ -662,6 +662,28 @@ import TokenBlackGreenPinline from './images/parts/tokenPinline/bg.png';
 import TokenRedWhitePinline from './images/parts/tokenPinline/rw.png';
 import TokenGreenBluePinline from './images/parts/tokenPinline/gu.png';
 
+import TokenWhiteBlueTitle from './images/parts/tokenTitle/wu.png';
+import TokenBlueBlackTitle from './images/parts/tokenTitle/ub.png';
+import TokenBlackRedTitle from './images/parts/tokenTitle/br.png';
+import TokenRedGreenTitle from './images/parts/tokenTitle/rg.png';
+import TokenGreenWhiteTitle from './images/parts/tokenTitle/gw.png';
+import TokenWhiteBlackTitle from './images/parts/tokenTitle/wb.png';
+import TokenBlueRedTitle from './images/parts/tokenTitle/ur.png';
+import TokenBlackGreenTitle from './images/parts/tokenTitle/bg.png';
+import TokenRedWhiteTitle from './images/parts/tokenTitle/rw.png';
+import TokenGreenBlueTitle from './images/parts/tokenTitle/gu.png';
+
+import TokenWhiteBlueType from './images/parts/tokenType/wu.png';
+import TokenBlueBlackType from './images/parts/tokenType/ub.png';
+import TokenBlackRedType from './images/parts/tokenType/br.png';
+import TokenRedGreenType from './images/parts/tokenType/rg.png';
+import TokenGreenWhiteType from './images/parts/tokenType/gw.png';
+import TokenWhiteBlackType from './images/parts/tokenType/wb.png';
+import TokenBlueRedType from './images/parts/tokenType/ur.png';
+import TokenBlackGreenType from './images/parts/tokenType/bg.png';
+import TokenRedWhiteType from './images/parts/tokenType/rw.png';
+import TokenGreenBlueType from './images/parts/tokenType/gu.png';
+
 // Token land type part: carved from the token land frame (tokenFrameLShort.png)
 // with the tokenType mask by scripts/generate-parts.cjs.
 import TokenLandType from './images/parts/tokenType/l.png';
@@ -3041,6 +3063,46 @@ const TOKEN_PINLINES: Record<PartVariant, string> = {
   gu: TokenGreenBluePinline,
 };
 
+const TOKEN_TITLE_PARTS: Record<PartVariant, string> = {
+  '': '',
+  w: '',
+  u: '',
+  b: '',
+  r: '',
+  g: '',
+  m: '',
+  wu: TokenWhiteBlueTitle,
+  ub: TokenBlueBlackTitle,
+  br: TokenBlackRedTitle,
+  rg: TokenRedGreenTitle,
+  gw: TokenGreenWhiteTitle,
+  wb: TokenWhiteBlackTitle,
+  ur: TokenBlueRedTitle,
+  bg: TokenBlackGreenTitle,
+  rw: TokenRedWhiteTitle,
+  gu: TokenGreenBlueTitle,
+};
+
+const TOKEN_TYPE_PARTS: Record<PartVariant, string> = {
+  '': '',
+  w: '',
+  u: '',
+  b: '',
+  r: '',
+  g: '',
+  m: '',
+  wu: TokenWhiteBlueType,
+  ub: TokenBlueBlackType,
+  br: TokenBlackRedType,
+  rg: TokenRedGreenType,
+  gw: TokenGreenWhiteType,
+  wb: TokenWhiteBlackType,
+  ur: TokenBlueRedType,
+  bg: TokenBlackGreenType,
+  rw: TokenRedWhiteType,
+  gu: TokenGreenBlueType,
+};
+
 const TOKEN_RULES_PARTS: Record<PartVariant, string> = {
   '': '',
   w: '',
@@ -3067,7 +3129,9 @@ const getTokenPartVariant = (colors: ColorType[]): PartVariant =>
   colors.length === 2 ? getTwoColorVariant(colors) : '';
 
 // Hybrid cards show their two colors on the title and type parts instead of the
-// golden one. The rules part shows them on every two-color card.
+// golden one. The rules part shows them on every two-color card. Two-color
+// tokens show their two colors on the name and type plates too (instead of
+// the gold token frame's plates); other tokens get no title/type part.
 export const getTitlePart = (
   colors: ColorType[],
   isArtifact: boolean,
@@ -3075,7 +3139,7 @@ export const getTitlePart = (
   isHybrid = false,
 ) =>
   isToken
-    ? ''
+    ? TOKEN_TITLE_PARTS[getTokenPartVariant(colors)]
     : TITLE_PARTS[isHybrid ? getTwoColorVariant(colors) : getTitleTypeVariant(colors, isArtifact)];
 
 export const getTypePart = (
@@ -3085,7 +3149,7 @@ export const getTypePart = (
   isHybrid = false,
 ) =>
   isToken
-    ? ''
+    ? TOKEN_TYPE_PARTS[getTokenPartVariant(colors)]
     : TYPE_PARTS[isHybrid ? getTwoColorVariant(colors) : getTitleTypeVariant(colors, isArtifact)];
 
 export const getRulesPart = (colors: ColorType[], isArtifact: boolean, isToken = false) =>

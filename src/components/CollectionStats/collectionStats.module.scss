@@ -529,7 +529,7 @@ $bar-transition: 280ms ease;
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .previewTagChart {
+  .previewSecondaryChart {
     display: none;
   }
 }
@@ -698,7 +698,7 @@ $bar-transition: 280ms ease;
   padding: 6px;
 }
 .cardPreview {
-  width: 280px;
+  // The width is set inline from the preview size.
   // The card art sits at a negative z-index behind the frame; without its own stacking
   // context it would be painted under the popover's background.
   isolation: isolate;
@@ -709,5 +709,179 @@ $bar-transition: 280ms ease;
   .previewRow {
     -webkit-touch-callout: none;
     user-select: none;
+  }
+}
+
+// Limited balance: one row per color, one column per creature stat and draft role.
+.balanceTable {
+  width: 100%;
+  min-width: 900px;
+  border-collapse: collapse;
+  border: 1px solid #e0e8e2;
+  border-radius: 8px;
+  background: #fff;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  th,
+  td {
+    padding: 6px 10px;
+    text-align: start;
+    border-bottom: 1px solid #eef3ef;
+    vertical-align: middle;
+    white-space: nowrap;
+  }
+  thead th {
+    color: $muted-text;
+    font-size: 11px;
+    font-weight: 600;
+    abbr {
+      text-decoration: none;
+      cursor: help;
+    }
+  }
+  tbody th,
+  tfoot th {
+    border-inline-start: 6px solid var(--color-list-accent, #929fa7);
+    color: #2b4032;
+    font-weight: 600;
+  }
+  tbody tr:hover > * {
+    background: #f3f7f4;
+  }
+}
+.balanceTotal > * {
+  border-top: 2px solid #d7e2da;
+  border-bottom: 0;
+  background: #f7faf7;
+  font-weight: 600;
+}
+.balanceDetail {
+  color: $muted-text;
+  font-weight: 400;
+}
+.balanceCount {
+  min-width: 64px;
+  > span:first-child {
+    display: inline-block;
+    min-width: 2ch;
+    font-weight: 600;
+    color: #2b4032;
+  }
+}
+.balanceZero > span:first-child {
+  color: #b0503a;
+}
+.balanceBar {
+  display: inline-block;
+  width: 40px;
+  height: 6px;
+  margin-inline-start: 6px;
+  border-radius: 3px;
+  background: linear-gradient(
+    to right,
+    #4f7b5d 0 calc(var(--share, 0) * 100%),
+    #e7eee3 calc(var(--share, 0) * 100%) 100%
+  );
+  vertical-align: middle;
+}
+.powerSpread {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 30px;
+}
+.powerSpreadColumn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  height: 100%;
+  width: 20px;
+}
+.powerSpreadBar {
+  width: 12px;
+  height: calc(var(--share, 0) * 18px);
+  min-height: 1px;
+  border-radius: 2px 2px 0 0;
+  background: #7c9f86;
+}
+.powerSpreadLabel {
+  color: $muted-text;
+  font-size: 9px;
+  line-height: 11px;
+}
+
+// Limited balance in the collapsed preview: the five colors × key roles.
+.balancePreview {
+  .chartHeading {
+    align-items: center;
+  }
+}
+// Nested so it wins over the stats bar's `button { font: inherit }`.
+.balancePreview .balancePreviewOpen {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #3c6048;
+  font-size: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  &:hover {
+    text-decoration: underline;
+  }
+  &:focus-visible {
+    outline: 2px solid #6d9b74;
+    outline-offset: 2px;
+    border-radius: 3px;
+  }
+}
+.balancePreviewTable {
+  width: 100%;
+  margin-top: 8px;
+  border-collapse: collapse;
+  // Auto layout: the role labels take their natural width (width: 1% shrinks the column to
+  // its content) and the five color columns share the rest. A fixed layout takes its widths
+  // from the header row, whose empty corner cell made every column equally narrow.
+  table-layout: auto;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  th,
+  td {
+    padding: 5px 4px;
+    border-bottom: 1px solid #eef3ef;
+    text-align: center;
+  }
+  tbody tr:last-child > * {
+    border-bottom: 0;
+  }
+  thead th {
+    border-bottom: 3px solid var(--color-list-accent, #929fa7);
+    color: $muted-text;
+    font-size: 11px;
+    font-weight: 600;
+    abbr {
+      text-decoration: none;
+      cursor: help;
+    }
+  }
+  thead td {
+    width: 1%;
+    border-bottom-color: transparent;
+  }
+  tbody th {
+    padding-inline-end: 10px;
+    color: $muted-text;
+    font-size: 11px;
+    font-weight: 600;
+    text-align: start;
+    white-space: nowrap;
+  }
+  tbody td > span {
+    font-weight: 600;
+    color: #2b4032;
+  }
+  tbody td.balanceZero > span {
+    color: #b0503a;
   }
 }

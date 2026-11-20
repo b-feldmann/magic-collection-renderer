@@ -3,6 +3,8 @@ import CardInterface from '../../interfaces/CardInterface';
 import ManaCurveChart from './ManaCurveChart';
 import MiniManaCurve from './MiniManaCurve';
 import ColorCardLists from './ColorCardLists';
+import LimitedBalance from './LimitedBalance';
+import BalancePreview from './BalancePreview';
 import {
   buildColorCardLists,
   buildManaCurveData,
@@ -321,6 +323,7 @@ const CollectionStats = ({
                 </span>
               </div>
             </div>
+            <LimitedBalance collection={collection} allCards={allCards} />
             <div className={layout === 'stacked' ? styles.stackedSections : undefined}>
               {groups.map(group => (
                 <CurveSection key={group.section} group={group} layout={layout} />
@@ -342,11 +345,12 @@ const CollectionStats = ({
           role="group"
           aria-label="Statistics previews"
         >
-          {groups.slice(0, 3).map(group => (
+          {/* Color and card type curves; narrow sheets drop the type curve first. */}
+          {groups.slice(0, 2).map(group => (
             <ManaCurveChart
               key={group.section}
               compact
-              className={group.section === 'tag' ? styles.previewTagChart : undefined}
+              className={group.section === 'card type' ? styles.previewSecondaryChart : undefined}
               title={group.title}
               data={group.data}
               categories={group.categories}
@@ -355,6 +359,11 @@ const CollectionStats = ({
               countUnit={group.countUnit}
             />
           ))}
+          <BalancePreview
+            collection={collection}
+            allCards={allCards}
+            onOpen={() => changeExpanded(true)}
+          />
         </div>
       )}
     </section>

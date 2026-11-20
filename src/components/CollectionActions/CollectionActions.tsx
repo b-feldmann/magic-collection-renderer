@@ -10,6 +10,7 @@ import DownloadOutlined from '@ant-design/icons/DownloadOutlined';
 import FilePdfOutlined from '@ant-design/icons/FilePdfOutlined';
 import ReloadOutlined from '@ant-design/icons/ReloadOutlined';
 import EllipsisOutlined from '@ant-design/icons/EllipsisOutlined';
+import GiftOutlined from '@ant-design/icons/GiftOutlined';
 import SwapOutlined from '@ant-design/icons/SwapOutlined';
 import UserInterface from '../../interfaces/UserInterface';
 import styles from './styles.module.scss';
@@ -25,6 +26,7 @@ interface CollectionActionsProps {
   onDownload?: () => void;
   onDownloadPdf?: () => void;
   onShowStats?: () => void;
+  onOpenSamplePack?: () => void;
   statsExpanded?: boolean;
   mobile?: boolean;
 }
@@ -39,6 +41,7 @@ const CollectionActions = ({
   onDownload,
   onDownloadPdf,
   onShowStats,
+  onOpenSamplePack,
   statsExpanded = false,
   mobile = false,
 }: CollectionActionsProps) => {
@@ -84,6 +87,15 @@ const CollectionActions = ({
       >
         Edit mechanics
       </Button>
+      {onOpenSamplePack && (
+        <Button
+          className={styles.samplePackButton}
+          icon={<GiftOutlined />}
+          onClick={onOpenSamplePack}
+        >
+          Open sample pack
+        </Button>
+      )}
       {onShowStats && (
         <Button
           className={styles.mechanicsButton}

@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import CardFaceInterface from '../interfaces/CardFaceInterface';
 import MechanicInterface from '../interfaces/MechanicInterface';
-import { CardType } from '../interfaces/enums';
+import CardInterface from '../interfaces/CardInterface';
+import { CardType, RarityType } from '../interfaces/enums';
 import { applyLintFix, getSelfNoun, lintCardFace, RulesTextLintRule } from './rulesTextLint';
+import { getTokenCardFaces } from './tokenLinks';
 
 const face = (overrides: Partial<CardFaceInterface> = {}): CardFaceInterface => ({
   name: 'Grizzled Scout',
@@ -62,7 +64,7 @@ describe('lintCardFace', () => {
   describe('things that render wrong', () => {
     it('flags unknown symbols but not mana, tap or loyalty symbols', () => {
       expect(rules(['{q}: Draw a card.'])).toEqual(['unknown-symbol']);
-      expect(rules(['{T}, {2}{w/u}: Draw a card.'])).toEqual(['unknown-symbol']);
+      expect(rules(['{2}{w/u}, {T}: Draw a card.'])).toEqual(['unknown-symbol']);
       expect(rules(['{2}{wu}{rp}{x}, {t}: Draw a card.'])).toEqual([]);
       expect(
         rules(['+1|Draw a card.', '{-x}|Exile a creature.'], {
@@ -75,6 +77,18 @@ describe('lintCardFace', () => {
     it('flags brackets that are no mechanic and fixes their capitalization', () => {
       expect(rules(['[Enrag] Draw a card.'])).toEqual(['unknown-mechanic']);
       expect(fixed('[enrage] Draw a card.', 'unknown-mechanic')).toBe('[Enrage] Draw a card.');
+    });
+
+    it('accepts brackets that Cleave removes', () => {
+      expect(
+        rules([
+          '[Cleave {1}{W}]',
+          'Choose target creature [your opponent or] you control. Destroy it.',
+        ]),
+      ).not.toContain('unknown-mechanic');
+      expect(rules(['Destroy target creature [your opponent or] you control.'])).toContain(
+        'unknown-mechanic',
+      );
     });
 
     it('ignores brackets until mechanics are loaded', () => {
@@ -331,13 +345,47 @@ describe('lintCardFace', () => {
       expect(rules(['Flying, Trample, Haste'])).toEqual(['capitalization', 'capitalization']);
     });
 
+    it('capitalizes the subtypes of created tokens', () => {
+      expect(fixed('{t}: Create a white 1/1 soldier token.', 'capitalization')).toBe(
+        '{t}: Create a white 1/1 Soldier token.',
+      );
+      expect(
+        rules(['Create two 1/1 green and white elf warrior creature tokens with flying.']),
+      ).toEqual(['capitalization', 'capitalization']);
+      expect(fixed('Create a Food token and a treasure token.', 'capitalization')).toBe(
+        'Create a Food token and a Treasure token.',
+      );
+      expect(fixed('Create an x/x green ooze creature token.', 'capitalization')).toBe(
+        'Create an x/x green Ooze creature token.',
+      );
+    });
+
+    it('leaves capitalized token subtypes and non-descriptions alone', () => {
+      expect(
+        rules([
+          '{t}: Create a white 1/1 Soldier token.',
+          'Create a tapped Treasure token and an additional Clue token.',
+          'Create a token that’s a copy of target creature.',
+          'Create a copy of target token you control.',
+          'Whenever one or more tokens you control die, draw a card.',
+          'Nontoken creatures you control get +1/+1.',
+        ]),
+      ).toEqual([]);
+    });
+
     it('adds a missing period to sentences but not to keyword lines', () => {
       expect(fixed('When this creature enters, draw a card', 'missing-period')).toBe(
         'When this creature enters, draw a card.',
       );
       expect(fixed('{t}: Add {g}', 'missing-period')).toBe('{t}: Add {g}.');
       expect(rules(['Protection from black and from red'])).toEqual([]);
-      expect(rules(['Enchant creature or planeswalker you control'])).toEqual([]);
+      expect(
+        rules(['Enchant creature or planeswalker you control'], {
+          cardTypes: [CardType.Enchantment],
+          cardSubTypes: 'Aura',
+          cardStats: '',
+        }),
+      ).toEqual([]);
       expect(rules(['[Enrage] Draw a card. (Reminder text.)'])).toEqual([]);
     });
 
@@ -358,6 +406,44 @@ describe('lintCardFace', () => {
           'Untap an untapped creature.',
         ]),
       ).toEqual([]);
+    });
+
+    it('fixes periods doubled around quoted abilities', () => {
+      expect(
+        fixed(
+          'Create a Treasure token with "{t}: Add one mana of any color.".',
+          'double-punctuation',
+        ),
+      ).toBe('Create a Treasure token with "{t}: Add one mana of any color."');
+      expect(fixed('It gains "{t}: Add {g}".', 'double-punctuation')).toBe(
+        'It gains "{t}: Add {g}."',
+      );
+      expect(fixed('Draw a card..', 'double-punctuation')).toBe('Draw a card.');
+      expect(
+        rules([
+          'Create a Treasure token with "{t}: Add one mana of any color."',
+          'Look at the top card of your library... then draw a card.',
+          'Name a card called "Bear".',
+        ]),
+      ).toEqual([]);
+    });
+
+    it('fixes activated abilities without a colon or with costs out of order', () => {
+      expect(fixed('{t} Add {g}.', 'activated-ability')).toBe('{t}: Add {g}.');
+      expect(fixed('{1}{g}, {t} Draw a card.', 'activated-ability')).toBe(
+        '{1}{g}, {t}: Draw a card.',
+      );
+      expect(fixed('{t}, {1}: Draw a card.', 'activated-ability')).toBe('{1}, {t}: Draw a card.');
+      expect(fixed('Sacrifice this creature, {t}: Draw a card.', 'activated-ability')).toBe(
+        '{t}, Sacrifice this creature: Draw a card.',
+      );
+      expect(
+        rules([
+          '{2}, {t}, Sacrifice this creature: Draw a card.',
+          '{ut}, Discard a card: Scry 1.',
+          '{r} Draw a card.',
+        ]).filter(rule => rule === 'activated-ability'),
+      ).toEqual(['activated-ability']);
     });
 
     it('fixes double spaces and spaces before punctuation', () => {
@@ -481,6 +567,108 @@ describe('lintCardFace', () => {
       ).toMatchObject([{ rule: 'missing-stats', fieldName: 'Loyalty' }]);
       expect(structure({ cardTypes: [CardType.Instant], cardStats: '' })).toEqual([]);
     });
+
+    const ruleIssues = (rule: RulesTextLintRule, overrides: Partial<CardFaceInterface>) =>
+      lintCardFace(face(overrides), MECHANICS).filter(issue => issue.rule === rule);
+
+    it('offers to add the Aura subtype to an enchantment with an Enchant line', () => {
+      const enchantIssue = (overrides: Partial<CardFaceInterface>) =>
+        ruleIssues('card-type-text', { cardText: ['Enchant creature'], ...overrides })[0];
+
+      expect(
+        enchantIssue({ cardTypes: [CardType.Enchantment], cardSubTypes: '', cardStats: '' })
+          .fieldFix,
+      ).toEqual({ label: 'Add Aura subtype', field: 'cardSubTypes', value: 'Aura' });
+      expect(
+        enchantIssue({
+          cardTypes: [CardType.Enchantment],
+          cardSubTypes: ' Cartouche ',
+          cardStats: '',
+        }).fieldFix?.value,
+      ).toBe('Cartouche Aura');
+      // Only enchantments can be Auras.
+      expect(enchantIssue({}).fieldFix).toBeUndefined();
+    });
+
+    it('points out text that only works on another card type', () => {
+      const typeText = (overrides: Partial<CardFaceInterface>) =>
+        ruleIssues('card-type-text', overrides);
+      const instant = { cardTypes: [CardType.Instant], cardStats: '' };
+
+      expect(typeText({ ...instant, cardText: ['Flash', 'Draw a card.'] })).toMatchObject([
+        { line: 0 },
+      ]);
+      expect(
+        typeText({
+          cardTypes: [CardType.Sorcery],
+          cardStats: '',
+          cardText: ['When this sorcery enters, draw a card.'],
+        })[0].message,
+      ).toContain('never triggers');
+      expect(typeText({ cardText: ['Enchanted creature gets +1/+1.'] })).toHaveLength(1);
+      expect(typeText({ cardText: ['Enchant creature'] })).toHaveLength(1);
+      expect(typeText({ cardText: ['Equipped creature gets +1/+1.'] })).toHaveLength(1);
+      expect(
+        typeText({ cardTypes: [CardType.Planeswalker], legendary: true, cardText: ['Flying'] }),
+      ).toMatchObject([{ line: undefined }]);
+
+      expect(
+        typeText({ ...aura, cardText: ['Enchant creature', 'Enchanted creature gets +1/+1.'] }),
+      ).toEqual([]);
+      expect(typeText({ cardText: ['Bestow {3}{w}', 'Enchanted creature gets +1/+1.'] })).toEqual(
+        [],
+      );
+      expect(
+        typeText({ cardTypes: [CardType.Sorcery], cardStats: '', cardText: ['Flash'] }),
+      ).toEqual([]);
+      expect(
+        typeText({
+          cardTypes: [CardType.Planeswalker],
+          legendary: true,
+          cardText: ['+1|Draw a card.'],
+        }),
+      ).toEqual([]);
+    });
+
+    it('expects keywords at the top and Equip at the bottom', () => {
+      const placement = (cardText: string[], overrides: Partial<CardFaceInterface> = {}) =>
+        ruleIssues('keyword-placement', { cardText, ...overrides });
+      expect(placement(['When this creature enters, draw a card.', 'Flying'])).toMatchObject([
+        { line: 1 },
+      ]);
+      expect(
+        placement(['Equip {2}', 'Equipped creature gets +1/+1.'], {
+          cardTypes: [CardType.Artifact],
+          cardSubTypes: 'Equipment',
+          cardStats: '',
+        }),
+      ).toMatchObject([{ line: 0, message: expect.stringContaining('Equip goes last') }]);
+
+      expect(
+        placement([
+          'Kicker {1}{g}',
+          'Flying, vigilance',
+          'When this creature enters, draw a card.',
+          'Choose one --',
+          '* Scry 2.',
+          '[-Cycling {2}]',
+          'Equip {2}',
+          '[Plunder]',
+        ]),
+      ).toEqual([]);
+    });
+
+    it('points out duplicate and redundant keywords', () => {
+      const keywords = (cardText: string[]) => ruleIssues('duplicate-keyword', { cardText });
+      expect(keywords(['Flying', 'Vigilance, flying'])).toMatchObject([{ line: 1 }]);
+      expect(keywords(['First strike, double strike'])[0].message).toContain(
+        'first strike does nothing next to double strike',
+      );
+      expect(keywords(['Flying, reach'])).toHaveLength(1);
+      expect(keywords(['Hexproof', 'Shroud'])).toMatchObject([{ line: 0 }]);
+      expect(keywords(['Flying, vigilance', 'Ward {2}', 'Protection from red'])).toEqual([]);
+      expect(keywords(['Protection from red', 'Protection from blue'])).toEqual([]);
+    });
   });
 
   it('only checks the evolution, Omen and Prepared fields of cards of that type', () => {
@@ -491,5 +679,163 @@ describe('lintCardFace', () => {
         MECHANICS,
       ).map(issue => [issue.field, issue.fieldName]),
     ).toEqual([['level1Text', 'Level 1 text']]);
+  });
+
+  describe('common complexity', () => {
+    const common = (cardText: string[], overrides: Partial<CardFaceInterface> = {}) =>
+      lintCardFace(face({ cardText, ...overrides }), MECHANICS, { rarity: RarityType.Common })
+        .filter(issue => issue.rule === 'common-complexity')
+        .map(issue => issue.message);
+
+    const longText = [
+      'When this creature enters, look at the top four cards of your library. You may reveal a creature card from among them and put it into your hand.',
+      'Put the rest on the bottom of your library in a random order, then each opponent loses 1 life.',
+    ];
+
+    it('flags long rules text on commons, without counting reminder text', () => {
+      expect(common(longText)).toEqual([expect.stringContaining('47 words')]);
+      expect(
+        common([
+          'Flying (This creature can’t be blocked except by creatures with flying or reach.)',
+        ]),
+      ).toEqual([]);
+    });
+
+    it('flags commons with more than three abilities, counting each keyword', () => {
+      expect(common(['Flying, vigilance', 'When this creature enters, draw a card.'])).toEqual([]);
+      expect(
+        common(['Flying, vigilance, lifelink', 'When this creature enters, draw a card.']),
+      ).toEqual([expect.stringContaining('4 abilities')]);
+    });
+
+    it('counts each mode but not the mode header as an ability', () => {
+      const modal = (extra: string[]) =>
+        common(['Choose one or both -', '* Target player draws a card.', ...extra], {
+          cardTypes: [CardType.Sorcery],
+        });
+      expect(modal(['* Create a Treasure token.', '* [Creation]'])).toEqual([]);
+      expect(modal(['* Create a Treasure token.', '* [Creation]', '* You gain 2 life.'])).toEqual([
+        expect.stringContaining('4 abilities'),
+      ]);
+    });
+
+    it('flags static effects on other creatures on commons', () => {
+      expect(common(['Other Soldiers you control get +1/+1.'])).toEqual([
+        expect.stringContaining('Static effects'),
+      ]);
+      expect(common(['Creatures your opponents control get -1/-0.'])).toHaveLength(1);
+      expect(
+        common(['Enchant creature', 'Enchanted creature gets +2/+2.'], {
+          cardTypes: [CardType.Enchantment],
+          cardSubTypes: 'Aura',
+        }),
+      ).toEqual([]);
+      expect(
+        common(['Creatures you control get +1/+1 until end of turn.'], {
+          cardTypes: [CardType.Instant],
+        }),
+      ).toEqual([]);
+      expect(common(['Whenever another creature you control dies, draw a card.'])).toEqual([]);
+    });
+
+    it('uses looser limits on uncommons and none on rares', () => {
+      const uncommon = (cardText: string[]) =>
+        lintCardFace(face({ cardText }), MECHANICS, { rarity: RarityType.Uncommon }).filter(
+          issue => issue.rule === 'uncommon-complexity',
+        );
+      expect(uncommon(longText)).toEqual([]);
+      expect(uncommon(['Other Soldiers you control get +1/+1.'])).toEqual([]);
+      expect(
+        uncommon([
+          'Flying, vigilance, lifelink',
+          'When this creature enters, draw a card.',
+          'Whenever this creature attacks, scry 1.',
+        ]),
+      ).toMatchObject([{ message: expect.stringContaining('This uncommon has 5 abilities') }]);
+      expect(
+        uncommon([
+          ...longText,
+          'Whenever this creature attacks, each opponent loses 1 life and you gain 1 life for each creature you control.',
+        ]),
+      ).toMatchObject([{ message: expect.stringContaining('66 words') }]);
+
+      expect(
+        lintCardFace(face({ cardText: longText }), MECHANICS, { rarity: RarityType.Rare }),
+      ).toEqual([]);
+    });
+  });
+
+  describe('token cards', () => {
+    const tokenCard = (front: Partial<CardFaceInterface>): CardInterface =>
+      ({
+        uuid: front.name,
+        name: front.name,
+        front: { cardText: [], cardTypes: [CardType.Token, CardType.Creature], ...front },
+      }) as unknown as CardInterface;
+    const tokenCards = getTokenCardFaces([
+      tokenCard({ name: 'Soldier', cardSubTypes: 'Soldier', cardStats: '1/1' }),
+      tokenCard({
+        name: 'Food',
+        cardSubTypes: 'Food',
+        cardTypes: [CardType.Token, CardType.Artifact],
+      }),
+    ]);
+    const tokens = (cardText: string[]) =>
+      lintCardFace(face({ cardText }), MECHANICS, { tokenCards })
+        .filter(issue => issue.rule === 'token-card')
+        .map(issue => issue.message);
+
+    it('accepts tokens that have a token card', () => {
+      expect(
+        tokens([
+          'When this creature enters, create a 1/1 white Soldier creature token and a Food token.',
+        ]),
+      ).toEqual([]);
+    });
+
+    it('flags tokens without a token card on their line', () => {
+      const [issue] = lintCardFace(
+        face({ cardText: ['Flying', 'When this creature enters, create a Treasure token.'] }),
+        MECHANICS,
+        { tokenCards },
+      );
+      expect(issue).toMatchObject({
+        rule: 'token-card',
+        field: 'cardText',
+        line: 1,
+        message:
+          "There's no token card for the Treasure token this creates. Add one so the token is printed with the set.",
+      });
+    });
+
+    it('flags a token card with other power and toughness', () => {
+      expect(tokens(['Create two 2/2 white Soldier creature tokens.'])).toEqual([
+        'This creates a 2/2 Soldier token, but the Soldier token card is 1/1.',
+      ]);
+    });
+
+    it('flags tokens a custom mechanic creates', () => {
+      const plunder = {
+        uuid: 'plunder',
+        name: 'Plunder',
+        description: 'Create {ref} Treasure tokens.',
+      };
+      const [issue] = lintCardFace(face({ cardText: ['[Plunder 2]'] }), [...MECHANICS, plunder], {
+        tokenCards,
+      }).filter(found => found.rule === 'token-card');
+      expect(issue).toMatchObject({
+        line: 0,
+        message:
+          "There's no token card for the Treasure token this creates through [Plunder]. Add one so the token is printed with the set.",
+      });
+    });
+
+    it('is skipped without token cards', () => {
+      expect(
+        lintCardFace(face({ cardText: ['Create a Treasure token.'] }), MECHANICS).map(
+          issue => issue.rule,
+        ),
+      ).not.toContain('token-card');
+    });
   });
 });

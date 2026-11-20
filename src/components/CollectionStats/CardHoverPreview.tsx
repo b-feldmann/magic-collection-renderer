@@ -13,10 +13,12 @@ const RenderedCard = ({
   card,
   collectionNumber,
   collectionSize,
+  width,
 }: {
   card: CardInterface;
   collectionNumber: number;
   collectionSize: number;
+  width: number;
 }) => {
   const { dispatch } = useContext(Store);
   // Covers load lazily; fetch it when the preview opens, as the collection grid does.
@@ -24,9 +26,14 @@ const RenderedCard = ({
     if (isLoadingCover(card.front.cover)) getImage(dispatch, card, 0);
   }, [card, dispatch]);
   return (
-    <div className={styles.cardPreview} aria-label={`Preview of ${card.name}`} role="img">
+    <div
+      className={styles.cardPreview}
+      style={{ width }}
+      aria-label={`Preview of ${card.name}`}
+      role="img"
+    >
       <CardRender
-        containerWidth={PREVIEW_WIDTH}
+        containerWidth={width}
         {...card.front}
         cardID={card.uuid}
         rarity={card.rarity}
@@ -58,18 +65,20 @@ type RowHandlers = Pick<
 >;
 
 /**
- * Shows the rendered card in a popup for `children` (a table row): after a short hover with
+ * Shows the rendered card in a popup for `children` (a table row or a small card): after a short hover with
  * a mouse, or after a long press on touch screens, where a tap or scroll does not open it.
  */
 const CardHoverPreview = ({
   card,
   collectionNumber,
   collectionSize,
+  previewWidth = PREVIEW_WIDTH,
   children,
 }: {
   card: CardInterface;
   collectionNumber: number;
   collectionSize: number;
+  previewWidth?: number;
   children: React.ReactElement<RowHandlers>;
 }) => {
   const [openedBy, setOpenedBy] = useState<'mouse' | 'touch' | null>(null);
@@ -138,6 +147,7 @@ const CardHoverPreview = ({
           card={card}
           collectionNumber={collectionNumber}
           collectionSize={collectionSize}
+          width={previewWidth}
         />
       }
     >

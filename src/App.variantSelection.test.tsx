@@ -147,22 +147,26 @@ describe.each([
       </Store.Provider>,
     );
 
-  it.each(['All', 'Card drafts / idea dump', 'Cards to rate', 'Approved cards'])(
-    'remembers the %s tab after remounting',
-    tab => {
-      const { unmount } = showApp();
-      fireEvent.click(screen.getByRole('tab', { name: /^All/ }));
-      fireEvent.click(screen.getByRole('tab', { name: new RegExp(tab) }));
-      expect(localStorage.getItem('mtg-funset:ActiveCardTab:v1')).toBe(`tab-key-${tab}`);
-      unmount();
+  it.each([
+    'All',
+    'Card drafts / idea dump',
+    'Cards to rate',
+    'Approved cards',
+    'Tokens',
+    'Basic Lands',
+  ])('remembers the %s tab after remounting', tab => {
+    const { unmount } = showApp();
+    fireEvent.click(screen.getByRole('tab', { name: /^All/ }));
+    fireEvent.click(screen.getByRole('tab', { name: new RegExp(tab) }));
+    expect(localStorage.getItem('mtg-funset:ActiveCardTab:v1')).toBe(`tab-key-${tab}`);
+    unmount();
 
-      showApp();
-      expect(screen.getByRole('tab', { name: new RegExp(tab) })).toHaveAttribute(
-        'aria-selected',
-        'true',
-      );
-    },
-  );
+    showApp();
+    expect(screen.getByRole('tab', { name: new RegExp(tab) })).toHaveAttribute(
+      'aria-selected',
+      'true',
+    );
+  });
 
   it('falls back to Card drafts when the saved tab is invalid', () => {
     localStorage.setItem('mtg-funset:ActiveCardTab:v1', 'tab-key-removed');

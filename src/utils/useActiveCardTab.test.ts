@@ -19,6 +19,12 @@ describe('useActiveCardTab', () => {
     expect(result.current[0]).toBe('tab-key-Card drafts / idea dump');
   });
 
+  it('offers the tokens tab', () => {
+    const { result } = renderHook(() => useActiveCardTab());
+    act(() => result.current[1]('tab-key-Tokens'));
+    expect(result.current[0]).toBe('tab-key-Tokens');
+  });
+
   it('saves a newly selected tab', () => {
     const { result } = renderHook(() => useActiveCardTab());
     act(() => result.current[1]('tab-key-All'));

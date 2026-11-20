@@ -1,0 +1,50 @@
+.tokenLinks {
+  margin-top: 6px;
+  font-size: 13px;
+}
+
+.label {
+  display: block;
+  margin-bottom: 4px;
+  color: #6f7b6d;
+}
+
+.list {
+  // Two token cards side by side, filling the field's width.
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  // COLUMN_GAP in TokenLinks.tsx.
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.card {
+  display: block;
+  padding: 0;
+  border: 0;
+  // The card render's rounded corners.
+  border-radius: 6px;
+  background: none;
+  line-height: 0;
+  text-align: left;
+  font: inherit;
+}
+
+button.card {
+  cursor: pointer;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  }
+
+  &:focus-visible {
+    outline: 2px solid #2e6347;
+    outline-offset: 2px;
+  }
+}

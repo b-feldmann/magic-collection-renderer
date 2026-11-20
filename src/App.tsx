@@ -7,7 +7,7 @@ import CollectionActions from './components/CollectionActions/CollectionActions'
 import fileDownload from 'js-file-download';
 
 import CardInterface from './interfaces/CardInterface';
-import { CardState, SORT_BY_LABELS, SortByType } from './interfaces/enums';
+import { SORT_BY_LABELS, SortByType } from './interfaces/enums';
 import CardCollection from './components/CardCollection/CardCollection';
 import CollectionStats from './components/CollectionStats/CollectionStats';
 import { getNextVariantId, getVariantGroups, withLatestVariantIds } from './utils/cardVariants';
@@ -32,6 +32,7 @@ import MechanicModal from './components/MechanicModal/MechanicModal';
 import useLocalStorage from './utils/useLocalStorageHook';
 import ChangeLogModal from './components/ChangeLogModal/ChangeLogModal';
 import BigCardRenderModal from './components/BigCardRenderModal/BigCardRenderModal';
+import SamplePackModal from './components/SamplePack/SamplePackModal';
 import {
   CollectionPdfProgress,
   useCollectionPdfExport,
@@ -48,6 +49,7 @@ import { COLLECTION_TABS_INSET, UNKNOWN_CREATOR } from './utils/constants';
 import { matchesSelectedTags } from './utils/cardTagFilter';
 import { matchesColorFilter } from './utils/colorFilter';
 import useActiveCardTab from './utils/useActiveCardTab';
+import { CARD_TABS, tabKey } from './utils/cardTabs';
 import useTabsOverCards from './utils/useTabsOverCards';
 
 const { Search } = Input;
@@ -64,26 +66,6 @@ const STATS_CORNER_OVERLAP = 12;
 // Together with the last row's 4px cell padding this leaves the same 8px gap
 // below the cards as between the cards and the sidebar.
 const LAST_ROW_GAP = 4;
-
-// Shared tab definitions so the collection grid and the sidebar filter counts
-// agree on which cards belong to each tab.
-const CARD_TABS: { name: string; filter: (o: CardInterface) => boolean }[] = [
-  { name: 'All', filter: () => true },
-  {
-    name: 'Card drafts / idea dump',
-    filter: (o: CardInterface) => o.meta.state === CardState.Draft,
-  },
-  {
-    name: 'Cards to rate',
-    filter: (o: CardInterface) => o.meta.state === CardState.Rate,
-  },
-  {
-    name: 'Approved cards',
-    filter: (o: CardInterface) => o.meta.state === CardState.Approved,
-  },
-];
-
-const tabKey = (name: string) => `tab-key-${name}`;
 
 export const openMechanicEditor = (
   closeCardModal: (visible: boolean) => void,
@@ -104,6 +86,7 @@ const App: React.FC = () => {
   const [cardEditId, setCardEditId] = useState<string>(NO_CARD);
   const [cardViewId, setCardViewId] = useState<string>(NO_CARD);
   const [showCardModal, setShowCardModal] = useState<boolean>(false);
+  const [showSamplePack, setShowSamplePack] = useState(false);
   const [cardNameFilter, setCardNameFilter] = useState<string>('');
   const [mechanicsVisible, setMechanicsVisible] = useState(false);
   const [sortBy, setSortBy] = useLocalStorage('mtg-funset:SortBy', SortByType.LastUpdated) as [
@@ -400,6 +383,7 @@ const App: React.FC = () => {
             card={getCardUndefined(collection, cardEditId)}
             saveTmpCard={setTmpCard}
             onCardDeleted={handleCardDeleted}
+            onOpenCard={id => openCardInEditor(id, getCard(collection, cardEditId).name)}
             onDraftChange={draft => {
               pendingDraftRef.current = draft;
             }}
@@ -508,6 +492,7 @@ const App: React.FC = () => {
               onSwitchUser={nextUser => setCurrentUser(dispatch, nextUser)}
               onDownload={() => downloadCollectionAsJson(visibleCollection)}
               onDownloadPdf={() => pdfExport.start(visibleCollection, filteredCollection)}
+              onOpenSamplePack={() => setShowSamplePack(true)}
               onReload={refresh}
             />
           </aside>
@@ -517,6 +502,12 @@ const App: React.FC = () => {
         </Col>
       </Row>
       <CollectionPdfProgress progress={pdfExport.progress} onCancel={pdfExport.cancel} />
+      <SamplePackModal
+        open={showSamplePack}
+        onClose={() => setShowSamplePack(false)}
+        cards={visibleCollection}
+        allCards={mergedCollection}
+      />
       <BigCardRenderModal
         onSelectVariant={switchCardVariant}
         card={getCard(filteredCollection, cardViewId)}

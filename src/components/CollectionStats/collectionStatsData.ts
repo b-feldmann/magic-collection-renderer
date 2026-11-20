@@ -191,7 +191,7 @@ export interface ColorCardList {
   roleCounts: Record<DraftRole, number>;
 }
 
-const getRarityTier = (rarity: RarityType): RarityTier => {
+export const getRarityTier = (rarity: RarityType): RarityTier => {
   if (rarity === RarityType.Uncommon) return 'uncommon';
   if (rarity === RarityType.Rare || rarity === RarityType.MythicRare) return 'rare';
   return 'common';

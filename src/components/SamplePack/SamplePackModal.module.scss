@@ -1,0 +1,107 @@
+// The modal always fits the viewport: the cards are sized to the height left in it (see
+// packLayout and MODAL_MARGIN).
+.modal {
+  top: 16px;
+  max-width: calc(100vw - 16px);
+  padding-bottom: 0;
+
+  // antd 6 calls the dialog box .ant-modal-container.
+  :global(.ant-modal-container) {
+    max-height: calc(100vh - 32px);
+    max-height: calc(100dvh - 32px);
+    overflow: hidden;
+  }
+}
+
+.pack {
+  color: #2b4032;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  margin-bottom: 12px;
+}
+
+.summary {
+  flex: 1 1 320px;
+  margin: 0;
+  color: #6f7b6d;
+  font-size: 12px;
+}
+
+.shortfalls {
+  margin: 0 0 12px;
+  padding: 8px 12px 8px 28px;
+  border: 1px solid #ecd9b5;
+  border-radius: 8px;
+  background: #fdf8ee;
+  color: #6b5222;
+  font-size: 12px;
+}
+
+.cardsArea {
+  // Never scrolls: the cards are sized to fit. The padding leaves room for the hover lift.
+  overflow: hidden;
+  padding: 6px;
+}
+
+.cards {
+  // Columns as wide as the card renders, centered, with rows filled from the left.
+  display: grid;
+  grid-template-columns: repeat(var(--pack-columns, 5), var(--pack-card-width, 180px));
+  justify-content: center;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  line-height: 0;
+  // The card render puts its cover at a negative z-index; without a stacking context of its
+  // own the cover lands behind the modal's white background.
+  isolation: isolate;
+
+  > :first-child {
+    // The card render's rounded corners.
+    border-radius: 6px;
+    transition:
+      transform 0.15s ease,
+      box-shadow 0.15s ease;
+  }
+
+  &:hover > :first-child {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  }
+}
+
+.slot {
+  color: #6f7b6d;
+  font-size: 11px;
+  line-height: 14px;
+
+  &[data-slot='Rare'],
+  &[data-slot='Mythic Rare'] {
+    color: #8a6d1f;
+    font-weight: 600;
+  }
+
+  &[data-slot='Mythic Rare'] {
+    color: #a24a2a;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card > :first-child {
+    transition: none;
+  }
+}

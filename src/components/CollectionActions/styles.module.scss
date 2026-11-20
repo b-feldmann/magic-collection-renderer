@@ -22,6 +22,24 @@
     color: #fff;
   }
 }
+.samplePackButton:global(.ant-btn) {
+  width: 100%;
+  height: var(--control-height);
+  margin-top: 6px;
+  border: 1px solid #c9a24a;
+  border-radius: var(--control-radius);
+  background: #fbf3df;
+  color: #6b4f12;
+  box-shadow: none;
+  font-size: 12px;
+  font-weight: 600;
+  &:hover,
+  &:focus-visible {
+    background: #f6e8c4;
+    border-color: #b08933;
+    color: #5a420f;
+  }
+}
 .mechanicsButton:global(.ant-btn) {
   width: 100%;
   height: var(--control-height);
@@ -103,8 +121,14 @@
   column-gap: 8px;
   padding-bottom: max(10px, env(safe-area-inset-bottom));
   .createButton:global(.ant-btn),
+  .samplePackButton:global(.ant-btn),
   .mechanicsButton:global(.ant-btn) {
     margin-top: 0;
+  }
+  // Its own row under Create card and Edit mechanics.
+  .samplePackButton:global(.ant-btn) {
+    grid-column: 1 / -1;
+    margin-top: 6px;
   }
   .accountRow {
     grid-column: 1 / -1;
@@ -117,5 +141,8 @@
   @media (min-width: 600px) {
     grid-template-columns: minmax(0, 1fr);
     row-gap: 6px;
+    .samplePackButton:global(.ant-btn) {
+      margin-top: 0;
+    }
   }
 }

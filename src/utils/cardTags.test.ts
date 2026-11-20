@@ -43,15 +43,15 @@ describe('getCardTags', () => {
     ).toEqual(['Lifelink']);
   });
 
-  it.each(['Flying', 'flying', 'FLYING', 'This creature has flying.', '[flying]'])(
+  it.each(['Vigilance', 'vigilance', 'VIGILANCE', 'This creature has vigilance.', '[vigilance]'])(
     'finds a mechanic name without brackets and in any letter case: %s',
     cardText => {
       expect(
         getAutomaticCardTags(
           card({ front: { name: 'Test Card', cardTypes: [], cardText: [cardText] } }),
-          [mechanic('Flying')],
+          [mechanic('Vigilance')],
         ),
-      ).toEqual(['Flying']);
+      ).toEqual(['Vigilance']);
     },
   );
 
@@ -102,10 +102,10 @@ describe('getCardTags', () => {
   });
 
   it('adds the tag when the word is typed and removes it when the word is deleted', () => {
-    const empty = card({ front: { name: 'Test Card', cardTypes: [], cardText: ['Draw a card'] } });
+    const empty = card({ front: { name: 'Test Card', cardTypes: [], cardText: ['Gain 1 life'] } });
     const typed = card({
       tags: ['manual'],
-      front: { name: 'Test Card', cardTypes: [], cardText: ['Draw a card, then scry 1'] },
+      front: { name: 'Test Card', cardTypes: [], cardText: ['Gain 1 life, then scry 1'] },
     });
     const mechanics = [mechanic('Scry')];
 
@@ -119,12 +119,15 @@ describe('getCardTags', () => {
 
   it('uses the mechanic spelling when a manual tag differs only by case', () => {
     const tagged = card({
-      tags: ['flying', 'custom'],
-      front: { name: 'Test Card', cardTypes: [], cardText: ['flying'] },
+      tags: ['vigilance', 'custom'],
+      front: { name: 'Test Card', cardTypes: [], cardText: ['vigilance'] },
     });
 
-    expect(getCardTags(tagged, [mechanic('Flying')])).toEqual(['Flying', 'custom']);
-    expect(updateCardTags(tagged, tagged, [mechanic('Flying')])).toEqual(['Flying', 'custom']);
+    expect(getCardTags(tagged, [mechanic('Vigilance')])).toEqual(['Vigilance', 'custom']);
+    expect(updateCardTags(tagged, tagged, [mechanic('Vigilance')])).toEqual([
+      'Vigilance',
+      'custom',
+    ]);
   });
 
   describe('mechanics referenced by a mechanic on the card', () => {
@@ -157,7 +160,7 @@ describe('getCardTags', () => {
     });
 
     it('ignores descriptions of mechanics that are not on the card', () => {
-      expect(getAutomaticCardTags(withText('Draw a card'), [discard, cycling])).toEqual([]);
+      expect(getAutomaticCardTags(withText('Gain 1 life'), [discard, cycling])).toEqual([]);
     });
 
     it('handles mechanics that reference each other or themselves', () => {
@@ -172,7 +175,7 @@ describe('getCardTags', () => {
         tags: ['Discard', 'Cycling', 'manual'],
         front: { name: 'Test Card', cardTypes: [], cardText: ['Cycling'] },
       });
-      const next = { ...previous, front: { ...previous.front, cardText: ['Draw a card'] } };
+      const next = { ...previous, front: { ...previous.front, cardText: ['Gain 1 life'] } };
 
       expect(updateCardTags(previous, next, [discard, cycling])).toEqual(['manual']);
     });
