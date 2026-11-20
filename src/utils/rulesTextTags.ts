@@ -184,6 +184,16 @@ export const RULES_TEXT_TAG_RULES: RulesTextTagRule[] = [
     ],
   },
   {
+    tag: 'Token Creation',
+    patterns: [
+      // "Create a 1/1 white Soldier creature token", "create a Treasure token", "create a token
+      // that's a copy of …". Not tokens handed to an opponent ("Its controller creates a 1/1 token").
+      /(?<!\b(?:its controller|that player|target player|target opponent|each opponent|an opponent|its owner) )\bcreates? [^.]*?\btokens?\b/,
+      // Keyword actions and abilities that create tokens.
+      /\b(?:investigates?|amass(?:es)?|populates?|incubates?|afterlife|embalm|eternalize|myriad|living weapon|offspring)\b/,
+    ],
+  },
+  {
     tag: 'Mana Sink',
     // A repeatable activated ability that costs mana, so spare mana has a use every turn. Mana
     // abilities and one-shot abilities that sacrifice or exile the card itself don't count.

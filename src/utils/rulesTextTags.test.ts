@@ -23,11 +23,11 @@ const examples: Example[] = [
       'When ~ enters the battlefield create a food token.\n' +
       '\n' +
       '{t}: Add one mana of any color',
-    tags: ['Ramp', 'Fixing'],
+    tags: ['Ramp', 'Fixing', 'Token Creation'],
   },
   {
     text: 'Search your library for up to two basic land cards, put them onto the battlefield, then shuffle. Create a Food token for each basic land type among lands you control and a Junk token for each basic land type among land cards in your graveyard.',
-    tags: ['Ramp', 'Fixing'],
+    tags: ['Ramp', 'Fixing', 'Token Creation'],
   },
   {
     text:
@@ -288,8 +288,12 @@ const examples: Example[] = [
   { text: 'Draw two cards.', tags: ['Card Draw'] },
   { text: 'Target player draws three cards and loses 3 life.', tags: ['Card Draw'] },
   { text: 'Draw cards equal to the number of creatures you control.', tags: ['Card Draw'] },
-  { text: 'When this creature enters, investigate.', types: creature, tags: ['Card Draw'] },
-  { text: 'Create a Clue token.', tags: ['Card Draw'] },
+  {
+    text: 'When this creature enters, investigate.',
+    types: creature,
+    tags: ['Card Draw', 'Token Creation'],
+  },
+  { text: 'Create a Clue token.', tags: ['Card Draw', 'Token Creation'] },
   { text: 'Draw two cards, then discard a card.', tags: ['Card Draw'] },
   { text: '{T}: Draw a card, then discard a card.', types: creature, tags: [] },
   { text: 'Discard a card, then draw a card.', tags: [] },
@@ -315,7 +319,7 @@ const examples: Example[] = [
   {
     text: 'When this creature enters, create a Treasure token.',
     types: creature,
-    tags: ['Fixing'],
+    tags: ['Fixing', 'Token Creation'],
   },
   {
     text: 'Search your library for a Mountain card, put it into your hand, then shuffle.',
@@ -337,6 +341,29 @@ const examples: Example[] = [
     tags: [],
   },
 
+  // Token Creation
+  {
+    text: 'Create two 1/1 white Soldier creature tokens.',
+    tags: ['Token Creation'],
+  },
+  {
+    text: 'When this creature enters, create a token that’s a copy of target creature you control.',
+    types: creature,
+    tags: ['Token Creation'],
+  },
+  { text: 'Amass Orcs 2.', tags: ['Token Creation'] },
+  { text: 'Populate.', tags: ['Token Creation'] },
+  {
+    text: 'Afterlife 1 (When this creature dies, create a 1/1 white and black Spirit creature token with flying.)',
+    types: creature,
+    tags: ['Token Creation'],
+  },
+  {
+    text: 'Destroy target creature. Its controller creates a 3/3 Beast creature token.',
+    tags: ['Creature Removal'],
+  },
+  { text: 'Sacrifice a token: You gain 2 life.', tags: [] },
+
   // Mana Sink
   {
     text: '{1}{R}: This creature gets +1/+0 until end of turn.',
@@ -357,7 +384,7 @@ const examples: Example[] = [
   {
     text: '{2}{B}, Exile this card from your graveyard: Create a 2/2 black Zombie creature token.',
     types: creature,
-    tags: [],
+    tags: ['Token Creation'],
   },
   { text: '{T}, Pay 1 life: Add {B}.', types: [CardType.Land], tags: [] },
   { text: 'Equip {2}', types: [CardType.Artifact], tags: [] },
