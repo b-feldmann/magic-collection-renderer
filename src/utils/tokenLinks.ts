@@ -58,6 +58,8 @@ const CREATE = new RegExp(String.raw`\bcreates?\s+(?:${COUNT}\s+)?([^.;]*?)\btok
 // "… token and a Treasure token", "… token or a Food token".
 const ALSO = new RegExp(String.raw`^,?\s+(?:and|or)\s+(?:${COUNT}\s+)?([^.;]*?)\btokens?\b`, 'i');
 const NAMED = /^\s+named\s+(.+?)(?=\s+with\b|\s+that\b|[.,;"]|$)/i;
+// "create Princess, a legendary 4/4 black Dog creature token": the name leads the description.
+const LEADING_NAME = /^(\p{Lu}[^,"“]*?),\s+an?\s+/u;
 const WITH = /^\s+with\s+/i;
 const QUOTED = /^["“]([^"”]*)["”]/;
 const ABILITY_SEPARATOR = /^(?:,\s*(?:and\s+)?|\s+and\s+)(?=["“\p{L}])/u;
@@ -330,8 +332,10 @@ const parseText = (text: string, field: string, line: number): CreatedToken[] =>
     let description = match[1];
     let rest = plain.slice(match.index + match[0].length);
     for (;;) {
+      const leading = description.match(LEADING_NAME);
+      if (leading) description = description.slice(leading[0].length);
       const named = rest.match(NAMED);
-      const name = named?.[1].trim();
+      const name = named?.[1].trim() || leading?.[1].trim();
       const abilities = parseAbilities(named ? rest.slice(named[0].length) : rest);
       const token = describe(description, field, line, name, abilities);
       if (token) tokens.push(token);
@@ -396,7 +400,8 @@ export const findLowercaseTokenSubtypes = (text: string): { index: number; word:
   const found: { index: number; word: string }[] = [];
   // `match` ends with the description followed by "token(s)".
   const check = (match: RegExpMatchArray, offset: number) => {
-    const description = match[1];
+    // The leading name of "create Princess, a … token" isn't a subtype.
+    const description = match[1].replace(LEADING_NAME, '');
     if (NOT_A_DESCRIPTION.test(description)) return;
     const tokenWord = match[0].match(/tokens?$/i)?.[0] ?? '';
     const start = offset + match[0].length - tokenWord.length - description.length;

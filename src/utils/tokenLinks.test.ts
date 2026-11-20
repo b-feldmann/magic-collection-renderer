@@ -4,6 +4,7 @@ import CardInterface from '../interfaces/CardInterface';
 import { CardType, ColorType } from '../interfaces/enums';
 import { lintCardFace } from './rulesTextLint';
 import {
+  findLowercaseTokenSubtypes,
   getCreatedTokens,
   getTokenCard,
   getTokenCardFaces,
@@ -42,8 +43,65 @@ describe('parseCreatedTokens', () => {
     ['If you investigated this turn, draw a card.', []],
     ['Create a Monster Role token attached to target creature you control.', ['Monster Role']],
     ['Create a Young Hero Role token attached to up to one target creature.', ['Young Hero Role']],
+    [
+      'When ~ enters, create Princess, a legendary 4/4 black Dog creature token with Menace.',
+      ['4/4 Princess'],
+    ],
   ])('%s → %j', (text, expected) => {
     expect(labels(text)).toEqual(expected);
+  });
+
+  it('reads a name that leads the token description', () => {
+    const [token] = parseCreatedTokens(
+      'When ~ enters, create Princess, a legendary 4/4 black Dog creature token with Menace and "Sacrifice another creature: Put a +1/+1 counter on Princess. Activate only as a sorcery."',
+    );
+    expect(token).toMatchObject({
+      name: 'Princess',
+      subtypes: ['Dog'],
+      stats: '4/4',
+      cardTypes: [CardType.Creature],
+      colors: [ColorType.Black],
+      legendary: true,
+      abilities: [
+        'Menace',
+        'Sacrifice another creature: Put a +1/+1 counter on Princess. Activate only as a sorcery.',
+      ],
+    });
+    expect(getTokenCard(token).front).toMatchObject({
+      name: 'Princess',
+      cardSubTypes: 'Dog',
+      legendary: true,
+    });
+  });
+
+  it('links a leading-name token to the token card with that name', () => {
+    const princess = {
+      uuid: 'princess',
+      name: 'Princess',
+      front: {
+        name: 'Princess',
+        cardTypes: [CardType.Token, CardType.Creature],
+        cardSubTypes: 'Dog',
+        cardStats: '4/4',
+      },
+    } as CardInterface;
+    const [link] = getTokenLinks(
+      {
+        name: 'Owner',
+        cardText: ['When ~ enters, create Princess, a legendary 4/4 black Dog creature token.'],
+      } as CardFaceInterface,
+      getTokenCardFaces([princess]),
+    );
+    expect(link.match?.card.uuid).toBe('princess');
+  });
+
+  it('does not take the leading name or its article for lowercase subtypes', () => {
+    expect(
+      findLowercaseTokenSubtypes('Create Princess, a legendary 4/4 black Dog creature token.'),
+    ).toEqual([]);
+    expect(
+      findLowercaseTokenSubtypes('Create Princess, a legendary 4/4 black dog creature token.'),
+    ).toEqual([{ index: 39, word: 'dog' }]);
   });
 });
 
