@@ -66,9 +66,6 @@
   align-items: center;
   gap: 3px;
   line-height: 0;
-  // The card render puts its cover at a negative z-index; without a stacking context of its
-  // own the cover lands behind the modal's white background.
-  isolation: isolate;
 
   > :first-child {
     // The card render's rounded corners.

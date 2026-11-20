@@ -43,6 +43,9 @@
   // Clip the parallax cover (RotateToMouse translates/scales it) to the card
   // border; every other layer is designed to sit inside the card anyway.
   overflow: hidden;
+  // The cover and main frame sit at negative z-indexes; their own stacking context keeps them
+  // inside the card instead of behind the background of whatever the card is placed on.
+  isolation: isolate;
 
   .mainframe {
     border-radius: 60px;
