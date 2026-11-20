@@ -5,9 +5,21 @@ import { BULLET_PREFIX, isKnownSymbol } from './injectUtils';
 import {
   CreatedToken,
   findLowercaseTokenSubtypes,
+  findUncreatedTokenReferences,
+  getTokenDetailDifferences,
   getTokenLinks,
   TokenCardMatch,
+  TokenLink,
 } from './tokenLinks';
+import {
+  expandTokenReferences,
+  maskTokenReferences,
+  parseTokenReference,
+  resolveTokenReference,
+  TOKEN_REFERENCE,
+  tokenReferenceFor,
+  unmaskTokenReferences,
+} from './tokenReferences';
 
 /**
  * Templating checks for rules text, shown as hints in the card editor.
@@ -32,6 +44,7 @@ export type RulesTextLintRule =
   | 'mana-value'
   | 'pronoun'
   | 'until-end-of-turn'
+  | 'your-choice-of'
   | 'create-token'
   | 'number-words'
   | 'when-whenever'
@@ -54,7 +67,9 @@ export type RulesTextLintRule =
   | 'uncommon-complexity'
   | 'activated-ability'
   | 'keyword-placement'
-  | 'token-card';
+  | 'token-card'
+  | 'token-reference'
+  | 'token-shorthand';
 
 export interface LintFieldFix {
   label: string;
@@ -95,6 +110,8 @@ interface Finding {
 interface LineContext {
   // The text after a planeswalker cost ("+1|") and a bullet ("* ").
   body: string;
+  // `body` with its token references ("[Token: …]"), which `body` masks.
+  bodyWithReferences: string;
   face: CardFaceInterface;
   mechanics: MechanicInterface[];
   // How this card refers to itself in this field ("creature", "Equipment", ...), or null to
@@ -467,6 +484,28 @@ const untilEndOfTurn: Check = ({ body }) =>
       fixLabel: 'Use "until end of turn"',
     }));
 
+// A choice from a list of keywords or keyword counters puts "your choice of" in front:
+// "gains your choice of flying or lifelink". A single open choice keeps "… of your choice"
+// ("protection from the color of your choice", "sacrifices a creature of their choice").
+const KEYWORD_OPTION = String.raw`(?:an? )?(?:${KEYWORDS.join('|')})(?: counters?)?`;
+const KEYWORD_CHOICE = new RegExp(
+  String.raw`\b(${KEYWORD_OPTION}(?:(?:, (?:or )?| or )${KEYWORD_OPTION})+) of (your|their) choice\b`,
+  'gi',
+);
+
+const yourChoiceOf: Check = ({ body }) =>
+  [...body.matchAll(KEYWORD_CHOICE)].map(match => {
+    const [phrase, options, owner] = match;
+    const replacement = matchCase(phrase, `${owner.toLowerCase()} choice of ${options}`);
+    return {
+      rule: 'your-choice-of',
+      severity: 'suggestion',
+      message: `A choice from a list of options is written "${owner.toLowerCase()} choice of …" in front of the list, e.g. "gains your choice of flying or lifelink until end of turn".`,
+      fixed: replaceAt(body, match.index, phrase.length, replacement),
+      fixLabel: `Use "${owner.toLowerCase()} choice of"`,
+    };
+  });
+
 const createToken: Check = ({ body }) =>
   /\bput (?:a|an|one|two|three|four|five|six|seven|eight|nine|ten|x|\d+) [^.]*?\btokens? onto the battlefield\b/i.test(
     body,
@@ -480,6 +519,16 @@ const createToken: Check = ({ body }) =>
       ]
     : [];
 
+// 'token with: "{T}: Add {G}."' → 'token with "{T}: Add {G}."'
+const tokenWithColon: Check = ({ body }) =>
+  [...body.matchAll(/\btokens?\b[^."“]*?\bwith(:)/gi)].map(match => ({
+    rule: 'create-token',
+    severity: 'suggestion',
+    message: `Abilities follow "with" without a colon, e.g. 'create a Treasure token with "{t}: Add one mana of any color."'`,
+    fixed: replaceAt(body, match.index + match[0].length - 1, 1, ''),
+    fixLabel: 'Remove the colon',
+  }));
+
 // Token subtypes are capitalized like creature types: "Create a 1/1 white Soldier creature token."
 const tokenSubtypeCase: Check = ({ body }) =>
   findLowercaseTokenSubtypes(body).map(({ index, word }) => ({
@@ -488,6 +537,14 @@ const tokenSubtypeCase: Check = ({ body }) =>
     message: `Token subtypes start with a capital letter: "${capitalize(word)}".`,
     fixed: replaceAt(body, index, 1, word.charAt(0).toUpperCase()),
     fixLabel: `Use "${capitalize(word)}"`,
+  }));
+
+// "[Token: …]" stands for a token the text creates: "Create two [Token: 1/1 red Rogue]."
+const uncreatedTokenReference: Check = ({ bodyWithReferences }) =>
+  findUncreatedTokenReferences(bodyWithReferences).map(({ reference }) => ({
+    rule: 'token-reference',
+    severity: 'warning',
+    message: `${reference} isn't created here. A token reference stands for a token the text creates, e.g. "Create two [Token: 1/1 red Rogue]." Write other mentions of a token out, e.g. "Sacrifice a Treasure."`,
   }));
 
 const capitalization: Check = ({ body }) => {
@@ -947,7 +1004,9 @@ const CHECKS: Check[] = [
   manaValue,
   pronouns,
   untilEndOfTurn,
+  yourChoiceOf,
   createToken,
+  tokenWithColon,
   numberWords,
   whenWhenever,
   dies,
@@ -956,6 +1015,7 @@ const CHECKS: Check[] = [
   spacing,
   capitalization,
   tokenSubtypeCase,
+  uncreatedTokenReference,
   missingPeriod,
   doublePunctuation,
   activatedAbility,
@@ -1419,30 +1479,161 @@ const rarityComplexity = (
   return issues;
 };
 
+const cardNames = (matches: TokenCardMatch[]) =>
+  matches.map(({ face }) => `${face.name}${face.cardStats ? ` ${face.cardStats}` : ''}`).join(', ');
+
+/**
+ * A reference whose description finds one token card, but whose abilities that card doesn't
+ * (or no longer) have: the line with the reference rewritten from the token card.
+ */
+const outdatedReferenceFix = (
+  token: CreatedToken,
+  line: string | undefined,
+  tokenCards: TokenCardMatch[],
+): { face: CardFaceInterface; line: string } | undefined => {
+  if (line === undefined || token.reference === undefined) return undefined;
+  const { description } = parseTokenReference(token.reference);
+  const [match, ...others] = resolveTokenReference(description, tokenCards);
+  if (!match || others.length) return undefined;
+  const typed = [...line.matchAll(TOKEN_REFERENCE)].find(
+    reference => reference[1].trim() === token.reference,
+  );
+  if (!typed) return undefined;
+  const updated = `[Token: ${tokenReferenceFor(match.face)}]`;
+  return {
+    face: match.face,
+    line: line.slice(0, typed.index) + updated + line.slice(typed.index + typed[0].length),
+  };
+};
+
+// A token reference finds no token card, or several.
+const tokenReferenceIssue = (
+  { token, candidates = [] }: TokenLink,
+  base: Omit<RulesTextLintIssue, 'rule' | 'severity' | 'message' | 'key'> & { key: string },
+  tokenCards: TokenCardMatch[],
+): RulesTextLintIssue => {
+  const reference = `[Token: ${token.reference}]`;
+  const outdated = candidates.length
+    ? undefined
+    : outdatedReferenceFix(token, base.text, tokenCards);
+  if (outdated) {
+    return {
+      ...base,
+      key: `${base.key}:token-reference`,
+      rule: 'token-reference',
+      severity: 'warning',
+      message: `${reference} lists abilities the ${outdated.face.name} token card doesn't have, so the card shows only its description. Update the reference to the token card's abilities.`,
+      fix: { label: 'Update token reference', line: outdated.line },
+    };
+  }
+  if (candidates.length > 1) {
+    return {
+      ...base,
+      key: `${base.key}:token-reference`,
+      rule: 'token-reference',
+      severity: 'warning',
+      message: `${reference} fits ${candidates.length} token cards (${cardNames(candidates)}). Add more of the description or "with" and a keyword or a few words of an ability to pick one, e.g. [Token: ${token.reference} with flying].`,
+    };
+  }
+  return {
+    ...base,
+    key: `${base.key}:token-reference`,
+    rule: 'token-reference',
+    severity: 'warning',
+    message: `${reference} finds no token card, so the card shows only its description. Check the description or add the token card.`,
+    missingToken: token,
+  };
+};
+
+// "a 1/1 blue Rogue creature token with flying" → "[Token: 1/1 blue Rogue with flying]" when a
+// token card prints that token, so the card's text follows the token card.
+const tokenShorthandFix = (
+  line: string,
+  link: TokenLink,
+  tokenCards: TokenCardMatch[],
+): { reference: string; line: string; changes?: string } | undefined => {
+  const { token, match } = link;
+  if (!match || !token.span) return undefined;
+  const reference = tokenReferenceFor(match.face);
+  // Identical token cards: no reference tells them apart.
+  if (resolveTokenReference(reference, tokenCards).length !== 1) return undefined;
+  const before = line.slice(0, token.span.start);
+  // The reference writes the right article itself.
+  const article = before.match(/\b(?:a|an)\s+$/i);
+  const start = token.span.start - (article ? article[0].length : 0);
+  const fixed = `${line.slice(0, start)}[Token: ${reference}]${line.slice(token.span.end)}`;
+  const written = expandTokenReferences(fixed, tokenCards);
+  return { reference, line: fixed, changes: written === line ? undefined : written };
+};
+
+// "blue", "blue and red", "white, blue, and red".
+const listWords = (words: string[]) =>
+  words.length < 3
+    ? words.join(' and ')
+    : `${words.slice(0, -1).join(', ')}, and ${words[words.length - 1]}`;
+
+const colorWords = (colors: string[]) => (colors.length ? listWords(colors) : 'colorless');
+
+// "is green, not blue and red, and also has trample": how the token card differs from the token.
+const tokenDetailDifferenceText = (token: CreatedToken, match: TokenCardMatch) => {
+  const { colors, extra, missing } = getTokenDetailDifferences(token, match.face);
+  const parts = [
+    colors && `is ${colorWords(colors.card)}, not ${colorWords(colors.token)}`,
+    extra.length && `also has ${listWords(extra)}`,
+    missing.length && `doesn't have ${listWords(missing)}`,
+  ].filter((part): part is string => Boolean(part));
+  return parts.length ? listWords(parts) : 'has other colors or abilities';
+};
+
 const tokenCardIssues = (
   face: CardFaceInterface,
   tokenCards: TokenCardMatch[],
   mechanics: MechanicInterface[],
 ): RulesTextLintIssue[] =>
-  getTokenLinks(face, tokenCards, mechanics).flatMap(({ token, match, differentStats }, index) => {
-    if (match) return [];
+  getTokenLinks(face, tokenCards, mechanics).flatMap((link, index) => {
+    const { token, match, differentStats, differentDetails } = link;
     const field = TEXT_FIELDS.find(textField => textField.key === token.field);
     const lines = face[token.field];
+    const text = Array.isArray(lines) ? (lines[token.line] as string) : undefined;
+    const base = {
+      key: `${token.field}:${token.line}:token-card:${index}`,
+      field: token.field,
+      fieldName: field?.name ?? token.field,
+      line: token.line,
+      text,
+    };
+    if (token.reference !== undefined) {
+      return match ? [] : [tokenReferenceIssue(link, base, tokenCards)];
+    }
+    if (match) {
+      const shorthand = text !== undefined && tokenShorthandFix(text, link, tokenCards);
+      if (!shorthand) return [];
+      return [
+        {
+          ...base,
+          key: `${base.key}:token-shorthand`,
+          rule: 'token-shorthand' as const,
+          severity: 'suggestion' as const,
+          message: `Use [Token: ${shorthand.reference}] for the ${match.face.name} token card.${
+            shorthand.changes ? ` Then reads: "${shorthand.changes}"` : ''
+          }`,
+          fix: { label: 'Use token reference', line: shorthand.line },
+        },
+      ];
+    }
     const kind = token.name || token.subtypes.join(' ');
     // "… this creates through [Plunder]".
     const source = token.mechanic ? ` through [${token.mechanic}]` : '';
     return [
       {
-        key: `${token.field}:${token.line}:token-card:${index}`,
+        ...base,
         rule: 'token-card' as const,
         severity: 'suggestion' as const,
-        field: token.field,
-        fieldName: field?.name ?? token.field,
-        line: token.line,
-        text: Array.isArray(lines) ? lines[token.line] : undefined,
         message: differentStats
           ? `This creates a ${token.label} token${source}, but the ${differentStats.face.name || kind} token card is ${differentStats.face.cardStats || 'without power/toughness'}.`
-          : `There's no token card for the ${token.label} token this creates${source}. Add one so the token is printed with the set.`,
+          : differentDetails
+            ? `This creates a ${token.label} token${source}, but the ${differentDetails.face.name || kind} token card ${tokenDetailDifferenceText(token, differentDetails)}. Add a token card for this one, or change the text to match that card.`
+            : `There's no token card for the ${token.label} token this creates${source}. Add one so the token is printed with the set.`,
         missingToken: token,
       },
     ];
@@ -1484,10 +1675,13 @@ export const lintCardFace = (
     const split = lines.map(line => splitLine(line, loyaltyAbilities));
 
     const lineIssues = lines.flatMap((line, lineIndex) => {
-      const { prefix, body } = split[lineIndex];
-      if (!body.trim()) return [];
+      const { prefix, body: typed } = split[lineIndex];
+      if (!typed.trim()) return [];
+      // Token references read as one opaque token to the checks; fixes keep them as typed.
+      const { masked: body, references } = maskTokenReferences(typed);
       const context: LineContext = {
         body,
+        bodyWithReferences: typed,
         face,
         mechanics,
         selfNoun: field.selfReferences ? selfNoun : null,
@@ -1506,7 +1700,10 @@ export const lintCardFace = (
         message: finding.message,
         fix:
           finding.fixed !== undefined
-            ? { label: finding.fixLabel ?? 'Fix', line: prefix + finding.fixed }
+            ? {
+                label: finding.fixLabel ?? 'Fix',
+                line: prefix + unmaskTokenReferences(finding.fixed, references),
+              }
             : undefined,
       }));
     });
@@ -1515,7 +1712,7 @@ export const lintCardFace = (
       check({
         face,
         field,
-        bodies: split.map(({ body }) => body),
+        bodies: split.map(({ body }) => maskTokenReferences(body).masked),
         bullets: lines.map(line => isBullet(line, loyaltyAbilities)),
         colors,
       }),

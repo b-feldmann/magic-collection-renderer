@@ -3,7 +3,7 @@ import { Button } from 'antd';
 
 import AntIcon from '../AntIcon/AntIcon';
 import CardInterface from '../../interfaces/CardInterface';
-import { MechanicsContext } from '../../store';
+import { MechanicsContext, TokenCardsContext } from '../../store';
 import { isLoadingCover } from '../../utils/cover';
 import { staticAntd } from '../../utils/staticAntd';
 import saveBlob from '../../utils/saveBlob';
@@ -35,6 +35,7 @@ const DownloadCardPngButton = ({
   className,
 }: DownloadCardPngButtonProps) => {
   const mechanics = useContext(MechanicsContext);
+  const tokenCards = useContext(TokenCardsContext);
   const [pending, startTransition] = useTransition();
   const coversLoading = isLoadingCover(card.front.cover) || isLoadingCover(card.back?.cover);
 
@@ -56,6 +57,7 @@ const DownloadCardPngButton = ({
               collectionSize,
             },
             mechanics,
+            tokenCards,
           );
           saveBlob(blob, toPngFileName(card.name, index === 1));
         }

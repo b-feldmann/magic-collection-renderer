@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import CardFaceInterface from '../interfaces/CardFaceInterface';
 import MechanicInterface from '../interfaces/MechanicInterface';
 import CardInterface from '../interfaces/CardInterface';
-import { CardType, RarityType } from '../interfaces/enums';
+import { CardType, ColorType, RarityType } from '../interfaces/enums';
 import { applyLintFix, getSelfNoun, lintCardFace, RulesTextLintRule } from './rulesTextLint';
 import { getTokenCardFaces } from './tokenLinks';
 
@@ -241,6 +241,36 @@ describe('lintCardFace', () => {
       expect(rules(['This creature gets +2/+0 until the end of your next turn.'])).toEqual([]);
     });
 
+    it('puts "your choice of" in front of a list of keywords or keyword counters', () => {
+      expect(
+        fixed(
+          'Target creature gains flying, vigilance, or lifelink of your choice until end of turn.',
+          'your-choice-of',
+        ),
+      ).toBe(
+        'Target creature gains your choice of flying, vigilance, or lifelink until end of turn.',
+      );
+      expect(
+        fixed(
+          'Put a flying counter or a lifelink counter of your choice on target creature.',
+          'your-choice-of',
+        ),
+      ).toBe('Put your choice of a flying counter or a lifelink counter on target creature.');
+      expect(
+        rules(['Target creature gains your choice of flying or lifelink until end of turn.']),
+      ).toEqual([]);
+    });
+
+    it('keeps "of your choice" for a single open choice', () => {
+      expect(
+        rules([
+          'Target creature you control gains protection from the color of your choice until end of turn.',
+          'Each opponent sacrifices a creature or planeswalker of their choice.',
+          'Choose a creature type. Creatures of the creature type of your choice get +1/+1.',
+        ]),
+      ).not.toContain('your-choice-of');
+    });
+
     it('writes counts of objects as words and keeps other numbers as digits', () => {
       expect(fixed('Draw 2 cards.', 'number-words')).toBe('Draw two cards.');
       expect(fixed('Put 3 +1/+1 counters on target creature.', 'number-words')).toBe(
@@ -335,6 +365,17 @@ describe('lintCardFace', () => {
       expect(rules(['Put a 1/1 white Soldier creature token onto the battlefield.'])).toEqual([
         'create-token',
       ]);
+    });
+
+    it('removes a colon after "with" in token abilities', () => {
+      const line =
+        'When this creature enters, create a blue and red Elf Warrior token with: "{t}: Add one mana of any color."';
+      expect(fixed(line, 'create-token')).toBe(
+        'When this creature enters, create a blue and red Elf Warrior token with "{t}: Add one mana of any color."',
+      );
+      expect(
+        rules(['Create a Food token with "{2}, {t}, Sacrifice this token: You gain 3 life."']),
+      ).not.toContain('create-token');
     });
   });
 
@@ -811,6 +852,34 @@ describe('lintCardFace', () => {
     it('flags a token card with other power and toughness', () => {
       expect(tokens(['Create two 2/2 white Soldier creature tokens.'])).toEqual([
         'This creates a 2/2 Soldier token, but the Soldier token card is 1/1.',
+      ]);
+    });
+
+    it('names the colors and abilities a token card of the same kind differs in', () => {
+      const elfCards = getTokenCardFaces([
+        tokenCard({
+          name: 'Elf Warrior',
+          cardSubTypes: 'Elf Warrior',
+          cardStats: '1/1',
+          tokenColors: [ColorType.Green],
+          cardText: ['Trample'],
+        }),
+      ]);
+      const elfTokens = (cardText: string[]) =>
+        lintCardFace(face({ cardText }), MECHANICS, { tokenCards: elfCards })
+          .filter(issue => issue.rule === 'token-card')
+          .map(issue => issue.message);
+      expect(
+        elfTokens([
+          'When this creature enters, create a 1/1 blue and red Elf Warrior creature token with flying.',
+        ]),
+      ).toEqual([
+        "This creates a 1/1 Elf Warrior token, but the Elf Warrior token card is green, not blue and red, also has trample, and doesn't have flying. Add a token card for this one, or change the text to match that card.",
+      ]);
+      expect(
+        elfTokens(['Create a 1/1 green Elf Warrior creature token with trample and haste.']),
+      ).toEqual([
+        "This creates a 1/1 Elf Warrior token, but the Elf Warrior token card doesn't have haste. Add a token card for this one, or change the text to match that card.",
       ]);
     });
 

@@ -5,7 +5,8 @@ import { getVariantGroups } from './cardVariants';
 
 /**
  * A sample draft booster opened from the set: 15 cards with one rare or mythic, four uncommons,
- * nine commons and a basic land.
+ * nine commons and a land: a common Land with the Colony subtype, or a basic land when the set
+ * has no Colony lands.
  */
 export const PACK_LAYOUT = { rares: 1, uncommons: 4, commons: 9, lands: 1 };
 // About one pack in eight has a mythic rare in its rare slot.
@@ -19,7 +20,7 @@ const DRAFT_COLORS = [
   ColorType.Green,
 ];
 
-export type PackSlot = 'Rare' | 'Mythic Rare' | 'Uncommon' | 'Common' | 'Basic Land';
+export type PackSlot = 'Rare' | 'Mythic Rare' | 'Uncommon' | 'Common' | 'Land';
 
 export interface PackCard {
   card: CardInterface;
@@ -36,6 +37,12 @@ export interface SamplePack {
 
 const types = (card: CardInterface) => card.front.cardTypes || [];
 const isBasicLand = (card: CardInterface) => types(card).includes(CardType.BasicLand);
+const COLONY = /\bcolony\b/i;
+// The land slot holds a common Land with the Colony subtype instead of a basic land.
+const isColonyLand = (card: CardInterface) =>
+  card.rarity === RarityType.Common &&
+  types(card).includes(CardType.Land) &&
+  COLONY.test(card.front.cardSubTypes || '');
 // Tokens and emblems come with the set but aren't opened in packs.
 const isDraftable = (card: CardInterface) =>
   !types(card).includes(CardType.Token) && !types(card).includes(CardType.Emblem);
@@ -72,7 +79,9 @@ const pickCommons = (commons: CardInterface[], count: number, random: () => numb
 
 /**
  * Opens a sample pack from `cards` (e.g. the cards shown in the current tab). Variants count once;
- * tokens and emblems are left out. The basic land comes from `allCards` when `cards` has none. `random` returns numbers in [0, 1), for repeatable tests.
+ * tokens and emblems are never in a pack. Basic lands only fill the land slot, and only when there
+ * is no common Colony land; either comes from `allCards` when `cards` has none. `random` returns
+ * numbers in [0, 1), for repeatable tests.
  */
 export const openSamplePack = (
   cards: CardInterface[],
@@ -82,16 +91,20 @@ export const openSamplePack = (
   const pool = getVariantGroups(cards, allCards)
     .map(group => group[0])
     .filter(isDraftable);
-  // Every pack has a basic land: when the filters leave out the basic lands, it comes from the
-  // whole collection.
-  const shownLands = pool.filter(isBasicLand);
-  const lands = shownLands.length
-    ? shownLands
-    : getVariantGroups(allCards, allCards)
-        .map(group => group[0])
-        .filter(isBasicLand);
-  const nonbasic = pool.filter(card => !isBasicLand(card));
-  const ofRarity = (rarity: RarityType) => nonbasic.filter(card => card.rarity === rarity);
+  // The land slot takes a Colony land: from the shown cards, else from the whole collection. Only
+  // when there are no Colony lands at all does it fall back to a basic land, found the same way.
+  const collection = getVariantGroups(allCards, allCards)
+    .map(group => group[0])
+    .filter(isDraftable);
+  const landsOf = (isLand: (card: CardInterface) => boolean) => {
+    const shown = pool.filter(isLand);
+    return shown.length ? shown : collection.filter(isLand);
+  };
+  const colonies = landsOf(isColonyLand);
+  const lands = colonies.length ? colonies : landsOf(isBasicLand);
+  // Colony and basic lands only ever fill the land slot.
+  const others = pool.filter(card => !isBasicLand(card) && !isColonyLand(card));
+  const ofRarity = (rarity: RarityType) => others.filter(card => card.rarity === rarity);
   const rares = ofRarity(RarityType.Rare);
   const mythics = ofRarity(RarityType.MythicRare);
   const uncommons = ofRarity(RarityType.Uncommon);
@@ -125,7 +138,7 @@ export const openSamplePack = (
 
   const landSlot = shuffle(lands, random).slice(0, PACK_LAYOUT.lands);
   if (!landSlot.length) {
-    shortfalls.push('There are no basic land cards, so the land slot is empty.');
+    shortfalls.push('There are no common Colony lands or basic lands, so the land slot is empty.');
   }
 
   return {
@@ -133,7 +146,7 @@ export const openSamplePack = (
       ...rareSlot,
       ...pickedUncommons.map(card => ({ card, slot: 'Uncommon' as const })),
       ...pickedCommons.map(card => ({ card, slot: 'Common' as const })),
-      ...landSlot.map(card => ({ card, slot: 'Basic Land' as const })),
+      ...landSlot.map(card => ({ card, slot: 'Land' as const })),
     ],
     shortfalls,
     poolSize: pool.length,

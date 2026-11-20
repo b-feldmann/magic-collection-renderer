@@ -8,6 +8,7 @@ const card = (
   manaCost = '{1}',
   cardTypes: string[] = ['Creature'],
   variantIds?: string[],
+  cardSubTypes?: string,
 ): CardInterface =>
   ({
     name,
@@ -17,7 +18,7 @@ const card = (
     variantIds,
     creator: { name: 'Tester', uuid: 'tester' },
     meta: { comment: '', likes: [], dislikes: [], createdAt: 0, lastUpdated: 0, state: 'Approved' },
-    front: { name, cardTypes, cardText: [] },
+    front: { name, cardTypes, cardSubTypes, cardText: [] },
   }) as CardInterface;
 
 // A small seeded generator, so packs are repeatable.
@@ -33,40 +34,46 @@ const fullSet = [
   ...Array.from({ length: 5 }, (_, i) => card(`Rare ${i}`, 'Rare')),
   card('Mythic', 'Mythic Rare'),
   card('Plains', 'Common', '', ['Basic Land']),
+  card('Harbor Colony', 'Common', '', ['Land'], undefined, 'Colony'),
+  card('Rare Colony', 'Rare', '', ['Land'], undefined, 'Colony'),
   card('Soldier', 'Common', '', ['Token', 'Creature']),
+  card('Colony Token', 'Common', '', ['Token', 'Land'], undefined, 'Colony'),
 ];
 
 const slots = (pack: ReturnType<typeof openSamplePack>) => pack.cards.map(entry => entry.slot);
 
 describe('openSamplePack', () => {
-  it('opens a 15-card pack: rare, four uncommons, nine commons and a basic land', () => {
+  it('opens a 15-card pack: rare, four uncommons, nine commons and a common Colony land', () => {
     const pack = openSamplePack(fullSet, fullSet, seeded(1));
     expect(pack.cards).toHaveLength(15);
     expect(slots(pack).filter(slot => slot === 'Common')).toHaveLength(9);
     expect(slots(pack).filter(slot => slot === 'Uncommon')).toHaveLength(4);
     expect(['Rare', 'Mythic Rare']).toContain(slots(pack)[0]);
     expect(pack.cards[pack.cards.length - 1]).toMatchObject({
-      slot: 'Basic Land',
-      card: { name: 'Plains' },
+      slot: 'Land',
+      card: { name: 'Harbor Colony' },
     });
     expect(pack.shortfalls).toEqual([]);
     expect(
       pack.cards.every(
         ({ card: entry, slot }) =>
-          slot === 'Basic Land' ||
+          slot === 'Land' ||
           entry.rarity === slot ||
           (slot === 'Mythic Rare' && entry.rarity === 'Mythic Rare'),
       ),
     ).toBe(true);
   });
 
-  it('never repeats a card and leaves out tokens', () => {
+  it('never repeats a card and never has a token or, with Colony lands around, a basic land', () => {
     for (let seed = 1; seed < 50; seed += 1) {
       const names = openSamplePack(fullSet, fullSet, seeded(seed)).cards.map(
         entry => entry.card.name,
       );
       expect(new Set(names).size).toBe(names.length);
       expect(names).not.toContain('Soldier');
+      expect(names).not.toContain('Colony Token');
+      expect(names).not.toContain('Plains');
+      expect(names.filter(name => name === 'Harbor Colony')).toHaveLength(1);
     }
   });
 
@@ -102,15 +109,33 @@ describe('openSamplePack', () => {
     expect(openSamplePack(cards).poolSize).toBe(1);
   });
 
-  it('takes the basic land from the whole collection when the shown cards have none', () => {
-    const shown = fullSet.filter(entry => entry.name !== 'Plains');
+  it('takes the Colony land from the whole collection when the shown cards have none', () => {
+    const shown = fullSet.filter(entry => entry.name !== 'Harbor Colony');
     const pack = openSamplePack(shown, fullSet, seeded(3));
     expect(pack.cards[pack.cards.length - 1]).toEqual({
-      card: expect.objectContaining({ name: 'Plains' }),
-      slot: 'Basic Land',
+      card: expect.objectContaining({ name: 'Harbor Colony' }),
+      slot: 'Land',
     });
     expect(pack.shortfalls).toEqual([]);
-    expect(pack.poolSize).toBe(shown.length - 1);
+    expect(pack.poolSize).toBe(shown.length - 2); // without the tokens
+  });
+
+  it('falls back to a basic land only when the collection has no Colony lands', () => {
+    const noColonies = fullSet.filter(entry => !/Colony/.test(entry.name));
+    const pack = openSamplePack(noColonies, noColonies, seeded(5));
+    expect(pack.cards.filter(entry => entry.slot === 'Land')).toEqual([
+      { card: expect.objectContaining({ name: 'Plains' }), slot: 'Land' },
+    ]);
+    expect(pack.cards.filter(entry => entry.card.name === 'Plains')).toHaveLength(1);
+    expect(pack.shortfalls).toEqual([]);
+
+    // Shown cards without lands: the basic land comes from the whole collection.
+    const shown = noColonies.filter(entry => entry.name !== 'Plains');
+    const shownPack = openSamplePack(shown, noColonies, seeded(5));
+    expect(shownPack.cards[shownPack.cards.length - 1]).toEqual({
+      card: expect.objectContaining({ name: 'Plains' }),
+      slot: 'Land',
+    });
   });
 
   it('explains the slots the set cannot fill yet', () => {
@@ -124,7 +149,7 @@ describe('openSamplePack', () => {
       'There are no rares or mythic rares, so the rare slot is empty.',
       'There is only 1 uncommon, so the pack has 1 of 4.',
       'There is only 1 common, so the pack has 1 of 9.',
-      'There are no basic land cards, so the land slot is empty.',
+      'There are no common Colony lands or basic lands, so the land slot is empty.',
     ]);
   });
 });

@@ -84,7 +84,7 @@ describe('SamplePackModal', () => {
       within(dialog).getByText(/14 cards opened from the 17 draftable cards/),
     ).toBeInTheDocument();
     expect(within(dialog).getByRole('list', { name: 'Missing cards' })).toHaveTextContent(
-      'There are no basic land cards, so the land slot is empty.',
+      'There are no common Colony lands or basic lands, so the land slot is empty.',
     );
   });
 

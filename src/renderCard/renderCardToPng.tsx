@@ -6,7 +6,8 @@ import { createRoot } from 'react-dom/client';
 import { domToBlob, domToCanvas } from 'modern-screenshot';
 
 import TemplatingCardRender from '../components/TemplatingCardRender';
-import { MechanicsContext } from '../store';
+import { MechanicsContext, TokenCardsContext } from '../store';
+import { TokenCardMatch } from '../utils/tokenLinks';
 import MechanicInterface from '../interfaces/MechanicInterface';
 import { CARD_WIDTH } from '../utils/constants';
 import waitForStableRender, { nextFrame } from './waitForStableRender';
@@ -20,12 +21,14 @@ export interface CardImageOptions {
   quality?: number;
   // Output size relative to the native 1500x2100 (0.5 → 750x1050).
   scale?: number;
+  // The collection's token cards, which token references in rules text are written out from.
+  tokenCards?: TokenCardMatch[];
 }
 
 export const renderCardToImage = async (
   props: CardRenderProps,
   mechanics: MechanicInterface[],
-  { type = 'image/png', quality, scale = 1 }: CardImageOptions = {},
+  { type = 'image/png', quality, scale = 1, tokenCards = [] }: CardImageOptions = {},
 ): Promise<Blob> => {
   const host = document.createElement('div');
   host.className = styles.host;
@@ -35,7 +38,9 @@ export const renderCardToImage = async (
   try {
     root.render(
       <MechanicsContext.Provider value={mechanics}>
-        <TemplatingCardRender {...props} containerWidth={CARD_WIDTH} />
+        <TokenCardsContext.Provider value={tokenCards}>
+          <TemplatingCardRender {...props} containerWidth={CARD_WIDTH} />
+        </TokenCardsContext.Provider>
       </MechanicsContext.Provider>,
     );
     await nextFrame();
@@ -75,7 +80,10 @@ export const renderCardToImage = async (
   }
 };
 
-const renderCardToPng = (props: CardRenderProps, mechanics: MechanicInterface[]) =>
-  renderCardToImage(props, mechanics);
+const renderCardToPng = (
+  props: CardRenderProps,
+  mechanics: MechanicInterface[],
+  tokenCards: TokenCardMatch[] = [],
+) => renderCardToImage(props, mechanics, { tokenCards });
 
 export default renderCardToPng;

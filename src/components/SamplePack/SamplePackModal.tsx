@@ -25,7 +25,7 @@ const SLOT_LABELS: Record<PackSlot, string> = {
   Rare: 'Rare',
   Uncommon: 'Uncommon',
   Common: 'Common',
-  'Basic Land': 'Basic land',
+  Land: 'Land',
 };
 
 interface PackCardViewProps {
@@ -91,7 +91,7 @@ const PackContents = ({
     () => new Map(cards.map((card, index) => [card.uuid, index + 1])),
     [cards],
   );
-  // The basic land can come from outside the filters: it's numbered within the whole collection.
+  // The Colony land can come from outside the filters: it's numbered within the whole collection.
   const allNumbers = useMemo(
     () => new Map(allCards.map((card, index) => [card.uuid, index + 1])),
     [allCards],

@@ -4,7 +4,7 @@ import Modal from 'antd/es/modal';
 import Progress from 'antd/es/progress';
 
 import CardInterface from '../../interfaces/CardInterface';
-import { MechanicsContext } from '../../store';
+import { MechanicsContext, TokenCardsContext } from '../../store';
 import saveBlob from '../../utils/saveBlob';
 import { staticAntd } from '../../utils/staticAntd';
 import type { PdfProgress } from '../../renderCard/collectionToPdf';
@@ -17,6 +17,7 @@ const PROGRESS_COLOR = '#3e6248';
 // Starts the print-sheet PDF export of a list of cards and tracks its progress.
 export const useCollectionPdfExport = () => {
   const mechanics = useContext(MechanicsContext);
+  const tokenCards = useContext(TokenCardsContext);
   const [progress, setProgress] = useState<PdfProgress | null>(null);
   const controllerRef = useRef<AbortController | null>(null);
 
@@ -36,6 +37,7 @@ export const useCollectionPdfExport = () => {
       const { default: collectionToPdf } = await import('../../renderCard/collectionToPdf');
       const blob = await collectionToPdf(cards, mechanics, {
         numberedIn,
+        tokenCards,
         onProgress: setProgress,
         signal: controller.signal,
       });

@@ -7,7 +7,8 @@ import { createRoot } from 'react-dom/client';
 import 'mana-font/css/mana.css';
 import '../index.css';
 import TemplatingCardRender from '../components/TemplatingCardRender';
-import { MechanicsContext } from '../store';
+import { MechanicsContext, TokenCardsContext } from '../store';
+import { TokenCardMatch } from '../utils/tokenLinks';
 import MechanicInterface from '../interfaces/MechanicInterface';
 import waitForStableRender, { nextFrame } from './waitForStableRender';
 
@@ -16,6 +17,8 @@ type CardRenderProps = React.ComponentProps<typeof TemplatingCardRender>;
 export interface RenderCardJob {
   props: CardRenderProps;
   mechanics: MechanicInterface[];
+  // The collection's token cards, which token references in rules text are written out from.
+  tokenCards?: TokenCardMatch[];
 }
 
 declare global {
@@ -27,10 +30,12 @@ declare global {
 const container = document.getElementById('root')!;
 const root = createRoot(container);
 
-window.__renderCard = async ({ props, mechanics }) => {
+window.__renderCard = async ({ props, mechanics, tokenCards = [] }) => {
   root.render(
     <MechanicsContext.Provider value={mechanics}>
-      <TemplatingCardRender {...props} />
+      <TokenCardsContext.Provider value={tokenCards}>
+        <TemplatingCardRender {...props} />
+      </TokenCardsContext.Provider>
     </MechanicsContext.Provider>,
   );
   await nextFrame();

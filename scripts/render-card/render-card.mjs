@@ -97,7 +97,17 @@ const resolveCover = async (card, face) => {
   return image?.base64 ? `base64:${image.base64}` : '';
 };
 
+// The token card faces token references ("[Token: 1/1 blue Rogue]") are written out from,
+// without their covers, which the render doesn't need.
+const getTokenCards = cards =>
+  cards.flatMap(card =>
+    [card.front, card.back]
+      .filter(face => face?.cardTypes?.includes('Token'))
+      .map(({ cover: _cover, ...face }) => ({ card: { uuid: card.uuid }, face })),
+  );
+
 const buildFaces = async (cards, matches, mechanics) => {
+  const tokenCards = getTokenCards(cards);
   // Collector number: position in the collection sorted by name, so it stays
   // stable between runs (the app's number depends on the chosen sort).
   const byName = [...cards].sort((a, b) =>
@@ -115,6 +125,7 @@ const buildFaces = async (cards, matches, mechanics) => {
         outPath: path.join(OUT_DIR, side === 1 ? `${baseName}-back.png` : `${baseName}.png`),
         render: {
           mechanics,
+          tokenCards,
           props: {
             ...face,
             cover: await resolveCover(card, side),

@@ -158,12 +158,11 @@ describe('Card text symbol toolbar', () => {
     const toolbar = screen.getByRole('group', { name: 'Card text symbols' });
     const guide = screen.getByRole('button', { name: 'Symbol guide' });
     const dividers = toolbar.querySelectorAll<HTMLSpanElement>('[class*="symbolToolbarDivider"]');
-    expect(dividers).toHaveLength(3);
-    expect(toolbar).toContainElement(dividers[2]);
+    expect(dividers).toHaveLength(4);
+    const last = dividers[dividers.length - 1];
+    expect(toolbar).toContainElement(last);
     expect(toolbar).toContainElement(guide);
-    expect(
-      dividers[2].compareDocumentPosition(guide) & Node.DOCUMENT_POSITION_FOLLOWING,
-    ).toBeTruthy();
+    expect(last.compareDocumentPosition(guide) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it('replaces the selection and returns focus and caret for consecutive inserts', () => {
@@ -228,7 +227,7 @@ describe('Card text symbol toolbar', () => {
 
   it('disables insertion and guide actions with the rest of the editor', () => {
     render(<Harness disabled />);
-    for (const name of ['Tap', 'Mana', 'Generic', 'Symbol guide']) {
+    for (const name of ['Tap', 'Mana', 'Generic', 'Token', 'Symbol guide']) {
       expect(screen.getByRole('button', { name })).toBeDisabled();
     }
     expect(screen.getByRole('textbox')).toBeDisabled();

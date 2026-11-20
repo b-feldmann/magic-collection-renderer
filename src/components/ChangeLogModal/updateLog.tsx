@@ -712,13 +712,44 @@ updateLog.push({
       type: ChangeLogFeatureType.Added,
       feature: 'Sample draft packs',
       description:
-        "Open a sample pack from the ⋯ menu to see what a booster of the set looks like: a rare (a mythic rare about one pack in eight), three uncommons, ten commons with at least one of each color, and a basic land, opened from the cards in the current tab and filters. Open another pack as often as you like; the pack says which slots the set can't fill yet.",
+        "Open a sample pack from the ⋯ menu to see what a booster of the set looks like: a rare (a mythic rare about one pack in eight), four uncommons, nine commons with at least one of each color, and a common Land with the Colony subtype in the land slot, opened from the cards in the current tab and filters. Open another pack as often as you like; the pack says which slots the set can't fill yet.",
     },
     {
       type: ChangeLogFeatureType.Added,
       feature: 'Tokens tab',
       description:
         'Token cards have a tab of their own and no longer show up under Card drafts or Cards to rate. Tokens are printed with the cards that make them, so they cannot be released for rating or voted on.',
+    },
+  ],
+});
+
+updateLog.push({
+  version: '5.1.0',
+  title: 'Token References',
+  content: [
+    {
+      type: ChangeLogFeatureType.Added,
+      feature: 'Token references in rules text',
+      description:
+        'Write "Create two [Token: 1/1 blue Rogue]." and the card shows the token as its token card describes it: "Create two 1/1 blue Rogue creature tokens with "Whenever this creature becomes tapped, surveil 1."". The abilities always come from the token card, so a change there shows on every card that creates the token. Named and predefined tokens work too: [Token: Princess], [Token: Treasure]. When token cards look alike, add a keyword or a few words of an ability: [Token: 1/1 blue Rogue with flying]. Count words and "tapped" stay in front of the brackets.',
+    },
+    {
+      type: ChangeLogFeatureType.Added,
+      feature: 'Token autocomplete',
+      description:
+        'Type "[Token:" or use the Token button above the rules text to pick a token card from a list. It inserts a reference with all of the token\'s abilities, e.g. [Token: 1/1 blue Rogue with "Whenever this creature becomes tapped, surveil 1."], so the rules text shows which token it creates.',
+    },
+    {
+      type: ChangeLogFeatureType.Added,
+      feature: 'Hints for token references',
+      description:
+        'A hint offers to replace a written-out token that has a token card with its reference, abilities included, and says how the line reads afterwards if the token card words it differently. When a token card\'s abilities change, a hint updates the references to it with one click. References that find no token card or several are pointed out, and so are references the text doesn\'t create, e.g. "Sacrifice a [Token: Treasure]".',
+    },
+    {
+      type: ChangeLogFeatureType.Changed,
+      feature: 'Tokens of a choice and named tokens are recognized',
+      description:
+        '"Create your choice of a 1/1 Human … token with lifelink or a 1/1 Dog … token with vigilance" creates two tokens, "create Princess, a legendary 4/4 black Dog creature token" a token named Princess. Token cards are matched on colors and abilities too, so a blue and a red 1/1 Rogue link to their own token cards.',
     },
   ],
 });

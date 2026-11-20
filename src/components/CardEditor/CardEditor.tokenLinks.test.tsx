@@ -122,7 +122,32 @@ describe('CardEditor - token links and common complexity', () => {
     expect(tokenCard.textContent).toContain('Soldier');
     fireEvent.click(tokenCard);
     expect(onOpenCard).toHaveBeenCalledWith('soldier-token');
-    expect(queryHints()).toBeNull();
+    // The only hint offers the token reference. The token card has no colors set, so the hint
+    // shows that the line would no longer say "white".
+    const hints = queryHints()!;
+    expect(within(hints).getAllByRole('listitem')).toHaveLength(1);
+    expect(within(hints).getByText(/\[Token: 1\/1 Soldier\]/).textContent).toContain(
+      'Then reads: "When this creature enters, create a 1/1 Soldier creature token."',
+    );
+  });
+
+  it('replaces a written-out token with a token reference', () => {
+    renderEditor(
+      makeCard('captain', {
+        cardText: ['When this creature enters, create a 1/1 white Soldier creature token.'],
+      }),
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Use token reference' }));
+    expect(screen.getByLabelText('Card text')).toHaveProperty(
+      'value',
+      'When this creature enters, create [Token: 1/1 Soldier].',
+    );
+    // The reference still links to the token card.
+    expect(
+      within(screen.getByRole('region', { name: 'Token cards' })).getByRole('button', {
+        name: 'Open the 1/1 Soldier token card',
+      }),
+    ).toBeTruthy();
   });
 
   it('links the token a custom mechanic creates to its token card', () => {

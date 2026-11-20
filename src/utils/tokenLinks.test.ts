@@ -47,8 +47,35 @@ describe('parseCreatedTokens', () => {
       'When ~ enters, create Princess, a legendary 4/4 black Dog creature token with Menace.',
       ['4/4 Princess'],
     ],
+    [
+      '{3}{w},{t}, exile a creature card from your graveyard: Create of your choice a 1/1 white human creature token with lifelink or a 1/1 white dog creature token with vigilance.',
+      ['1/1 Human', '1/1 Dog'],
+    ],
+    [
+      'Create your choice of a 1/1 white Human creature token with lifelink or a 1/1 white Dog creature token with vigilance.',
+      ['1/1 Human', '1/1 Dog'],
+    ],
+    [
+      'Create a 1/1 white Spirit creature token with flying and a Food token.',
+      ['1/1 Spirit', 'Food'],
+    ],
   ])('%s → %j', (text, expected) => {
     expect(labels(text)).toEqual(expected);
+  });
+
+  it('gives each token of a choice its own abilities', () => {
+    const tokens = parseCreatedTokens(
+      'Create your choice of a 1/1 white Human creature token with lifelink or a 1/1 white Dog creature token with vigilance.',
+    );
+    expect(tokens.map(token => token.abilities)).toEqual([['Lifelink'], ['Vigilance']]);
+  });
+
+  it('flags lowercase subtypes of every token of a choice', () => {
+    expect(
+      findLowercaseTokenSubtypes(
+        'Create of your choice a 1/1 white human creature token with lifelink or a 1/1 white dog creature token with vigilance.',
+      ).map(({ word }) => word),
+    ).toEqual(['human', 'dog']);
   });
 
   it('reads a name that leads the token description', () => {
@@ -93,6 +120,34 @@ describe('parseCreatedTokens', () => {
       getTokenCardFaces([princess]),
     );
     expect(link.match?.card.uuid).toBe('princess');
+  });
+
+  it('reads ~ on the token card as the token name', () => {
+    const princess = {
+      uuid: 'princess',
+      name: 'Princess',
+      front: {
+        name: 'Princess',
+        cardTypes: [CardType.Token, CardType.Creature],
+        cardSubTypes: 'Dog',
+        cardStats: '4/4',
+        legendary: true,
+        cardText: [
+          'Menace',
+          'Sacrifice another creature: Put a +1/+1 counter on ~. Activate only as a sorcery.',
+        ],
+      },
+    } as unknown as CardInterface;
+    const [link] = getTokenLinks(
+      {
+        name: 'Owner',
+        cardText: [
+          'When ~ enters, create Princess, a legendary 4/4 black Dog creature token with Menace and "Sacrifice another creature: Put a +1/+1 counter on Princess. Activate only as a sorcery."',
+        ],
+      } as CardFaceInterface,
+      getTokenCardFaces([princess]),
+    );
+    expect(link.match?.card).toBe(princess);
   });
 
   it('does not take the leading name or its article for lowercase subtypes', () => {
@@ -225,6 +280,66 @@ describe('getTokenLinks', () => {
     expect(link.match).toBeUndefined();
     expect(link.differentStats?.card.uuid).toBe('soldier');
   });
+
+  describe('tokens of the same kind and power/toughness', () => {
+    const blueRogue = card('blue-rogue', {
+      name: 'Rogue',
+      cardTypes: [CardType.Token, CardType.Creature],
+      cardSubTypes: 'Rogue',
+      cardStats: '1/1',
+      tokenColors: [ColorType.Blue],
+      cardText: ['Whenever this creature becomes tapped, surveil 1.'],
+    });
+    const redRogue = card('red-rogue', {
+      name: 'Rogue',
+      cardTypes: [CardType.Token, CardType.Creature],
+      cardSubTypes: 'Rogue',
+      cardStats: '1/1',
+      tokenColors: [ColorType.Red],
+      cardText: [],
+    });
+    const blueText =
+      'When this artifact enters, create a 1/1 blue Rogue creature token with "Whenever this creature becomes tapped, surveil 1."';
+    const redText =
+      'When this creature enters, create a 1/1 red Rogue creature token, then surveil 2. Return a card with mana value less than the number of creatures you control from among the cards put into your graveyard this way to your hand.';
+    const rogueLinks = (text: string, cards: CardInterface[]) =>
+      getTokenLinks(
+        { name: 'Test', cardTypes: [CardType.Creature], cardText: [text] },
+        getTokenCardFaces(cards),
+      );
+
+    it('tells them apart by colors and abilities', () => {
+      [
+        [blueRogue, redRogue],
+        [redRogue, blueRogue],
+      ].forEach(cards => {
+        expect(rogueLinks(blueText, cards)[0].match?.card.uuid).toBe('blue-rogue');
+        expect(rogueLinks(redText, cards)[0].match?.card.uuid).toBe('red-rogue');
+      });
+    });
+
+    it('reports a token card that only differs in colors or abilities', () => {
+      const [link] = rogueLinks(redText, [blueRogue]);
+      expect(link.match).toBeUndefined();
+      expect(link.differentStats).toBeUndefined();
+      expect(link.differentDetails?.card.uuid).toBe('blue-rogue');
+    });
+
+    it('ignores keyword order, line breaks, case and reminder text', () => {
+      const spirit = card('spirit', {
+        name: 'Spirit',
+        cardTypes: [CardType.Token, CardType.Creature],
+        cardSubTypes: 'Spirit',
+        cardStats: '1/1',
+        cardText: ['Flying', 'Vigilance (Attacking doesn’t cause this creature to tap.)'],
+      });
+      expect(
+        rogueLinks('Create a 1/1 white Spirit creature token with flying and vigilance.', [
+          spirit,
+        ])[0].match?.card.uuid,
+      ).toBe('spirit');
+    });
+  });
 });
 
 describe('getTokenSources', () => {
@@ -328,6 +443,14 @@ describe('getTokenCard', () => {
     expect(
       tokenCard('Create a 2/2 green Wolf creature token with ward {2} and a Food token.').cardText,
     ).toEqual(['Ward {2}']);
+  });
+
+  it('reads abilities after "with:"', () => {
+    expect(
+      tokenCard(
+        'When this creature enters, create a blue and red Elf Warrior token with: "{t}: Add one mana of any color."',
+      ).cardText,
+    ).toEqual(['{t}: Add one mana of any color.']);
   });
 
   it('gives predefined tokens their types and rules text', () => {

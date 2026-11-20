@@ -10,6 +10,7 @@ import { fetchCoverImage } from '../actions/imageActions';
 import { getCoverFileName, isLoadingCover } from '../utils/cover';
 import { A4_HEIGHT, A4_WIDTH, CARDS_PER_SHEET, CUT_MARKS, SHEET_SLOTS } from '../utils/printSheet';
 import { CardRenderProps, renderCardToImage } from './renderCardToPng';
+import { getTokenCardFaces, TokenCardMatch } from '../utils/tokenLinks';
 
 const JPEG_QUALITY = 0.9;
 const RENDER_SCALE = 1;
@@ -54,10 +55,14 @@ const collectionToPdf = async (
   mechanics: MechanicInterface[],
   {
     numberedIn,
+    tokenCards = getTokenCardFaces(numberedIn ?? cards),
     onProgress,
     signal,
   }: {
     numberedIn?: CardInterface[];
+    // The token cards token references are written out from; the token cards among the
+    // numbered cards by default.
+    tokenCards?: TokenCardMatch[];
     onProgress?: (progress: PdfProgress) => void;
     signal?: AbortSignal;
   } = {},
@@ -81,6 +86,7 @@ const collectionToPdf = async (
       type: 'image/jpeg',
       quality: JPEG_QUALITY,
       scale: RENDER_SCALE,
+      tokenCards,
     });
     const { x, y, width, height } = SHEET_SLOTS[slot];
     // The JPEG is embedded as is (no re-encoding).

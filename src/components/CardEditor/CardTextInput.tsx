@@ -1,10 +1,17 @@
-import React, { useLayoutEffect, useRef } from 'react';
+import React, { useContext, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Button, Input } from 'antd';
 import type { TextAreaRef } from 'antd/es/input/TextArea';
 import { isMobile } from 'react-device-detect';
 import { ColorType } from '../../interfaces/enums';
+import { TokenCardsContext } from '../../store';
+import { findOpenTokenReference } from '../../utils/tokenReferences';
 import EditorTooltip from '../EditorTooltip';
 import Mana from '../Mana/Mana';
+import TokenReferenceOptions, {
+  getTokenReferenceOptions,
+  TokenReferenceOption,
+  tokenReferenceOptionId,
+} from './TokenReferenceOptions';
 import styles from './styles.module.scss';
 
 interface CardTextInputProps {
@@ -60,11 +67,29 @@ const getSymbols = (manaColors: ColorType[] = []): SymbolButton[] => {
   ];
 };
 
+const TOKEN_REFERENCE_START = '[Token: ';
+
 const CardTextInput = ({ id, name, value, onChange, manaColors }: CardTextInputProps) => {
   const textareaRef = useRef<TextAreaRef>(null);
   const pendingCaret = useRef<number | null>(null);
   const text = value.join('\n');
   const symbols = getSymbols(manaColors);
+  const tokenCards = useContext(TokenCardsContext);
+  const listId = `${id}-token-cards`;
+
+  // The caret while the text has focus, for the token reference autocomplete.
+  const [caret, setCaret] = useState<number | null>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
+  // The start of the reference whose list was closed with Escape.
+  const [dismissedAt, setDismissedAt] = useState<number | null>(null);
+
+  const openReference = caret === null ? null : findOpenTokenReference(text, caret);
+  const options = useMemo(
+    () => (openReference ? getTokenReferenceOptions(openReference.query, tokenCards) : []),
+    [openReference?.query, tokenCards], // eslint-disable-line react-hooks/exhaustive-deps
+  );
+  const listOpen = !!openReference && options.length > 0 && dismissedAt !== openReference.start;
+  const active = Math.min(activeIndex, options.length - 1);
 
   // Apply once after a controlled update, including replacing a symbol with
   // itself (where the text is unchanged but the selection must still collapse).
@@ -76,12 +101,44 @@ const CardTextInput = ({ id, name, value, onChange, manaColors }: CardTextInputP
     pendingCaret.current = null;
   });
 
+  const replaceText = (start: number, end: number, insert: string) => {
+    pendingCaret.current = start + insert.length;
+    setCaret(start + insert.length);
+    setActiveIndex(0);
+    onChange((text.slice(0, start) + insert + text.slice(end)).split('\n'));
+  };
+
   const insertSymbol = (symbol: string) => {
     const textarea = textareaRef.current?.resizableTextArea?.textArea;
     if (!textarea) return;
     const { selectionStart, selectionEnd } = textarea;
-    pendingCaret.current = selectionStart + symbol.length;
-    onChange((text.slice(0, selectionStart) + symbol + text.slice(selectionEnd)).split('\n'));
+    replaceText(selectionStart, selectionEnd, symbol);
+  };
+
+  const selectOption = (option: TokenReferenceOption) => {
+    if (!openReference) return;
+    replaceText(openReference.start, openReference.end, `[Token: ${option.reference}]`);
+  };
+
+  const updateCaret = (event: React.SyntheticEvent<HTMLTextAreaElement>) => {
+    const { selectionStart, selectionEnd } = event.currentTarget;
+    setCaret(selectionStart === selectionEnd ? selectionStart : null);
+  };
+
+  const onKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (!listOpen) return;
+    if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+      event.preventDefault();
+      const step = event.key === 'ArrowDown' ? 1 : -1;
+      setActiveIndex((active + step + options.length) % options.length);
+    } else if (event.key === 'Enter' || event.key === 'Tab') {
+      event.preventDefault();
+      selectOption(options[active]);
+    } else if (event.key === 'Escape') {
+      event.preventDefault();
+      event.stopPropagation();
+      setDismissedAt(openReference!.start);
+    }
   };
 
   return (
@@ -115,6 +172,20 @@ const CardTextInput = ({ id, name, value, onChange, manaColors }: CardTextInputP
             </Button>
           </React.Fragment>
         ))}
+        <span
+          className={`${styles.symbolToolbarDivider} ${styles.symbolToolbarSeparator}`}
+          aria-hidden="true"
+        />
+        <Button
+          type="text"
+          size="small"
+          aria-controls={id}
+          title="Insert a token reference: the card shows the token as written on its token card"
+          onMouseDown={event => event.preventDefault()}
+          onClick={() => insertSymbol(TOKEN_REFERENCE_START)}
+        >
+          Token
+        </Button>
         {!isMobile && (
           <>
             <span className={styles.symbolToolbarDivider} aria-hidden="true" />
@@ -126,14 +197,33 @@ const CardTextInput = ({ id, name, value, onChange, manaColors }: CardTextInputP
           </>
         )}
       </div>
-      <Input.TextArea
-        ref={textareaRef}
-        id={id}
-        className={styles.rulesTextArea}
-        value={text}
-        onChange={event => onChange(event.target.value.split('\n'))}
-        autoSize={{ minRows: 2 }}
-      />
+      <div className={styles.rulesTextField}>
+        <Input.TextArea
+          ref={textareaRef}
+          id={id}
+          className={styles.rulesTextArea}
+          value={text}
+          aria-autocomplete="list"
+          aria-controls={listOpen ? listId : undefined}
+          aria-activedescendant={listOpen ? tokenReferenceOptionId(listId, active) : undefined}
+          onChange={event => {
+            updateCaret(event);
+            onChange(event.target.value.split('\n'));
+          }}
+          onSelect={updateCaret}
+          onKeyDown={onKeyDown}
+          onBlur={() => setCaret(null)}
+          autoSize={{ minRows: 2 }}
+        />
+        {listOpen && (
+          <TokenReferenceOptions
+            id={listId}
+            options={options}
+            activeIndex={active}
+            onSelect={selectOption}
+          />
+        )}
+      </div>
     </span>
   );
 };

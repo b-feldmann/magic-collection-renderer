@@ -1,6 +1,6 @@
 // may find images here https://github.com/Investigamer/cardconjurer/tree/master/img/frames
 
-import React, { ReactElement, useContext, useLayoutEffect, useRef, useState } from 'react';
+import React, { ReactElement, useContext, useLayoutEffect, useMemo, useRef, useState } from 'react';
 
 import 'mana-font/css/mana.css';
 // @ts-ignore
@@ -20,8 +20,9 @@ import {
   PreparedType,
   RarityType,
 } from '../../interfaces/enums';
-import { MechanicsContext } from '../../store';
+import { MechanicsContext, TokenCardsContext } from '../../store';
 import { getColor } from '../../utils/cardToColor';
+import { expandFaceTokenReferences } from '../../utils/tokenReferences';
 import { formatTypeLine } from '../../utils/cardTypes';
 import CardFaceInterface from '../../interfaces/CardFaceInterface';
 import { CARD_HEIGHT, CARD_WIDTH } from '../../utils/constants';
@@ -184,7 +185,37 @@ const EvolutionText = ({ text, keyPrefix, name, mechanics, children }: Evolution
   </div>
 );
 
-const TemplatingCardRender = (cardRenderProps: TemplatingCardRenderProps) => {
+const TemplatingCardRender = (rawProps: TemplatingCardRenderProps) => {
+  // Token references ("Create two [Token: 1/1 blue Rogue].") are written out from the token
+  // cards before anything measures or renders the text.
+  const tokenCards = useContext(TokenCardsContext);
+  const { cardText: rawCardText, level1Text: rawLevel1Text, level2Text: rawLevel2Text } = rawProps;
+  const { adventureText: rawAdventureText, omenText: rawOmenText } = rawProps;
+  const { prepareText: rawPrepareText } = rawProps;
+  const textFields = useMemo(
+    () =>
+      expandFaceTokenReferences(
+        {
+          cardText: rawCardText,
+          level1Text: rawLevel1Text,
+          level2Text: rawLevel2Text,
+          adventureText: rawAdventureText,
+          omenText: rawOmenText,
+          prepareText: rawPrepareText,
+        },
+        tokenCards,
+      ),
+    [
+      rawCardText,
+      rawLevel1Text,
+      rawLevel2Text,
+      rawAdventureText,
+      rawOmenText,
+      rawPrepareText,
+      tokenCards,
+    ],
+  );
+  const cardRenderProps: TemplatingCardRenderProps = { ...rawProps, ...textFields };
   const { legendary, vehicle, nickname, cardTypes, basicLandType, rarity } = cardRenderProps;
   const { name, manaCost, cardStats, cover, creator } = cardRenderProps;
   const { level1Indicator, level2Indicator, level1Text, level2Text, level1Stats, level2Stats } =
