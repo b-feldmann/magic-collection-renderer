@@ -538,6 +538,28 @@ describe('getTokenCard', () => {
     ]);
   });
 
+  it('builds the Incubator token as a double-faced token card', () => {
+    const created = getTokenCard(
+      parseCreatedTokens('Create an Incubator token with three +1/+1 counters on it.')[0],
+    );
+    expect(created.front).toEqual({
+      name: 'Incubator',
+      cardTypes: [CardType.Token, CardType.Artifact],
+      cardSubTypes: 'Incubator',
+      cardText: ['{2}: Transform this token.'],
+      tokenColors: [ColorType.Colorless],
+    });
+    expect(created.back).toEqual({
+      name: 'Phyrexian Token',
+      cardTypes: [CardType.Token, CardType.Artifact, CardType.Creature],
+      cardSubTypes: 'Phyrexian',
+      cardText: [],
+      cardStats: '0/0',
+      tokenColors: [ColorType.Colorless],
+    });
+    expect(getTokenCard(parseCreatedTokens('Create a Treasure token.')[0]).back).toBeUndefined();
+  });
+
   it('builds Role tokens as Auras named after the role', () => {
     expect(
       tokenCard('Create a Monster Role token attached to target creature you control.'),
@@ -571,6 +593,7 @@ describe('getTokenCard', () => {
     'Mutagen',
     'Vibranium',
     'Heartwood',
+    'Incubator',
     'Walker',
     ...['Cursed', 'Monster', 'Royal', 'Sorcerer', 'Virtuous', 'Wicked', 'Young Hero'].map(
       roleName => `${roleName} Role`,
@@ -579,7 +602,9 @@ describe('getTokenCard', () => {
 
   it('builds predefined token cards without templating hints', () => {
     PREDEFINED.forEach(kind => {
-      expect([kind, lintCardFace(tokenCard(`Create a ${kind} token.`))]).toEqual([kind, []]);
+      const { front, back } = getTokenCard(parseCreatedTokens(`Create a ${kind} token.`)[0]);
+      expect([kind, lintCardFace(front)]).toEqual([kind, []]);
+      if (back) expect([kind, lintCardFace(back)]).toEqual([kind, []]);
     });
   });
 

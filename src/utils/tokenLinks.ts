@@ -565,9 +565,11 @@ export const getTokenSources = (
 /**
  * A token card for a token that has none yet: its name, types, colors and power/toughness, with
  * the abilities the rules text gives it ("with flying") or the rules text of a predefined token
- * (Treasure, Food, ...).
+ * (Treasure, Food, ...). A double-faced predefined token (Incubator) gets its back face as well.
  */
-export const getTokenCard = (token: CreatedToken): Pick<CardInterface, 'name' | 'front'> => {
+export const getTokenCard = (
+  token: CreatedToken,
+): Pick<CardInterface, 'name' | 'front' | 'back'> => {
   const predefined = getPredefinedToken(token);
   // What the rules text spells out wins over the predefined token.
   const cardTypes = token.cardTypes.length
@@ -585,5 +587,18 @@ export const getTokenCard = (token: CreatedToken): Pick<CardInterface, 'name' | 
   if (cardTypes.includes(CardType.Creature)) {
     front.cardStats = token.stats || predefined?.stats || '';
   }
-  return { name, front };
+  const back = predefined?.back;
+  if (!back) return { name, front };
+  return {
+    name,
+    front,
+    back: {
+      name: back.name,
+      cardTypes: [CardType.Token, ...back.cardTypes],
+      cardSubTypes: back.subtypes ?? '',
+      cardText: back.cardText,
+      tokenColors: back.colors || [ColorType.Colorless],
+      ...(back.cardTypes.includes(CardType.Creature) ? { cardStats: back.stats || '' } : {}),
+    },
+  };
 };

@@ -66,6 +66,8 @@ export interface PredefinedToken {
   // Colorless when left out.
   colors?: ColorType[];
   stats?: string;
+  // The back face of a double-faced token (Incubator), with its own name.
+  back?: Omit<PredefinedToken, 'back'> & { name: string };
 }
 
 // Role tokens are Auras that enchant a creature (rule 111.10j-r).
@@ -79,7 +81,7 @@ const role = (name: string, ...effects: string[]): PredefinedToken => ({
 /**
  * Predefined tokens (rule 111.10), which rules text names without their card type ("Create a
  * Treasure token", "Create a Monster Role token attached to …"), with what their token cards
- * print. Keyed by the token's kind in lower case. The double-faced Incubator is left out.
+ * print. Keyed by the token's kind in lower case.
  */
 export const PREDEFINED_TOKENS: Record<string, PredefinedToken> = {
   blood: {
@@ -97,6 +99,17 @@ export const PREDEFINED_TOKENS: Record<string, PredefinedToken> = {
   gold: {
     cardTypes: [CardType.Artifact],
     cardText: ['Sacrifice this token: Add one mana of any color.'],
+  },
+  incubator: {
+    cardTypes: [CardType.Artifact],
+    cardText: ['{2}: Transform this token.'],
+    back: {
+      name: 'Phyrexian Token',
+      subtypes: 'Phyrexian',
+      cardTypes: [CardType.Artifact, CardType.Creature],
+      stats: '0/0',
+      cardText: [],
+    },
   },
   junk: {
     cardTypes: [CardType.Artifact],
