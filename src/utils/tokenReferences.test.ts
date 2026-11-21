@@ -137,6 +137,24 @@ describe('resolveTokenReference', () => {
     expect(uuids('2/2 Rogue')).toEqual([]);
   });
 
+  it('does not take a creature token with a predefined subtype for the predefined token', () => {
+    const cannonfodder = tokenCard('cannonfodder', {
+      name: 'Cannonfodder',
+      cardTypes: [CardType.Creature, CardType.Artifact],
+      cardSubTypes: 'Food Goblin',
+      cardStats: '0/1',
+    });
+    const food = tokenCard('food', {
+      name: 'Food',
+      cardTypes: [CardType.Artifact],
+      cardSubTypes: 'Food',
+    });
+    const cards = getTokenCardFaces([cannonfodder, food]);
+    expect(uuids('Food', cards)).toEqual(['food']);
+    expect(uuids('Cannonfodder', cards)).toEqual(['cannonfodder']);
+    expect(uuids('Food Goblin', cards)).toEqual(['cannonfodder']);
+  });
+
   it('picks between token cards by a keyword or words of an ability', () => {
     const blueTwin = tokenCard('blue-twin', {
       name: 'Rogue',

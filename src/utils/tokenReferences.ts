@@ -8,6 +8,7 @@ import {
   KEYWORD_LINE,
   normaliseStats,
   plainAbility,
+  PREDEFINED_TOKENS,
   tokenAbilityLines,
   tokenCardName,
   TOKEN_TYPE_ORDER,
@@ -92,6 +93,16 @@ const describeTerms = (description: string): DescriptionTerms => {
 const sameColors = (a: ColorType[], b: ColorType[]) =>
   a.length === b.length && a.every(color => b.includes(color));
 
+// A predefined token ([Token: Food]) has its card types even when the reference leaves them out:
+// a Food Goblin artifact creature token isn't a Food token.
+const hasPredefinedTypes = (terms: DescriptionTerms, face: CardFaceInterface) => {
+  const predefined = PREDEFINED_TOKENS[terms.words.join(' ')];
+  if (!predefined) return true;
+  const types = terms.types.length ? terms.types : predefined.cardTypes;
+  const faceTypes: CardType[] = (face.cardTypes || []).filter(type => type !== CardType.Token);
+  return faceTypes.length === types.length && types.every(type => faceTypes.includes(type));
+};
+
 const matchesReference = (reference: TokenReference, face: CardFaceInterface) => {
   const terms = describeTerms(reference.description);
   if (terms.stats && normaliseStats(face.cardStats) !== normaliseStats(terms.stats)) return false;
@@ -104,6 +115,7 @@ const matchesReference = (reference: TokenReference, face: CardFaceInterface) =>
   if (terms.legendary && !face.legendary) return false;
   const faceWords = tokenFaceWords(face);
   if (terms.words.some(word => !faceWords.has(word))) return false;
+  if (!hasPredefinedTypes(terms, face)) return false;
   const abilities = tokenAbilityLines(face);
   const pieces = abilityPieces(abilities);
   if (reference.keywords.some(keyword => !pieces.has(keyword))) return false;
