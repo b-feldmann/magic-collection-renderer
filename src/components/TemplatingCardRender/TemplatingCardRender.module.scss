@@ -1280,6 +1280,175 @@
   }
 }
 
+// A Saga: the text column (x 110-742) beside a tall art window (x 753-1385,
+// y 237-1757), above the type bar (y 1770-1893). Positions measured on 2026
+// Sagas (Amok Time, Year of Hell and Those Old Scientists, TRK).
+.m15.saga {
+  // The colorless frames are translucent, also where there is no art below. This
+  // gives them the tone of print (Summon: Bahamut, FIN 2025).
+  &::before {
+    content: '';
+    position: absolute;
+    z-index: -3;
+    inset: 60px;
+    background: #888;
+  }
+
+  .cover {
+    top: 226px;
+    left: 742px;
+    width: 654px;
+    height: 1542px;
+  }
+
+  .type {
+    top: 1777px;
+  }
+
+  .rarity {
+    top: 1780px;
+  }
+
+  // The stamp's oval lies across the bottom of the frame, which ends at y 1930.
+  .sagaHoloStamp {
+    left: 658px;
+    top: 1907px;
+    width: 186px;
+    height: 78px;
+  }
+
+  .sagaReminder {
+    top: 237px;
+    left: 131px;
+    width: 606px;
+    height: 354px;
+
+    // Print's "step, add a lore counter." is ≈9px shorter than ours.
+    .sagaPrintedText {
+      letter-spacing: -0.012em;
+    }
+  }
+
+  // Spans the card, so the steps can be placed in its coordinates.
+  .sagaSteps {
+    top: 0;
+    left: 0;
+    width: 1500px;
+    height: 2100px;
+  }
+
+  .sagaDivider {
+    position: absolute;
+    left: 150px;
+    width: 592px;
+    height: 6px;
+  }
+
+  .sagaChapterIcon {
+    position: absolute;
+    left: 60px;
+    width: 118px;
+    height: 132px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-size: 100% 100%;
+    font-size: 68px;
+    line-height: 1;
+    letter-spacing: -0.05em;
+    // Print sets the numerals in a semibold Plantin.
+    -webkit-text-stroke: 2px currentColor;
+  }
+
+  .sagaStepText {
+    position: absolute;
+    left: 203px;
+    width: 526px;
+  }
+
+  .sagaPrintedText {
+    letter-spacing: -0.006em;
+    word-spacing: 0.036em;
+  }
+
+  .sagaPrintedText[data-shrunk] {
+    justify-content: space-around;
+    padding-top: 0;
+  }
+
+  // The gaps scale with the text, which shrinks far in these small boxes (see
+  // .printedLevelerText).
+  .sagaPrintedText p + p {
+    margin-top: 0.25em;
+  }
+
+  .sagaPrintedText p + p.bulletText {
+    margin-top: 0.145em;
+  }
+
+  .sagaPrintedText .flavour {
+    margin-top: 0.5em;
+    letter-spacing: normal;
+    word-spacing: normal;
+  }
+
+  .sagaPrintedText .flavourSeparator {
+    top: -0.25em;
+  }
+}
+
+// A Saga that is a creature: the reminder text runs above the art (x 753-1385,
+// y 439-1583), and a rules box lies below the type bar (Final Fantasy's
+// summons, FIN 2025).
+.m15.sagaCreature {
+  .cover {
+    top: 430px;
+    height: 1164px;
+  }
+
+  .type {
+    top: 1608px;
+  }
+
+  .rarity {
+    top: 1611px;
+  }
+
+  .sagaReminder {
+    top: 238px;
+    left: 133px;
+    width: 1262px;
+    height: 180px;
+
+    // Further lines keep clear of the chapters' banner.
+    p {
+      padding-left: 36px;
+      text-indent: -36px;
+    }
+
+    .sagaPrintedText {
+      letter-spacing: -0.006em;
+    }
+  }
+
+  .sagaRules {
+    top: 1736px;
+    left: 130px;
+    width: 1240px;
+    height: 152px;
+    text-align: center;
+  }
+
+  // Without rules text above it, flavour text has no separator.
+  .sagaRules .flavour:first-child {
+    margin-top: 0;
+
+    .flavourSeparator {
+      display: none;
+    }
+  }
+}
+
 // The upright half of an Aftermath card: the regular frame's title, a shorter
 // art window (x 115-1384, y 237-703), the type bar centered on y 780 and a low
 // text box (x 111-1389, y 852-1124).

@@ -1,17 +1,15 @@
-import React, { useContext, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { Button, Input } from 'antd';
-import type { TextAreaRef } from 'antd/es/input/TextArea';
-import { isMobile } from 'react-device-detect';
+import React, { useRef, useState } from 'react';
 import { ColorType } from '../../interfaces/enums';
-import { TokenCardsContext } from '../../store';
-import { findOpenTokenReference } from '../../utils/tokenReferences';
-import EditorTooltip from '../EditorTooltip';
-import Mana from '../Mana/Mana';
-import TokenReferenceOptions, {
-  getTokenReferenceOptions,
-  TokenReferenceOption,
-  tokenReferenceOptionId,
-} from './TokenReferenceOptions';
+import {
+  addChapter,
+  getChapters,
+  getTypedReminder,
+  parseSagaDraft,
+  replaceReminder,
+} from '../../utils/sagaChapters';
+import RulesTextArea, { RulesTextAreaHandle } from './RulesTextArea';
+import SagaReminderSelect, { getReminderKind, ReminderKind } from './SagaReminderSelect';
+import SymbolToolbar, { ToolbarButton } from './SymbolToolbar';
 import styles from './styles.module.scss';
 
 interface CardTextInputProps {
@@ -20,125 +18,41 @@ interface CardTextInputProps {
   value: string[];
   onChange: (lines: string[]) => void;
   manaColors?: ColorType[];
+  /** The text of a Saga, whose abilities belong to chapters (see sagaChapters). */
+  chapters?: boolean;
+  /** Shown next to the label. */
+  labelAction?: React.ReactNode;
 }
 
-type ColoredManaColor = Exclude<ColorType, ColorType.Colorless | ColorType.Gold>;
+const CardTextInput = ({
+  id,
+  name,
+  value,
+  onChange,
+  manaColors,
+  chapters = false,
+  labelAction,
+}: CardTextInputProps) => {
+  const textRef = useRef<RulesTextAreaHandle>(null);
 
-interface SymbolButton {
-  key: string;
-  name: string;
-  icon: string;
-  value: string;
-  ariaLabel?: string;
-}
-
-const COLORED_MANA_COLORS: ColoredManaColor[] = [
-  ColorType.White,
-  ColorType.Blue,
-  ColorType.Black,
-  ColorType.Red,
-  ColorType.Green,
-];
-
-const MANA_SYMBOLS: Record<ColoredManaColor, string> = {
-  [ColorType.White]: 'w',
-  [ColorType.Blue]: 'u',
-  [ColorType.Black]: 'b',
-  [ColorType.Red]: 'r',
-  [ColorType.Green]: 'g',
-};
-
-const getSymbols = (manaColors: ColorType[] = []): SymbolButton[] => {
-  const selectedColors = new Set(manaColors);
-  const matchingColors = COLORED_MANA_COLORS.filter(color => selectedColors.has(color));
-  const colors: ColoredManaColor[] = matchingColors.length ? matchingColors : [ColorType.Blue];
-  const manaSymbols = colors.map(color => ({
-    key: `mana-${color}`,
-    name: 'Mana',
-    icon: MANA_SYMBOLS[color],
-    value: `{${MANA_SYMBOLS[color]}}`,
-    ariaLabel: colors.length > 1 ? `Mana ${color}` : undefined,
-  }));
-
-  return [
-    { key: 'tap', name: 'Tap', icon: 'tap', value: '{t}' },
-    ...manaSymbols,
-    { key: 'generic', name: 'Generic', icon: '1', value: '{1}' },
-  ];
-};
-
-const TOKEN_REFERENCE_START = '[Token: ';
-
-const CardTextInput = ({ id, name, value, onChange, manaColors }: CardTextInputProps) => {
-  const textareaRef = useRef<TextAreaRef>(null);
-  const pendingCaret = useRef<number | null>(null);
-  const text = value.join('\n');
-  const symbols = getSymbols(manaColors);
-  const tokenCards = useContext(TokenCardsContext);
-  const listId = `${id}-token-cards`;
-
-  // The caret while the text has focus, for the token reference autocomplete.
-  const [caret, setCaret] = useState<number | null>(null);
-  const [activeIndex, setActiveIndex] = useState(0);
-  // The start of the reference whose list was closed with Escape.
-  const [dismissedAt, setDismissedAt] = useState<number | null>(null);
-
-  const openReference = caret === null ? null : findOpenTokenReference(text, caret);
-  const options = useMemo(
-    () => (openReference ? getTokenReferenceOptions(openReference.query, tokenCards) : []),
-    [openReference?.query, tokenCards], // eslint-disable-line react-hooks/exhaustive-deps
-  );
-  const listOpen = !!openReference && options.length > 0 && dismissedAt !== openReference.start;
-  const active = Math.min(activeIndex, options.length - 1);
-
-  // Apply once after a controlled update, including replacing a symbol with
-  // itself (where the text is unchanged but the selection must still collapse).
-  useLayoutEffect(() => {
-    const textarea = textareaRef.current?.resizableTextArea?.textArea;
-    if (!textarea || pendingCaret.current === null) return;
-    textarea.focus();
-    textarea.setSelectionRange(pendingCaret.current, pendingCaret.current);
-    pendingCaret.current = null;
-  });
-
-  const replaceText = (start: number, end: number, insert: string) => {
-    pendingCaret.current = start + insert.length;
-    setCaret(start + insert.length);
-    setActiveIndex(0);
-    onChange((text.slice(0, start) + insert + text.slice(end)).split('\n'));
+  const insertChapter = () => {
+    const { lines, index } = addChapter(value);
+    textRef.current?.setPendingCaret(lines.slice(0, index + 1).join('\n').length);
+    onChange(lines);
   };
 
-  const insertSymbol = (symbol: string) => {
-    const textarea = textareaRef.current?.resizableTextArea?.textArea;
-    if (!textarea) return;
-    const { selectionStart, selectionEnd } = textarea;
-    replaceText(selectionStart, selectionEnd, symbol);
-  };
-
-  const selectOption = (option: TokenReferenceOption) => {
-    if (!openReference) return;
-    replaceText(openReference.start, openReference.end, `[Token: ${option.reference}]`);
-  };
-
-  const updateCaret = (event: React.SyntheticEvent<HTMLTextAreaElement>) => {
-    const { selectionStart, selectionEnd } = event.currentTarget;
-    setCaret(selectionStart === selectionEnd ? selectionStart : null);
-  };
-
-  const onKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (!listOpen) return;
-    if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
-      event.preventDefault();
-      const step = event.key === 'ArrowDown' ? 1 : -1;
-      setActiveIndex((active + step + options.length) % options.length);
-    } else if (event.key === 'Enter' || event.key === 'Tab') {
-      event.preventDefault();
-      selectOption(options[active]);
-    } else if (event.key === 'Escape') {
-      event.preventDefault();
-      event.stopPropagation();
-      setDismissedAt(openReference!.start);
-    }
+  // Choosing a custom reminder text writes out the standard one, to be changed. Otherwise the
+  // standard text counts as such, even written out.
+  const [customReminder, setCustomReminder] = useState('');
+  const typedReminder = chapters ? getTypedReminder(value) : '';
+  const isCustomReminder = typedReminder !== '' && typedReminder === customReminder;
+  const reminderKind = isCustomReminder
+    ? 'custom'
+    : getReminderKind(chapters ? parseSagaDraft(value, false).reminder : '');
+  const selectReminder = (reminder: string, kind: ReminderKind) => {
+    setCustomReminder(kind === 'custom' ? reminder : '');
+    if (kind === 'custom') textRef.current?.setPendingCaret(reminder.length);
+    onChange(replaceReminder(value, reminder));
   };
 
   return (
@@ -147,83 +61,44 @@ const CardTextInput = ({ id, name, value, onChange, manaColors }: CardTextInputP
         <label className={styles.label} htmlFor={id}>
           {name}
         </label>
+        {labelAction}
       </div>
-      <div className={styles.textToolbar} role="group" aria-label={`${name} symbols`}>
-        {symbols.map((symbol, index) => (
-          <React.Fragment key={symbol.key}>
-            {index > 0 && (
-              <span
-                className={`${styles.symbolToolbarDivider} ${styles.symbolToolbarSeparator}`}
-                aria-hidden="true"
-              />
-            )}
-            <Button
-              type="text"
-              size="small"
-              aria-label={symbol.ariaLabel}
-              aria-controls={id}
-              onMouseDown={event => event.preventDefault()}
-              onClick={() => insertSymbol(symbol.value)}
-            >
-              <span className={styles.toolbarSymbol} aria-hidden="true">
-                <Mana symbol={symbol.icon} cost={true} />
-              </span>{' '}
-              {symbol.name}
-            </Button>
-          </React.Fragment>
-        ))}
-        <span
-          className={`${styles.symbolToolbarDivider} ${styles.symbolToolbarSeparator}`}
-          aria-hidden="true"
-        />
-        <Button
-          type="text"
-          size="small"
-          aria-controls={id}
-          title="Insert a token reference: the card shows the token as written on its token card"
-          onMouseDown={event => event.preventDefault()}
-          onClick={() => insertSymbol(TOKEN_REFERENCE_START)}
-        >
-          Token
-        </Button>
-        {!isMobile && (
-          <>
-            <span className={styles.symbolToolbarDivider} aria-hidden="true" />
-            <EditorTooltip className={styles.symbolGuide}>
-              <Button type="link" size="small">
-                Symbol guide <span aria-hidden="true">↗</span>
-              </Button>
-            </EditorTooltip>
-          </>
+      <SymbolToolbar
+        name={name}
+        controls={id}
+        manaColors={manaColors}
+        onInsert={text => textRef.current?.insert(text)}
+      >
+        {chapters && (
+          <ToolbarButton controls={id} title="Add the next chapter" onClick={insertChapter}>
+            Chapter
+          </ToolbarButton>
         )}
-      </div>
-      <div className={styles.rulesTextField}>
-        <Input.TextArea
-          ref={textareaRef}
-          id={id}
-          className={styles.rulesTextArea}
-          value={text}
-          aria-autocomplete="list"
-          aria-controls={listOpen ? listId : undefined}
-          aria-activedescendant={listOpen ? tokenReferenceOptionId(listId, active) : undefined}
-          onChange={event => {
-            updateCaret(event);
-            onChange(event.target.value.split('\n'));
-          }}
-          onSelect={updateCaret}
-          onKeyDown={onKeyDown}
-          onBlur={() => setCaret(null)}
-          autoSize={{ minRows: 2 }}
+      </SymbolToolbar>
+      {chapters && (
+        <SagaReminderSelect
+          id={`${id}-reminder-kind`}
+          className={styles.sagaReminderBar}
+          kind={reminderKind}
+          chapters={getChapters(value)}
+          onSelect={selectReminder}
         />
-        {listOpen && (
-          <TokenReferenceOptions
-            id={listId}
-            options={options}
-            activeIndex={active}
-            onSelect={selectOption}
-          />
-        )}
-      </div>
+      )}
+      <RulesTextArea
+        ref={textRef}
+        id={id}
+        className={styles.rulesTextArea}
+        value={value.join('\n')}
+        onChange={text => onChange(text.split('\n'))}
+        aria-describedby={chapters ? `${id}-chapters` : undefined}
+      />
+      {chapters && (
+        <p id={`${id}-chapters`} className={styles.fieldHint}>
+          Start an ability with its chapter, e.g. “I — ”, or “I, II — ” if several share it. A line
+          without a chapter is a step of its own; on a creature, lines after the last chapter go
+          below the type line.
+        </p>
+      )}
     </span>
   );
 };

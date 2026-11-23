@@ -2,6 +2,7 @@ import CardFaceInterface from '../interfaces/CardFaceInterface';
 import MechanicInterface from '../interfaces/MechanicInterface';
 import { CardType, RarityType } from '../interfaces/enums';
 import { BULLET_PREFIX, isKnownSymbol } from './injectUtils';
+import { getChapters, parseChapterLine, toRomanNumeral } from './sagaChapters';
 import {
   CreatedToken,
   findLowercaseTokenSubtypes,
@@ -56,6 +57,7 @@ export type RulesTextLintRule =
   | 'equip-line'
   | 'crew-line'
   | 'modes'
+  | 'saga-chapters'
   | 'off-color-cost'
   | 'missing-stats'
   | 'capitalization'
@@ -108,7 +110,7 @@ interface Finding {
 }
 
 interface LineContext {
-  // The text after a planeswalker cost ("+1|") and a bullet ("* ").
+  // The text after a planeswalker cost ("+1|"), a Saga's chapters ("I, II — ") and a bullet ("* ").
   body: string;
   // `body` with its token references ("[Token: …]"), which `body` masks.
   bodyWithReferences: string;
@@ -284,7 +286,7 @@ export const getSelfNoun = (face: CardFaceInterface): string | null => {
     return face.cardStats || face.level1Stats || face.level2Stats ? 'creature' : null;
   if (subtypes.includes('equipment')) return 'Equipment';
   if (subtypes.includes('aura')) return 'Aura';
-  if (subtypes.includes('saga')) return 'Saga';
+  if (has(CardType.Saga) || subtypes.includes('saga')) return 'Saga';
   if (has(CardType.Artifact)) return 'artifact';
   if (has(CardType.Enchantment)) return 'enchantment';
   if (has(CardType.Land)) return 'land';
@@ -1027,9 +1029,24 @@ const CHECKS: Check[] = [
   activatedAbility,
 ];
 
-// Splits off the parts of a line that aren't rules text: a planeswalker cost and a bullet.
-const splitLine = (line: string, isPlaneswalker: boolean) => {
-  const costEnd = isPlaneswalker ? line.indexOf('|') + 1 : 0;
+interface LineFormat {
+  // Abilities are written "cost|text".
+  isPlaneswalker: boolean;
+  // Abilities are written "I, II — text".
+  isSaga: boolean;
+}
+
+const getLineFormat = (types: CardType[], field: TextField): LineFormat => ({
+  isPlaneswalker: types.includes(CardType.Planeswalker) && field.key === 'cardText',
+  isSaga: types.includes(CardType.Saga) && field.key === 'cardText',
+});
+
+// Splits off the parts of a line that aren't rules text: a planeswalker cost or a Saga's chapters,
+// and a bullet.
+const splitLine = (line: string, { isPlaneswalker, isSaga }: LineFormat) => {
+  let costEnd = 0;
+  if (isPlaneswalker) costEnd = line.indexOf('|') + 1;
+  if (isSaga) costEnd = parseChapterLine(line)?.prefix.length ?? 0;
   const rest = line.slice(costEnd);
   const bullet = rest.match(BULLET_PREFIX)?.[0] ?? '';
   return { prefix: line.slice(0, costEnd) + bullet, body: rest.slice(bullet.length) };
@@ -1102,6 +1119,47 @@ const crewLine: StructureCheck = ({ face, field, bodies }) =>
 const MODE_COUNTS: Record<string, number> = { one: 1, two: 2, three: 3, four: 4, five: 5 };
 const CHOOSE_MODES =
   /\bchoose (one|two|three|four|five)( or (?:both|more))?(?=\s*(?:—|--|-|:|\.|$)|\s+that\b|\s+at random\b)/i;
+
+// Chapters count up from I, and every one of them has an ability.
+const sagaChapters: StructureCheck = ({ face, field }) => {
+  if (field.key !== 'cardText' || !(face.cardTypes || []).includes(CardType.Saga)) return [];
+  const lines = face.cardText || [];
+  if (!getChapters(lines).length) {
+    return [
+      {
+        rule: 'saga-chapters',
+        message:
+          'A Saga needs chapters. Start each ability with its chapter, e.g. "I — Draw a card." or "I, II — Draw a card."',
+      },
+    ];
+  }
+  const isCreature = (face.cardTypes || []).includes(CardType.Creature);
+  const lastLine = lines.reduce((after, line, i) => (parseChapterLine(line) ? i : after), -1);
+  let last = 0;
+  return lines.flatMap((line, index): StructureFinding[] => {
+    const chapters = parseChapterLine(line)?.chapters ?? [];
+    if (isCreature && index < lastLine && line.trim() && isPlainKeywordLine(line.trim())) {
+      return [
+        {
+          rule: 'saga-chapters',
+          line: index,
+          message:
+            "A Saga creature's keywords go after its last chapter, so they show below the type line.",
+        },
+      ];
+    }
+    const misplaced = chapters.find((chapter, i) => chapter !== last + i + 1);
+    if (chapters.length) last = chapters[chapters.length - 1];
+    if (misplaced === undefined) return [];
+    return [
+      {
+        rule: 'saga-chapters',
+        line: index,
+        message: `Chapter ${toRomanNumeral(misplaced)} is out of order. Chapters count up from I without gaps.`,
+      },
+    ];
+  });
+};
 
 // "Choose two —" needs more modes than it chooses, written as bullet lines after it.
 const modes: StructureCheck = ({ bodies, bullets }) =>
@@ -1275,9 +1333,10 @@ const EQUIP_LINE = /^(?:equip|reconfigure)\b/i;
 const isPlainKeywordLine = (text: string) =>
   text.split(/,\s*/).every(part => KEYWORD_START.test(part.trim())) && !EQUIP_LINE.test(text);
 
-// Keywords go at the top of the text box; Equip goes at the bottom.
-const keywordPlacement: StructureCheck = ({ field, bodies, bullets }) => {
-  if (field.key !== 'cardText') return [];
+// Keywords go at the top of the text box; Equip goes at the bottom. A Saga's keywords follow its
+// chapters, in a box of their own.
+const keywordPlacement: StructureCheck = ({ face, field, bodies, bullets }) => {
+  if (field.key !== 'cardText' || (face.cardTypes || []).includes(CardType.Saga)) return [];
   const findings: StructureFinding[] = [];
   let firstOther = -1;
   bodies.forEach((body, line) => {
@@ -1321,6 +1380,7 @@ const STRUCTURE_CHECKS: StructureCheck[] = [
   enchantLine,
   equipLine,
   crewLine,
+  sagaChapters,
   modes,
   offColorCost,
   cardTypeText,
@@ -1359,7 +1419,7 @@ const missingStats = (face: CardFaceInterface): RulesTextLintIssue[] => {
 };
 
 // Whether a line is a bullet (a mode), after a planeswalker cost if it has one.
-const isBullet = (line: string, isPlaneswalker: boolean) =>
+const isBullet = (line: string, { isPlaneswalker }: LineFormat) =>
   BULLET_PREFIX.test(isPlaneswalker ? line.slice(line.indexOf('|') + 1) : line);
 
 // New World Order: commons stay simple so a board of them is easy to read in Limited.
@@ -1663,7 +1723,6 @@ export const lintCardFace = (
   { manaCost, rarity, tokenCards }: LintOptions = {},
 ): RulesTextLintIssue[] => {
   const types = face.cardTypes || [];
-  const isPlaneswalker = types.includes(CardType.Planeswalker);
   const selfNoun = getSelfNoun(face);
   const colors = manaCost?.trim()
     ? new Set((manaCost.match(/\{[^{}]*\}/g) ?? []).flatMap(symbolColors))
@@ -1677,8 +1736,8 @@ export const lintCardFace = (
   const textIssues = textFields.flatMap(field => {
     const lines = face[field.key];
     if (!Array.isArray(lines)) return [];
-    const loyaltyAbilities = isPlaneswalker && field.key === 'cardText';
-    const split = lines.map(line => splitLine(line, loyaltyAbilities));
+    const format = getLineFormat(types, field);
+    const split = lines.map(line => splitLine(line, format));
 
     const lineIssues = lines.flatMap((line, lineIndex) => {
       const { prefix, body: typed } = split[lineIndex];
@@ -1691,7 +1750,7 @@ export const lintCardFace = (
         face,
         mechanics,
         selfNoun: field.selfReferences ? selfNoun : null,
-        loyaltyAbilities,
+        loyaltyAbilities: format.isPlaneswalker,
         hasCleave,
       };
 
@@ -1719,7 +1778,7 @@ export const lintCardFace = (
         face,
         field,
         bodies: split.map(({ body }) => maskTokenReferences(body).masked),
-        bullets: lines.map(line => isBullet(line, loyaltyAbilities)),
+        bullets: lines.map(line => isBullet(line, format)),
         colors,
       }),
     ).map((finding, index): RulesTextLintIssue => ({
@@ -1744,11 +1803,10 @@ export const lintCardFace = (
         face,
         textFields.map(field => {
           const lines = face[field.key];
+          const format = getLineFormat(types, field);
           return {
             field,
-            bodies: Array.isArray(lines)
-              ? lines.map(line => splitLine(line, isPlaneswalker && field.key === 'cardText').body)
-              : [],
+            bodies: Array.isArray(lines) ? lines.map(line => splitLine(line, format).body) : [],
           };
         }),
         limits,

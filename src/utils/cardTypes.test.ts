@@ -7,6 +7,7 @@ import {
   hasType,
   formatTypeLine,
   resolveExclusiveCardTypes,
+  resolveSagaCardTypes,
 } from './cardTypes';
 import { CardType, CardMainType } from '../interfaces/enums';
 import CardFaceInterface from '../interfaces/CardFaceInterface';
@@ -149,10 +150,43 @@ describe('hasType', () => {
   });
 });
 
+describe('Saga card types', () => {
+  it('is always an enchantment, and may be an artifact, creature or land', () => {
+    expect(
+      resolveSagaCardTypes([CardType.Instant, CardType.Land, CardType.Saga, CardType.Emblem]),
+    ).toEqual([CardType.Land, CardType.Saga, CardType.Enchantment]);
+    expect(resolveSagaCardTypes([CardType.Enchantment, CardType.Saga])).toEqual([
+      CardType.Enchantment,
+      CardType.Saga,
+    ]);
+  });
+
+  it('leaves the types of other cards alone', () => {
+    const types = [CardType.Artifact, CardType.Land];
+    expect(resolveSagaCardTypes(types)).toBe(types);
+  });
+
+  it('is applied to stored cards', () => {
+    expect(
+      normalizeCardFace(face({ cardTypes: [CardType.Instant, CardType.Saga] })).cardTypes,
+    ).toEqual([CardType.Saga, CardType.Enchantment]);
+  });
+});
+
 describe('formatTypeLine', () => {
   it('joins multiple types in order', () => {
     expect(formatTypeLine(face({ cardTypes: [CardType.Enchantment, CardType.Creature] }))).toBe(
       'Enchantment Creature',
+    );
+  });
+
+  it('writes Saga as a subtype, once', () => {
+    const cardTypes = [CardType.Saga, CardType.Creature, CardType.Enchantment];
+    expect(formatTypeLine(face({ cardTypes, cardSubTypes: 'Dragon' }))).toBe(
+      'Enchantment Creature — Saga Dragon',
+    );
+    expect(formatTypeLine(face({ cardTypes, cardSubTypes: 'Saga Dragon' }))).toBe(
+      'Enchantment Creature — Saga Dragon',
     );
   });
 

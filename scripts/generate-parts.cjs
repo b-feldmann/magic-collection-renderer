@@ -75,9 +75,15 @@
  * combinations, written to `parts/aftermathParts/<combo>.png`; each half clips
  * the part of the image it needs.
  *
+ * Saga frames (`mainframes/saga/nyx/<color>.png`, and `mainframes/saga/creature/`
+ * for Sagas that are creatures) get their two-color pinlines, chapter banner and
+ * text box in one image per combination, carved with the `parts/sagaPinline.png`,
+ * `parts/sagaBanner.png` and `parts/sagaText.png` masks (`parts/sagaCreature…`)
+ * and written to `parts/sagaParts/<combo>.png` (`parts/sagaCreatureParts/`).
+ *
  * An optional CLI argument list runs only the named generators, e.g.
  * `node scripts/generate-parts.cjs omen` (keys: m15, frame, hybridMainframe, levelerFrame,
- * variants, adventure, omen, prepare, aftermath, leveler, planeswalker,
+ * variants, adventure, omen, prepare, aftermath, saga, leveler, planeswalker,
  * planeswalkerNickname, token, nickname, crown). Without arguments every
  * generator runs, as before.
  * arguments every generator runs, as before.
@@ -516,6 +522,7 @@ async function run() {
   if (selected('omen')) await generateOmenParts();
   if (selected('prepare')) await generatePrepareParts();
   if (selected('aftermath')) await generateAftermathParts();
+  if (selected('saga')) await generateSagaParts();
   if (selected('leveler')) await generateLevelerParts();
   if (selected('planeswalker')) await generatePlaneswalkerPinlines();
   if (selected('planeswalkerNickname')) await generatePlaneswalkerNicknameCombos();
@@ -574,6 +581,89 @@ async function generateAftermathParts() {
     }
     await out.write(path.join(outputDir, `${combo}.png`));
     console.log(`aftermathParts  ✓ ${combo}.png`);
+  }
+}
+
+// Saga frame parts: the pinlines, the chapter banner and the text box, carved
+// from the single-color frames for the two-color combinations (the rest of the
+// frame stays gold). The banner is split down its middle by a black stripe.
+const SAGA_DIR = path.join(MAINFRAMES_DIR, 'saga');
+const SAGA_BANNER_CENTER_X = 116;
+// The chapters' text column (x 115-747) fades from one color into the other over
+// most of its width (Year of Hell, TRK 2026).
+const SAGA_COLUMN_CENTER_X = 431;
+const SAGA_COLUMN_BLEND = 500;
+const SAGA_FRAMES = [
+  {
+    source: 'nyx',
+    masks: 'saga',
+    output: 'sagaParts',
+    stripe: { x: 109, y: 642, width: 13, height: 1000 },
+    // The text box is the chapters' column only.
+    columnBottom: Infinity,
+  },
+  {
+    source: 'creature',
+    masks: 'sagaCreature',
+    output: 'sagaCreatureParts',
+    stripe: { x: 109, y: 427, width: 13, height: 995 },
+    // Below it is the rules box, as wide as the frame.
+    columnBottom: 1600,
+  },
+];
+
+async function generateSagaParts() {
+  const stripe = await Jimp.read(path.join(IMAGE_DIR, 'saga', 'sagaMidStripe.png'));
+  for (const frame of SAGA_FRAMES) await generateSagaFrameParts(frame, stripe);
+}
+
+async function generateSagaFrameParts(frame, stripeImage) {
+  const { source, masks, output, stripe, columnBottom } = frame;
+  const readMask = async part =>
+    (await Jimp.read(path.join(PARTS_DIR, `${masks}${part}.png`))).bitmap;
+  const pinline = await readMask('Pinline');
+  const banner = await readMask('Banner');
+  const text = await readMask('Text');
+  const { width, height } = pinline;
+  const outputDir = path.join(PARTS_DIR, output);
+  fs.mkdirSync(outputDir, { recursive: true });
+
+  const frames = new Map();
+  for (const color of VARIANT_COLORS) {
+    const image = await Jimp.read(path.join(SAGA_DIR, source, `${color}.png`));
+    if (!sameSize(image, width, height)) {
+      throw new Error(`Saga frame ${source}/${color} does not match the ${width}x${height} masks`);
+    }
+    frames.set(color, image.bitmap.data);
+  }
+
+  const fade = (x, center, band = width * BLEND_RATIO) =>
+    Math.min(1, Math.max(0, (x - center) / band + 0.5));
+  const scaledStripe = stripeImage.clone().resize({ w: stripe.width, h: stripe.height });
+
+  for (const combo of COMBINATIONS) {
+    const [d1, d2] = [frames.get(combo[0]), frames.get(combo[1])];
+    const out = new Jimp({ width, height, color: 0x00000000 });
+    const outData = out.bitmap.data;
+    for (let i = 0; i < outData.length; i += 4) {
+      const alpha = Math.max(pinline.data[i + 3], banner.data[i + 3], text.data[i + 3]);
+      if (alpha <= MASK_ALPHA_THRESHOLD) continue;
+      const x = (i / 4) % width;
+      const y = Math.floor(i / 4 / width);
+      let t = fade(x, width / 2);
+      if (banner.data[i + 3] > MASK_ALPHA_THRESHOLD) {
+        t = x < SAGA_BANNER_CENTER_X ? 0 : 1;
+      } else if (text.data[i + 3] > pinline.data[i + 3] && y < columnBottom) {
+        t = fade(x, SAGA_COLUMN_CENTER_X, SAGA_COLUMN_BLEND);
+      }
+      for (let channel = 0; channel < 3; channel += 1) {
+        outData[i + channel] = Math.round(d1[i + channel] * (1 - t) + d2[i + channel] * t);
+      }
+      outData[i + 3] = Math.round((d1[i + 3] * (1 - t) + d2[i + 3] * t) * (alpha / 255));
+    }
+    out.composite(scaledStripe, stripe.x, stripe.y);
+    await out.write(path.join(outputDir, `${combo}.png`));
+    console.log(`${output}  ✓ ${combo}.png`);
   }
 }
 

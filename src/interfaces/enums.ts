@@ -46,6 +46,7 @@ export enum CardType {
   Aftermath = 'Aftermath',
   Prepared = 'Prepared',
   Evolution = 'Evolution',
+  Saga = 'Saga',
 }
 
 // The spell half of an Adventure card. Adventures are always an Instant or a

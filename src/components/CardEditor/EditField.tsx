@@ -14,10 +14,20 @@ import { getRarityIcon } from '../TemplatingCardRender/assetLoader';
 import { injectManaIcons } from '../../utils/injectUtils';
 import EditorTooltip from '../EditorTooltip';
 import CardTextInput from './CardTextInput';
+import SagaStepsInput from './SagaStepsInput';
+import type { SagaEditorMode } from '../../interfaces/UserInterface';
 
 const { TextArea } = Input;
 const InputGroup = Input.Group;
 const RARITY_ICON_STYLE: React.CSSProperties = { width: 20, height: 20 };
+
+/** The card text of a Saga. */
+export interface SagaFieldInterface {
+  editor: SagaEditorMode;
+  onEditorChange: (editor: SagaEditorMode) => void;
+  isCreature: boolean;
+  documentKey: string;
+}
 
 interface EditFieldInterface {
   fieldKey: string;
@@ -44,6 +54,7 @@ interface EditFieldInterface {
   allowCreate?: boolean;
   nonRemovableValues?: string[];
   manaColors?: ColorType[];
+  saga?: SagaFieldInterface;
   getValue: (key: string) => any;
   saveValue: (key: string, value: any) => void;
 }
@@ -549,15 +560,34 @@ const EditField = (props: EditFieldInterface) => {
   }
 
   if (type === 'text-list') {
-    return (
-      <CardTextInput
-        id={fieldId}
-        name={name}
-        value={(getValue(fieldKey) as string[]) || []}
-        onChange={lines => saveValue(fieldKey, lines)}
-        manaColors={props.manaColors}
-      />
-    );
+    const { saga } = props;
+    const textProps = {
+      id: fieldId,
+      name,
+      value: (getValue(fieldKey) as string[]) || [],
+      onChange: (lines: string[]) => saveValue(fieldKey, lines),
+      manaColors: props.manaColors,
+      labelAction: saga ? (
+        <Button
+          type="link"
+          size="small"
+          className={styles.labelAction}
+          onClick={() => saga.onEditorChange(saga.editor === 'steps' ? 'text' : 'steps')}
+        >
+          {saga.editor === 'steps' ? 'Edit as text' : 'Edit as steps'}
+        </Button>
+      ) : undefined,
+    };
+    if (saga?.editor === 'steps') {
+      return (
+        <SagaStepsInput
+          {...textProps}
+          isCreature={saga.isCreature}
+          documentKey={saga.documentKey}
+        />
+      );
+    }
+    return <CardTextInput {...textProps} chapters={!!saga} />;
   }
 
   return <div />;

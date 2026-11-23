@@ -756,13 +756,31 @@ updateLog.push({
 
 updateLog.push({
   version: '5.2.0',
-  title: 'Aftermath',
+  title: 'Sagas & Aftermath',
   content: [
     {
       type: ChangeLogFeatureType.Added,
       feature: 'Aftermath cards',
       description:
         'Pick the Aftermath card type to add a second half that is turned by 90 degrees on the lower half of the card. It has its own name, cost, type, text and artwork, and its frame follows its own cost. The card counts as the colors of both halves.',
+    },
+    {
+      type: ChangeLogFeatureType.Added,
+      feature: 'Saga cards',
+      description:
+        'Pick the Saga card type to get the Saga frame. A Saga is always an enchantment, and may also be an artifact, a creature or a land. The reminder text and the chapter numbers are added by themselves.',
+    },
+    {
+      type: ChangeLogFeatureType.Added,
+      feature: 'Step editor for Sagas',
+      description:
+        'Edit a Saga step by step: add, move and remove steps, let several chapters share one, or have a step without a chapter. Pasted Oracle text becomes steps. "Edit as text" switches to the text editor, where each ability starts with its chapter, e.g. "I, II — Draw a card."; your choice is remembered.',
+    },
+    {
+      type: ChangeLogFeatureType.Added,
+      feature: 'Saga creatures',
+      description:
+        'A Saga that is also a creature gets the Saga creature frame. Its other abilities, e.g. "Flying", and the flavour text go in the box below the type line.',
     },
   ],
 });

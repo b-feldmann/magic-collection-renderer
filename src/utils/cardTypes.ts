@@ -42,6 +42,7 @@ export const MUTUALLY_EXCLUSIVE_CARD_TYPES = [
   CardType.Prepared,
   CardType.Evolution,
   CardType.Planeswalker,
+  CardType.Saga,
   CardType.Token,
 ];
 
@@ -58,10 +59,31 @@ export const resolveExclusiveCardTypes = (
   return types.filter(t => !MUTUALLY_EXCLUSIVE_CARD_TYPES.includes(t) || t === keep);
 };
 
+// The only card types of a Saga: it is always an enchantment, and may be a permanent of these types
+// as well.
+export const SAGA_CARD_TYPES = [
+  CardType.Enchantment,
+  CardType.Artifact,
+  CardType.Creature,
+  CardType.Land,
+  CardType.Saga,
+];
+
+/** A Saga's types without those it can't have, and always with Enchantment. Others stay as is. */
+export const resolveSagaCardTypes = (types: CardType[]): CardType[] => {
+  if (!types.includes(CardType.Saga)) return types;
+  const allowed = types.filter(type => SAGA_CARD_TYPES.includes(type));
+  return allowed.includes(CardType.Enchantment) ? allowed : [...allowed, CardType.Enchantment];
+};
+
 // Ensure a face carries the new shape. If it already has a cardTypes array we
-// leave it alone; otherwise we derive it from the legacy cardMainType string.
+// leave it alone (but for types a Saga can't have); otherwise we derive it from the legacy cardMainType string.
 export const normalizeCardFace = (face: CardFaceInterface): CardFaceInterface => {
-  if (Array.isArray(face.cardTypes) && face.cardTypes.length > 0) return face;
+  if (Array.isArray(face.cardTypes) && face.cardTypes.length > 0) {
+    return face.cardTypes.includes(CardType.Saga)
+      ? { ...face, cardTypes: resolveSagaCardTypes(face.cardTypes) }
+      : face;
+  }
   const legacyMain = (face as Record<string, unknown>).cardMainType;
   const decomposed = legacyMainTypeToTypes(
     typeof legacyMain === 'string' ? legacyMain : CardMainType.Creature,
@@ -131,6 +153,7 @@ export const formatTypeLine = (face: CardFaceInterface): string => {
             cardType !== CardType.Omen &&
             cardType !== CardType.Prepared &&
             cardType !== CardType.Aftermath &&
+            cardType !== CardType.Saga &&
             cardType !== CardType.Evolution,
         )
         // filter() returned a fresh array, so sorting it in place is safe.
@@ -142,7 +165,13 @@ export const formatTypeLine = (face: CardFaceInterface): string => {
   const left = [face.legendary ? 'Legendary' : '', ...types].filter(Boolean).join(' ');
 
   const isArtifact = types.includes(CardType.Artifact);
-  const subtypes = [face.vehicle && isArtifact ? 'Vehicle' : '', face.cardSubTypes]
+  // Every Saga has that subtype, which may also be part of a longer one ("Urza's Saga").
+  const addsSaga = hasType(face, CardType.Saga) && !/\bsaga\b/i.test(face.cardSubTypes ?? '');
+  const subtypes = [
+    addsSaga ? 'Saga' : '',
+    face.vehicle && isArtifact ? 'Vehicle' : '',
+    face.cardSubTypes,
+  ]
     .filter(Boolean)
     .join(' ');
 

@@ -31,6 +31,7 @@ import { CARD_HEIGHT, CARD_WIDTH } from '../../utils/constants';
 import styles from './TemplatingCardRender.module.scss';
 import AftermathHalf, { AftermathFrame } from './AftermathHalf';
 import LegalLine from './LegalLine';
+import SagaText from './SagaText';
 import { balancePrintedLines, resetPrintedLines } from './printedLineBreaks';
 import {
   AFTERMATH_LINE_HEIGHT,
@@ -86,6 +87,9 @@ import {
   getPt,
   getRarityIcon,
   getRulesPart,
+  getSagaHoloStamp,
+  getSagaMainframe,
+  getSagaParts,
   getTitlePart,
   getTokenLandTypePart,
   getTokenMainframe,
@@ -243,8 +247,9 @@ const TemplatingCardRender = (rawProps: TemplatingCardRenderProps) => {
   const { backFace, collectionNumber, collectionSize } = cardRenderProps;
   const { containerWidth = CARD_WIDTH, coverFit } = cardRenderProps;
   const isAftermath = cardTypes.includes(CardType.Aftermath);
-  // The Aftermath frame only exists in the Regular art style.
-  const artStyle = isAftermath ? CardArtStyles.Regular : cardRenderProps.artStyle;
+  const isSaga = cardTypes.includes(CardType.Saga);
+  // The Aftermath and Saga frames only exist in the Regular art style.
+  const artStyle = isAftermath || isSaga ? CardArtStyles.Regular : cardRenderProps.artStyle;
 
   const mechanics = useContext(MechanicsContext);
 
@@ -350,6 +355,8 @@ const TemplatingCardRender = (rawProps: TemplatingCardRenderProps) => {
   const isOmen = cardTypes.includes(CardType.Omen);
   const isPrepared = cardTypes.includes(CardType.Prepared);
   const isEvolution = cardTypes.includes(CardType.Evolution);
+  // Its frame has room for the P/T box, which a Vehicle has too.
+  const isSagaCreature = isSaga && (isCreature || (isArtifact && !!vehicle));
   // The Alternate Art art style is an adventure-specific showcase: it swaps
   // every adventure asset (frame, pinline, rules-left, pt) for its alternate
   // variant set.
@@ -456,6 +463,7 @@ const TemplatingCardRender = (rawProps: TemplatingCardRenderProps) => {
     !isOmen &&
     !isPrepared &&
     !isAftermath &&
+    !isSaga &&
     artStyle !== CardArtStyles.Borderless;
   const ptColor = isHybridFrame ? getHybridPtColor(allColors) : color;
   let mainframe;
@@ -524,9 +532,10 @@ const TemplatingCardRender = (rawProps: TemplatingCardRenderProps) => {
   if (isAdventure || isOmen || isPrepared || isEvolution) {
     rulesPart = '';
   }
-  // AftermathFrame draws the parts of both halves.
-  if (isAftermath) {
-    pinline = '';
+  // AftermathFrame draws the parts of both halves, and a Saga's are one image.
+  const sagaParts = isSaga && !isLand ? getSagaParts(allColors, isSagaCreature) : '';
+  if (isAftermath || isSaga) {
+    pinline = sagaParts;
     titlePart = '';
     typePart = '';
     rulesPart = '';
@@ -554,6 +563,8 @@ const TemplatingCardRender = (rawProps: TemplatingCardRenderProps) => {
     titlePart = '';
     typePart = '';
     rulesPart = '';
+  } else if (isSaga) {
+    mainframe = getSagaMainframe(color, { isCreature: isSagaCreature, isArtifact, isLand });
   } else if (isInvention) {
     mainframe = getInventionMainframe(color, isArtifact);
     pt = getInventionPt();
@@ -582,12 +593,15 @@ const TemplatingCardRender = (rawProps: TemplatingCardRenderProps) => {
   const isBorderless = artStyle === CardArtStyles.Borderless;
   const showsHoloStamp = hasHoloStamp(rarity) && !isToken && !isInvention;
   const twoColorHoloStamp =
-    showsHoloStamp && !isLand && pinline
+    showsHoloStamp && !isLand && pinline && (!isSaga || isSagaCreature)
       ? getTwoColorHoloStamp(allColors, isBorderless ? 'borderless' : 'regular')
       : null;
-  const holoStamp = showsHoloStamp
-    ? (twoColorHoloStamp ?? getHoloStamp(color, isArtifact, isLand, isBorderless || isAftermath))
-    : null;
+  // Below the type line of a Saga that isn't a creature, on its own bump.
+  const isSagaHoloStamp = isSaga && !isSagaCreature;
+  const singleHoloStamp = isSagaHoloStamp
+    ? getSagaHoloStamp()
+    : getHoloStamp(color, isArtifact, isLand, isBorderless || isAftermath);
+  const holoStamp = showsHoloStamp ? (twoColorHoloStamp ?? singleHoloStamp) : null;
   const isPlainHoloStamp = (isBorderless || isAftermath) && !twoColorHoloStamp;
 
   // The full-width M15 rules box, typeset like print (see printedTextFit).
@@ -742,6 +756,8 @@ const TemplatingCardRender = (rawProps: TemplatingCardRenderProps) => {
             ${isEnchantment && styles.enchantment}
             ${isEvolution && styles.evolution}
             ${isAftermath && styles.aftermath}
+            ${isSaga && styles.saga}
+            ${isSagaCreature && styles.sagaCreature}
             ${!hasSecondEvolution && styles.hasNoSecondEvolution}
             ${isLand && styles.land}
             ${isArtifact && styles.artifact}
@@ -796,7 +812,9 @@ const TemplatingCardRender = (rawProps: TemplatingCardRenderProps) => {
 
           {holoStamp ? (
             <img
-              className={`${styles.holoStamp} ${isPlainHoloStamp ? styles.holoStampPlain : ''}`}
+              className={`${styles.holoStamp} ${isPlainHoloStamp ? styles.holoStampPlain : ''} ${
+                isSagaHoloStamp ? styles.sagaHoloStamp : ''
+              }`}
               src={holoStamp}
               alt=""
               data-testid="holo-stamp"
@@ -1082,62 +1100,80 @@ const TemplatingCardRender = (rawProps: TemplatingCardRenderProps) => {
             </TextResize>
           </div>
 
-          <div
-            className={`${styles.text} ${isToken ? styles.tokenText : ''} ${
-              isAdventure ? styles.adventureRightText : ''
-            } ${isOmen ? styles.omenRightText : ''} ${isPrepared ? styles.prepareLeftText : ''} ${
-              isAftermath ? styles.aftermathUprightText : ''
-            } ${isEvolution ? styles.levelerText : ''}`}
-          >
-            {/* Printed M15 rules text is 9pt MPlantin (≈76px in the 1500px design
-                space) with ≈0.985 leading at full size and ≈0.97 once it had to shrink;
-                it only shrinks when the text overflows, and then keeps that leading and
-                the paragraph gaps, as print does. Shrunk sizes come in 0.25pt steps and
-                the last line's ink keeps clear of the box bottom (printedTextFit). */}
-            {isEvolution ? (
-              <EvolutionText
-                text={cardText}
-                keyPrefix={`card-text-${cardID}`}
-                name={name}
-                mechanics={mechanics}
-              >
-                <FlavourText name={name} flavourText={flavourText} flavourAuthor={flavourAuthor} />
-              </EvolutionText>
-            ) : (
-              <TextResize
-                defaultFontSize={42}
-                maxFontSize={rulesMaxFontSize}
-                minFontSize={isAftermath ? 28 : 38}
-                lineHeight={rulesLineHeight}
-                fullSizeLineHeight={isPrintedRulesText ? 0.985 : undefined}
-                fixedSpacing={!(isAdventure || isOmen)}
-                sizeSteps={rulesSizeSteps}
-                boxFits={isPrintedRulesText ? printedRulesBoxFits : undefined}
-                fits={isPrintedRulesText ? printedRulesInkFits : undefined}
-                beforeFit={beforeRulesFit}
-                afterFit={afterRulesFit}
-                layout={fitAtDesignSize}
-                className={`${styles.textWrap} ${rulesTextClass}`}
-              >
-                <div>
-                  {cardText.map((val, i) => (
-                    <p
-                      key={`card-text-${cardID}-${i}`}
-                      className={isBulletText(val) ? styles.bulletText : undefined}
-                      style={val.trimStart().startsWith('--') ? { marginLeft: '0.5em' } : undefined}
-                    >
-                      {injectForText(val, name, mechanics)}
-                    </p>
-                  ))}
+          {isSaga ? (
+            <SagaText
+              cardID={cardID}
+              name={name}
+              cardText={cardText}
+              isCreature={isSagaCreature}
+              flavourText={flavourText}
+              flavourAuthor={flavourAuthor}
+              containerWidth={containerWidth}
+            />
+          ) : (
+            <div
+              className={`${styles.text} ${isToken ? styles.tokenText : ''} ${
+                isAdventure ? styles.adventureRightText : ''
+              } ${isOmen ? styles.omenRightText : ''} ${isPrepared ? styles.prepareLeftText : ''} ${
+                isAftermath ? styles.aftermathUprightText : ''
+              } ${isEvolution ? styles.levelerText : ''}`}
+            >
+              {/* Printed M15 rules text is 9pt MPlantin (≈76px in the 1500px design
+                  space) with ≈0.985 leading at full size and ≈0.97 once it had to shrink;
+                  it only shrinks when the text overflows, and then keeps that leading and
+                  the paragraph gaps, as print does. Shrunk sizes come in 0.25pt steps and
+                  the last line's ink keeps clear of the box bottom (printedTextFit). */}
+              {isEvolution ? (
+                <EvolutionText
+                  text={cardText}
+                  keyPrefix={`card-text-${cardID}`}
+                  name={name}
+                  mechanics={mechanics}
+                >
                   <FlavourText
                     name={name}
                     flavourText={flavourText}
                     flavourAuthor={flavourAuthor}
                   />
-                </div>
-              </TextResize>
-            )}
-          </div>
+                </EvolutionText>
+              ) : (
+                <TextResize
+                  defaultFontSize={42}
+                  maxFontSize={rulesMaxFontSize}
+                  minFontSize={isAftermath ? 28 : 38}
+                  lineHeight={rulesLineHeight}
+                  fullSizeLineHeight={isPrintedRulesText ? 0.985 : undefined}
+                  fixedSpacing={!(isAdventure || isOmen)}
+                  sizeSteps={rulesSizeSteps}
+                  boxFits={isPrintedRulesText ? printedRulesBoxFits : undefined}
+                  fits={isPrintedRulesText ? printedRulesInkFits : undefined}
+                  beforeFit={beforeRulesFit}
+                  afterFit={afterRulesFit}
+                  layout={fitAtDesignSize}
+                  className={`${styles.textWrap} ${rulesTextClass}`}
+                >
+                  <div>
+                    {cardText.map((val, i) => (
+                      <p
+                        key={`card-text-${cardID}-${i}`}
+                        className={isBulletText(val) ? styles.bulletText : undefined}
+                        style={
+                          val.trimStart().startsWith('--') ? { marginLeft: '0.5em' } : undefined
+                        }
+                      >
+                        {injectForText(val, name, mechanics)}
+                      </p>
+                    ))}
+                    <FlavourText
+                      name={name}
+                      flavourText={flavourText}
+                      flavourAuthor={flavourAuthor}
+                    />
+                  </div>
+                </TextResize>
+              )}
+            </div>
+          )}
 
           <div className={styles.collectionBlock}>
             {formatCollectorLine(collectionNumber, getRarityCode(rarity))}

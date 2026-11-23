@@ -1,9 +1,10 @@
 import axios from 'axios';
 
 import { Action, UserActionType } from '../reducer';
-import UserInterface from '../interfaces/UserInterface';
+import UserInterface, { SagaEditorMode } from '../interfaces/UserInterface';
 import { getAccessToken } from '../utils/accessService';
 import { UNKNOWN_CREATOR } from '../utils/constants';
+import { staticAntd } from '../utils/staticAntd';
 
 const MIDDLEWARE_ENDPOINT = import.meta.env.PROD ? '/user' : 'http://localhost:8080/user';
 
@@ -74,7 +75,9 @@ export const getUser = (dispatch: (value: Action) => void) => {
     .catch(() => {});
 };
 
-type UserChanges = Partial<Pick<UserInterface, 'seenCards' | 'seenComments' | 'lastSeenVersion'>>;
+type UserChanges = Partial<
+  Pick<UserInterface, 'seenCards' | 'seenComments' | 'lastSeenVersion' | 'sagaEditor'>
+>;
 
 // The API applies only the sent changes, so another tab or device can't lose its
 // reads to this client's outdated copy. Writes are serialized per user so that the
@@ -125,6 +128,16 @@ export const addLastSeenVersion = (
   currentUser: UserInterface,
 ) => {
   queueUserUpdate(dispatch, currentUser, () => ({ lastSeenVersion: version })).catch(() => {});
+};
+
+export const setSagaEditor = (
+  dispatch: (value: Action) => void,
+  sagaEditor: SagaEditorMode,
+  currentUser: UserInterface,
+) => {
+  queueUserUpdate(dispatch, currentUser, () => ({ sagaEditor })).catch(() => {
+    staticAntd.message.error("Couldn't save which Saga editor you prefer.");
+  });
 };
 
 export const addSeenCard = (

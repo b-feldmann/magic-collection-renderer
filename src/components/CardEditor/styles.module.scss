@@ -408,6 +408,116 @@
   color: #75866f;
 }
 
+.fieldHint {
+  margin: 4px 0 0;
+  font-size: 12px;
+  opacity: 0.65;
+}
+
+// The steps of a Saga, below the symbol toolbar.
+.sagaEditor {
+  display: grid;
+  gap: 8px;
+  padding: 8px;
+  border: 1px solid #dfe5de;
+  border-radius: 0 0 8px 8px;
+}
+
+.sagaReminderField {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+
+  :global(.ant-select) {
+    flex: 1;
+    width: auto;
+    min-width: 150px;
+  }
+}
+
+// Between the symbol toolbar and the text.
+.sagaReminderBar {
+  padding: 4px 8px;
+  border: 1px solid #dfe5de;
+  border-bottom: 0;
+}
+
+.sagaReminderField label,
+.sagaRulesField label {
+  color: #6f7b6d;
+  font-size: 12px;
+}
+
+.sagaSteps {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sagaStep {
+  padding: 4px 6px 6px;
+  border: 1px solid #e9ede5;
+  border-radius: 8px;
+  background: #f9faf8;
+}
+
+.sagaStepHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 4px;
+}
+
+.sagaStepChapters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  color: #6f7b6d;
+  font-size: 12px;
+}
+
+// The hexagon of a chapter number, as on the card.
+.sagaNumeral {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 28px;
+  clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+  background: linear-gradient(135deg, #efe3b4, #d8b95a);
+  color: #2b2413;
+  font-family: serif;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+}
+
+.sagaStepActions {
+  display: flex;
+  margin-inline-start: auto;
+}
+
+.sagaAddButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+}
+
+.sagaRulesField {
+  display: grid;
+  gap: 4px;
+  padding-top: 8px;
+  border-top: 1px solid #e9ede5;
+}
+
+.labelAction:global(.ant-btn) {
+  padding-inline: 0;
+  color: #4f7b5d;
+}
+
 .rulesLabelRow {
   display: flex;
   align-items: center;

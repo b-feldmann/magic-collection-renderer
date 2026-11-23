@@ -38,7 +38,13 @@ export const PRINTED_AFTERMATH_SIZES: number[] = Array.from(
   (_, n) => Math.round((FULL_SIZE - STEP * (n + 3)) * 100) / 100,
 );
 
-/** Its leading: ≈68px line pitch at 69.7px (Return, Dusk). */
+/** Every size on whole 0.25pt steps, which a Saga's text sits on too (see sagaGeometry). */
+export const PRINTED_WHOLE_STEP_SIZES: number[] = Array.from(
+  { length: 23 },
+  (_, n) => Math.round((FULL_SIZE - STEP * n) * 100) / 100,
+);
+
+/** The leading of Aftermath text: ≈68px line pitch at 69.7px (Return, Dusk). */
 export const AFTERMATH_LINE_HEIGHT = 0.98;
 
 // The lowest ink of the last line, descenders included, stays this far above

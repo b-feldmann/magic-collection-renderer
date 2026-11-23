@@ -1138,6 +1138,69 @@ import AftermathPartsBg from './images/parts/aftermathParts/bg.png';
 import AftermathPartsRw from './images/parts/aftermathParts/rw.png';
 import AftermathPartsGu from './images/parts/aftermathParts/gu.png';
 
+// --- Saga mainframes (full-res + Thumb) and the two-color pinlines, banners and
+// text boxes carved from them ---
+// Sagas print in the starry "nyx" frame (2026), which has no land version; a land
+// Saga uses the regular one. Sagas that are creatures have their own frame, without
+// an artifact version.
+import SagaMainframeW from './images/mainframes/saga/nyx/w.png';
+import SagaMainframeWLowRes from './images/mainframes/saga/nyx/wThumb.png';
+import SagaMainframeU from './images/mainframes/saga/nyx/u.png';
+import SagaMainframeULowRes from './images/mainframes/saga/nyx/uThumb.png';
+import SagaMainframeB from './images/mainframes/saga/nyx/b.png';
+import SagaMainframeBLowRes from './images/mainframes/saga/nyx/bThumb.png';
+import SagaMainframeR from './images/mainframes/saga/nyx/r.png';
+import SagaMainframeRLowRes from './images/mainframes/saga/nyx/rThumb.png';
+import SagaMainframeG from './images/mainframes/saga/nyx/g.png';
+import SagaMainframeGLowRes from './images/mainframes/saga/nyx/gThumb.png';
+import SagaMainframeM from './images/mainframes/saga/nyx/m.png';
+import SagaMainframeMLowRes from './images/mainframes/saga/nyx/mThumb.png';
+import SagaMainframeA from './images/mainframes/saga/nyx/a.png';
+import SagaMainframeALowRes from './images/mainframes/saga/nyx/aThumb.png';
+import SagaMainframeL from './images/mainframes/saga/regular/l.png';
+import SagaMainframeLLowRes from './images/mainframes/saga/regular/lThumb.png';
+import SagaMainframeC from './images/mainframes/saga/nyx/c.png';
+import SagaMainframeCLowRes from './images/mainframes/saga/nyx/cThumb.png';
+import SagaCreatureMainframeW from './images/mainframes/saga/creature/w.png';
+import SagaCreatureMainframeWLowRes from './images/mainframes/saga/creature/wThumb.png';
+import SagaCreatureMainframeU from './images/mainframes/saga/creature/u.png';
+import SagaCreatureMainframeULowRes from './images/mainframes/saga/creature/uThumb.png';
+import SagaCreatureMainframeB from './images/mainframes/saga/creature/b.png';
+import SagaCreatureMainframeBLowRes from './images/mainframes/saga/creature/bThumb.png';
+import SagaCreatureMainframeR from './images/mainframes/saga/creature/r.png';
+import SagaCreatureMainframeRLowRes from './images/mainframes/saga/creature/rThumb.png';
+import SagaCreatureMainframeG from './images/mainframes/saga/creature/g.png';
+import SagaCreatureMainframeGLowRes from './images/mainframes/saga/creature/gThumb.png';
+import SagaCreatureMainframeM from './images/mainframes/saga/creature/m.png';
+import SagaCreatureMainframeMLowRes from './images/mainframes/saga/creature/mThumb.png';
+import SagaCreatureMainframeL from './images/mainframes/saga/creature/l.png';
+import SagaCreatureMainframeLLowRes from './images/mainframes/saga/creature/lThumb.png';
+import SagaCreatureMainframeC from './images/mainframes/saga/creature/c.png';
+import SagaCreatureMainframeCLowRes from './images/mainframes/saga/creature/cThumb.png';
+import SagaPartsWu from './images/parts/sagaParts/wu.png';
+import SagaPartsUb from './images/parts/sagaParts/ub.png';
+import SagaPartsBr from './images/parts/sagaParts/br.png';
+import SagaPartsRg from './images/parts/sagaParts/rg.png';
+import SagaPartsGw from './images/parts/sagaParts/gw.png';
+import SagaPartsWb from './images/parts/sagaParts/wb.png';
+import SagaPartsUr from './images/parts/sagaParts/ur.png';
+import SagaPartsBg from './images/parts/sagaParts/bg.png';
+import SagaPartsRw from './images/parts/sagaParts/rw.png';
+import SagaPartsGu from './images/parts/sagaParts/gu.png';
+import SagaCreaturePartsWu from './images/parts/sagaCreatureParts/wu.png';
+import SagaCreaturePartsUb from './images/parts/sagaCreatureParts/ub.png';
+import SagaCreaturePartsBr from './images/parts/sagaCreatureParts/br.png';
+import SagaCreaturePartsRg from './images/parts/sagaCreatureParts/rg.png';
+import SagaCreaturePartsGw from './images/parts/sagaCreatureParts/gw.png';
+import SagaCreaturePartsWb from './images/parts/sagaCreatureParts/wb.png';
+import SagaCreaturePartsUr from './images/parts/sagaCreatureParts/ur.png';
+import SagaCreaturePartsBg from './images/parts/sagaCreatureParts/bg.png';
+import SagaCreaturePartsRw from './images/parts/sagaCreatureParts/rw.png';
+import SagaCreaturePartsGu from './images/parts/sagaCreatureParts/gu.png';
+import SagaChapterIcon from './images/saga/sagaChapter.png';
+import SagaDivider from './images/saga/sagaDivider.png';
+import SagaHoloStamp from './images/saga/sagaHoloStamp.png';
+
 // --- Leveler mainframes (regular, full-res + Thumb) ---
 import LevelerMainframeA from './images/mainframes/levelers/regular/a.png';
 import LevelerMainframeALowRes from './images/mainframes/levelers/regular/aThumb.png';
@@ -2032,6 +2095,84 @@ export const getAftermathMainframe = (color: ColorType, isLand = false): ImageRe
       return { highRes: AftermathMainframeA, lowRes: AftermathMainframeALowRes };
   }
 };
+
+const SAGA_MAINFRAMES: Record<ColorType, ImageResData> = {
+  [ColorType.White]: { highRes: SagaMainframeW, lowRes: SagaMainframeWLowRes },
+  [ColorType.Blue]: { highRes: SagaMainframeU, lowRes: SagaMainframeULowRes },
+  [ColorType.Black]: { highRes: SagaMainframeB, lowRes: SagaMainframeBLowRes },
+  [ColorType.Red]: { highRes: SagaMainframeR, lowRes: SagaMainframeRLowRes },
+  [ColorType.Green]: { highRes: SagaMainframeG, lowRes: SagaMainframeGLowRes },
+  [ColorType.Gold]: { highRes: SagaMainframeM, lowRes: SagaMainframeMLowRes },
+  [ColorType.Colorless]: { highRes: SagaMainframeC, lowRes: SagaMainframeCLowRes },
+};
+
+const SAGA_CREATURE_MAINFRAMES: Record<ColorType, ImageResData> = {
+  [ColorType.White]: { highRes: SagaCreatureMainframeW, lowRes: SagaCreatureMainframeWLowRes },
+  [ColorType.Blue]: { highRes: SagaCreatureMainframeU, lowRes: SagaCreatureMainframeULowRes },
+  [ColorType.Black]: { highRes: SagaCreatureMainframeB, lowRes: SagaCreatureMainframeBLowRes },
+  [ColorType.Red]: { highRes: SagaCreatureMainframeR, lowRes: SagaCreatureMainframeRLowRes },
+  [ColorType.Green]: { highRes: SagaCreatureMainframeG, lowRes: SagaCreatureMainframeGLowRes },
+  [ColorType.Gold]: { highRes: SagaCreatureMainframeM, lowRes: SagaCreatureMainframeMLowRes },
+  [ColorType.Colorless]: { highRes: SagaCreatureMainframeC, lowRes: SagaCreatureMainframeCLowRes },
+};
+
+export const getSagaMainframe = (
+  color: ColorType,
+  { isCreature = false, isArtifact = false, isLand = false } = {},
+): ImageResData => {
+  if (isCreature) {
+    if (isLand) return { highRes: SagaCreatureMainframeL, lowRes: SagaCreatureMainframeLLowRes };
+    return SAGA_CREATURE_MAINFRAMES[color];
+  }
+  if (isLand) return { highRes: SagaMainframeL, lowRes: SagaMainframeLLowRes };
+  if (isArtifact && color === ColorType.Colorless) {
+    return { highRes: SagaMainframeA, lowRes: SagaMainframeALowRes };
+  }
+  return SAGA_MAINFRAMES[color];
+};
+
+const SAGA_PARTS_BY_KEY: Partial<Record<PartVariant, string>> = {
+  wu: SagaPartsWu,
+  ub: SagaPartsUb,
+  br: SagaPartsBr,
+  rg: SagaPartsRg,
+  gw: SagaPartsGw,
+  wb: SagaPartsWb,
+  ur: SagaPartsUr,
+  bg: SagaPartsBg,
+  rw: SagaPartsRw,
+  gu: SagaPartsGu,
+};
+
+const SAGA_CREATURE_PARTS_BY_KEY: Partial<Record<PartVariant, string>> = {
+  wu: SagaCreaturePartsWu,
+  ub: SagaCreaturePartsUb,
+  br: SagaCreaturePartsBr,
+  rg: SagaCreaturePartsRg,
+  gw: SagaCreaturePartsGw,
+  wb: SagaCreaturePartsWb,
+  ur: SagaCreaturePartsUr,
+  bg: SagaCreaturePartsBg,
+  rw: SagaCreaturePartsRw,
+  gu: SagaCreaturePartsGu,
+};
+
+// The pinlines, chapter banner and text box of a two-color Saga, drawn over its gold
+// frame; every other Saga shows its frame as it is ('').
+export const getSagaParts = (colors: ColorType[], isCreature = false): string => {
+  if (colors.length !== 2) return '';
+  const parts = isCreature ? SAGA_CREATURE_PARTS_BY_KEY : SAGA_PARTS_BY_KEY;
+  return parts[getTwoColorVariant(colors)] ?? '';
+};
+
+/** The hexagon behind a chapter number. */
+export const getSagaChapterIcon = () => SagaChapterIcon;
+
+/** The line above each step. */
+export const getSagaDivider = () => SagaDivider;
+
+/** The holo stamp below a Saga's type line, with the black bump it sits on. */
+export const getSagaHoloStamp = () => SagaHoloStamp;
 
 export const getLevelerMainframe = (color: ColorType): ImageResData => {
   switch (color) {

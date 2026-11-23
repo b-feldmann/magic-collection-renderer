@@ -26,9 +26,17 @@ import {
 import EditField from './EditField';
 import ArtworkUpload from './ArtworkUpload';
 import RulesTextLint from './RulesTextLint';
-import { MUTUALLY_EXCLUSIVE_CARD_TYPES, resolveExclusiveCardTypes } from '../../utils/cardTypes';
+import {
+  MUTUALLY_EXCLUSIVE_CARD_TYPES,
+  resolveExclusiveCardTypes,
+  resolveSagaCardTypes,
+  SAGA_CARD_TYPES,
+} from '../../utils/cardTypes';
 import { getAutomaticCardTags, getCardTags, updateCardTags } from '../../utils/cardTags';
 import { normalizeManaCost } from '../../utils/injectUtils';
+import { setSagaEditor } from '../../actions/userActions';
+import type { SagaEditorMode } from '../../interfaces/UserInterface';
+import { EMPTY_SAGA_TEXT } from '../../utils/sagaChapters';
 import { applyLintFix, lintCardFace, RulesTextLintIssue } from '../../utils/rulesTextLint';
 import {
   getTokenCard,
@@ -110,7 +118,7 @@ const isArtStyleAvailableForType = (artStyle: string, cardTypes: CardType[] = []
   }
   if (artStyle === CardArtStyles.Invocation) return false;
   // Invention is artifact-only and unavailable for the mutually exclusive
-  // showcase types (Adventure/Omen/Split Card/Aftermath/Prepared/Planeswalker).
+  // showcase types (Adventure/Omen/Split Card/Aftermath/Prepared/Planeswalker/Saga).
   if (artStyle === CardArtStyles.Invention) {
     return (
       cardTypes.includes(CardType.Artifact) &&
@@ -119,8 +127,8 @@ const isArtStyleAvailableForType = (artStyle: string, cardTypes: CardType[] = []
   }
   if (artStyle !== CardArtStyles.Regular) {
     if (cardTypes.includes(CardType.Token)) return false;
-    // The Aftermath frame only exists in the Regular art style.
-    if (cardTypes.includes(CardType.Aftermath)) return false;
+    // The Aftermath and Saga frames only exist in the Regular art style.
+    if (cardTypes.includes(CardType.Aftermath) || cardTypes.includes(CardType.Saga)) return false;
     // Planeswalkers only support the Borderless showcase frames, not the other
     // non-regular art styles.
     if (cardTypes.includes(CardType.Planeswalker)) return artStyle === CardArtStyles.Borderless;
@@ -423,6 +431,10 @@ const CardEditor: React.FC<CardEditorInterface> = ({
   const saveGenRef = useRef<number>(0);
 
   const [editBack, setEditBack] = useState<boolean>(false);
+  const [chosenSagaEditor, setChosenSagaEditor] = useState<{
+    user: string;
+    editor: SagaEditorMode;
+  }>();
   const [creatingVariant, setCreatingVariant] = useState(false);
   // The templating hint whose token card is being created.
   const [creatingTokenKey, setCreatingTokenKey] = useState<string>();
@@ -546,7 +558,10 @@ const CardEditor: React.FC<CardEditorInterface> = ({
 
     if (key === 'cardTypes') {
       const previousTypes: CardType[] = getCurrentFace(tmpCard).cardTypes || [];
-      const nextTypes: CardType[] = resolveExclusiveCardTypes(value || [], previousTypes);
+      const nextTypes: CardType[] = resolveSagaCardTypes(
+        resolveExclusiveCardTypes(value || [], previousTypes),
+      );
+      if (nextTypes.includes(CardType.Saga)) getCurrentFace(newTmpCard).cardTypes = nextTypes;
 
       if (nextTypes.includes(CardType.BasicLand)) {
         const bl = getValue('basicLandType');
@@ -604,6 +619,16 @@ const CardEditor: React.FC<CardEditorInterface> = ({
             hasMechanic ? `[${AFTERMATH_MECHANIC}]` : AFTERMATH_KEYWORD_LINE,
           ]);
         }
+      }
+
+      // Every Saga has chapters.
+      const wasSaga = getCurrentFace(previousCard).cardTypes?.includes(CardType.Saga);
+      if (
+        nextTypes.includes(CardType.Saga) &&
+        !wasSaga &&
+        !getValue('cardText')?.some((line: string) => line.trim())
+      ) {
+        saveValue('cardText', [...EMPTY_SAGA_TEXT]);
       }
 
       // Automatic art style switch when the current style is no longer
@@ -827,6 +852,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
   const isPrepared = () => types().includes(CardType.Prepared);
   const isAftermath = () => types().includes(CardType.Aftermath);
   const isEvolution = () => types().includes(CardType.Evolution);
+  const isSaga = () => types().includes(CardType.Saga);
   const hasMana = () =>
     !types().includes(CardType.Token) && !isLand() && !types().includes(CardType.Emblem);
   const showManaCost = () => hasMana() && !editBack;
@@ -837,6 +863,20 @@ const CardEditor: React.FC<CardEditorInterface> = ({
   const showColorIdentity = () => !tmpCard.manaCost && !isColoredToken();
 
   const hasStats = () => isCreature() || isPlaneswalker() || isVehicle();
+
+  // A choice made here applies at once, whether or not it could be stored.
+  const sagaEditor =
+    (chosenSagaEditor?.user === currentUser.uuid ? chosenSagaEditor.editor : undefined) ??
+    currentUser.sagaEditor ??
+    'steps';
+  const changeSagaEditor = (editor: SagaEditorMode) => {
+    setChosenSagaEditor({ user: currentUser.uuid, editor });
+    setSagaEditor(dispatch, editor, currentUser);
+  };
+
+  // Planeswalkers have no room for flavour text, and neither have Sagas but for the rules box of
+  // those with P/T.
+  const hasFlavour = () => !isPlaneswalker() && (!isSaga() || hasStats());
 
   const hasNickname = () =>
     getValue('artStyle') !== CardArtStyles.Invention &&
@@ -849,6 +889,14 @@ const CardEditor: React.FC<CardEditorInterface> = ({
   )
     ? MUTUALLY_EXCLUSIVE_CARD_TYPES.filter(t => !types().includes(t as CardType))
     : [];
+
+  // A Saga may only have a few other types. Its Enchantment type can't be removed, since a disabled
+  // option can't be deselected either.
+  const disabledCardTypes = isSaga()
+    ? Object.values(CardType).filter(
+        type => type === CardType.Enchantment || !SAGA_CARD_TYPES.includes(type),
+      )
+    : exclusiveDisabledKeys;
 
   const cardTypeOptions = (Object.keys(CardType) as (keyof typeof CardType)[])
     .filter(type => !HIDDEN_CARD_TYPES.has(CardType[type]))
@@ -981,7 +1029,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
       type: 'multi-select',
       name: 'Card types',
       data: cardTypeOptions,
-      disabledKeys: exclusiveDisabledKeys,
+      disabledKeys: disabledCardTypes,
       width: 50,
     },
     {
@@ -1002,7 +1050,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
       key: 'flavourText',
       type: 'area',
       name: 'Flavour text',
-      width: isPlaneswalker() ? 0 : 100,
+      width: hasFlavour() ? 100 : 0,
       placeholder: 'Every card has a story…',
       optional: true,
     },
@@ -1012,7 +1060,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
       name: 'Flavour text author',
       placeholder: 'Who said it?',
       optional: true,
-      width: isPlaneswalker() ? 0 : 100,
+      width: hasFlavour() ? 100 : 0,
     },
     {
       key: 'cardStats',
@@ -1197,6 +1245,17 @@ const CardEditor: React.FC<CardEditorInterface> = ({
         manaColors={
           config.type === 'text-list'
             ? cardToColor(getCurrentFace(tmpCard), tmpCard.manaCost).allColors
+            : undefined
+        }
+        saga={
+          config.key === 'cardText' && isSaga()
+            ? {
+                editor: sagaEditor,
+                onEditorChange: changeSagaEditor,
+                // A Vehicle has the rules box of a creature's frame, too.
+                isCreature: hasStats(),
+                documentKey: `${tmpCard.uuid}-${editBack ? 'back' : 'front'}`,
+              }
             : undefined
         }
       />

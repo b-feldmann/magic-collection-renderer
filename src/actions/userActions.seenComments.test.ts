@@ -1,9 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import axios from 'axios';
-import { addLastSeenVersion, addSeenCard, addSeenComments } from './userActions';
+import { addLastSeenVersion, addSeenCard, addSeenComments, setSagaEditor } from './userActions';
 import reducer, { Action, UserActionType } from '../reducer';
 import UserInterface from '../interfaces/UserInterface';
 import { UNKNOWN_CREATOR } from '../utils/constants';
+import { staticAntd } from '../utils/staticAntd';
 
 vi.mock('axios', () => ({ default: { patch: vi.fn(), put: vi.fn(), get: vi.fn() } }));
 
@@ -14,7 +15,9 @@ const reader: UserInterface = {
   lastSeenVersion: 1,
 };
 
-type PatchBody = Pick<UserInterface, 'seenCards' | 'seenComments'> & { lastSeenVersion?: number };
+type PatchBody = Pick<UserInterface, 'seenCards' | 'seenComments' | 'sagaEditor'> & {
+  lastSeenVersion?: number;
+};
 
 // Behaves like the middleware: merges the sent changes into the stored user.
 const applyPatch = (user: UserInterface, body: PatchBody): UserInterface => ({
@@ -26,6 +29,7 @@ const applyPatch = (user: UserInterface, body: PatchBody): UserInterface => ({
       }
     : {}),
   lastSeenVersion: Math.max(user.lastSeenVersion, body.lastSeenVersion ?? -1),
+  ...(body.sagaEditor ? { sagaEditor: body.sagaEditor } : {}),
 });
 
 const useServer = (initial: UserInterface) => {
@@ -82,6 +86,33 @@ describe('saving seen state on the user', () => {
       }),
     );
     expect(server.user).toEqual(state.currentUser);
+  });
+
+  it('stores the preferred Saga editor without touching the rest', async () => {
+    const server = useServer(reader);
+    const actions: Action[] = [];
+
+    setSagaEditor(action => actions.push(action), 'text', reader);
+
+    await vi.waitFor(() => expect(server.user).toEqual({ ...reader, sagaEditor: 'text' }));
+    expect(vi.mocked(axios.patch).mock.calls[0][1]).not.toHaveProperty('seenCards');
+    await vi.waitFor(() =>
+      expect(actions).toEqual([
+        { type: UserActionType.UpdateUser, payload: { user: server.user } },
+      ]),
+    );
+  });
+
+  it('reports when the preferred Saga editor could not be stored', async () => {
+    const { message } = staticAntd;
+    const error = vi.fn();
+    staticAntd.message = { ...message, error };
+    vi.mocked(axios.patch).mockRejectedValue(new Error('400'));
+
+    setSagaEditor(() => {}, 'text', reader);
+
+    await vi.waitFor(() => expect(error).toHaveBeenCalledOnce());
+    staticAntd.message = message;
   });
 
   it('keeps comments read elsewhere when a tab with an outdated user saves', async () => {

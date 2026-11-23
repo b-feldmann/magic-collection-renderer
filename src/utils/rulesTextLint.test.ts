@@ -612,6 +612,44 @@ describe('lintCardFace', () => {
     const ruleIssues = (rule: RulesTextLintRule, overrides: Partial<CardFaceInterface>) =>
       lintCardFace(face(overrides), MECHANICS).filter(issue => issue.rule === rule);
 
+    describe('Sagas', () => {
+      const saga = { cardTypes: [CardType.Enchantment, CardType.Saga], cardStats: undefined };
+
+      it('accepts chapters and checks the text after them', () => {
+        expect(
+          rules(['I, II — Draw a card.', 'III — Choose one —', '* Scry 1.', '* Scry 2.'], saga),
+        ).toEqual([]);
+        expect(fixed('I, II — draw a card.', 'capitalization', saga)).toBe('I, II — Draw a card.');
+        expect(getSelfNoun(face(saga))).toBe('Saga');
+      });
+
+      it('accepts a step without a chapter', () => {
+        expect(rules(['Exile five cards.', 'I, II — Draw a card.'], saga)).toEqual([]);
+      });
+
+      it('points out missing chapters and chapters out of order', () => {
+        const chapterIssues = (cardText: string[]) =>
+          ruleIssues('saga-chapters', { ...saga, cardText });
+
+        expect(chapterIssues(['Draw a card.'])).toHaveLength(1);
+        expect(chapterIssues(['I — Draw a card.', 'III — Scry 1.'])).toMatchObject([{ line: 1 }]);
+        expect(chapterIssues(['I, II — Draw a card.', 'III — Scry 1.'])).toEqual([]);
+      });
+
+      it('expects the keywords of a Saga creature after its chapters', () => {
+        expect(
+          rules(['I — Draw a card.', 'Flying'], {
+            cardTypes: [CardType.Enchantment, CardType.Creature, CardType.Saga],
+          }),
+        ).toEqual([]);
+        expect(
+          rules(['Flying', 'I — Draw a card.'], {
+            cardTypes: [CardType.Enchantment, CardType.Creature, CardType.Saga],
+          }),
+        ).toEqual(['saga-chapters']);
+      });
+    });
+
     it('offers to add the Aura subtype to an enchantment with an Enchant line', () => {
       const enchantIssue = (overrides: Partial<CardFaceInterface>) =>
         ruleIssues('card-type-text', { cardText: ['Enchant creature'], ...overrides })[0];
