@@ -5,10 +5,11 @@ import resizeImage from '../../utils/resizeImage';
 import styles from './styles.module.scss';
 
 interface ArtworkUploadProps {
+  title?: string;
   onChange: (value: string) => void;
 }
 
-const ArtworkUpload = ({ onChange }: ArtworkUploadProps) => {
+const ArtworkUpload = ({ title = 'Give your card a world', onChange }: ArtworkUploadProps) => {
   const titleId = useId();
 
   return (
@@ -17,7 +18,7 @@ const ArtworkUpload = ({ onChange }: ArtworkUploadProps) => {
         <UploadOutlined />
       </span>
       <div className={styles.artworkUploadMessage}>
-        <strong id={titleId}>Give your card a world</strong>
+        <strong id={titleId}>{title}</strong>
         <p>Upload artwork or paste a URL below</p>
       </div>
       <Upload

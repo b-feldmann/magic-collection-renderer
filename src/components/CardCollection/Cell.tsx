@@ -11,7 +11,7 @@ import CardFaceInterface from '../../interfaces/CardFaceInterface';
 import FavoriteHeart from '../FavoriteHeart/FavoriteHeart';
 import { Store } from '../../store';
 import { getImage } from '../../actions/imageActions';
-import { isLoadingCover } from '../../utils/cover';
+import { getLoadingImageSlots } from '../../utils/cardImages';
 import MessageFilled from '@ant-design/icons/MessageFilled';
 import useUnreadComments from '../../useUnreadComments';
 import { getVariantAnnotations } from '../../utils/cardVariants';
@@ -69,8 +69,7 @@ const Cell = ({
   );
   useEffect(() => {
     if (!card) return;
-    if (isLoadingCover(card.front.cover)) getImage(dispatch, card, 0);
-    if (isLoadingCover(card.back?.cover)) getImage(dispatch, card, 1);
+    getLoadingImageSlots(card).forEach(slot => getImage(dispatch, card, slot));
   }, [card, dispatch]);
   if (!card) return <div style={style} {...ariaAttributes} />;
   const variantIndex = family.findIndex(member => member.uuid === card.uuid);

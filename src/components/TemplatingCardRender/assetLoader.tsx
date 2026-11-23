@@ -1106,6 +1106,38 @@ import PrepareMainframeMNyxLowRes from './images/mainframes/prepare/nyx/mThumb.p
 import PrepareMainframeANyx from './images/mainframes/prepare/nyx/a.png';
 import PrepareMainframeANyxLowRes from './images/mainframes/prepare/nyx/aThumb.png';
 
+// --- Aftermath mainframes (single color, full-res + Thumb) and the two-color
+// pinlines and text boxes carved from them ---
+// Every image holds both halves of the card; each half clips its part. There is
+// no dedicated colorless frame, so the colorless default folds to the artifact
+// ('a') frame, mirroring the adventure/omen/prepare convention.
+import AftermathMainframeW from './images/mainframes/aftermath/w.png';
+import AftermathMainframeWLowRes from './images/mainframes/aftermath/wThumb.png';
+import AftermathMainframeU from './images/mainframes/aftermath/u.png';
+import AftermathMainframeULowRes from './images/mainframes/aftermath/uThumb.png';
+import AftermathMainframeB from './images/mainframes/aftermath/b.png';
+import AftermathMainframeBLowRes from './images/mainframes/aftermath/bThumb.png';
+import AftermathMainframeR from './images/mainframes/aftermath/r.png';
+import AftermathMainframeRLowRes from './images/mainframes/aftermath/rThumb.png';
+import AftermathMainframeG from './images/mainframes/aftermath/g.png';
+import AftermathMainframeGLowRes from './images/mainframes/aftermath/gThumb.png';
+import AftermathMainframeM from './images/mainframes/aftermath/m.png';
+import AftermathMainframeMLowRes from './images/mainframes/aftermath/mThumb.png';
+import AftermathMainframeA from './images/mainframes/aftermath/a.png';
+import AftermathMainframeALowRes from './images/mainframes/aftermath/aThumb.png';
+import AftermathMainframeL from './images/mainframes/aftermath/l.png';
+import AftermathMainframeLLowRes from './images/mainframes/aftermath/lThumb.png';
+import AftermathPartsWu from './images/parts/aftermathParts/wu.png';
+import AftermathPartsUb from './images/parts/aftermathParts/ub.png';
+import AftermathPartsBr from './images/parts/aftermathParts/br.png';
+import AftermathPartsRg from './images/parts/aftermathParts/rg.png';
+import AftermathPartsGw from './images/parts/aftermathParts/gw.png';
+import AftermathPartsWb from './images/parts/aftermathParts/wb.png';
+import AftermathPartsUr from './images/parts/aftermathParts/ur.png';
+import AftermathPartsBg from './images/parts/aftermathParts/bg.png';
+import AftermathPartsRw from './images/parts/aftermathParts/rw.png';
+import AftermathPartsGu from './images/parts/aftermathParts/gu.png';
+
 // --- Leveler mainframes (regular, full-res + Thumb) ---
 import LevelerMainframeA from './images/mainframes/levelers/regular/a.png';
 import LevelerMainframeALowRes from './images/mainframes/levelers/regular/aThumb.png';
@@ -1960,6 +1992,44 @@ export const getPrepareMainframe = (color: ColorType, isEnchantment = false): Im
       return { highRes: PrepareMainframeM, lowRes: PrepareMainframeMLowRes };
     default:
       return { highRes: PrepareMainframeA, lowRes: PrepareMainframeALowRes };
+  }
+};
+
+const AFTERMATH_PARTS_BY_KEY: Partial<Record<PartVariant, string>> = {
+  wu: AftermathPartsWu,
+  ub: AftermathPartsUb,
+  br: AftermathPartsBr,
+  rg: AftermathPartsRg,
+  gw: AftermathPartsGw,
+  wb: AftermathPartsWb,
+  ur: AftermathPartsUr,
+  bg: AftermathPartsBg,
+  rw: AftermathPartsRw,
+  gu: AftermathPartsGu,
+};
+
+// The pinlines and text box of a two-color half, drawn over its gold frame;
+// every other half shows its frame as it is ('').
+export const getAftermathParts = (colors: ColorType[]): string =>
+  colors.length === 2 ? (AFTERMATH_PARTS_BY_KEY[getTwoColorVariant(colors)] ?? '') : '';
+
+export const getAftermathMainframe = (color: ColorType, isLand = false): ImageResData => {
+  if (isLand) return { highRes: AftermathMainframeL, lowRes: AftermathMainframeLLowRes };
+  switch (color) {
+    case ColorType.White:
+      return { highRes: AftermathMainframeW, lowRes: AftermathMainframeWLowRes };
+    case ColorType.Blue:
+      return { highRes: AftermathMainframeU, lowRes: AftermathMainframeULowRes };
+    case ColorType.Black:
+      return { highRes: AftermathMainframeB, lowRes: AftermathMainframeBLowRes };
+    case ColorType.Red:
+      return { highRes: AftermathMainframeR, lowRes: AftermathMainframeRLowRes };
+    case ColorType.Green:
+      return { highRes: AftermathMainframeG, lowRes: AftermathMainframeGLowRes };
+    case ColorType.Gold:
+      return { highRes: AftermathMainframeM, lowRes: AftermathMainframeMLowRes };
+    default:
+      return { highRes: AftermathMainframeA, lowRes: AftermathMainframeALowRes };
   }
 };
 

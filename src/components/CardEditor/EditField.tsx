@@ -73,6 +73,8 @@ const UploadInput = ({
   const fileName = getCoverFileName(coverValue);
   // Empty while an uploaded image is still being fetched from the middleware.
   const imageData = getCoverImageData(coverValue);
+  // Names the buttons when a card has two artworks (Aftermath).
+  const image = fieldKey === 'aftermathCover' ? 'aftermath cover' : 'cover';
 
   return (
     <div
@@ -110,7 +112,7 @@ const UploadInput = ({
           <Button
             shape="circle"
             size="small"
-            aria-label="Download cover"
+            aria-label={`Download ${image}`}
             title="Download"
             icon={<DownloadOutlined />}
             disabled={!imageData}
@@ -121,7 +123,7 @@ const UploadInput = ({
           <Button
             shape="circle"
             size="small"
-            aria-label="Remove cover"
+            aria-label={`Remove ${image}`}
             icon={<AntIcon type="close-circle" theme="twoTone" twoToneColor="#FF0000" />}
             onClick={() => saveValue(fieldKey, '')}
           />

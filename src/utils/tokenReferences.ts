@@ -281,6 +281,7 @@ export const TOKEN_REFERENCE_FIELDS = [
   'adventureText',
   'omenText',
   'prepareText',
+  'aftermathText',
 ] as const;
 
 /** The face with every token reference in its rules text written out. Unchanged without any. */

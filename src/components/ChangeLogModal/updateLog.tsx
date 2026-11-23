@@ -754,4 +754,17 @@ updateLog.push({
   ],
 });
 
+updateLog.push({
+  version: '5.2.0',
+  title: 'Aftermath',
+  content: [
+    {
+      type: ChangeLogFeatureType.Added,
+      feature: 'Aftermath cards',
+      description:
+        'Pick the Aftermath card type to add a second half that is turned by 90 degrees on the lower half of the card. It has its own name, cost, type, text and artwork, and its frame follows its own cost. The card counts as the colors of both halves.',
+    },
+  ],
+});
+
 export default updateLog;

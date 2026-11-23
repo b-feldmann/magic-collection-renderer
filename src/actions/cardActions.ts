@@ -21,11 +21,12 @@ import { createImage, getImage } from './imageActions';
 import { persistAnnotation } from './annotationActions';
 import { staticAntd } from '../utils/staticAntd';
 import {
-  getCoverFileName,
-  getCoverImageData,
-  isLoadingCover,
-  toLoadingCover,
-} from '../utils/cover';
+  CARD_IMAGE_SLOTS,
+  getCardImage,
+  getLoadingImageSlots,
+  withCardImage,
+} from '../utils/cardImages';
+import { getCoverFileName, getCoverImageData, toLoadingCover } from '../utils/cover';
 
 const MIDDLEWARE_ENDPOINT = import.meta.env.PROD ? '' : 'http://localhost:8080';
 
@@ -164,7 +165,7 @@ export const createCard = (dispatch: (value: Action) => void, creator: UserInter
 };
 
 const prepareCard = async (updated: CardInterface, uploadImages = true): Promise<CardInterface> => {
-  const parsed = {
+  let parsed: CardInterface = {
     ...updated,
     creator: cardCreator(updated.creator),
     manaCost: normalizeManaCost(updated.manaCost),
@@ -180,24 +181,14 @@ const prepareCard = async (updated: CardInterface, uploadImages = true): Promise
   if (parsed.back) {
     parsed.back = { ...parsed.back, cardMainType: deriveLegacyMainType(parsed.back) };
   }
-  if (updated.front.cover && updated.front.cover.startsWith('base64:')) {
-    const name = getCoverFileName(updated.front.cover);
-    if (uploadImages)
-      await createImage(() => {}, getCoverImageData(updated.front.cover), name, updated, 0);
+  for (const slot of CARD_IMAGE_SLOTS) {
+    const image = getCardImage(updated, slot);
+    if (!image?.startsWith('base64:')) continue;
+    const name = getCoverFileName(image);
+    if (uploadImages) await createImage(() => {}, getCoverImageData(image), name, updated, slot);
     // The image data lives in the images collection; the file name rides
     // along on the cover so the editor can show it after a reload.
-    parsed.front.cover = toLoadingCover(name);
-  }
-  if (
-    updated.back &&
-    parsed.back &&
-    updated.back.cover &&
-    updated.back.cover.startsWith('base64:')
-  ) {
-    const name = getCoverFileName(updated.back.cover);
-    if (uploadImages)
-      await createImage(() => {}, getCoverImageData(updated.back.cover), name, updated, 1);
-    parsed.back.cover = toLoadingCover(name);
+    parsed = withCardImage(parsed, slot, toLoadingCover(name));
   }
 
   return parsed;
@@ -264,12 +255,7 @@ const publishCard = (dispatch: Dispatch, state: CardMutations, card: CardInterfa
   card = sanitizeCard(card);
   rememberCard(state, card);
   // `loading`/`loading:<name>` covers point at the images collection.
-  if (isLoadingCover(card.front.cover)) {
-    getImage(dispatch, card, 0);
-  }
-  if (card.back && isLoadingCover(card.back.cover)) {
-    getImage(dispatch, card, 1);
-  }
+  getLoadingImageSlots(card).forEach(slot => getImage(dispatch, card, slot));
   return dispatch({
     type: CardActionType.UpdateCard,
     payload: { card },
@@ -409,14 +395,11 @@ const restoreCards = async (cards: CardInterface[]): Promise<boolean> => {
   return results.every(result => result.status === 'fulfilled');
 };
 
-const withLocalArt = (saved: CardInterface, snapshot: CardInterface): CardInterface => {
-  const card = cloneDeep(saved);
-  if (snapshot.front.cover?.startsWith('base64:')) card.front.cover = snapshot.front.cover;
-  if (card.back && snapshot.back?.cover?.startsWith('base64:')) {
-    card.back.cover = snapshot.back.cover;
-  }
-  return card;
-};
+const withLocalArt = (saved: CardInterface, snapshot: CardInterface): CardInterface =>
+  CARD_IMAGE_SLOTS.reduce((card, slot) => {
+    const image = getCardImage(snapshot, slot);
+    return image?.startsWith('base64:') ? withCardImage(card, slot, image) : card;
+  }, cloneDeep(saved));
 
 /**
  * Creates a card with the given content, e.g. the token card for a token another card creates.
@@ -477,29 +460,28 @@ export const createCardVariant = (
       const collection = currentCollection(state, collectionSnapshot);
       const storedSource = collection.find(card => card.uuid === source.uuid) || draft;
       const family = getVariantFamily(storedSource, collection);
-      const copy = cloneDeep(draft);
+      let copy = cloneDeep(draft);
       copy.uuid = allocatedId;
       copy.creator = cardCreator(creator);
       copy.favorite = false;
       copy.loading = false;
       copy.meta = { ...EMPTY_CARD().meta, state: storedSource.meta.state };
-      copy.variantIds = family.map(card => card.uuid);
+      const familyIds = family.map(card => card.uuid);
+      copy.variantIds = familyIds;
 
       // Image records belong to the source ID, not to the loading-cover string.
-      for (const face of [0, 1] as const) {
-        const cardFace = face === 0 ? copy.front : copy.back;
-        if (!cardFace || !isLoadingCover(cardFace.cover)) continue;
+      for (const slot of getLoadingImageSlots(copy)) {
         const result = await axios.get(`${MIDDLEWARE_ENDPOINT}/images`, {
-          params: { accessKey: getAccessToken(), cardUuid: source.uuid, face },
+          params: { accessKey: getAccessToken(), cardUuid: source.uuid, face: slot },
         });
         if (!result.data?.base64) throw new Error('Source image is missing');
-        const name = getCoverFileName(cardFace.cover);
-        cardFace.cover = `base64:${name ? `${name}|` : ''}${result.data.base64}`;
+        const name = getCoverFileName(getCardImage(copy, slot));
+        copy = withCardImage(copy, slot, `base64:${name ? `${name}|` : ''}${result.data.base64}`);
       }
 
       const savedCopy = withLocalArt(await persistCard(copy), copy);
       const savedFamily: CardInterface[] = [];
-      const ids = [...copy.variantIds, allocatedId];
+      const ids = [...familyIds, allocatedId];
       for (const member of family) {
         // Only membership changes on existing cards. Draft art/content belongs to the copy.
         attempted.push(member);

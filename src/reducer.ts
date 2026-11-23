@@ -5,6 +5,7 @@ import AnnotationAccessorInterface from './interfaces/AnnotationAccessorInterfac
 import UserInterface from './interfaces/UserInterface';
 import { UNKNOWN_CREATOR } from './utils/constants';
 import { normalizeCard } from './utils/cardTypes';
+import { CardImageSlot, withCardImage } from './utils/cardImages';
 import { keepLoadedCover } from './utils/cover';
 import CardFaceInterface from './interfaces/CardFaceInterface';
 import isEqual from 'lodash/isEqual';
@@ -19,7 +20,7 @@ export interface ImagePayload {
   base64: string;
   name?: string;
   cardUuid: string;
-  face: number;
+  face: CardImageSlot;
 }
 
 export enum CardActionType {
@@ -90,15 +91,14 @@ export type Action =
   | { type: ImageActionType.ReadImage; payload: ImagePayload }
   | { type: ImageActionType.ReadImages; payload: { images: ImagePayload[] } };
 
-const withImage = (card: CardInterface, image: ImagePayload): CardInterface => {
-  // The persisted file name is kept with the cover value so the editor
-  // can show it after a reload (see utils/cover.ts).
-  const cover = image.name ? `base64:${image.name}|${image.base64}` : `base64:${image.base64}`;
-
-  return image.face === 1 && card.back
-    ? { ...card, back: { ...card.back, cover } }
-    : { ...card, front: { ...card.front, cover } };
-};
+// The persisted file name is kept with the cover value so the editor
+// can show it after a reload (see utils/cover.ts).
+const withImage = (card: CardInterface, image: ImagePayload): CardInterface =>
+  withCardImage(
+    card,
+    image.face,
+    image.name ? `base64:${image.name}|${image.base64}` : `base64:${image.base64}`,
+  );
 
 // Keeps the previous face object when nothing changed, so the card's memoized
 // render is skipped, and keeps an image that is already loaded unless the card
@@ -108,8 +108,13 @@ const mergeReloadedFace = (
   incoming: CardFaceInterface,
   unchanged: boolean,
 ): CardFaceInterface => {
-  const cover = unchanged ? keepLoadedCover(previous?.cover, incoming.cover) : incoming.cover;
-  const merged = cover === incoming.cover ? incoming : { ...incoming, cover };
+  const merged = { ...incoming };
+  if (unchanged) {
+    (['cover', 'aftermathCover'] as const).forEach(field => {
+      const image = keepLoadedCover(previous?.[field], incoming[field]);
+      if (image !== incoming[field]) merged[field] = image;
+    });
+  }
   return previous && isEqual(previous, merged) ? previous : merged;
 };
 

@@ -215,3 +215,27 @@ describe('getColor - hybrid mana costs', () => {
     ]);
   });
 });
+
+describe('cardToColor - Aftermath', () => {
+  const face = {
+    name: 'Destined',
+    cardTypes: [CardType.Instant, CardType.Aftermath],
+    cardText: [],
+    aftermathCost: '{3}{G}',
+  };
+
+  it('has the colors of both halves', () => {
+    expect(cardToColor(face, '{1}{B}')).toEqual({
+      color: ColorType.Gold,
+      allColors: [ColorType.Black, ColorType.Green],
+    });
+    expect(cardToColor(face, '{1}{G}').color).toBe(ColorType.Green);
+    expect(cardToColor(face, '').color).toBe(ColorType.Green);
+  });
+
+  it('CONTROL: ignores the cost of a half the card no longer has', () => {
+    expect(cardToColor({ ...face, cardTypes: [CardType.Instant] }, '{1}{B}').color).toBe(
+      ColorType.Black,
+    );
+  });
+});

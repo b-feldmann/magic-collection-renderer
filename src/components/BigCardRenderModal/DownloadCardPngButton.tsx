@@ -4,7 +4,7 @@ import { Button } from 'antd';
 import AntIcon from '../AntIcon/AntIcon';
 import CardInterface from '../../interfaces/CardInterface';
 import { MechanicsContext, TokenCardsContext } from '../../store';
-import { isLoadingCover } from '../../utils/cover';
+import { getLoadingImageSlots } from '../../utils/cardImages';
 import { staticAntd } from '../../utils/staticAntd';
 import saveBlob from '../../utils/saveBlob';
 
@@ -37,7 +37,7 @@ const DownloadCardPngButton = ({
   const mechanics = useContext(MechanicsContext);
   const tokenCards = useContext(TokenCardsContext);
   const [pending, startTransition] = useTransition();
-  const coversLoading = isLoadingCover(card.front.cover) || isLoadingCover(card.back?.cover);
+  const coversLoading = getLoadingImageSlots(card).length > 0;
 
   const download = () =>
     startTransition(async () => {

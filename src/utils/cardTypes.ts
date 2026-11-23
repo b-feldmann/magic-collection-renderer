@@ -130,6 +130,7 @@ export const formatTypeLine = (face: CardFaceInterface): string => {
             cardType !== CardType.Adventure &&
             cardType !== CardType.Omen &&
             cardType !== CardType.Prepared &&
+            cardType !== CardType.Aftermath &&
             cardType !== CardType.Evolution,
         )
         // filter() returned a fresh array, so sorting it in place is safe.

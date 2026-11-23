@@ -78,6 +78,7 @@ const TOKEN_TEXT_FIELDS: { key: string; applies: (types: CardType[]) => boolean 
   { key: 'adventureText', applies: types => types.includes(CardType.Adventure) },
   { key: 'omenText', applies: types => types.includes(CardType.Omen) },
   { key: 'prepareText', applies: types => types.includes(CardType.Prepared) },
+  { key: 'aftermathText', applies: types => types.includes(CardType.Aftermath) },
 ];
 
 const COUNT = String.raw`(?:a|an|one|two|three|four|five|six|seven|eight|nine|ten|x|\d+|that many|twice that many|a number of|another)`;

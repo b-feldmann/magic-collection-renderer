@@ -26,6 +26,21 @@ export const PRINTED_HALF_BOX_SIZES: number[] = Array.from(
   (_, n) => Math.round((FULL_SIZE - STEP * (n + 8)) * 100) / 100,
 );
 
+/**
+ * The font sizes of the rules text in both halves of an Aftermath frame. Like
+ * a Prepared frame's boxes they sit on whole 0.25pt steps, and they start below
+ * full size although the boxes would hold more: 69.7px on Never // Return and
+ * Dusk (DRC, 2025) and on Destined // Lead, 65.5px on Commit // Memory (LCC,
+ * 2023).
+ */
+export const PRINTED_AFTERMATH_SIZES: number[] = Array.from(
+  { length: 20 },
+  (_, n) => Math.round((FULL_SIZE - STEP * (n + 3)) * 100) / 100,
+);
+
+/** Its leading: ≈68px line pitch at 69.7px (Return, Dusk). */
+export const AFTERMATH_LINE_HEIGHT = 0.98;
+
 // The lowest ink of the last line, descenders included, stays this far above
 // the bottom of the rules box (1917px). Print keeps flavour text clear of the
 // bottom: Brad Boimler (no descender on its last line) fits with its ink 19px

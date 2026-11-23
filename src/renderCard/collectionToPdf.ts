@@ -7,6 +7,7 @@ import { jsPDF } from 'jspdf';
 import CardInterface from '../interfaces/CardInterface';
 import MechanicInterface from '../interfaces/MechanicInterface';
 import { fetchCoverImage } from '../actions/imageActions';
+import { getFaceImageSlots, getImageField } from '../utils/cardImages';
 import { getCoverFileName, isLoadingCover } from '../utils/cover';
 import { A4_HEIGHT, A4_WIDTH, CARDS_PER_SHEET, CUT_MARKS, SHEET_SLOTS } from '../utils/printSheet';
 import { CardRenderProps, renderCardToImage } from './renderCardToPng';
@@ -38,11 +39,17 @@ export const getPrintFaces = (
 };
 
 // Uploaded covers live in the middleware until a card is shown; fetch them here.
-const withCoverImage = async (face: CardRenderProps): Promise<CardRenderProps> => {
-  if (!isLoadingCover(face.cover)) return face;
-  const name = getCoverFileName(face.cover);
-  const data = await fetchCoverImage(face.cardID, face.backFace ? 1 : 0);
-  return { ...face, cover: `base64:${name ? `${name}|` : ''}${data}` };
+const withCoverImages = async (face: CardRenderProps): Promise<CardRenderProps> => {
+  const loaded = { ...face };
+  for (const slot of getFaceImageSlots(Boolean(face.backFace))) {
+    const field = getImageField(slot);
+    const image = face[field];
+    if (!isLoadingCover(image)) continue;
+    const name = getCoverFileName(image);
+    const data = await fetchCoverImage(face.cardID, slot);
+    loaded[field] = `base64:${name ? `${name}|` : ''}${data}`;
+  }
+  return loaded;
 };
 
 export interface PdfProgress {
@@ -82,7 +89,7 @@ const collectionToPdf = async (
       CUT_MARKS.forEach(({ x1, y1, x2, y2 }) => pdf.line(x1, y1, x2, y2));
     }
 
-    const blob = await renderCardToImage(await withCoverImage(face), mechanics, {
+    const blob = await renderCardToImage(await withCoverImages(face), mechanics, {
       type: 'image/jpeg',
       quality: JPEG_QUALITY,
       scale: RENDER_SCALE,

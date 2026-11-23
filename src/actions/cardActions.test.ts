@@ -165,6 +165,26 @@ describe('card variant persistence', () => {
     expect(source.front.cover).toBe('base64:front.png|data:image/png;base64,front');
   });
 
+  it('copies the art of an Aftermath half, loaded or not', async () => {
+    const source = makeCard('source');
+    source.front.cover = 'base64:front.png|data:image/png;base64,front';
+    source.front.aftermathCover = 'loading:turned.png';
+    await createCardVariant(vi.fn(), source, [source], UNKNOWN_CREATOR);
+    expect(axios.get).toHaveBeenCalledWith(expect.stringContaining('/images'), {
+      params: { accessKey: 'test-token', cardUuid: 'source', face: 2 },
+    });
+    expect(createImage).toHaveBeenCalledWith(
+      expect.any(Function),
+      'data:image/png;base64,loaded',
+      'turned.png',
+      expect.objectContaining({ uuid: 'new' }),
+      2,
+    );
+    expect(writes()[0].front.cover).toBe('loading:front.png');
+    expect(writes()[0].front.aftermathCover).toBe('loading:turned.png');
+    expect(source.front.aftermathCover).toBe('loading:turned.png');
+  });
+
   it('loads source art before copying an unloaded uploaded cover', async () => {
     const source = makeCard('source');
     source.front.cover = 'loading:art.png';

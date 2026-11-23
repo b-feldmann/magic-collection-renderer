@@ -27,6 +27,7 @@ const faceRulesText = (face: CardInterface['front']): string =>
     face.adventureText,
     face.omenText,
     face.prepareText,
+    face.aftermathText,
   ]);
 
 const faceText = (face: CardInterface['front']): string =>

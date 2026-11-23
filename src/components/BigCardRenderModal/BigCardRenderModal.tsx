@@ -20,7 +20,7 @@ import TrainerGalleryHolofoil from './TrainerGalleryHolofoil';
 import FavoriteHeart from '../FavoriteHeart/FavoriteHeart';
 import { getVariantAnnotations, getVariantFamily } from '../../utils/cardVariants';
 import { getImage } from '../../actions/imageActions';
-import { isLoadingCover } from '../../utils/cover';
+import { getLoadingImageSlots } from '../../utils/cardImages';
 import { isRateableCard } from '../../utils/cardTabs';
 import useUnreadComments from '../../useUnreadComments';
 import snapCardWidth from '../../utils/snapCardWidth';
@@ -71,8 +71,7 @@ const BigCardRenderModal = ({
 
   useEffect(() => {
     if (!visible) return;
-    if (isLoadingCover(card.front.cover)) getImage(dispatch, card, 0);
-    if (isLoadingCover(card.back?.cover)) getImage(dispatch, card, 1);
+    getLoadingImageSlots(card).forEach(slot => getImage(dispatch, card, slot));
   }, [card, dispatch, visible]);
 
   const switchVariant = (offset: number) => {

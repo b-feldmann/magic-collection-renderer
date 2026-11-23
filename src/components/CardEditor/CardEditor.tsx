@@ -11,6 +11,7 @@ import styles from './styles.module.scss';
 import confirmationStyles from '../../confirmationModal.module.scss';
 import {
   AdventureType,
+  AftermathType,
   BasicLandArtStyles,
   BasicLandType,
   CardArtStyles,
@@ -88,7 +89,7 @@ const ESSENTIAL_FIELD_KEYS = [
   'vehicle',
   'cardStats',
 ];
-const ARTWORK_FIELD_KEYS = ['cover', 'coverFit', 'artStyle'];
+const ARTWORK_FIELD_KEYS = ['cover', 'coverFit', 'aftermathCover', 'aftermathCoverFit', 'artStyle'];
 const ORGANIZATION_FIELD_KEYS = ['tags', 'creator'];
 const GROUPED_FIELD_KEYS = new Set([
   ...ESSENTIAL_FIELD_KEYS,
@@ -98,7 +99,7 @@ const GROUPED_FIELD_KEYS = new Set([
 
 // Card types that exist in the data model but must not be offered in the
 // Card types multi-select.
-const HIDDEN_CARD_TYPES = new Set([CardType.Aftermath, CardType.SplitCard]);
+const HIDDEN_CARD_TYPES = new Set([CardType.SplitCard]);
 
 // Single source of truth for which art styles may be selected for a given set
 // of card types. Used both to build the Art style radio options and to decide
@@ -118,6 +119,8 @@ const isArtStyleAvailableForType = (artStyle: string, cardTypes: CardType[] = []
   }
   if (artStyle !== CardArtStyles.Regular) {
     if (cardTypes.includes(CardType.Token)) return false;
+    // The Aftermath frame only exists in the Regular art style.
+    if (cardTypes.includes(CardType.Aftermath)) return false;
     // Planeswalkers only support the Borderless showcase frames, not the other
     // non-regular art styles.
     if (cardTypes.includes(CardType.Planeswalker)) return artStyle === CardArtStyles.Borderless;
@@ -205,6 +208,49 @@ const prepareSectionConfig: InputConfigInterface[] = [
   },
   { key: 'prepareText', type: 'text-list', name: 'Text', width: 100 },
 ];
+
+// The Aftermath section configures the second half of an Aftermath card. Its
+// artwork fields are part of the artwork section (see ARTWORK_FIELD_KEYS).
+const aftermathSectionConfig: InputConfigInterface[] = [
+  { key: 'aftermathSection', type: 'divider', name: 'Aftermath', width: 100 },
+  { key: 'aftermathName', type: 'input', name: 'Name', width: 50 },
+  { key: 'aftermathCost', type: 'input', name: 'Cost', width: 50 },
+  {
+    key: 'aftermathType',
+    type: 'select',
+    name: 'Type',
+    // The second half is only ever an Instant or a Sorcery.
+    data: (Object.keys(AftermathType) as (keyof typeof AftermathType)[]).map(type => ({
+      key: AftermathType[type],
+      value: AftermathType[type],
+    })),
+    width: 100,
+  },
+  { key: 'aftermathText', type: 'text-list', name: 'Text', width: 100 },
+  {
+    key: 'aftermathCover',
+    type: 'upload-input',
+    name: 'Aftermath cover (URL)',
+    width: 50,
+    placeholder: 'https://…',
+  },
+  {
+    key: 'aftermathCoverFit',
+    type: 'select',
+    name: 'Aftermath cover fit',
+    data: (Object.keys(CoverFit) as (keyof typeof CoverFit)[]).map(type => ({
+      key: CoverFit[type],
+      value: CoverFit[type],
+    })),
+    width: 50,
+  },
+];
+
+// Every Aftermath half starts with its keyword. A mechanic of that name brings
+// its own reminder text.
+const AFTERMATH_MECHANIC = 'Aftermath';
+const AFTERMATH_KEYWORD_LINE =
+  'Aftermath _(Cast this spell only from your graveyard. Then exile it.)_';
 
 const getEvolutionSectionConfig = (includeStats: boolean): InputConfigInterface[] => {
   const section1: InputConfigInterface[] = [
@@ -467,7 +513,9 @@ const CardEditor: React.FC<CardEditorInterface> = ({
     if (key === 'creator') return tmpCard[key].uuid;
     if (key === 'rarity' || key === 'manaCost') return tmpCard[key];
     if (key === 'comment') return tmpCard.meta[key];
-    if (key === 'coverFit') return getCurrentFace(tmpCard).coverFit || CoverFit.Zoom;
+    if (key === 'coverFit' || key === 'aftermathCoverFit') {
+      return getCurrentFace(tmpCard)[key] || CoverFit.Zoom;
+    }
     if (key === 'tags') return getCardTags(tmpCard, mechanics);
     return getCurrentFace(tmpCard)[key];
   };
@@ -495,8 +543,6 @@ const CardEditor: React.FC<CardEditorInterface> = ({
     } else {
       getCurrentFace(newTmpCard)[key] = value;
     }
-
-    newTmpCard.tags = updateCardTags(previousCard, newTmpCard, mechanics);
 
     if (key === 'cardTypes') {
       const previousTypes: CardType[] = getCurrentFace(tmpCard).cardTypes || [];
@@ -545,6 +591,21 @@ const CardEditor: React.FC<CardEditorInterface> = ({
         }
       }
 
+      // An Aftermath half must be an Instant or a Sorcery as well; default to
+      // Sorcery, which most of them are, and to the keyword every one starts with.
+      if (nextTypes.includes(CardType.Aftermath)) {
+        const at = getValue('aftermathType');
+        if (at !== AftermathType.Instant && at !== AftermathType.Sorcery) {
+          saveValue('aftermathType', AftermathType.Sorcery);
+        }
+        if (!getValue('aftermathText')?.length) {
+          const hasMechanic = mechanics.some(({ name }) => name.trim() === AFTERMATH_MECHANIC);
+          saveValue('aftermathText', [
+            hasMechanic ? `[${AFTERMATH_MECHANIC}]` : AFTERMATH_KEYWORD_LINE,
+          ]);
+        }
+      }
+
       // Automatic art style switch when the current style is no longer
       // available for the new set of card types: adding Adventure replaces
       // the Borderless showcase with the ELD alternate style (Extended stays
@@ -575,6 +636,9 @@ const CardEditor: React.FC<CardEditorInterface> = ({
         }
       }
     }
+
+    // After the defaults above, whose text may bring tags too.
+    newTmpCard.tags = updateCardTags(previousCard, newTmpCard, mechanics);
 
     setTmpCard(newTmpCard);
 
@@ -761,6 +825,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
   const isAdventure = () => types().includes(CardType.Adventure);
   const isOmen = () => types().includes(CardType.Omen);
   const isPrepared = () => types().includes(CardType.Prepared);
+  const isAftermath = () => types().includes(CardType.Aftermath);
   const isEvolution = () => types().includes(CardType.Evolution);
   const hasMana = () =>
     !types().includes(CardType.Token) && !isLand() && !types().includes(CardType.Emblem);
@@ -967,6 +1032,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
     ...(isAdventure() ? adventureSectionConfig : []),
     ...(isOmen() ? omenSectionConfig : []),
     ...(isPrepared() ? prepareSectionConfig : []),
+    ...(isAftermath() ? aftermathSectionConfig : []),
     // { key: 'comment', type: 'area', name: 'Comment' },
   ];
 
@@ -1249,7 +1315,17 @@ const CardEditor: React.FC<CardEditorInterface> = ({
                 {section.key === 'artwork' && (
                   <ArtworkUpload onChange={value => saveValue('cover', value)} />
                 )}
-                {section.fields.map(renderField)}
+                {section.fields.map(field => (
+                  <React.Fragment key={field.key}>
+                    {field.key === 'aftermathCover' && (
+                      <ArtworkUpload
+                        title="Artwork of the Aftermath half"
+                        onChange={value => saveValue('aftermathCover', value)}
+                      />
+                    )}
+                    {renderField(field)}
+                  </React.Fragment>
+                ))}
               </div>
             </section>
           ))}

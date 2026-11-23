@@ -1,5 +1,6 @@
 import {
   AdventureType,
+  AftermathType,
   BasicLandType,
   CardType,
   ColorType,
@@ -48,4 +49,11 @@ export default interface CardFaceInterface {
   prepareCost?: string;
   prepareText?: string[];
   prepareType?: PreparedType;
+  // The second half of an Aftermath card (the turned bottom half of the frame).
+  aftermathName?: string;
+  aftermathCost?: string;
+  aftermathText?: string[];
+  aftermathType?: AftermathType;
+  aftermathCover?: string;
+  aftermathCoverFit?: CoverFit;
 }

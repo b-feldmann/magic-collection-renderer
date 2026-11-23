@@ -188,7 +188,7 @@ export const getColor = (
 
 const cardToColor = (
   face: CardFaceInterface,
-  manaCost?: string,
+  faceManaCost?: string,
 ): { color: ColorType; allColors: ColorType[] } => {
   let color: ColorType = ColorType.Colorless;
   const allColors: ColorType[] = [];
@@ -196,6 +196,12 @@ const cardToColor = (
   const cardText = face.cardText ?? [];
   const tokenColors = face.tokenColors;
   const types = Array.isArray(face.cardTypes) ? face.cardTypes : [];
+
+  // Like any split card, an Aftermath card has the colors of both halves.
+  const manaCost =
+    types.includes(CardType.Aftermath) && face.aftermathCost
+      ? `${faceManaCost ?? ''}${face.aftermathCost}`
+      : faceManaCost;
 
   // Non-land tokens take their colors from the explicit tokenColors selection.
   const isToken = types.includes(CardType.Token) && !types.includes(CardType.Land);

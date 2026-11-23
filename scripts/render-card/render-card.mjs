@@ -90,10 +90,9 @@ const slugify = name =>
 // Uploaded covers are stored in the images collection; the card itself only
 // carries a `loading[:<name>]` placeholder (see src/utils/cover.ts).
 const isLoadingCover = cover => cover === 'loading' || cover?.startsWith('loading:');
-const resolveCover = async (card, face) => {
-  const cover = face === 1 ? card.back?.cover : card.front.cover;
+const resolveCover = async (card, cover, slot) => {
   if (!isLoadingCover(cover)) return cover;
-  const image = await api('/images', { cardUuid: card.uuid, face });
+  const image = await api('/images', { cardUuid: card.uuid, face: slot });
   return image?.base64 ? `base64:${image.base64}` : '';
 };
 
@@ -103,7 +102,10 @@ const getTokenCards = cards =>
   cards.flatMap(card =>
     [card.front, card.back]
       .filter(face => face?.cardTypes?.includes('Token'))
-      .map(({ cover: _cover, ...face }) => ({ card: { uuid: card.uuid }, face })),
+      .map(({ cover: _cover, aftermathCover: _aftermathCover, ...face }) => ({
+        card: { uuid: card.uuid },
+        face,
+      })),
   );
 
 const buildFaces = async (cards, matches, mechanics) => {
@@ -128,7 +130,9 @@ const buildFaces = async (cards, matches, mechanics) => {
           tokenCards,
           props: {
             ...face,
-            cover: await resolveCover(card, side),
+            // The image slots are those of src/utils/cardImages.ts.
+            cover: await resolveCover(card, face.cover, side),
+            aftermathCover: await resolveCover(card, face.aftermathCover, side + 2),
             containerWidth: width,
             cardID: card.uuid,
             creator: card.creator?.name,

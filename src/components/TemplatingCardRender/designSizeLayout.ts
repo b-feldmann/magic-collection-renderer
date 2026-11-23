@@ -267,15 +267,20 @@ const TRANSFORM_PROPERTIES = ['transform', 'rotate', 'scale', 'translate'] as co
 const FLATTENED_PROPERTIES = [...TRANSFORM_PROPERTIES, 'transition'];
 
 /**
- * Takes the transforms off the card's ancestors (e.g. RotateToMouse's tilt,
- * whose 50px perspective distorts a card laid out at 1500px far more than at
- * its displayed size), so fitting measures undistorted text. Their
+ * Takes the transforms off the text's ancestors: those around the card (e.g.
+ * RotateToMouse's tilt, whose 50px perspective distorts a card laid out at
+ * 1500px far more than at its displayed size) and the turned half of an
+ * Aftermath card, so fitting measures undistorted, horizontal text. Their
  * transitions are suspended too, so the change and its undoing start none.
  * Returns the undo; nothing is painted in between.
  */
-const flattenAncestors = (card: HTMLElement) => {
+const flattenAncestors = (roots: HTMLElement[]) => {
   const flattened: { el: HTMLElement; saved: [string, string, string][] }[] = [];
-  for (let el = card.parentElement; el; el = el.parentElement) {
+  const ancestors = new Set<HTMLElement>();
+  roots.forEach(root => {
+    for (let el = root.parentElement; el; el = el.parentElement) ancestors.add(el);
+  });
+  for (const el of ancestors) {
     const style = getComputedStyle(el);
     if (TRANSFORM_PROPERTIES.every(property => !style[property] || style[property] === 'none')) {
       continue;
@@ -333,7 +338,7 @@ export const layOutAtDesignSize = (
     return;
   }
 
-  const unflatten = flattenAncestors(card);
+  const unflatten = flattenAncestors(roots);
   try {
     const zoom = card.style.zoom;
     if (!zoom || parseFloat(zoom) === 1) {

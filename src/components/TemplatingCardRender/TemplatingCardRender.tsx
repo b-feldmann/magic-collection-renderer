@@ -10,6 +10,7 @@ import TextResize from '../TextResize/TextResize';
 
 import {
   AdventureType,
+  AftermathType,
   BasicLandArtStyles,
   BasicLandType,
   CardArtStyles,
@@ -28,8 +29,12 @@ import CardFaceInterface from '../../interfaces/CardFaceInterface';
 import { CARD_HEIGHT, CARD_WIDTH } from '../../utils/constants';
 
 import styles from './TemplatingCardRender.module.scss';
+import AftermathHalf, { AftermathFrame } from './AftermathHalf';
 import LegalLine from './LegalLine';
+import { balancePrintedLines, resetPrintedLines } from './printedLineBreaks';
 import {
+  AFTERMATH_LINE_HEIGHT,
+  PRINTED_AFTERMATH_SIZES,
   PRINTED_HALF_BOX_SIZES,
   PRINTED_RULES_SIZES,
   afterPrintedRulesFit,
@@ -143,6 +148,13 @@ interface TemplatingCardRenderProps {
   prepareCost?: string;
   prepareText?: string[];
   prepareType?: PreparedType;
+  // The second half of an Aftermath card (the turned bottom half of the frame).
+  aftermathName?: string;
+  aftermathCost?: string;
+  aftermathText?: string[];
+  aftermathType?: AftermathType;
+  aftermathCover?: string;
+  aftermathCoverFit?: CoverFit;
   flavourAuthor?: string;
   cover?: string;
   coverFit?: CoverFit;
@@ -191,7 +203,7 @@ const TemplatingCardRender = (rawProps: TemplatingCardRenderProps) => {
   const tokenCards = useContext(TokenCardsContext);
   const { cardText: rawCardText, level1Text: rawLevel1Text, level2Text: rawLevel2Text } = rawProps;
   const { adventureText: rawAdventureText, omenText: rawOmenText } = rawProps;
-  const { prepareText: rawPrepareText } = rawProps;
+  const { prepareText: rawPrepareText, aftermathText: rawAftermathText } = rawProps;
   const textFields = useMemo(
     () =>
       expandFaceTokenReferences(
@@ -202,6 +214,7 @@ const TemplatingCardRender = (rawProps: TemplatingCardRenderProps) => {
           adventureText: rawAdventureText,
           omenText: rawOmenText,
           prepareText: rawPrepareText,
+          aftermathText: rawAftermathText,
         },
         tokenCards,
       ),
@@ -212,6 +225,7 @@ const TemplatingCardRender = (rawProps: TemplatingCardRenderProps) => {
       rawAdventureText,
       rawOmenText,
       rawPrepareText,
+      rawAftermathText,
       tokenCards,
     ],
   );
@@ -224,8 +238,13 @@ const TemplatingCardRender = (rawProps: TemplatingCardRenderProps) => {
   const { adventureName, adventureCost, adventureText, adventureType } = cardRenderProps;
   const { omenName, omenCost, omenText, omenType } = cardRenderProps;
   const { prepareName, prepareCost, prepareText, prepareType } = cardRenderProps;
+  const { aftermathName, aftermathCost, aftermathText, aftermathType } = cardRenderProps;
+  const { aftermathCover, aftermathCoverFit } = cardRenderProps;
   const { backFace, collectionNumber, collectionSize } = cardRenderProps;
-  const { containerWidth = CARD_WIDTH, artStyle, coverFit } = cardRenderProps;
+  const { containerWidth = CARD_WIDTH, coverFit } = cardRenderProps;
+  const isAftermath = cardTypes.includes(CardType.Aftermath);
+  // The Aftermath frame only exists in the Regular art style.
+  const artStyle = isAftermath ? CardArtStyles.Regular : cardRenderProps.artStyle;
 
   const mechanics = useContext(MechanicsContext);
 
@@ -436,6 +455,7 @@ const TemplatingCardRender = (rawProps: TemplatingCardRenderProps) => {
     !isAdventure &&
     !isOmen &&
     !isPrepared &&
+    !isAftermath &&
     artStyle !== CardArtStyles.Borderless;
   const ptColor = isHybridFrame ? getHybridPtColor(allColors) : color;
   let mainframe;
@@ -456,7 +476,7 @@ const TemplatingCardRender = (rawProps: TemplatingCardRenderProps) => {
   // artStyle counts as Regular, like everywhere else in this component.
   // (Prepared has only the Regular style.)
   const isRegularArtStyle = !artStyle || artStyle === CardArtStyles.Regular;
-  const pinline =
+  let pinline =
     // isEvolution
     // ? getLevelerPinline(allColors)
     // :
@@ -502,6 +522,13 @@ const TemplatingCardRender = (rawProps: TemplatingCardRenderProps) => {
         : getLandRulesPart(landColors)
       : getRulesPart(allColors, isArtifact, isToken);
   if (isAdventure || isOmen || isPrepared || isEvolution) {
+    rulesPart = '';
+  }
+  // AftermathFrame draws the parts of both halves.
+  if (isAftermath) {
+    pinline = '';
+    titlePart = '';
+    typePart = '';
     rulesPart = '';
   }
 
@@ -550,7 +577,8 @@ const TemplatingCardRender = (rawProps: TemplatingCardRenderProps) => {
   // Rares and mythics carry the holo stamp in the bottom border. Tokens and the
   // full-bleed Invention showcase have none. Two-color frames fade their
   // pinline from one color into the other under the stamp and the bump runs
-  // through that fade (2026 prints); other borderless cards show only the oval.
+  // through that fade (2026 prints); other borderless cards and Aftermath cards
+  // show only the oval.
   const isBorderless = artStyle === CardArtStyles.Borderless;
   const showsHoloStamp = hasHoloStamp(rarity) && !isToken && !isInvention;
   const twoColorHoloStamp =
@@ -558,12 +586,19 @@ const TemplatingCardRender = (rawProps: TemplatingCardRenderProps) => {
       ? getTwoColorHoloStamp(allColors, isBorderless ? 'borderless' : 'regular')
       : null;
   const holoStamp = showsHoloStamp
-    ? (twoColorHoloStamp ?? getHoloStamp(color, isArtifact, isLand, isBorderless))
+    ? (twoColorHoloStamp ?? getHoloStamp(color, isArtifact, isLand, isBorderless || isAftermath))
     : null;
-  const isPlainHoloStamp = isBorderless && !twoColorHoloStamp;
+  const isPlainHoloStamp = (isBorderless || isAftermath) && !twoColorHoloStamp;
 
   // The full-width M15 rules box, typeset like print (see printedTextFit).
-  const isPrintedRulesText = !(isAdventure || isOmen || isPrepared || isEvolution || isToken);
+  const isPrintedRulesText = !(
+    isAdventure ||
+    isOmen ||
+    isPrepared ||
+    isAftermath ||
+    isEvolution ||
+    isToken
+  );
 
   // Rules text metrics. The Prepared frame's half-width boxes are typeset like
   // print as well, on their own size steps; the Adventure and Omen boxes keep
@@ -577,9 +612,26 @@ const TemplatingCardRender = (rawProps: TemplatingCardRenderProps) => {
     [rulesMaxFontSize] = PRINTED_HALF_BOX_SIZES;
     rulesLineHeight = HALF_BOX_LINE_HEIGHT;
     rulesSizeSteps = PRINTED_HALF_BOX_SIZES;
+  } else if (isAftermath) {
+    [rulesMaxFontSize] = PRINTED_AFTERMATH_SIZES;
+    rulesLineHeight = AFTERMATH_LINE_HEIGHT;
+    rulesSizeSteps = PRINTED_AFTERMATH_SIZES;
   } else if (isAdventure || isOmen) {
     rulesMaxFontSize = 50;
     rulesLineHeight = 1.1;
+  }
+
+  let rulesTextClass = '';
+  let beforeRulesFit: ((el: HTMLDivElement) => void) | undefined;
+  let afterRulesFit: ((el: HTMLDivElement) => void) | undefined;
+  if (isPrintedRulesText) {
+    rulesTextClass = styles.printedRulesText;
+    beforeRulesFit = beforePrintedRulesFit;
+    afterRulesFit = afterPrintedRulesFit;
+  } else if (isAftermath) {
+    rulesTextClass = styles.aftermathRules;
+    beforeRulesFit = resetPrintedLines;
+    afterRulesFit = balancePrintedLines;
   }
 
   const black = getBlack();
@@ -689,6 +741,7 @@ const TemplatingCardRender = (rawProps: TemplatingCardRenderProps) => {
             ${isNickname && styles.nicknameFrame}
             ${isEnchantment && styles.enchantment}
             ${isEvolution && styles.evolution}
+            ${isAftermath && styles.aftermath}
             ${!hasSecondEvolution && styles.hasNoSecondEvolution}
             ${isLand && styles.land}
             ${isArtifact && styles.artifact}
@@ -703,14 +756,37 @@ const TemplatingCardRender = (rawProps: TemplatingCardRenderProps) => {
             className={`${styles.cover} ${getCoverFitClass(styles, coverFit)} card-cover`}
           />
 
-          <ImageLoader
-            src={typeof mainframe === 'string' ? mainframe : mainframe.highRes}
-            lowResSrc={typeof mainframe === 'string' ? undefined : mainframe.lowRes}
-            className={`${styles.mainframe} ${
-              isToken ? styles.tokenMainframe : isInvention ? styles.inventionMainframe : ''
-            }`}
-            fallBackColor={artStyle !== CardArtStyles.Borderless ? hexColor : undefined}
-          />
+          {isAftermath ? (
+            <>
+              <AftermathFrame
+                color={color}
+                colors={isLand ? landColors : allColors}
+                hexColor={hexColor}
+                isLand={isLand}
+              />
+              <AftermathHalf
+                cardID={cardID}
+                color={color}
+                colors={isLand ? landColors : allColors}
+                hexColor={hexColor}
+                aftermathName={aftermathName}
+                aftermathCost={aftermathCost}
+                aftermathText={aftermathText}
+                aftermathType={aftermathType}
+                aftermathCover={aftermathCover}
+                aftermathCoverFit={aftermathCoverFit}
+              />
+            </>
+          ) : (
+            <ImageLoader
+              src={typeof mainframe === 'string' ? mainframe : mainframe.highRes}
+              lowResSrc={typeof mainframe === 'string' ? undefined : mainframe.lowRes}
+              className={`${styles.mainframe} ${
+                isToken ? styles.tokenMainframe : isInvention ? styles.inventionMainframe : ''
+              }`}
+              fallBackColor={artStyle !== CardArtStyles.Borderless ? hexColor : undefined}
+            />
+          )}
 
           {titlePart ? <img className={styles.titlePart} src={titlePart} alt="" /> : null}
           {typePart ? <img className={styles.typePart} src={typePart} alt="" /> : null}
@@ -1010,8 +1086,8 @@ const TemplatingCardRender = (rawProps: TemplatingCardRenderProps) => {
             className={`${styles.text} ${isToken ? styles.tokenText : ''} ${
               isAdventure ? styles.adventureRightText : ''
             } ${isOmen ? styles.omenRightText : ''} ${isPrepared ? styles.prepareLeftText : ''} ${
-              isEvolution ? styles.levelerText : ''
-            }`}
+              isAftermath ? styles.aftermathUprightText : ''
+            } ${isEvolution ? styles.levelerText : ''}`}
           >
             {/* Printed M15 rules text is 9pt MPlantin (≈76px in the 1500px design
                 space) with ≈0.985 leading at full size and ≈0.97 once it had to shrink;
@@ -1031,17 +1107,17 @@ const TemplatingCardRender = (rawProps: TemplatingCardRenderProps) => {
               <TextResize
                 defaultFontSize={42}
                 maxFontSize={rulesMaxFontSize}
-                minFontSize={38}
+                minFontSize={isAftermath ? 28 : 38}
                 lineHeight={rulesLineHeight}
                 fullSizeLineHeight={isPrintedRulesText ? 0.985 : undefined}
                 fixedSpacing={!(isAdventure || isOmen)}
                 sizeSteps={rulesSizeSteps}
                 boxFits={isPrintedRulesText ? printedRulesBoxFits : undefined}
                 fits={isPrintedRulesText ? printedRulesInkFits : undefined}
-                beforeFit={isPrintedRulesText ? beforePrintedRulesFit : undefined}
-                afterFit={isPrintedRulesText ? afterPrintedRulesFit : undefined}
+                beforeFit={beforeRulesFit}
+                afterFit={afterRulesFit}
                 layout={fitAtDesignSize}
-                className={`${styles.textWrap} ${isPrintedRulesText ? styles.printedRulesText : ''}`}
+                className={`${styles.textWrap} ${rulesTextClass}`}
               >
                 <div>
                   {cardText.map((val, i) => (
@@ -1075,7 +1151,7 @@ const TemplatingCardRender = (rawProps: TemplatingCardRenderProps) => {
           </div>
           <div
             className={
-              isCreature || (isArtifact && vehicle) || isEvolution
+              (isCreature || (isArtifact && vehicle) || isEvolution) && !isAftermath
                 ? styles.copyrightStats
                 : styles.copyright
             }

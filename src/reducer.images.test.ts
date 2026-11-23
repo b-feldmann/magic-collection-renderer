@@ -41,6 +41,18 @@ describe('reloading the collection', () => {
     expect(reloaded.front).toBe(previous.front);
   });
 
+  it('keeps the loaded art of an Aftermath half', () => {
+    const withArt = (aftermathCover: string) => {
+      const base = card();
+      return card({ front: { ...base.front, aftermathCover } });
+    };
+    const previous = withArt(LOADED);
+    expect(reload(previous, withArt('loading:art.png')).front).toBe(previous.front);
+    expect(reload(previous, withArt('loading:other.png')).front.aftermathCover).toBe(
+      'loading:other.png',
+    );
+  });
+
   it('fetches the image again when the card was saved in the meantime', () => {
     const base = card();
     const reloaded = reload(card({}, LOADED), card({ meta: { ...base.meta, lastUpdated: 2 } }));
@@ -90,6 +102,15 @@ describe('storing loaded images', () => {
     expect(cards[0].front.cover).toBe('base64:art.png|front-data');
     expect(cards[0].back?.cover).toBe('base64:back-data');
     expect(cards[1]).toBe(untouched);
+  });
+
+  it('stores the art of an Aftermath half next to the cover', () => {
+    const { front } = reducer(stateWith([card()]), {
+      type: ImageActionType.ReadImage,
+      payload: { base64: 'AAAA', name: 'turned.png', face: 2, cardUuid: 'card-1' },
+    }).cards[0];
+    expect(front.aftermathCover).toBe('base64:turned.png|AAAA');
+    expect(front.cover).toBe('loading:art.png');
   });
 
   it('does not mutate the previous state', () => {

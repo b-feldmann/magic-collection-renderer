@@ -7,7 +7,7 @@ import CardHoverPreview from '../CollectionStats/CardHoverPreview';
 import CardInterface from '../../interfaces/CardInterface';
 import { Store } from '../../store';
 import { getImage } from '../../actions/imageActions';
-import { isLoadingCover } from '../../utils/cover';
+import { getLoadingImageSlots } from '../../utils/cardImages';
 import { openSamplePack, PackCard, PackSlot, SamplePack } from '../../utils/samplePack';
 import { packLayout, PackLayout } from './packLayout';
 import styles from './SamplePackModal.module.scss';
@@ -47,7 +47,7 @@ const PackCardView = ({
   const { dispatch } = useContext(Store);
   // Uploaded art loads on demand, as in the collection grid.
   useEffect(() => {
-    if (isLoadingCover(card.front.cover)) getImage(dispatch, card, 0);
+    getLoadingImageSlots(card, false).forEach(slot => getImage(dispatch, card, slot));
   }, [card, dispatch]);
 
   return (

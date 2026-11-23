@@ -749,6 +749,112 @@
     height: 590px;
   }
 
+  // --- Aftermath frame ---
+  // The frame image holds both halves; the row between them is y 1139
+  // (CardConjurer's half masks meet there).
+  .aftermathFrameUpright {
+    clip-path: inset(0 0 961px 0);
+  }
+
+  .aftermathFrameTurned {
+    position: absolute;
+    top: 0;
+    left: 0;
+    clip-path: inset(1139px 0 0 0);
+  }
+
+  .aftermathParts {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1500px;
+    height: 2100px;
+    pointer-events: none;
+  }
+
+  // The turned half's art window spans x 828-1251, y 1181-1917; the art
+  // reaches a little under the frame, like the regular cover.
+  .aftermathCoverWindow {
+    position: absolute;
+    z-index: -2;
+    top: 1171px;
+    left: 818px;
+    width: 444px;
+    height: 756px;
+  }
+
+  .aftermathCover {
+    position: absolute;
+    top: 0;
+    left: 444px;
+    width: 756px !important;
+    height: 444px !important;
+    max-width: none;
+    transform: rotate(90deg);
+    transform-origin: 0 0;
+  }
+
+  // The turned half, laid out upright: x runs down the card (from its top
+  // edge), y runs from its right edge to the left.
+  .aftermathTurned {
+    position: absolute;
+    top: 0;
+    left: 1500px;
+    width: 2100px;
+    height: 1500px;
+    transform: rotate(90deg);
+    transform-origin: 0 0;
+    pointer-events: none;
+  }
+
+  // Never // Return, Dusk // Dawn (DRC, 2025) and Commit // Memory (LCC,
+  // 2023): the name's ink starts at x≈1189 with its baseline at y≈199; the
+  // cost ends at x≈1909, its circles centered on y≈165.
+  .aftermathTitleRow {
+    position: absolute;
+    display: flex;
+    justify-content: space-between;
+    gap: 30px;
+    top: 121px;
+    left: 1185px;
+    width: 724px;
+  }
+
+  .aftermathTitle {
+    flex: 1 1 0;
+    min-width: 0;
+    height: 100px;
+    font-family: 'Beleren Bold', sans-serif;
+    white-space: nowrap;
+
+    // Vertically center the name like the card title (see .title).
+    & > div {
+      display: flex;
+      align-items: center;
+    }
+  }
+
+  .aftermathTypeLine {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    top: 700px;
+    left: 1182px;
+    height: 100px;
+    font-family: 'Beleren Bold', sans-serif;
+    font-size: 68px;
+    white-space: nowrap;
+  }
+
+  // The turned text box spans x 1177-1922, y 820-1389. Its text block is
+  // centered on y≈1104; the ink starts at x≈1196 and reaches x≈1909.
+  .aftermathText {
+    top: 826px;
+    height: 557px;
+    left: 1194px;
+    width: 724px;
+  }
+
   .flavourSeparator {
     height: 2.08px;
     width: 90%;
@@ -1055,6 +1161,15 @@
     padding-top: 0;
   }
 
+  // Both halves of an Aftermath card keep shrunk text centered (Commit, LCC
+  // 2023: two lines at 66.5px).
+  .text > .aftermathRules[data-shrunk] {
+    justify-content: space-around;
+    padding-top: 0;
+    letter-spacing: -0.006em;
+    word-spacing: 0.036em;
+  }
+
   // Regular rules box: shrunk text never starts above a first baseline of
   // ≈1372px on print (see the centering below). With 0.97 leading the first
   // baseline is 0.8em below the line box top. The box reaches 12px higher than .text (inside the text box
@@ -1162,6 +1277,55 @@
 
   .text i + i {
     margin-left: 0.13em;
+  }
+}
+
+// The upright half of an Aftermath card: the regular frame's title, a shorter
+// art window (x 115-1384, y 237-703), the type bar centered on y 780 and a low
+// text box (x 111-1389, y 852-1124).
+.m15.aftermath {
+  .cover {
+    top: 226px;
+    left: 105px;
+    width: 1290px;
+    height: 488px;
+  }
+
+  // The title bar's contents sit ≈2px lower than on a regular 2026 print.
+  .title {
+    top: 112px;
+  }
+
+  .cost {
+    top: 125px;
+  }
+
+  .type {
+    top: 727px;
+  }
+
+  .rarity {
+    top: 731px;
+  }
+
+  .aftermathUprightText {
+    top: 858px;
+    height: 260px;
+    left: 128px;
+  }
+
+  .pt {
+    bottom: 957px;
+  }
+
+  .stats {
+    top: 1013px;
+  }
+
+  .aftermathCost {
+    position: static;
+    flex: none;
+    margin-top: 9px;
   }
 }
 

@@ -165,6 +165,12 @@ const TEXT_FIELDS: TextField[] = [
     applies: types => types.includes(CardType.Prepared),
     selfReferences: false,
   },
+  {
+    key: 'aftermathText',
+    name: 'Aftermath text',
+    applies: types => types.includes(CardType.Aftermath),
+    selfReferences: false,
+  },
 ];
 
 const KEYWORDS = [

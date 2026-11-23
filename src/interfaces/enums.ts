@@ -72,6 +72,15 @@ export enum PreparedType {
   Sorcery = 'Sorcery',
 }
 
+// The second half of an Aftermath card, which is only cast from the graveyard.
+// It is always an Instant or a Sorcery (plus the "Aftermath" marker on the
+// face's cardTypes), so this is a dedicated two-value enum rather than reusing
+// the full CardType list.
+export enum AftermathType {
+  Instant = 'Instant',
+  Sorcery = 'Sorcery',
+}
+
 export enum BasicLandType {
   Plains = 'Plains',
   Island = 'Island',

@@ -4,7 +4,7 @@ import CardRender from '../TemplatingCardRender/index';
 import CardInterface from '../../interfaces/CardInterface';
 import { Store } from '../../store';
 import { getImage } from '../../actions/imageActions';
-import { isLoadingCover } from '../../utils/cover';
+import { getLoadingImageSlots } from '../../utils/cardImages';
 import styles from './collectionStats.module.scss';
 
 const PREVIEW_WIDTH = 280;
@@ -23,7 +23,7 @@ const RenderedCard = ({
   const { dispatch } = useContext(Store);
   // Covers load lazily; fetch it when the preview opens, as the collection grid does.
   useEffect(() => {
-    if (isLoadingCover(card.front.cover)) getImage(dispatch, card, 0);
+    getLoadingImageSlots(card, false).forEach(slot => getImage(dispatch, card, slot));
   }, [card, dispatch]);
   return (
     <div

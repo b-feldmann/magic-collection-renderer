@@ -113,17 +113,17 @@ const optionTitles = (): string[] =>
   );
 
 describe('CardEditor - hidden card types', () => {
-  it('lists Omen and Prepared among the card type options; Split Card and Aftermath stay hidden', () => {
+  it('lists Omen, Prepared and Aftermath among the card type options; Split Card stays hidden', () => {
     renderEditor(makeCard([CardType.Creature]));
 
     openTypeSelect();
 
     const titles = optionTitles();
     expect(titles).not.toContain('Split Card');
-    expect(titles).not.toContain(CardType.Aftermath);
     // Search rather than depending on how many rows fit in the virtual viewport.
     expect(typeOption(CardType.Omen)).not.toBeNull();
     expect(typeOption(CardType.Prepared)).not.toBeNull();
+    expect(typeOption(CardType.Aftermath)).not.toBeNull();
   });
 
   it('disables group alternatives while Adventure is selected', () => {

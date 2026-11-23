@@ -69,9 +69,15 @@
  * `parts/preparePinline/<color|combo>.png` and
  * `parts/prepareRulesRight/<color|combo>.png`.
  *
+ * Aftermath frames (`mainframes/aftermath/<color>.png`) hold an upright half and
+ * a half turned by 90 degrees. Both halves' pinlines and text boxes are carved
+ * together with the `parts/aftermathParts.png` mask, only for the ten two-color
+ * combinations, written to `parts/aftermathParts/<combo>.png`; each half clips
+ * the part of the image it needs.
+ *
  * An optional CLI argument list runs only the named generators, e.g.
  * `node scripts/generate-parts.cjs omen` (keys: m15, frame, hybridMainframe, levelerFrame,
- * variants, adventure, omen, prepare, leveler, planeswalker,
+ * variants, adventure, omen, prepare, aftermath, leveler, planeswalker,
  * planeswalkerNickname, token, nickname, crown). Without arguments every
  * generator runs, as before.
  * arguments every generator runs, as before.
@@ -509,6 +515,7 @@ async function run() {
   if (selected('adventure')) await generateAdventureParts();
   if (selected('omen')) await generateOmenParts();
   if (selected('prepare')) await generatePrepareParts();
+  if (selected('aftermath')) await generateAftermathParts();
   if (selected('leveler')) await generateLevelerParts();
   if (selected('planeswalker')) await generatePlaneswalkerPinlines();
   if (selected('planeswalkerNickname')) await generatePlaneswalkerNicknameCombos();
@@ -518,6 +525,55 @@ async function run() {
 
   if (only.length > 0) {
     console.log(`\nRan only: ${only.join(', ')}`);
+  }
+}
+
+// Aftermath frame parts: the pinlines and text boxes of both halves, carved from
+// the single-color aftermath frames for the two-color combinations (the frame
+// itself stays gold). The upright half fades from left to right. The other half
+// reads from top to bottom of the card, so it fades that way.
+const AFTERMATH_DIR = path.join(MAINFRAMES_DIR, 'aftermath');
+// The row between the two halves (CardConjurer's half masks meet here).
+const AFTERMATH_SPLIT_Y = 1139;
+// The turned half's frame runs from y 1143 to 1954.
+const AFTERMATH_TURNED_CENTER_Y = 1549;
+
+async function generateAftermathParts() {
+  const mask = await Jimp.read(path.join(PARTS_DIR, 'aftermathParts.png'));
+  const { width, height } = mask.bitmap;
+  const maskData = mask.bitmap.data;
+  const outputDir = path.join(PARTS_DIR, 'aftermathParts');
+  fs.mkdirSync(outputDir, { recursive: true });
+
+  const frames = new Map();
+  for (const color of VARIANT_COLORS) {
+    const frame = await Jimp.read(path.join(AFTERMATH_DIR, `${color}.png`));
+    if (!sameSize(frame, width, height)) {
+      throw new Error(`Aftermath frame ${color} does not match the ${width}x${height} mask`);
+    }
+    frames.set(color, frame.bitmap.data);
+  }
+
+  const band = width * BLEND_RATIO;
+  for (const combo of COMBINATIONS) {
+    const [d1, d2] = [frames.get(combo[0]), frames.get(combo[1])];
+    const out = new Jimp({ width, height, color: 0x00000000 });
+    const outData = out.bitmap.data;
+    for (let i = 0; i < maskData.length; i += 4) {
+      if (maskData[i + 3] <= MASK_ALPHA_THRESHOLD) continue;
+      const x = (i / 4) % width;
+      const y = Math.floor(i / 4 / width);
+      const offset = y < AFTERMATH_SPLIT_Y ? x - width / 2 : y - AFTERMATH_TURNED_CENTER_Y;
+      const t = Math.min(1, Math.max(0, offset / band + 0.5));
+      for (let channel = 0; channel < 3; channel += 1) {
+        outData[i + channel] = Math.round(d1[i + channel] * (1 - t) + d2[i + channel] * t);
+      }
+      outData[i + 3] = Math.round(
+        (d1[i + 3] * (1 - t) + d2[i + 3] * t) * (maskData[i + 3] / 255),
+      );
+    }
+    await out.write(path.join(outputDir, `${combo}.png`));
+    console.log(`aftermathParts  ✓ ${combo}.png`);
   }
 }
 
