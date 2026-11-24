@@ -34,8 +34,8 @@ import {
 } from '../../utils/cardTypes';
 import { getAutomaticCardTags, getCardTags, updateCardTags } from '../../utils/cardTags';
 import { normalizeManaCost } from '../../utils/injectUtils';
-import { setSagaEditor } from '../../actions/userActions';
-import type { SagaEditorMode } from '../../interfaces/UserInterface';
+import { setStepEditor } from '../../actions/userActions';
+import type { StepEditorMode } from '../../interfaces/UserInterface';
 import { EMPTY_SAGA_TEXT } from '../../utils/sagaChapters';
 import { applyLintFix, lintCardFace, RulesTextLintIssue } from '../../utils/rulesTextLint';
 import {
@@ -334,8 +334,6 @@ interface InputConfigInterface {
     | 'multi-select'
     | 'area'
     | 'radio'
-    | 'list'
-    | 'split-list'
     | 'text-list'
     | 'bool'
     | 'divider';
@@ -431,9 +429,9 @@ const CardEditor: React.FC<CardEditorInterface> = ({
   const saveGenRef = useRef<number>(0);
 
   const [editBack, setEditBack] = useState<boolean>(false);
-  const [chosenSagaEditor, setChosenSagaEditor] = useState<{
+  const [chosenStepEditor, setChosenStepEditor] = useState<{
     user: string;
-    editor: SagaEditorMode;
+    editor: StepEditorMode;
   }>();
   const [creatingVariant, setCreatingVariant] = useState(false);
   // The templating hint whose token card is being created.
@@ -864,14 +862,15 @@ const CardEditor: React.FC<CardEditorInterface> = ({
 
   const hasStats = () => isCreature() || isPlaneswalker() || isVehicle();
 
-  // A choice made here applies at once, whether or not it could be stored.
-  const sagaEditor =
-    (chosenSagaEditor?.user === currentUser.uuid ? chosenSagaEditor.editor : undefined) ??
+  // For Sagas and planeswalkers. A choice made here applies at once, whether or not it could be
+  // stored.
+  const stepEditor =
+    (chosenStepEditor?.user === currentUser.uuid ? chosenStepEditor.editor : undefined) ??
     currentUser.sagaEditor ??
     'steps';
-  const changeSagaEditor = (editor: SagaEditorMode) => {
-    setChosenSagaEditor({ user: currentUser.uuid, editor });
-    setSagaEditor(dispatch, editor, currentUser);
+  const changeStepEditor = (editor: StepEditorMode) => {
+    setChosenStepEditor({ user: currentUser.uuid, editor });
+    setStepEditor(dispatch, editor, currentUser);
   };
 
   // Planeswalkers have no room for flavour text, and neither have Sagas but for the rules box of
@@ -1042,7 +1041,7 @@ const CardEditor: React.FC<CardEditorInterface> = ({
     },
     {
       key: 'cardText',
-      type: isPlaneswalker() ? 'split-list' : 'text-list',
+      type: 'text-list',
       name: 'Card text',
       width: 100,
     },
@@ -1247,11 +1246,12 @@ const CardEditor: React.FC<CardEditorInterface> = ({
             ? cardToColor(getCurrentFace(tmpCard), tmpCard.manaCost).allColors
             : undefined
         }
-        saga={
-          config.key === 'cardText' && isSaga()
+        steps={
+          config.key === 'cardText' && (isSaga() || isPlaneswalker())
             ? {
-                editor: sagaEditor,
-                onEditorChange: changeSagaEditor,
+                kind: isSaga() ? 'saga' : 'planeswalker',
+                editor: stepEditor,
+                onEditorChange: changeStepEditor,
                 // A Vehicle has the rules box of a creature's frame, too.
                 isCreature: hasStats(),
                 documentKey: `${tmpCard.uuid}-${editBack ? 'back' : 'front'}`,

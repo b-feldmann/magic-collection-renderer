@@ -81,10 +81,10 @@ afterEach(() => {
 });
 
 const cardText = [
-  '+2|You gain 3 life.',
-  '0|Draw a card.',
-  '-3|Destroy target creature.',
-  `-6|${LONG_ABILITY}`,
+  '+2: You gain 3 life.',
+  '0: Draw a card.',
+  '−3: Destroy target creature.',
+  `−6: ${LONG_ABILITY}`,
 ];
 
 const renderPlaneswalker = () =>

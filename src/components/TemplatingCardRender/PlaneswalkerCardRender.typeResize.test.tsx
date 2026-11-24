@@ -82,7 +82,7 @@ describe('PlaneswalkerCardRender - type line auto-resize', () => {
   });
 
   it('indents a complete -- paragraph without indenting the next ability', () => {
-    renderPlaneswalker(['+1|--Indented paragraph.', '0|Following ability.']);
+    renderPlaneswalker(['+1: --Indented paragraph.', '0: Following ability.']);
 
     const textLines = Array.from(document.querySelectorAll<HTMLElement>('div')).filter(line =>
       line.className.includes('loyaltyText'),
@@ -99,7 +99,7 @@ describe('PlaneswalkerCardRender - type line auto-resize', () => {
 
 describe('PlaneswalkerCardRender - loyalty costs and holo stamp', () => {
   it('prints negative loyalty costs with a minus sign', () => {
-    renderPlaneswalker(['+2|Gain life.', '-3|Destroy a creature.']);
+    renderPlaneswalker(['+2: Gain life.', '−3: Destroy a creature.']);
 
     expect(screen.getByText('+2')).toBeInTheDocument();
     expect(screen.getByText('−3')).toBeInTheDocument();
@@ -121,7 +121,7 @@ describe('PlaneswalkerCardRender - loyalty costs and holo stamp', () => {
           cardID="dellian"
           manaCost="{2}{B}{G}"
           cardTypes={[CardType.Planeswalker]}
-          cardText={['+2|You gain 3 life.']}
+          cardText={['+2: You gain 3 life.']}
           cardStats="5"
           collectionNumber={1}
           collectionSize={10}
@@ -143,7 +143,7 @@ describe('PlaneswalkerCardRender - loyalty costs and holo stamp', () => {
           cardID="chandra"
           manaCost="{2}{R}{R}"
           cardTypes={[CardType.Planeswalker]}
-          cardText={['+1|Add {R}{R}.']}
+          cardText={['+1: Add {R}{R}.']}
           cardStats="4"
           collectionNumber={1}
           collectionSize={10}

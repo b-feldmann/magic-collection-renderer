@@ -329,44 +329,6 @@
   font-variant-numeric: tabular-nums;
 }
 
-// Recreates the antd `List` bordered container that `Listy` does not provide.
-.listBordered {
-  border: 1px solid rgba(5, 5, 5, 0.06);
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-.listItem {
-  padding: 4px 8px !important;
-}
-
-// Item body: content grows, the remove action sits on the trailing edge
-// (previously the antd `List.Item` `actions` slot).
-.listItemInner {
-  display: flex;
-  align-items: center;
-}
-
-.listItemContent {
-  flex: 1;
-  min-width: 0;
-}
-
-.listItemActions {
-  margin-left: 8px;
-  flex-shrink: 0;
-}
-
-// Replaces the antd `List` `footer`.
-.listFooter {
-  padding: 8px;
-  border-top: 1px solid rgba(5, 5, 5, 0.06);
-}
-
-.centerParent {
-  text-align: center;
-}
-
 .label {
   position: relative;
   display: block;
@@ -415,7 +377,7 @@
 }
 
 // The steps of a Saga, below the symbol toolbar.
-.sagaEditor {
+.stepsEditor {
   display: grid;
   gap: 8px;
   padding: 8px;
@@ -449,7 +411,7 @@
   font-size: 12px;
 }
 
-.sagaSteps {
+.steps {
   display: grid;
   gap: 8px;
   margin: 0;
@@ -457,14 +419,14 @@
   list-style: none;
 }
 
-.sagaStep {
+.step {
   padding: 4px 6px 6px;
   border: 1px solid #e9ede5;
   border-radius: 8px;
   background: #f9faf8;
 }
 
-.sagaStepHeader {
+.stepHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -473,7 +435,7 @@
   margin-bottom: 4px;
 }
 
-.sagaStepChapters {
+.stepLabel {
   display: flex;
   flex-wrap: wrap;
   gap: 4px;
@@ -495,12 +457,57 @@
   letter-spacing: -0.04em;
 }
 
-.sagaStepActions {
+.stepActions {
   display: flex;
   margin-inline-start: auto;
 }
 
-.sagaAddButtons {
+.loyaltyAbility {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 8px;
+}
+
+// The outline follows the shield's shape, which clips its own.
+.loyaltyCost:focus-within {
+  filter: drop-shadow(0 0 1px #2e6347) drop-shadow(0 0 2px #2e6347);
+}
+
+// The shield of a loyalty cost, as on the card.
+.loyaltyShield {
+  display: grid;
+  width: 46px;
+  height: 32px;
+  background: #23272a;
+
+  :global(.ant-input) {
+    height: 100%;
+    padding: 0;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 700;
+    text-align: center;
+
+    &::placeholder {
+      color: #5b6b5f;
+    }
+  }
+}
+
+.loyaltyShieldUp {
+  clip-path: polygon(50% 0, 100% 22%, 100% 100%, 0 100%, 0 22%);
+}
+
+.loyaltyShieldDown {
+  clip-path: polygon(0 0, 100% 0, 100% 78%, 50% 100%, 0 78%);
+}
+
+.loyaltyShieldEmpty {
+  background: #e4e9e1;
+}
+
+.stepAddButtons {
   display: flex;
   flex-wrap: wrap;
   gap: 4px 8px;

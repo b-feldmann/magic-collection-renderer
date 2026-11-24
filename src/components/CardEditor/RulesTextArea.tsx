@@ -29,7 +29,7 @@ export interface RulesTextAreaHandle {
 interface RulesTextAreaProps {
   id: string;
   value: string;
-  onChange: (text: string) => void;
+  onChange: (text: string, caret: number) => void;
   ref?: Ref<RulesTextAreaHandle>;
   className?: string;
   placeholder?: string;
@@ -89,7 +89,7 @@ const RulesTextArea = ({
     pendingCaret.current = start + insert.length;
     setCaret(start + insert.length);
     setActiveIndex(0);
-    onChange(value.slice(0, start) + insert + value.slice(end));
+    onChange(value.slice(0, start) + insert + value.slice(end), start + insert.length);
   };
 
   const insertText = (text: string) => {
@@ -158,7 +158,7 @@ const RulesTextArea = ({
         aria-activedescendant={listOpen ? tokenReferenceOptionId(listId, active) : undefined}
         onChange={event => {
           updateCaret(event);
-          onChange(event.target.value);
+          onChange(event.target.value, event.target.selectionEnd);
         }}
         onFocus={onFocus}
         onSelect={updateCaret}

@@ -1,4 +1,4 @@
-import { Button, Input, Listy, Radio, Select, Space, Switch, Tag } from 'antd';
+import { Button, Input, Radio, Select, Switch, Tag } from 'antd';
 import { PaperClipOutlined } from '@ant-design/icons';
 import CrownOutlined from '@ant-design/icons/CrownOutlined';
 import DownloadOutlined from '@ant-design/icons/DownloadOutlined';
@@ -14,17 +14,20 @@ import { getRarityIcon } from '../TemplatingCardRender/assetLoader';
 import { injectManaIcons } from '../../utils/injectUtils';
 import EditorTooltip from '../EditorTooltip';
 import CardTextInput from './CardTextInput';
+import PlaneswalkerStepsInput from './PlaneswalkerStepsInput';
 import SagaStepsInput from './SagaStepsInput';
-import type { SagaEditorMode } from '../../interfaces/UserInterface';
+import type { StepEditorMode } from '../../interfaces/UserInterface';
 
 const { TextArea } = Input;
 const InputGroup = Input.Group;
 const RARITY_ICON_STYLE: React.CSSProperties = { width: 20, height: 20 };
 
-/** The card text of a Saga. */
-export interface SagaFieldInterface {
-  editor: SagaEditorMode;
-  onEditorChange: (editor: SagaEditorMode) => void;
+/** Card text that is made of steps: a Saga's chapters or a planeswalker's abilities. */
+export interface StepsFieldInterface {
+  kind: 'saga' | 'planeswalker';
+  editor: StepEditorMode;
+  onEditorChange: (editor: StepEditorMode) => void;
+  /** Whether a Saga has a rules box below its type line. */
   isCreature: boolean;
   documentKey: string;
 }
@@ -40,8 +43,6 @@ interface EditFieldInterface {
     | 'multi-select'
     | 'area'
     | 'radio'
-    | 'list'
-    | 'split-list'
     | 'text-list'
     | 'bool'
     | 'divider';
@@ -54,7 +55,7 @@ interface EditFieldInterface {
   allowCreate?: boolean;
   nonRemovableValues?: string[];
   manaColors?: ColorType[];
-  saga?: SagaFieldInterface;
+  steps?: StepsFieldInterface;
   getValue: (key: string) => any;
   saveValue: (key: string, value: any) => void;
 }
@@ -454,140 +455,37 @@ const EditField = (props: EditFieldInterface) => {
     );
   }
 
-  if (type === 'list' || type === 'split-list') {
-    const split = (line: string) => {
-      if (!line) return { cost: '', text: '' };
-
-      const splitIndex = line.indexOf('|');
-      if (splitIndex === -1) return { cost: '', text: line };
-
-      return { cost: line.substring(0, splitIndex), text: line.substring(splitIndex + 1) };
-    };
-
-    return (
-      <span>
-        <p id={labelId} className={styles.label}>
-          {name} <EditorTooltip className={styles.tooltip} />
-        </p>
-
-        {/* `List` was deprecated in antd 6. `Listy` has no `bordered`, no
-            per-item `actions`, and no `footer`, so those are recreated with
-            markup + CSS. Items are wrapped with their index to provide a stable
-            `rowKey` (values can repeat, e.g. blank instructions). */}
-        <div className={styles.listBordered} role="group" aria-labelledby={labelId}>
-          <Listy<{ value: string; index: number }>
-            rowKey="index"
-            classNames={{ item: styles.listItem }}
-            items={((getValue(fieldKey) as string[]) || []).map((value, index) => ({
-              value,
-              index,
-            }))}
-            itemRender={({ value: item, index: i }) => (
-              <div className={styles.listItemInner}>
-                <div className={styles.listItemContent}>
-                  {type === 'list' ? (
-                    <TextArea
-                      aria-label={`${name} instruction ${i + 1}`}
-                      value={item}
-                      onChange={e => {
-                        const list = getValue(fieldKey);
-                        list[i] = e.target.value;
-                        saveValue(fieldKey, list);
-                      }}
-                      autoSize
-                    />
-                  ) : (
-                    <InputGroup compact>
-                      <Input
-                        aria-label={`${name} cost ${i + 1}`}
-                        style={{ width: '20%' }}
-                        value={split(item).cost}
-                        onChange={e => {
-                          const list = getValue(fieldKey);
-                          list[i] = `${e.target.value}|${split(item).text}`;
-                          saveValue(fieldKey, list);
-                        }}
-                      />
-                      <TextArea
-                        aria-label={`${name} instruction ${i + 1}`}
-                        style={{ width: '80%' }}
-                        value={split(item).text}
-                        onChange={e => {
-                          const list = getValue(fieldKey);
-                          list[i] = `${split(item).cost}|${e.target.value}`;
-                          saveValue(fieldKey, list);
-                        }}
-                        autoSize
-                      />
-                    </InputGroup>
-                  )}
-                </div>
-                <div className={styles.listItemActions}>
-                  <AntIcon
-                    type="close-circle"
-                    theme="twoTone"
-                    twoToneColor="#FF0000"
-                    onClick={() => {
-                      const list = getValue(fieldKey);
-                      list.splice(i, 1);
-                      saveValue(fieldKey, list);
-                    }}
-                  />
-                </div>
-              </div>
-            )}
-          />
-          <div className={styles.listFooter}>
-            <div className={styles.centerParent}>
-              <Space.Compact>
-                <Button
-                  disabled={type === 'split-list' && getValue(fieldKey).length === 4}
-                  size="small"
-                  onClick={() => {
-                    const list = getValue(fieldKey);
-                    list.push('');
-                    saveValue(fieldKey, list);
-                  }}
-                >
-                  Add instruction
-                </Button>
-              </Space.Compact>
-            </div>
-          </div>
-        </div>
-      </span>
-    );
-  }
-
   if (type === 'text-list') {
-    const { saga } = props;
+    const { steps } = props;
     const textProps = {
       id: fieldId,
       name,
       value: (getValue(fieldKey) as string[]) || [],
       onChange: (lines: string[]) => saveValue(fieldKey, lines),
       manaColors: props.manaColors,
-      labelAction: saga ? (
+      labelAction: steps ? (
         <Button
           type="link"
           size="small"
           className={styles.labelAction}
-          onClick={() => saga.onEditorChange(saga.editor === 'steps' ? 'text' : 'steps')}
+          onClick={() => steps.onEditorChange(steps.editor === 'steps' ? 'text' : 'steps')}
         >
-          {saga.editor === 'steps' ? 'Edit as text' : 'Edit as steps'}
+          {steps.editor === 'steps' ? 'Edit as text' : 'Edit as steps'}
         </Button>
       ) : undefined,
     };
-    if (saga?.editor === 'steps') {
-      return (
-        <SagaStepsInput
-          {...textProps}
-          isCreature={saga.isCreature}
-          documentKey={saga.documentKey}
-        />
-      );
+    if (steps?.editor !== 'steps') {
+      return <CardTextInput {...textProps} steps={steps?.kind} />;
     }
-    return <CardTextInput {...textProps} chapters={!!saga} />;
+    return steps.kind === 'saga' ? (
+      <SagaStepsInput
+        {...textProps}
+        isCreature={steps.isCreature}
+        documentKey={steps.documentKey}
+      />
+    ) : (
+      <PlaneswalkerStepsInput {...textProps} documentKey={steps.documentKey} />
+    );
   }
 
   return <div />;

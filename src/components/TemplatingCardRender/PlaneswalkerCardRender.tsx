@@ -38,6 +38,7 @@ import {
 } from './assetLoader';
 import { injectForText, injectManaIcons } from '../../utils/injectUtils';
 import { formatCardText } from '../../utils/formatCardText';
+import { getLoyaltyShape, parseLoyaltyLine } from '../../utils/loyaltyAbilities';
 import ImageLoader from '../ImageLoader/ImageLoader';
 import PlaneswalkerRulesBackground from './PlaneswalkerRulesBackground';
 import {
@@ -95,15 +96,6 @@ const ABILITY_TEXT_BLOCKS = '[data-ability-text] > div > div';
 
 const ICON_OFFSET = { up: 7, neutral: 17, down: 28 };
 const NUMBER_OFFSET = { up: 0, neutral: 0, down: 0 };
-
-const iconShape = (loyalty: string) => {
-  if (loyalty.startsWith('+')) return 'up';
-  if (loyalty.startsWith('-') || loyalty.startsWith('−')) return 'down';
-  return 'neutral';
-};
-
-// Printed loyalty costs use a real minus sign, not a hyphen.
-const formatLoyalty = (loyalty: string) => loyalty.replace(/^-/, '−');
 
 interface AbilityFit {
   key: string;
@@ -240,17 +232,6 @@ const PlaneswalkerCardRender = (cardRender: PlaneswalkerCardRenderProps) => {
       getPlaneswalkerHoloStamp(color, isTall, isBorderless))
     : null;
 
-  const parsePlaneswalkerLine = (line: string) => {
-    if (!line) return { loyalty: '', text: '', loyaltyImage: '' };
-
-    const splitIndex = line.indexOf('|');
-    if (splitIndex === -1) return { loyalty: '', text: line, loyaltyImage: '' };
-
-    const loyalty = line.substring(0, splitIndex).replace('{', '').replace('}', '').toUpperCase();
-
-    return { loyalty, text: line.substring(splitIndex + 1), loyaltyImage: getLoyaltyIcon(loyalty) };
-  };
-
   return (
     <div style={{ height: `${getHeight(containerWidth)}px` }}>
       <div
@@ -329,8 +310,8 @@ const PlaneswalkerCardRender = (cardRender: PlaneswalkerCardRenderProps) => {
 
           <div ref={abilitiesRef} style={{ fontSize: `${abilityFontSize}px` }}>
             {cardText.map((val, i) => {
-              const { loyalty, text, loyaltyImage } = parsePlaneswalkerLine(val);
-              const shape = iconShape(loyalty);
+              const { cost: loyalty, text } = parseLoyaltyLine(val || '');
+              const shape = getLoyaltyShape(loyalty);
               const textTop = abilityFit?.layout.textTops[i] ?? iconCenters[i];
               return (
                 <div key={`pw-line-${cardID}-${i}`}>
@@ -340,13 +321,13 @@ const PlaneswalkerCardRender = (cardRender: PlaneswalkerCardRenderProps) => {
                         className={planeswalkerStyles.loyaltyIcon}
                         style={{ top: `${iconCenters[i] + ICON_OFFSET[shape]}px` }}
                       >
-                        {loyaltyImage ? <img src={loyaltyImage} alt="" /> : null}
+                        <img src={getLoyaltyIcon(shape)} alt="" />
                       </div>
                       <div
                         className={planeswalkerStyles.loyaltyNumber}
                         style={{ top: `${iconCenters[i] + NUMBER_OFFSET[shape]}px` }}
                       >
-                        <p>{formatLoyalty(loyalty)}</p>
+                        <p>{loyalty}</p>
                       </div>
                     </>
                   ) : null}

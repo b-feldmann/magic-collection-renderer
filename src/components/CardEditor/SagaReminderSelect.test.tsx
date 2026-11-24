@@ -41,7 +41,7 @@ const Editor = ({ initial, mode }: { initial: string[]; mode: 'text' | 'steps' }
   current = value;
   const props = { id: 'saga', name: 'Card text', value, onChange: setValue };
   return mode === 'text' ? (
-    <CardTextInput {...props} chapters />
+    <CardTextInput {...props} steps="saga" />
   ) : (
     <SagaStepsInput {...props} isCreature={false} documentKey="card" />
   );

@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 import { Action, UserActionType } from '../reducer';
-import UserInterface, { SagaEditorMode } from '../interfaces/UserInterface';
+import UserInterface, { StepEditorMode } from '../interfaces/UserInterface';
 import { getAccessToken } from '../utils/accessService';
 import { UNKNOWN_CREATOR } from '../utils/constants';
 import { staticAntd } from '../utils/staticAntd';
@@ -130,13 +130,13 @@ export const addLastSeenVersion = (
   queueUserUpdate(dispatch, currentUser, () => ({ lastSeenVersion: version })).catch(() => {});
 };
 
-export const setSagaEditor = (
+export const setStepEditor = (
   dispatch: (value: Action) => void,
-  sagaEditor: SagaEditorMode,
+  sagaEditor: StepEditorMode,
   currentUser: UserInterface,
 ) => {
   queueUserUpdate(dispatch, currentUser, () => ({ sagaEditor })).catch(() => {
-    staticAntd.message.error("Couldn't save which Saga editor you prefer.");
+    staticAntd.message.error("Couldn't save which card text editor you prefer.");
   });
 };
 

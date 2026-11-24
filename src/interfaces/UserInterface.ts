@@ -1,5 +1,5 @@
-/** How the card editor edits a Saga's card text. */
-export type SagaEditorMode = 'steps' | 'text';
+/** How the card editor edits card text that is made of steps. */
+export type StepEditorMode = 'steps' | 'text';
 
 export default interface UserInterface {
   name: string;
@@ -7,5 +7,6 @@ export default interface UserInterface {
   seenCards: string[];
   seenComments?: string[];
   lastSeenVersion: number;
-  sagaEditor?: SagaEditorMode;
+  /** For Sagas and planeswalkers. */
+  sagaEditor?: StepEditorMode;
 }

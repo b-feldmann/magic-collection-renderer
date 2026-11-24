@@ -9,9 +9,9 @@ import { CardArtStyles, CardType, CardState, RarityType } from '../../interfaces
 import { UNKNOWN_CREATOR } from '../../utils/constants';
 import type CardInterface from '../../interfaces/CardInterface';
 import type UserInterface from '../../interfaces/UserInterface';
-import { setSagaEditor } from '../../actions/userActions';
+import { setStepEditor } from '../../actions/userActions';
 
-vi.mock('../../actions/userActions', () => ({ setSagaEditor: vi.fn() }));
+vi.mock('../../actions/userActions', () => ({ setStepEditor: vi.fn() }));
 
 vi.mock('../../actions/cardActions', () => ({
   updateCard: vi.fn(() => Promise.resolve({})),
@@ -264,11 +264,11 @@ describe('CardEditor - Sagas', () => {
     expect(screen.getByRole('textbox', { name: 'Step 1 (I, II)' })).toHaveValue('Draw a card.');
 
     fireEvent.click(screen.getByRole('button', { name: 'Edit as text' }));
-    expect(setSagaEditor).toHaveBeenLastCalledWith(dispatch, 'text', user);
+    expect(setStepEditor).toHaveBeenLastCalledWith(dispatch, 'text', user);
     expect(cardText()).toHaveValue('I, II — Draw a card.');
 
     fireEvent.click(screen.getByRole('button', { name: 'Edit as steps' }));
-    expect(setSagaEditor).toHaveBeenLastCalledWith(dispatch, 'steps', user);
+    expect(setStepEditor).toHaveBeenLastCalledWith(dispatch, 'steps', user);
     expect(screen.getByRole('textbox', { name: 'Step 1 (I, II)' })).toBeVisible();
   });
 

@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useRef, useState } from 'react';
+import React, { useState } from 'react';
 import { Button } from 'antd';
 import {
   ArrowDownOutlined,
@@ -20,13 +20,14 @@ import {
   SagaDraftStep,
   toRomanNumeral,
 } from '../../utils/sagaChapters';
-import RulesTextArea, { RulesTextAreaHandle } from './RulesTextArea';
+import RulesTextArea from './RulesTextArea';
 import SagaReminderSelect, { getReminderKind } from './SagaReminderSelect';
+import StepButton from './StepButton';
 import SymbolToolbar from './SymbolToolbar';
 import styles from './styles.module.scss';
+import useStepFields, { newStepId } from './useStepFields';
 
 interface DraftStep extends SagaDraftStep {
-  // Keeps a step's field (and the caret in it) when steps move.
   id: number;
 }
 
@@ -51,12 +52,6 @@ interface SagaStepsInputProps {
   manaColors?: ColorType[];
   labelAction?: React.ReactNode;
 }
-
-let lastStepId = 0;
-const newStepId = () => {
-  lastStepId += 1;
-  return lastStepId;
-};
 
 const RULES_FIELD = 'rules';
 const REMINDER_FIELD = 'reminder';
@@ -100,27 +95,7 @@ const SagaStepsInput = ({
   const chapters = numberChapters(steps);
   const chapterTotal = steps.reduce((sum, step) => sum + step.chapterCount, 0);
 
-  // The symbol buttons insert into the field that had the focus last.
-  const fields = useRef(new Map<string, RulesTextAreaHandle>());
-  const lastField = useRef<string | null>(null);
-  const pendingFocus = useRef<string | null>(null);
-  const fieldRef = (key: string) => (handle: RulesTextAreaHandle | null) => {
-    if (handle) fields.current.set(key, handle);
-    else fields.current.delete(key);
-  };
-  const insert = (symbol: string) => {
-    const key =
-      lastField.current !== null && fields.current.has(lastField.current)
-        ? lastField.current
-        : String(steps[0]?.id ?? RULES_FIELD);
-    fields.current.get(key)?.insert(symbol);
-  };
-
-  useLayoutEffect(() => {
-    if (pendingFocus.current === null) return;
-    fields.current.get(pendingFocus.current)?.focus();
-    pendingFocus.current = null;
-  });
+  const fields = useStepFields();
 
   // On a creature, text after the last chapter belongs to the rules box.
   const settle = (next: Draft): Draft => {
@@ -163,7 +138,7 @@ const SagaStepsInput = ({
 
   const addStep = (chapterCount: number) => {
     const step: DraftStep = { id: newStepId(), chapterCount, text: '' };
-    pendingFocus.current = String(step.id);
+    fields.focusNext(step.id);
     // A step without a chapter usually comes first.
     update({ ...draft, steps: chapterCount ? [...steps, step] : [step, ...steps] });
   };
@@ -202,8 +177,12 @@ const SagaStepsInput = ({
         </span>
         {labelAction}
       </div>
-      <SymbolToolbar name={name} manaColors={manaColors} onInsert={insert} />
-      <div className={styles.sagaEditor}>
+      <SymbolToolbar
+        name={name}
+        manaColors={manaColors}
+        onInsert={symbol => fields.insert(symbol, steps[0]?.id ?? RULES_FIELD)}
+      />
+      <div className={styles.stepsEditor}>
         <SagaReminderSelect
           id={`${id}-reminder-kind`}
           kind={reminderKind}
@@ -213,15 +192,12 @@ const SagaStepsInput = ({
         {reminderKind === 'custom' && (
           <>
             <RulesTextArea
-              ref={fieldRef(REMINDER_FIELD)}
+              {...fields.fieldProps(REMINDER_FIELD)}
               id={`${id}-reminder`}
               value={reminder}
               minRows={1}
               aria-label="Custom reminder text"
               aria-describedby={customReminderShows ? undefined : `${id}-reminder-hint`}
-              onFocus={() => {
-                lastField.current = REMINDER_FIELD;
-              }}
               onChange={nextText => update({ ...draft, reminder: nextText })}
             />
             {!customReminderShows && (
@@ -232,14 +208,14 @@ const SagaStepsInput = ({
           </>
         )}
 
-        <ol className={styles.sagaSteps}>
+        <ol className={styles.steps}>
           {steps.map((step, i) => {
             const numerals = chapters[i].map(toRomanNumeral);
             const stepName = `Step ${i + 1}`;
             return (
-              <li key={step.id} className={styles.sagaStep}>
-                <div className={styles.sagaStepHeader}>
-                  <span className={styles.sagaStepChapters}>
+              <li key={step.id} className={styles.step}>
+                <div className={styles.stepHeader}>
+                  <span className={styles.stepLabel}>
                     {numerals.length
                       ? numerals.map(numeral => (
                           <span key={numeral} className={styles.sagaNumeral}>
@@ -248,56 +224,46 @@ const SagaStepsInput = ({
                         ))
                       : 'No chapter'}
                   </span>
-                  <span className={styles.sagaStepActions}>
-                    <Button
-                      type="text"
-                      size="small"
+                  <span className={styles.stepActions}>
+                    <StepButton
                       icon={<MinusOutlined />}
-                      aria-label={`${stepName}: fewer chapters`}
-                      title="Fewer chapters"
+                      step={stepName}
+                      action="Fewer chapters"
                       disabled={!canDropChapter(i)}
                       onClick={() => updateStep(i, { chapterCount: step.chapterCount - 1 })}
                     />
-                    <Button
-                      type="text"
-                      size="small"
+                    <StepButton
                       icon={<PlusOutlined />}
-                      aria-label={`${stepName}: more chapters`}
-                      title="More chapters"
+                      step={stepName}
+                      action="More chapters"
                       disabled={chapterTotal >= MAX_CHAPTERS}
                       onClick={() => updateStep(i, { chapterCount: step.chapterCount + 1 })}
                     />
-                    <Button
-                      type="text"
-                      size="small"
+                    <StepButton
                       icon={<ArrowUpOutlined />}
-                      aria-label={`${stepName}: move up`}
-                      title="Move up"
+                      step={stepName}
+                      action="Move up"
                       disabled={!canMove(i, -1)}
                       onClick={() => update({ ...draft, steps: swapped(i, -1) })}
                     />
-                    <Button
-                      type="text"
-                      size="small"
+                    <StepButton
                       icon={<ArrowDownOutlined />}
-                      aria-label={`${stepName}: move down`}
-                      title="Move down"
+                      step={stepName}
+                      action="Move down"
                       disabled={!canMove(i, 1)}
                       onClick={() => update({ ...draft, steps: swapped(i, 1) })}
                     />
-                    <Button
-                      type="text"
-                      size="small"
-                      danger
+                    <StepButton
                       icon={<DeleteOutlined />}
-                      aria-label={`${stepName}: remove`}
-                      title="Remove"
+                      step={stepName}
+                      action="Remove"
+                      danger
                       onClick={() => removeStep(i)}
                     />
                   </span>
                 </div>
                 <RulesTextArea
-                  ref={fieldRef(String(step.id))}
+                  {...fields.fieldProps(step.id)}
                   id={`${id}-step-${step.id}`}
                   value={step.text}
                   minRows={1}
@@ -307,9 +273,6 @@ const SagaStepsInput = ({
                   aria-label={`${stepName} (${numerals.join(', ') || 'no chapter'})`}
                   // Further lines are the options of a modal step.
                   enterText={'\n* '}
-                  onFocus={() => {
-                    lastField.current = String(step.id);
-                  }}
                   onChange={nextText => changeStepText(i, nextText)}
                 />
               </li>
@@ -317,7 +280,7 @@ const SagaStepsInput = ({
           })}
         </ol>
 
-        <div className={styles.sagaAddButtons}>
+        <div className={styles.stepAddButtons}>
           <Button
             size="small"
             icon={<PlusOutlined aria-hidden="true" />}
@@ -340,14 +303,11 @@ const SagaStepsInput = ({
           <div className={styles.sagaRulesField}>
             <label htmlFor={`${id}-rules`}>Below the type line</label>
             <RulesTextArea
-              ref={fieldRef(RULES_FIELD)}
+              {...fields.fieldProps(RULES_FIELD)}
               id={`${id}-rules`}
               value={rules}
               minRows={1}
               placeholder="e.g. Flying"
-              onFocus={() => {
-                lastField.current = RULES_FIELD;
-              }}
               onChange={nextText => update({ ...draft, rules: nextText })}
             />
           </div>

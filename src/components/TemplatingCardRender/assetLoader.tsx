@@ -1295,6 +1295,7 @@ import PrepareRulesRightUr from './images/parts/prepareRulesRight/ur.png';
 import PrepareRulesRightBg from './images/parts/prepareRulesRight/bg.png';
 import PrepareRulesRightRw from './images/parts/prepareRulesRight/rw.png';
 import PrepareRulesRightGu from './images/parts/prepareRulesRight/gu.png';
+import type { LoyaltyShape } from '../../utils/loyaltyAbilities';
 
 export interface ImageResData {
   highRes: string;
@@ -2570,13 +2571,13 @@ export const getTokenMainframe = (color: ColorType, isArtifact = false, isLand =
   }
 };
 
-export const getLoyaltyIcon = (loyaltyAction?: string) => {
-  if (!loyaltyAction) return '';
-  if (loyaltyAction.indexOf('+') !== -1) return LoyaltyUp;
-  if (loyaltyAction.indexOf('-') !== -1) return LoyaltyDown;
-  if (loyaltyAction === '0') return LoyaltyNeutral;
-  return '';
+const loyaltyIcons: Record<LoyaltyShape, string> = {
+  up: LoyaltyUp,
+  neutral: LoyaltyNeutral,
+  down: LoyaltyDown,
 };
+
+export const getLoyaltyIcon = (shape: LoyaltyShape) => loyaltyIcons[shape];
 
 export const getPlaneswalkerPt = () => PlaneswalkerPt;
 

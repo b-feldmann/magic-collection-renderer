@@ -778,6 +778,12 @@ updateLog.push({
     },
     {
       type: ChangeLogFeatureType.Added,
+      feature: 'Step editor for planeswalkers',
+      description:
+        'Edit a planeswalker ability by ability: add, move and remove abilities, and set their loyalty costs in the shield or with the buttons. Enter starts another ability, and pasted Oracle text becomes abilities with their costs. "Edit as text" switches to the text editor here, too. Abilities are now written as in Oracle text, e.g. "+1: Draw a card." or "−3: Destroy target creature.", with a minus instead of a hyphen; static abilities have no cost. A hint points out abilities that are still written as "+1|Draw a card.", and rewrites them with one click.',
+    },
+    {
+      type: ChangeLogFeatureType.Added,
       feature: 'Saga creatures',
       description:
         'A Saga that is also a creature gets the Saga creature frame. Its other abilities, e.g. "Flying", and the flavour text go in the box below the type line.',

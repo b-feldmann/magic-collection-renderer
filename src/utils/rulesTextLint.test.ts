@@ -67,7 +67,7 @@ describe('lintCardFace', () => {
       expect(rules(['{2}{w/u}, {T}: Draw a card.'])).toEqual(['unknown-symbol']);
       expect(rules(['{2}{wu}{rp}{x}, {t}: Draw a card.'])).toEqual([]);
       expect(
-        rules(['+1|Draw a card.', '{-x}|Exile a creature.'], {
+        rules(['Flying', '+1: Draw a card.', '−X: Exile a creature.'], {
           cardTypes: [CardType.Planeswalker],
           legendary: true,
         }),
@@ -125,14 +125,16 @@ describe('lintCardFace', () => {
       expect(rules(['Sacrifice two creatures: Draw a card.'])).toEqual([]);
     });
 
-    it('moves a typed planeswalker cost into the loyalty shield', () => {
+    it('writes loyalty costs as in Oracle text', () => {
       const planeswalker = { cardTypes: [CardType.Planeswalker], legendary: true };
-      expect(fixed('+1: Draw a card.', 'loyalty-cost', planeswalker)).toBe('+1|Draw a card.');
-      expect(fixed('−X: Exile a creature.', 'loyalty-cost', planeswalker)).toBe(
-        '-X|Exile a creature.',
-      );
-      expect(rules(['0: Draw a card.'], planeswalker)).toEqual(['loyalty-cost']);
-      expect(rules(['+1: Draw a card.'])).toEqual([]);
+      const fixedCost = (line: string) => fixed(line, 'loyalty-cost', planeswalker);
+      expect(fixedCost('+1|Draw a card.')).toBe('+1: Draw a card.');
+      expect(fixedCost('-3: Exile a creature.')).toBe('−3: Exile a creature.');
+      expect(fixedCost('{-x}|* Exile a creature.')).toBe('−X: * Exile a creature.');
+      expect(fixedCost('[0]: Draw a card.')).toBe('0: Draw a card.');
+      expect(fixedCost('|Flying')).toBe('Flying');
+      expect(rules(['Flying', '+1: Draw a card.', '−3: Draw a card.'], planeswalker)).toEqual([]);
+      expect(rules(['-3: Draw a card.'])).not.toContain('loyalty-cost');
     });
 
     it('turns a typed T in a cost into the tap symbol', () => {
@@ -497,11 +499,11 @@ describe('lintCardFace', () => {
     it('keeps bullets and planeswalker costs when fixing', () => {
       expect(fixed('* Draw a card', 'missing-period')).toBe('* Draw a card.');
       expect(
-        fixed('-2|Draw a card', 'missing-period', {
+        fixed('−2: Draw a card', 'missing-period', {
           cardTypes: [CardType.Planeswalker],
           legendary: true,
         }),
-      ).toBe('-2|Draw a card.');
+      ).toBe('−2: Draw a card.');
     });
   });
 
@@ -704,7 +706,7 @@ describe('lintCardFace', () => {
         typeText({
           cardTypes: [CardType.Planeswalker],
           legendary: true,
-          cardText: ['+1|Draw a card.'],
+          cardText: ['+1: Draw a card.'],
         }),
       ).toEqual([]);
     });

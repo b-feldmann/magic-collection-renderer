@@ -6,8 +6,11 @@ import CardEditor from './CardEditor';
 import CardInterface from '../../interfaces/CardInterface';
 import { Store, StoreType } from '../../store';
 import { updateCard } from '../../actions/cardActions';
+import { setStepEditor } from '../../actions/userActions';
 import { CardType, CardState, RarityType } from '../../interfaces/enums';
 import { EDIT_SAVE_OFFSET, EDIT_TIME_OFFSET, UNKNOWN_CREATOR } from '../../utils/constants';
+
+vi.mock('../../actions/userActions', () => ({ setStepEditor: vi.fn() }));
 
 vi.mock('../../actions/cardActions', () => ({
   updateCard: vi.fn().mockResolvedValue({}),
@@ -71,9 +74,9 @@ const mockStoreValue: StoreType = {
   dispatch: () => {},
 };
 
-const renderEditor = (card: CardInterface) => {
+const renderEditor = (card: CardInterface, currentUser = UNKNOWN_CREATOR) => {
   render(
-    <Store.Provider value={mockStoreValue}>
+    <Store.Provider value={{ ...mockStoreValue, currentUser }}>
       <CardEditor card={card} saveTmpCard={() => {}} />
     </Store.Provider>,
   );
@@ -86,7 +89,7 @@ const getCardTextEditor = (): HTMLTextAreaElement => {
   return textarea;
 };
 
-describe('CardEditor - card text textarea for non-planeswalker', () => {
+describe('CardEditor - card text', () => {
   beforeEach(() => {
     vi.useFakeTimers();
     (updateCard as Mock).mockClear();
@@ -140,12 +143,27 @@ describe('CardEditor - card text textarea for non-planeswalker', () => {
     expect(screen.queryByText('Add mechanic')).toBeNull();
   });
 
-  it('keeps the per-instruction list UI for planeswalkers', () => {
-    renderEditor(makeCard({ cardTypes: [CardType.Planeswalker], cardText: ['+1: Buff.'] }));
+  it('edits planeswalkers ability by ability, and switches to the text and back', async () => {
+    const user = { ...UNKNOWN_CREATOR, uuid: 'user-1' };
+    renderEditor(
+      makeCard({ cardTypes: [CardType.Planeswalker], cardText: ['+1: Buff.', '−2: Debuff.'] }),
+      user,
+    );
+    const field = (name: string) => screen.getByRole<HTMLTextAreaElement>('textbox', { name });
+    const click = (name: string) => fireEvent.click(screen.getByRole('button', { name }));
 
-    const label = screen.getByText('Card text');
-    const splitList = label.closest('span')!;
-    expect(splitList.querySelectorAll('textarea').length).toBeGreaterThan(0);
-    expect(screen.getByText('Add instruction')).toBeDefined();
+    await typeCardText(field('Ability 2 (−2)'), 'Scry 1.');
+    expect(getPersisted().front.cardText).toEqual(['+1: Buff.', '−2: Scry 1.']);
+
+    click('Edit as text');
+    expect(setStepEditor).toHaveBeenLastCalledWith(mockStoreValue.dispatch, 'text', user);
+    expect(field('Card text').value).toBe('+1: Buff.\n−2: Scry 1.');
+    // A hyphen typed for the minus becomes one.
+    await typeCardText(field('Card text'), '+1: Buff.\n-X: Scry X.');
+    expect(getPersisted().front.cardText).toEqual(['+1: Buff.', '−X: Scry X.']);
+
+    click('Edit as steps');
+    expect(setStepEditor).toHaveBeenLastCalledWith(mockStoreValue.dispatch, 'steps', user);
+    expect(field('Ability 2 (−X)').value).toBe('Scry X.');
   });
 });

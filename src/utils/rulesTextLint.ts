@@ -2,6 +2,7 @@ import CardFaceInterface from '../interfaces/CardFaceInterface';
 import MechanicInterface from '../interfaces/MechanicInterface';
 import { CardType, RarityType } from '../interfaces/enums';
 import { BULLET_PREFIX, isKnownSymbol } from './injectUtils';
+import { formatLoyaltyLine, parseLoyaltyLine } from './loyaltyAbilities';
 import { getChapters, parseChapterLine, toRomanNumeral } from './sagaChapters';
 import {
   CreatedToken,
@@ -106,11 +107,14 @@ interface Finding {
   message: string;
   // The line body with the fix applied, and the fix button's label.
   fixed?: string;
+  // The whole line with the fix applied, for one that changes what comes before the body.
+  fixedLine?: string;
   fixLabel?: string;
 }
 
 interface LineContext {
-  // The text after a planeswalker cost ("+1|"), a Saga's chapters ("I, II — ") and a bullet ("* ").
+  line: string;
+  // The text after a planeswalker cost ("+1: "), a Saga's chapters ("I, II — ") and a bullet ("* ").
   body: string;
   // `body` with its token references ("[Token: …]"), which `body` masks.
   bodyWithReferences: string;
@@ -119,7 +123,7 @@ interface LineContext {
   // How this card refers to itself in this field ("creature", "Equipment", ...), or null to
   // leave ~ alone (legendary cards, unknown types, the spell half of an Adventure, ...).
   selfNoun: string | null;
-  // Card text of a planeswalker, whose abilities are written "cost|text".
+  // Card text of a planeswalker, whose abilities may have loyalty costs.
   loyaltyAbilities: boolean;
   // The face has Cleave, whose square brackets mark words that cleaving removes.
   hasCleave: boolean;
@@ -736,20 +740,23 @@ const unclosedSymbols: Check = ({ body }) => {
   return findings;
 };
 
-const LOYALTY_COST = /^([+−–-](?:\d+|X)|0)\s*:\s*(\S.*)$/i;
-
-// A planeswalker ability typed "+1: …" puts its cost in the text instead of the loyalty shield.
-const loyaltyCost: Check = ({ body, loyaltyAbilities }) => {
-  const match = loyaltyAbilities ? body.match(LOYALTY_COST) : null;
-  if (!match) return [];
-  const cost = match[1].replace(/[−–]/, '-').toUpperCase();
+// A loyalty cost that isn't written as in Oracle text: "+1|…", "-3: …" with a hyphen, "[+1]: …".
+const loyaltyCost: Check = ({ line, loyaltyAbilities }) => {
+  if (!loyaltyAbilities) return [];
+  const ability = parseLoyaltyLine(line);
+  const fixedLine = formatLoyaltyLine(ability);
+  if (fixedLine.trim() === line.trim()) return [];
+  const { cost } = ability;
+  const note = /^\W*-/.test(line) ? ' with a minus instead of a hyphen' : '';
   return [
     {
       rule: 'loyalty-cost',
-      severity: 'warning',
-      message: `Write the loyalty cost as "${cost}|" so it's shown in the loyalty shield.`,
-      fixed: `${cost}|${match[2]}`,
-      fixLabel: `Use "${cost}|"`,
+      severity: 'suggestion',
+      message: cost
+        ? `Write the loyalty cost as "${cost}:"${note}, as in Oracle text.`
+        : 'Write an ability without a loyalty cost without "|".',
+      fixedLine,
+      fixLabel: cost ? `Use "${cost}:"` : 'Remove "|"',
     },
   ];
 };
@@ -761,8 +768,7 @@ const BARE_MANA_ADDED = /(?<![\w{}])\d*[WUBRGC]+(?![\w}])/g;
 const toManaSymbols = (mana: string) =>
   [...mana.matchAll(/\d+|[XWUBRGC]/g)].map(([part]) => `{${part.toLowerCase()}}`).join('');
 
-const bareMana: Check = ({ body, loyaltyAbilities }) => {
-  if (loyaltyAbilities && LOYALTY_COST.test(body)) return [];
+const bareMana: Check = ({ body }) => {
   // [index, length] of mana written without braces.
   const spans: [number, number][] = [];
 
@@ -1030,7 +1036,7 @@ const CHECKS: Check[] = [
 ];
 
 interface LineFormat {
-  // Abilities are written "cost|text".
+  // Abilities are written "cost: text", or just their text.
   isPlaneswalker: boolean;
   // Abilities are written "I, II — text".
   isSaga: boolean;
@@ -1045,7 +1051,7 @@ const getLineFormat = (types: CardType[], field: TextField): LineFormat => ({
 // and a bullet.
 const splitLine = (line: string, { isPlaneswalker, isSaga }: LineFormat) => {
   let costEnd = 0;
-  if (isPlaneswalker) costEnd = line.indexOf('|') + 1;
+  if (isPlaneswalker) costEnd = line.length - parseLoyaltyLine(line).text.length;
   if (isSaga) costEnd = parseChapterLine(line)?.prefix.length ?? 0;
   const rest = line.slice(costEnd);
   const bullet = rest.match(BULLET_PREFIX)?.[0] ?? '';
@@ -1275,14 +1281,11 @@ const cardTypeText: StructureCheck = ({ face, field, bodies }) => {
     }
   });
 
-  // A cost typed as "+1: …" is reported by the loyalty-cost check instead.
-  const hasLoyaltyAbility = (face.cardText || []).some(
-    line => /^[^|]+\|/.test(line) || LOYALTY_COST.test(line),
-  );
+  const hasLoyaltyAbility = (face.cardText || []).some(line => parseLoyaltyLine(line).cost);
   if (types.includes(CardType.Planeswalker) && !hasLoyaltyAbility) {
     findings.push({
       rule: 'card-type-text',
-      message: 'This planeswalker has no loyalty abilities. Write them as "+1|Draw a card."',
+      message: 'This planeswalker has no loyalty abilities. Write them as "+1: Draw a card."',
     });
   }
   return findings;
@@ -1420,7 +1423,7 @@ const missingStats = (face: CardFaceInterface): RulesTextLintIssue[] => {
 
 // Whether a line is a bullet (a mode), after a planeswalker cost if it has one.
 const isBullet = (line: string, { isPlaneswalker }: LineFormat) =>
-  BULLET_PREFIX.test(isPlaneswalker ? line.slice(line.indexOf('|') + 1) : line);
+  BULLET_PREFIX.test(isPlaneswalker ? parseLoyaltyLine(line).text : line);
 
 // New World Order: commons stay simple so a board of them is easy to read in Limited.
 export const COMMON_MAX_WORDS = 40;
@@ -1716,6 +1719,14 @@ export interface LintOptions {
   tokenCards?: TokenCardMatch[];
 }
 
+const getFix = (
+  { fixed, fixedLine, fixLabel = 'Fix' }: Finding,
+  getLine: (fixedBody: string) => string,
+): RulesTextLintIssue['fix'] => {
+  const line = fixedLine ?? (fixed === undefined ? undefined : getLine(fixed));
+  return line === undefined ? undefined : { label: fixLabel, line };
+};
+
 /** All templating issues in the rules text of one card face, in field and line order. */
 export const lintCardFace = (
   face: CardFaceInterface,
@@ -1745,6 +1756,7 @@ export const lintCardFace = (
       // Token references read as one opaque token to the checks; fixes keep them as typed.
       const { masked: body, references } = maskTokenReferences(typed);
       const context: LineContext = {
+        line,
         body,
         bodyWithReferences: typed,
         face,
@@ -1763,13 +1775,7 @@ export const lintCardFace = (
         line: lineIndex,
         text: line,
         message: finding.message,
-        fix:
-          finding.fixed !== undefined
-            ? {
-                label: finding.fixLabel ?? 'Fix',
-                line: prefix + unmaskTokenReferences(finding.fixed, references),
-              }
-            : undefined,
+        fix: getFix(finding, fixed => prefix + unmaskTokenReferences(fixed, references)),
       }));
     });
 

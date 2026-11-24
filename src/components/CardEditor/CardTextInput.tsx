@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { ColorType } from '../../interfaces/enums';
+import { replaceCostHyphens } from '../../utils/loyaltyAbilities';
 import {
   addChapter,
   getChapters,
@@ -18,8 +19,8 @@ interface CardTextInputProps {
   value: string[];
   onChange: (lines: string[]) => void;
   manaColors?: ColorType[];
-  /** The text of a Saga, whose abilities belong to chapters (see sagaChapters). */
-  chapters?: boolean;
+  /** A Saga's abilities belong to chapters (see sagaChapters), a planeswalker's have loyalty costs. */
+  steps?: 'saga' | 'planeswalker';
   /** Shown next to the label. */
   labelAction?: React.ReactNode;
 }
@@ -30,9 +31,11 @@ const CardTextInput = ({
   value,
   onChange,
   manaColors,
-  chapters = false,
+  steps,
   labelAction,
 }: CardTextInputProps) => {
+  const chapters = steps === 'saga';
+  const hintId = steps ? `${id}-hint` : undefined;
   const textRef = useRef<RulesTextAreaHandle>(null);
 
   const insertChapter = () => {
@@ -53,6 +56,13 @@ const CardTextInput = ({
     setCustomReminder(kind === 'custom' ? reminder : '');
     if (kind === 'custom') textRef.current?.setPendingCaret(reminder.length);
     onChange(replaceReminder(value, reminder));
+  };
+
+  const changeText = (text: string, caret: number) => {
+    const written = steps === 'planeswalker' ? replaceCostHyphens(text) : text;
+    // Text that isn't quite what was typed would move the caret to its end.
+    if (written !== text) textRef.current?.setPendingCaret(caret);
+    onChange(written.split('\n'));
   };
 
   return (
@@ -89,14 +99,20 @@ const CardTextInput = ({
         id={id}
         className={styles.rulesTextArea}
         value={value.join('\n')}
-        onChange={text => onChange(text.split('\n'))}
-        aria-describedby={chapters ? `${id}-chapters` : undefined}
+        onChange={changeText}
+        aria-describedby={hintId}
       />
       {chapters && (
-        <p id={`${id}-chapters`} className={styles.fieldHint}>
+        <p id={hintId} className={styles.fieldHint}>
           Start an ability with its chapter, e.g. “I — ”, or “I, II — ” if several share it. A line
           without a chapter is a step of its own; on a creature, lines after the last chapter go
           below the type line.
+        </p>
+      )}
+      {steps === 'planeswalker' && (
+        <p id={hintId} className={styles.fieldHint}>
+          Every line is an ability. Start it with its loyalty cost, e.g. “+1:”, “0:”, “−3:” or
+          “−X:”. A static or triggered ability has no cost.
         </p>
       )}
     </span>
