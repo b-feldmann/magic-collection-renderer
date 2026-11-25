@@ -7,7 +7,6 @@ import CardInterface from '../../interfaces/CardInterface';
 import { Store, StoreType } from '../../store';
 import { updateCard } from '../../actions/cardActions';
 import { CardType, CardState, RarityType } from '../../interfaces/enums';
-import { setTrollMode } from '../../utils/useTrollMode';
 import { EDIT_SAVE_OFFSET, EDIT_TIME_OFFSET, UNKNOWN_CREATOR } from '../../utils/constants';
 
 vi.mock('../../actions/cardActions', () => ({
@@ -74,12 +73,13 @@ const mockStoreValue: StoreType = {
   dispatch: () => {},
 };
 
-const renderEditor = (card: CardInterface) =>
-  render(
-    <Store.Provider value={mockStoreValue}>
-      <CardEditor card={card} saveTmpCard={() => {}} />
-    </Store.Provider>,
-  );
+const editorFor = (card: CardInterface, trollMode = false) => (
+  <Store.Provider value={{ ...mockStoreValue, currentUser: { ...UNKNOWN_CREATOR, trollMode } }}>
+    <CardEditor card={card} saveTmpCard={() => {}} />
+  </Store.Provider>
+);
+
+const renderEditor = (card: CardInterface) => render(editorFor(card));
 
 const getHints = (fieldName = 'Card text') =>
   screen.getByRole('group', { name: `Templating hints for ${fieldName}` });
@@ -96,7 +96,6 @@ describe('CardEditor - templating hints', () => {
   });
 
   afterEach(() => {
-    act(() => setTrollMode(false));
     vi.runOnlyPendingTimers();
     vi.useRealTimers();
   });
@@ -204,21 +203,22 @@ describe('CardEditor - templating hints', () => {
   });
 
   it('rewords open hints when troll mode is switched, but keeps their advice and fixes', () => {
-    renderEditor(makeCard(['When ~ enters the battlefield, draw a card.']));
+    const card = makeCard(['When ~ enters the battlefield, draw a card.']);
+    const { rerender } = renderEditor(card);
     const messages = () =>
       within(getHints())
         .getAllByRole('listitem')
         .map(item => item.querySelector('p')!.textContent!);
     const plain = messages();
 
-    act(() => setTrollMode(true));
+    rerender(editorFor(card, true));
     messages().forEach((message, index) => {
       expect(message).not.toBe(plain[index]);
       expect(message.endsWith(plain[index])).toBe(true);
     });
     expect(within(getHints()).getByRole('button', { name: 'Use "enters"' })).toBeDefined();
 
-    act(() => setTrollMode(false));
+    rerender(editorFor(card));
     expect(messages()).toEqual(plain);
   });
 });

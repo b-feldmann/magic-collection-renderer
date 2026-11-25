@@ -1,16 +1,11 @@
-import { useSyncExternalStore } from 'react';
+import { useContext, useSyncExternalStore } from 'react';
 
-const STORAGE_KEY = 'mtg-funset:TrollMode:v1';
+import { setTrollMode as saveTrollMode } from '../actions/userActions';
+import { Store } from '../store';
 
-const readStored = () => {
-  try {
-    return localStorage.getItem(STORAGE_KEY) === 'on';
-  } catch {
-    return false;
-  }
-};
-
-let enabled = readStored();
+// The latest choice of this session. It applies at once and to every component, whether or not it
+// could be stored on the user.
+let chosen: { user: string; enabled: boolean } | undefined;
 const listeners = new Set<() => void>();
 
 const subscribe = (listener: () => void) => {
@@ -20,18 +15,22 @@ const subscribe = (listener: () => void) => {
   };
 };
 
-const getSnapshot = () => enabled;
+const getSnapshot = () => chosen;
 
-/** Turns troll mode on or off everywhere, and remembers it in this browser. */
-export const setTrollMode = (next: boolean) => {
-  enabled = next;
-  try {
-    localStorage.setItem(STORAGE_KEY, next ? 'on' : 'off');
-  } catch {
-    // Without storage, the choice lasts until the page is closed.
-  }
-  listeners.forEach(listener => listener());
+/** Whether the templating hints are passive-aggressive for the current user, and its setter. */
+export const useTrollMode = (): [boolean, (enabled: boolean) => void] => {
+  const { currentUser, dispatch } = useContext(Store);
+  const choice = useSyncExternalStore(subscribe, getSnapshot);
+  const enabled =
+    (choice?.user === currentUser.uuid ? choice.enabled : undefined) ??
+    currentUser.trollMode ??
+    false;
+
+  const setTrollMode = (next: boolean) => {
+    chosen = { user: currentUser.uuid, enabled: next };
+    listeners.forEach(listener => listener());
+    saveTrollMode(dispatch, next, currentUser);
+  };
+
+  return [enabled, setTrollMode];
 };
-
-/** Whether the templating hints are passive-aggressive. */
-export const useTrollMode = (): boolean => useSyncExternalStore(subscribe, getSnapshot);

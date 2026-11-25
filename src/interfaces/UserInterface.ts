@@ -9,4 +9,6 @@ export default interface UserInterface {
   lastSeenVersion: number;
   /** For Sagas and planeswalkers. */
   sagaEditor?: StepEditorMode;
+  /** Whether the templating hints are passive-aggressive. */
+  trollMode?: boolean;
 }

@@ -28,7 +28,7 @@ const RulesTextLint = ({
   onCreateToken,
   creatingTokenKey,
 }: RulesTextLintProps): React.JSX.Element | null => {
-  const trollMode = useTrollMode();
+  const [trollMode] = useTrollMode();
   const idPrefix = useId();
   const summaryRef = useRef<HTMLElement>(null);
 

@@ -829,7 +829,7 @@ updateLog.push({
       type: ChangeLogFeatureType.Added,
       feature: 'Troll mode',
       description:
-        'Makes the templating hints passive-aggressive. Turn it on in the menu with more collection actions; it is remembered in this browser.',
+        'Makes the templating hints passive-aggressive. Turn it on in the menu with more collection actions; it is remembered for your user.',
     },
   ],
 });

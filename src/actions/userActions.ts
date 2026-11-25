@@ -76,7 +76,7 @@ export const getUser = (dispatch: (value: Action) => void) => {
 };
 
 type UserChanges = Partial<
-  Pick<UserInterface, 'seenCards' | 'seenComments' | 'lastSeenVersion' | 'sagaEditor'>
+  Pick<UserInterface, 'seenCards' | 'seenComments' | 'lastSeenVersion' | 'sagaEditor' | 'trollMode'>
 >;
 
 // The API applies only the sent changes, so another tab or device can't lose its
@@ -137,6 +137,16 @@ export const setStepEditor = (
 ) => {
   queueUserUpdate(dispatch, currentUser, () => ({ sagaEditor })).catch(() => {
     staticAntd.message.error("Couldn't save which card text editor you prefer.");
+  });
+};
+
+export const setTrollMode = (
+  dispatch: (value: Action) => void,
+  trollMode: boolean,
+  currentUser: UserInterface,
+) => {
+  queueUserUpdate(dispatch, currentUser, () => ({ trollMode })).catch(() => {
+    staticAntd.message.error("Couldn't save whether troll mode is on.");
   });
 };
 
