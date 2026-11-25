@@ -7,7 +7,8 @@ import { getChapters, parseChapterLine, toRomanNumeral } from './sagaChapters';
 import {
   CreatedToken,
   findLowercaseTokenSubtypes,
-  findUncreatedTokenReferences,
+  findUnusedTokenReferences,
+  getSacrificedTokenLinks,
   getTokenDetailDifferences,
   getTokenLinks,
   TokenCardMatch,
@@ -18,6 +19,7 @@ import {
   maskTokenReferences,
   parseTokenReference,
   resolveTokenReference,
+  sacrificedTokenKind,
   TOKEN_REFERENCE,
   tokenReferenceFor,
   unmaskTokenReferences,
@@ -552,12 +554,12 @@ const tokenSubtypeCase: Check = ({ body }) =>
     fixLabel: `Use "${capitalize(word)}"`,
   }));
 
-// "[Token: …]" stands for a token the text creates: "Create two [Token: 1/1 red Rogue]."
-const uncreatedTokenReference: Check = ({ bodyWithReferences }) =>
-  findUncreatedTokenReferences(bodyWithReferences).map(({ reference }) => ({
+// "[Token: …]" stands for a token the text creates or sacrifices: "Create two [Token: 1/1 red Rogue]."
+const unusedTokenReference: Check = ({ bodyWithReferences }) =>
+  findUnusedTokenReferences(bodyWithReferences).map(({ reference }) => ({
     rule: 'token-reference',
     severity: 'warning',
-    message: `${reference} isn't created here. A token reference stands for a token the text creates, e.g. "Create two [Token: 1/1 red Rogue]." Write other mentions of a token out, e.g. "Sacrifice a Treasure."`,
+    message: `${reference} isn't created or sacrificed here. A token reference stands for a token the text creates or sacrifices, e.g. "Create two [Token: 1/1 red Rogue]." Write other mentions of a token out, e.g. "Treasures you control".`,
   }));
 
 const capitalization: Check = ({ body }) => {
@@ -650,6 +652,9 @@ const doublePunctuation: Check = ({ body }) =>
 // A cost of symbols followed by the effect without a colon: "{T} Add {G}."
 const COST_WITHOUT_COLON = /^((?:\{[^{}]+\})+(?:,\s*(?:\{[^{}]+\})+)*)\s+(?=[A-Z~])/;
 
+// The ability word or flavor word in front of a cost: "_Bananas_ — ", "Exhaust -- ".
+const COST_PREFIX = /^[^{}:"“”]*?(?:\s*(?:—|–|-{2,3})\s*|\s-\s+)/;
+
 // Order of the parts of an activated ability's cost: mana, {T}, {Q}, then everything else
 // ("{1}, {T}, Sacrifice this artifact: …").
 const costPartRank = (part: string) => {
@@ -659,7 +664,9 @@ const costPartRank = (part: string) => {
   return 3;
 };
 
-const activatedAbility: Check = ({ body }) => {
+const activatedAbility: Check = ({ body: wholeBody }) => {
+  const prefix = wholeBody.match(COST_PREFIX)?.[0] ?? '';
+  const body = wholeBody.slice(prefix.length);
   const missingColon = body.match(COST_WITHOUT_COLON);
   if (missingColon && (missingColon[1].match(/\{[^{}]*\}/g) ?? []).every(isKnownSymbol)) {
     const cost = missingColon[1];
@@ -668,7 +675,7 @@ const activatedAbility: Check = ({ body }) => {
         rule: 'activated-ability',
         severity: 'suggestion',
         message: `An activated ability has a colon between its cost and its effect: "${cost}: …".`,
-        fixed: replaceAt(body, cost.length, 0, ':'),
+        fixed: prefix + replaceAt(body, cost.length, 0, ':'),
         fixLabel: 'Add colon',
       },
     ];
@@ -689,7 +696,7 @@ const activatedAbility: Check = ({ body }) => {
       rule: 'activated-ability',
       severity: 'suggestion',
       message: 'A cost lists mana first, then {T} or {Q}, then other costs.',
-      fixed: sorted.join(', ') + body.slice(colon),
+      fixed: prefix + sorted.join(', ') + body.slice(colon),
       fixLabel: 'Reorder cost',
     },
   ];
@@ -1030,7 +1037,7 @@ const CHECKS: Check[] = [
   spacing,
   capitalization,
   tokenSubtypeCase,
-  uncreatedTokenReference,
+  unusedTokenReference,
   missingPeriod,
   doublePunctuation,
   activatedAbility,
@@ -1710,7 +1717,14 @@ const tokenCardIssues = (
   tokenCards: TokenCardMatch[],
   mechanics: MechanicInterface[],
 ): RulesTextLintIssue[] =>
-  getTokenLinks(face, tokenCards, mechanics).flatMap((link, index) => {
+  [
+    ...getTokenLinks(face, tokenCards, mechanics),
+    // A sacrificed token shows only its kind, so token cards of the same kind aren't ambiguous.
+    ...getSacrificedTokenLinks(face, tokenCards).filter(
+      ({ candidates = [] }) =>
+        new Set(candidates.map(candidate => sacrificedTokenKind(candidate.face))).size !== 1,
+    ),
+  ].flatMap((link, index) => {
     const { token, match, differentStats, differentDetails } = link;
     const field = TEXT_FIELDS.find(textField => textField.key === token.field);
     const lines = face[token.field];

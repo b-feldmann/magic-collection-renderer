@@ -821,6 +821,12 @@ updateLog.push({
     },
     {
       type: ChangeLogFeatureType.Added,
+      feature: 'Token references when sacrificing',
+      description:
+        'A token reference can be sacrificed and shows only the kind of token: "Sacrifice a [Token: Food]" reads "Sacrifice a Food", "Sacrifice two [Token: Food]" reads "Sacrifice two Foods".',
+    },
+    {
+      type: ChangeLogFeatureType.Added,
       feature: 'Troll mode',
       description:
         'Makes the templating hints passive-aggressive. Turn it on in the menu with more collection actions; it is remembered in this browser.',

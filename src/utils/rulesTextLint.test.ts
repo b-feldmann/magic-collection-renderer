@@ -489,6 +489,20 @@ describe('lintCardFace', () => {
       ).toEqual(['activated-ability']);
     });
 
+    it.each(['_Bananas_ --- ', '_Bananas_ -- ', '_Bananas_ - ', '_Bananas_ — ', '_Bananas_—'])(
+      'checks the cost order after the ability word in "%s"',
+      prefix => {
+        expect(
+          rules([
+            `${prefix}{1}{w}, {t}, sacrifice a Food: You gain 3 life, then put an evolution counter on target creature.`,
+          ]),
+        ).not.toContain('activated-ability');
+        expect(fixed(`${prefix}{t}, {1}: Draw a card.`, 'activated-ability')).toBe(
+          `${prefix}{1}, {t}: Draw a card.`,
+        );
+      },
+    );
+
     it('fixes double spaces and spaces before punctuation', () => {
       expect(fixed('Draw a card  and gain 3 life .', 'spacing')).toBe(
         'Draw a card and gain 3 life.',

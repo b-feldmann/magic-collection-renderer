@@ -99,6 +99,37 @@ describe('expandTokenReferences', () => {
     ['Create [Token: 8/8 Elf Warrior].', 'Create an 8/8 green Elf Warrior creature token.'],
     // A typed article is replaced by the right one.
     ['Create a [Token: 8/8 Elf Warrior].', 'Create an 8/8 green Elf Warrior creature token.'],
+    ['Sacrifice a [Token: Treasure]: Draw a card.', 'Sacrifice a Treasure: Draw a card.'],
+    ['Sacrifice [Token: Treasure].', 'Sacrifice a Treasure.'],
+    ['Sacrifice a [Token: 8/8 Elf Warrior].', 'Sacrifice an Elf Warrior.'],
+    ['Sacrifice a [Token: 1/1 Rogue].', 'Sacrifice a Rogue.'],
+    ['Sacrifice a [Token: Princess].', 'Sacrifice a token named Princess.'],
+    ['Sacrifice a [Token: Food].', 'Sacrifice a Food.'],
+    [
+      'Sacrifice a [Token: 1/1 blue Rogue with "Whenever this creature becomes tapped, surveil 1."].',
+      'Sacrifice a Rogue.',
+    ],
+    ['Sacrifice two [Token: Treasure].', 'Sacrifice two Treasures.'],
+    [
+      'Whenever you sacrifice one or more [Token: Treasure], draw a card.',
+      'Whenever you sacrifice one or more Treasures, draw a card.',
+    ],
+    [
+      'Sacrifice another creature or a [Token: Treasure].',
+      'Sacrifice another creature or a Treasure.',
+    ],
+    [
+      'You may sacrifice a [Token: Treasure]. If you do, create [Token: Treasure].',
+      'You may sacrifice a Treasure. If you do, create a Treasure token.',
+    ],
+    [
+      'Sacrifice a creature and create a Clue token and a [Token: Treasure].',
+      'Sacrifice a creature and create a Clue token and a Treasure token.',
+    ],
+    [
+      'Create [Token: Treasure], then sacrifice a [Token: Treasure].',
+      'Create a Treasure token, then sacrifice a Treasure.',
+    ],
     ['A [Token: Treasure] appears.', 'A Treasure token appears.'],
   ])('%s', (line, expected) => {
     expect(expand(line)).toBe(expected);
@@ -286,13 +317,28 @@ describe('token references in token links and the lint', () => {
     lintCardFace(face(text), mechanics, { tokenCards });
 
   it.each([
-    'Sacrifice a [Token: Treasure]: Draw a card.',
     'Whenever a [Token: 1/1 red Rogue] you control dies, draw a card.',
-    'Create a Food token. Sacrifice a [Token: Treasure].',
+    'Create a Food token. Tap a [Token: Treasure].',
   ])('warns about a reference that is not created: %s', text => {
     const issues = lint(text).filter(({ rule }) => rule === 'token-reference');
     expect(issues).toHaveLength(1);
-    expect(issues[0].message).toMatch(/isn't created here/);
+    expect(issues[0].message).toMatch(/isn't created or sacrificed here/);
+  });
+
+  it('warns about a sacrificed reference that finds no token card', () => {
+    const issues = lint('Sacrifice a [Token: Food].').filter(
+      ({ rule }) => rule === 'token-reference',
+    );
+    expect(issues).toHaveLength(1);
+    expect(issues[0].message).toMatch(/finds no token card/);
+  });
+
+  it('does not count a sacrificed reference as a created token', () => {
+    const face = {
+      cardTypes: [CardType.Creature],
+      cardText: ['Create [Token: 1/1 red Rogue], then sacrifice a [Token: Treasure].'],
+    } as unknown as CardFaceInterface;
+    expect(getTokenLinks(face, tokenCards).map(({ token }) => token.label)).toEqual(['1/1 Rogue']);
   });
 
   it.each([
@@ -301,6 +347,9 @@ describe('token references in token links and the lint', () => {
     'Create [Token: Treasure] and [Token: 1/1 red Rogue].',
     'Create your choice of [Token: Treasure] or [Token: 1/1 red Rogue].',
     'Target player creates X [Token: 1/1 red Rogue].',
+    'Sacrifice a [Token: Treasure]: Draw a card.',
+    'Sacrifice a [Token: 1/1 Rogue]: Draw a card.',
+    'Create [Token: Treasure], then sacrifice a [Token: Treasure].',
   ])('does not warn about a created reference: %s', text => {
     expect(lint(text).filter(({ rule }) => rule === 'token-reference')).toEqual([]);
   });

@@ -15,6 +15,7 @@ import {
   TYPE_WORDS,
 } from './tokenKinds';
 import {
+  isSacrificedReference,
   maskTokenReferences,
   parseTokenReference,
   resolveTokenReference,
@@ -220,6 +221,7 @@ const REFERENCE_MARKER = /(\d+)/;
 /**
  * The text as the parser reads it: without square brackets (mechanics like [Investigate] are
  * words of the sentence), with straight apostrophes and token references as "description token".
+ * A sacrificed reference is only its description, as it isn't created.
  * `origin` maps each position to the position in `text` it comes from.
  */
 const prepareText = (text: string) => {
@@ -238,7 +240,10 @@ const prepareText = (text: string) => {
   for (const match of text.matchAll(TOKEN_REFERENCE)) {
     addText(last, match.index);
     references.push(match[1].trim());
-    const stand = `${references.length - 1} ${parseTokenReference(match[1]).description} token`;
+    const { description } = parseTokenReference(match[1]);
+    const stand = isSacrificedReference(text, match.index)
+      ? description
+      : `${references.length - 1} ${description} token`;
     plain += stand;
     origin.push(...Array<number>(stand.length).fill(match.index));
     last = match.index + match[0].length;
@@ -248,16 +253,16 @@ const prepareText = (text: string) => {
 };
 
 /**
- * The token references ("[Token: …]") a line doesn't create a token with, e.g. "Sacrifice a
- * [Token: Treasure]". A reference stands for a token the text creates.
+ * The token references ("[Token: …]") a line neither creates nor sacrifices a token with, e.g.
+ * "Whenever a [Token: 1/1 red Rogue] you control dies".
  */
-export const findUncreatedTokenReferences = (
+export const findUnusedTokenReferences = (
   text: string,
 ): { index: number; length: number; reference: string }[] => {
   const created = new Set<number>();
   parseText(text, '', 0, created);
   return [...text.matchAll(TOKEN_REFERENCE)]
-    .filter((_, index) => !created.has(index))
+    .filter((match, index) => !created.has(index) && !isSacrificedReference(text, match.index))
     .map(match => ({ index: match.index, length: match[0].length, reference: match[0] }));
 };
 
@@ -359,7 +364,11 @@ export const parseCreatedTokens = (
  */
 export const findLowercaseTokenSubtypes = (line: string): { index: number; word: string }[] => {
   // Token references take their case from the token card.
-  const text = maskTokenReferences(line).masked;
+  const text = maskTokenReferences(
+    line.replace(TOKEN_REFERENCE, (reference, _content, index: number) =>
+      isSacrificedReference(line, index) ? ' '.repeat(reference.length) : reference,
+    ),
+  ).masked;
   const found: { index: number; word: string }[] = [];
   // `match` ends with the description followed by "token(s)".
   const check = (match: RegExpMatchArray, offset: number) => {
@@ -516,6 +525,26 @@ export const getTokenLinks = (
   tokenCards: TokenCardMatch[],
   mechanics: MechanicInterface[] = [],
 ): TokenLink[] => getCreatedTokens(face, mechanics).map(token => linkToken(token, tokenCards));
+
+/** Links each token reference the face sacrifices ("Sacrifice a [Token: Food]") to token cards. */
+export const getSacrificedTokenLinks = (
+  face: CardFaceInterface,
+  tokenCards: TokenCardMatch[],
+): TokenLink[] => {
+  const types = face.cardTypes || [];
+  return TOKEN_TEXT_FIELDS.filter(field => field.applies(types)).flatMap(field => {
+    const lines = face[field.key];
+    if (!Array.isArray(lines)) return [];
+    return (lines as string[]).flatMap((line, index) =>
+      [...line.matchAll(TOKEN_REFERENCE)].flatMap(match => {
+        if (!isSacrificedReference(line, match.index)) return [];
+        const { description } = parseTokenReference(match[1]);
+        const token = describe(description, field.key, index, undefined, []);
+        return token ? [linkToken({ ...token, reference: match[1].trim() }, tokenCards)] : [];
+      }),
+    );
+  });
+};
 
 /** A card face in the collection and the tokens its rules text creates. */
 export interface TokenCreator extends TokenCardMatch {

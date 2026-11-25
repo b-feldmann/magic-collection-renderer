@@ -27,6 +27,9 @@ import {
  * an ability: [Token: 1/1 blue Rogue with flying], [Token: 1/1 blue Rogue with "surveil"]. The
  * abilities on the card always come from the token card. Count words ("two") and "tapped" stay
  * outside the brackets.
+ *
+ * A reference to a token that is sacrificed shows only its kind: "Sacrifice a [Token: Food]" reads
+ * "Sacrifice a Food".
  */
 
 /** A token reference anywhere in a line. Group 1 is the text inside the brackets. */
@@ -218,14 +221,25 @@ const tokenText = (
   return hasDeterminer ? token : `${article(core)} ${token}`;
 };
 
-const PLURAL_COUNT = String.raw`(?:two|three|four|five|six|seven|eight|nine|ten|x|\d+|that many|twice that many|a number of|any number of|that number of|those)`;
+const PLURAL_COUNT = String.raw`(?:one or more|two|three|four|five|six|seven|eight|nine|ten|x|\d+|that many|twice that many|a number of|any number of|that number of|those)`;
 const SINGULAR_DETERMINER = String.raw`(?:one|another|that|the|this|each)`;
-const ADJECTIVES = String.raw`(?:(?:tapped|untapped|attacking|blocking|additional)(?:\s+and\s+(?:tapped|untapped|attacking|blocking))?\s+)?`;
+const ADJECTIVES = String.raw`(?:(?:tapped|untapped|attacking|blocking|additional|other)(?:\s+and\s+(?:tapped|untapped|attacking|blocking))?\s+)?`;
 const PLURAL_BEFORE = new RegExp(String.raw`\b${PLURAL_COUNT}\s+${ADJECTIVES}$`, 'i');
 const DETERMINER_BEFORE = new RegExp(
   String.raw`\b(?:${SINGULAR_DETERMINER}|a|an)\s+${ADJECTIVES}$`,
   'i',
 );
+// Text up to a reference that is sacrificed: "Sacrifice a", "you sacrifice a Clue or another". The
+// things sacrificed along with it are listed in between, without another "create" or sentence.
+const SACRIFICE_BEFORE = new RegExp(
+  String.raw`\bsacrific(?:e|es|ed|ing)\s+(?:(?:(?!\bcreates?\b)[^.;:"“”])*?(?:,|\band\b|\bor\b)\s+)?(?:(?:a|an|up to|${PLURAL_COUNT}|${SINGULAR_DETERMINER})\s+)*${ADJECTIVES}$`,
+  'i',
+);
+
+/** Whether the reference at `index` of the line is a token the text sacrifices. */
+export const isSacrificedReference = (line: string, index: number) =>
+  SACRIFICE_BEFORE.test(line.slice(0, index).replace(TOKEN_REFERENCE, 'token'));
+
 // A reference with the article written in front of it: "a [Token: …]". Group 1 is the article,
 // group 2 the reference, group 3 a period right after it.
 const REFERENCE_IN_LINE = /(\b(?:a|an)\s+)?\[\s*token\s*:([^[\]]*)\](\.)?/gi;
@@ -236,6 +250,59 @@ const fallbackText = (reference: TokenReference, plural: boolean, hasDeterminer:
   const noun = /\btokens?$/i.test(core) ? core.replace(/\btokens?$/i, '').trim() : core;
   if (plural) return `${noun} tokens`;
   return hasDeterminer ? `${noun} token` : `${article(noun)} ${noun} token`;
+};
+
+/** What a sacrificed token is called: "Food", "Rogue", "token named Princess". */
+export const sacrificedTokenKind = (face: CardFaceInterface) => {
+  const predefined = getPredefinedKind(face);
+  if (predefined) return predefined;
+  const name = tokenCardName(face);
+  return name ? `token named ${name}` : (face.cardSubTypes || '').trim() || 'token';
+};
+
+const IRREGULAR_PLURALS: Record<string, string> = {
+  blood: 'Blood tokens',
+  gold: 'Gold tokens',
+  fish: 'Fish',
+  mouse: 'Mice',
+  ox: 'Oxen',
+  fungus: 'Fungi',
+};
+
+const pluralKind = (kind: string) => {
+  if (/^token\b/.test(kind)) return kind.replace(/^token/, 'tokens');
+  return kind.replace(/\S+$/, word => {
+    const irregular = IRREGULAR_PLURALS[word.toLowerCase()];
+    if (irregular) return irregular;
+    if (/(?:el|wol|dwar)f$/i.test(word)) return `${word.slice(0, -1)}ves`;
+    if (/[^aeiou]y$/i.test(word)) return `${word.slice(0, -1)}ies`;
+    return /(?:s|x|z|ch|sh)$/i.test(word) ? `${word}es` : `${word}s`;
+  });
+};
+
+const sacrificedText = (
+  reference: TokenReference,
+  matches: TokenCardMatch[],
+  plural: boolean,
+  hasDeterminer: boolean,
+) => {
+  // Several token cards of the same kind (a blue and a red Rogue) read the same here.
+  const kinds = [...new Set(matches.map(({ face }) => sacrificedTokenKind(face)))];
+  const described = reference.description
+    .split(/\s+/)
+    .filter(word => {
+      const lower = word.toLowerCase().replace(/,$/, '');
+      return (
+        !STATS.test(word) &&
+        !COLOR_WORDS[lower] &&
+        !TYPE_WORDS[lower] &&
+        !['legendary', 'and', 'token', 'tokens'].includes(lower)
+      );
+    })
+    .join(' ');
+  const kind = kinds.length === 1 ? kinds[0] : described || 'token';
+  if (plural) return pluralKind(kind);
+  return hasDeterminer ? kind : `${article(kind)} ${kind}`;
 };
 
 /**
@@ -258,8 +325,9 @@ export const expandTokenReferences = (line: string, tokenCards: TokenCardMatch[]
       const hasDeterminer = !typedArticle && !plural && DETERMINER_BEFORE.test(before);
       const reference = parseTokenReference(content);
       const matches = resolveTokenReference(reference, tokenCards);
-      const text =
-        matches.length === 1
+      const text = isSacrificedReference(line, offset)
+        ? sacrificedText(reference, matches, plural, hasDeterminer)
+        : matches.length === 1
           ? tokenText(describeFace(matches[0].face), plural, hasDeterminer)
           : fallbackText(reference, plural, hasDeterminer);
       // A quoted ability ends the sentence already: … surveil 1." instead of … surveil 1.".
