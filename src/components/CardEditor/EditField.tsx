@@ -12,14 +12,13 @@ import downloadImage from '../../utils/downloadImage';
 import { ColorType, RarityType } from '../../interfaces/enums';
 import { getRarityIcon } from '../TemplatingCardRender/assetLoader';
 import { injectManaIcons } from '../../utils/injectUtils';
-import EditorTooltip from '../EditorTooltip';
 import CardTextInput from './CardTextInput';
+import EvolutionStepsInput from './EvolutionStepsInput';
 import PlaneswalkerStepsInput from './PlaneswalkerStepsInput';
 import SagaStepsInput from './SagaStepsInput';
 import type { StepEditorMode } from '../../interfaces/UserInterface';
 
 const { TextArea } = Input;
-const InputGroup = Input.Group;
 const RARITY_ICON_STYLE: React.CSSProperties = { width: 20, height: 20 };
 
 /** Card text that is made of steps: a Saga's chapters or a planeswalker's abilities. */
@@ -32,12 +31,18 @@ export interface StepsFieldInterface {
   documentKey: string;
 }
 
+/** The card text of an evolution card, which is edited together with its levels. */
+export interface EvolutionFieldInterface {
+  hasStats: boolean;
+  documentKey: string;
+  renderHints: (fields: string[]) => React.ReactNode;
+}
+
 interface EditFieldInterface {
   fieldKey: string;
   type:
     | 'input'
     | 'split-input'
-    | 'paired-text'
     | 'upload-input'
     | 'select'
     | 'multi-select'
@@ -49,13 +54,13 @@ interface EditFieldInterface {
   name: string;
   placeholder?: string;
   optional?: boolean;
-  pairedFieldKey?: string;
   data?: { key: string; value: string }[];
   disabledKeys?: string[];
   allowCreate?: boolean;
   nonRemovableValues?: string[];
   manaColors?: ColorType[];
   steps?: StepsFieldInterface;
+  evolution?: EvolutionFieldInterface;
   getValue: (key: string) => any;
   saveValue: (key: string, value: any) => void;
 }
@@ -162,7 +167,6 @@ const EditField = (props: EditFieldInterface) => {
     name,
     placeholder,
     optional = false,
-    pairedFieldKey,
     data,
     disabledKeys,
     allowCreate = false,
@@ -215,35 +219,6 @@ const EditField = (props: EditFieldInterface) => {
           }
           onChange={e => saveValue(fieldKey, e.target.value)}
         />
-      </span>
-    );
-  }
-
-  if (type === 'paired-text' && pairedFieldKey) {
-    const text = ((getValue(pairedFieldKey) as string[]) || []).join('\n');
-
-    return (
-      <span role="group" aria-labelledby={labelId}>
-        <p id={labelId} className={styles.label}>
-          {name} <EditorTooltip className={styles.tooltip} />
-        </p>
-        <InputGroup compact>
-          <Input
-            aria-label={`${name} indicator`}
-            placeholder="Indicator"
-            style={{ width: '20%' }}
-            value={getValue(fieldKey) || ''}
-            onChange={e => saveValue(fieldKey, e.target.value)}
-          />
-          <TextArea
-            aria-label={`${name} text`}
-            placeholder="Card text"
-            style={{ width: '80%' }}
-            value={text}
-            onChange={e => saveValue(pairedFieldKey, e.target.value.split('\n'))}
-            autoSize
-          />
-        </InputGroup>
       </span>
     );
   }
@@ -456,7 +431,19 @@ const EditField = (props: EditFieldInterface) => {
   }
 
   if (type === 'text-list') {
-    const { steps } = props;
+    const { steps, evolution } = props;
+    if (evolution) {
+      return (
+        <EvolutionStepsInput
+          id={fieldId}
+          name={name}
+          getValue={getValue}
+          saveValue={saveValue}
+          manaColors={props.manaColors}
+          {...evolution}
+        />
+      );
+    }
     const textProps = {
       id: fieldId,
       name,

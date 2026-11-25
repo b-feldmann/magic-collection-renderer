@@ -161,7 +161,7 @@ describe('CardEditor - templating hints', () => {
     expect(persisted.front.cardText).toEqual(['Flying']);
   });
 
-  it('shows hints for level text below its level field', () => {
+  it('shows hints for level text below its level', () => {
     renderEditor(
       makeCard(['Draw a card'], {
         cardTypes: [CardType.Evolution],
@@ -171,7 +171,7 @@ describe('CardEditor - templating hints', () => {
 
     expect(fieldOf(getHints())).toBe('cardText');
     const levelHints = getHints('Level 1 text');
-    expect(fieldOf(levelHints)).toBe('level1Indicator');
+    expect(fieldOf(levelHints)).toBe('level1Text');
     expect(within(levelHints).getAllByRole('listitem')).toHaveLength(2);
   });
   it('shows card structure hints without a line or fix', () => {

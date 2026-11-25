@@ -1498,42 +1498,64 @@
   }
 }
 
-.hasNoSecondEvolution {
+// Where the level begins on an evolution card that has only one. Its band and
+// the base text above share the box down to y 1946.
+@mixin single-level($level-top, $base-text-top, $base-text-bottom, $text-top, $text-bottom) {
+  // The middle of each band, on which its indicator and P/T are centered.
+  $base-center: (1324px + $level-top) * 0.5;
+  $level-center: ($level-top + 1946px) * 0.5;
+
   .levelerText {
-    height: 315px;
+    top: $base-text-top;
+    height: $base-text-bottom - $base-text-top;
   }
 
   .levelerLevel1Text {
-    top: 1620px;
-    height: 330px;
+    top: $text-top;
+    height: $text-bottom - $text-top;
   }
 
   .levelerLevel1TextBackground {
-    height: 326px;
+    top: $level-top - $text-top;
+    height: 1946px - $level-top;
   }
 
   .levelerLevelMid {
-    top: 1721px;
+    top: $level-center - 62px;
   }
 
   .levelerIndicatorMid {
-    top: 1711px;
+    top: $level-center - 72px;
   }
 
   .levelerPtTop {
-    top: 1392px;
+    top: $base-center - 80px;
   }
 
   .levelerStatsTop {
-    top: 1401px;
+    top: $base-center - 71px;
   }
 
   .levelerPtMid {
-    top: 1713px;
+    top: $level-center - 70px;
   }
 
   .levelerStatsMid {
-    top: 1722px;
+    top: $level-center - 61px;
+  }
+}
+
+.hasNoSecondEvolution {
+  @include single-level(1620px, 1315px, 1630px, 1620px, 1950px);
+
+  // The bands of a card with two levels, one of which takes the room of two.
+  // The text of the tall one keeps clear of the other and of the holo stamp.
+  &.tallBase {
+    @include single-level(1726px, 1325px, 1714px, 1726px, 1940px);
+  }
+
+  &.tallLevel {
+    @include single-level(1510px, 1315px, 1520px, 1540px, 1912px);
   }
 }
 

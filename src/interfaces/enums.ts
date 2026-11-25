@@ -161,6 +161,15 @@ export enum BasicLandArtStyles {
   Unstable = 'Unstable',
 }
 
+/** The heights of an evolution card's base and level text when it has a single level. */
+export enum EvolutionSplit {
+  /** The one with the largest text. */
+  Auto = 'Auto',
+  Even = '1/1',
+  TallBase = '2/1',
+  TallLevel = '1/2',
+}
+
 export enum CoverFit {
   Stretch = 'Stretch',
   Zoom = 'Zoom',

@@ -5,6 +5,7 @@ import {
   CardType,
   ColorType,
   CoverFit,
+  EvolutionSplit,
   OmenType,
   PreparedType,
 } from './enums';
@@ -27,6 +28,8 @@ export default interface CardFaceInterface {
   level2Text?: string[];
   level1Stats?: string;
   level2Stats?: string;
+  // Only used while the evolution card has a single level.
+  levelSplit?: EvolutionSplit;
   flavourText?: string;
   flavourAuthor?: string;
   cover?: string;

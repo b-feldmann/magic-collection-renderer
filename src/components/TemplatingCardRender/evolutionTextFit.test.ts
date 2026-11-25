@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { EVOLUTION_TEXT_SIZES, fitEvolutionText } from './evolutionTextFit';
+import { EvolutionSplit } from '../../interfaces/enums';
+import { chooseEvolutionSplit, EVOLUTION_TEXT_SIZES, fitEvolutionText } from './evolutionTextFit';
 
 // A box whose content only fits below `fitsBelow` px.
 const box = (fitsBelow: number) => {
@@ -11,6 +12,42 @@ const box = (fitsBelow: number) => {
   });
   return el;
 };
+
+describe('chooseEvolutionSplit', () => {
+  const { Even, TallBase, TallLevel } = EvolutionSplit;
+
+  // Chooses for a box whose content only fits below a size that depends on the split.
+  const choose = (fitsBelow: Partial<Record<EvolutionSplit, number>>) => {
+    let applied: EvolutionSplit | undefined;
+    const el = document.createElement('div');
+    Object.defineProperty(el, 'clientHeight', { value: 100 });
+    Object.defineProperty(el, 'scrollHeight', {
+      get: () => (parseFloat(el.style.fontSize) < (fitsBelow[applied!] ?? 0) ? 100 : 101),
+    });
+    const chosen = chooseEvolutionSplit([el], split => {
+      applied = split;
+    });
+    expect(applied).toBe(chosen);
+    return chosen;
+  };
+
+  it('chooses the split with the largest text', () => {
+    expect(choose({ [Even]: 60, [TallBase]: 70, [TallLevel]: 50 })).toBe(TallBase);
+    expect(choose({ [Even]: 60, [TallBase]: 50, [TallLevel]: 70 })).toBe(TallLevel);
+    expect(choose({ [Even]: 70, [TallBase]: 50, [TallLevel]: 60 })).toBe(Even);
+  });
+
+  it('keeps the even split when another one allows no larger text', () => {
+    expect(choose({ [Even]: Infinity, [TallBase]: Infinity, [TallLevel]: Infinity })).toBe(Even);
+    expect(choose({ [Even]: 60, [TallBase]: 60, [TallLevel]: 60 })).toBe(Even);
+    expect(choose({})).toBe(Even);
+  });
+
+  it('prefers a split whose text fits at the smallest size', () => {
+    const smallest = EVOLUTION_TEXT_SIZES[EVOLUTION_TEXT_SIZES.length - 1];
+    expect(choose({ [TallLevel]: smallest + 0.01 })).toBe(TallLevel);
+  });
+});
 
 describe('fitEvolutionText', () => {
   it('keeps every box at full size when all of them fit', () => {

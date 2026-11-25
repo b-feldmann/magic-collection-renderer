@@ -791,4 +791,23 @@ updateLog.push({
   ],
 });
 
+updateLog.push({
+  version: '5.3.0',
+  title: 'Evolution Editor',
+  content: [
+    {
+      type: ChangeLogFeatureType.Changed,
+      feature: 'Step editor for evolution cards',
+      description:
+        'The base and the levels of an evolution card are edited together, each with its text and power and toughness, and the levels with their indicator. The symbol buttons and the token autocomplete work in every text. Levels can be added and removed; removing the first one moves the second one up.',
+    },
+    {
+      type: ChangeLogFeatureType.Added,
+      feature: 'Text heights of evolution cards',
+      description:
+        'On an evolution card with a single level, choose how the base and the level share the text box: equally (1/1), with a taller base (2/1) or with a taller level (1/2). By default, the card uses whichever allows the largest text.',
+    },
+  ],
+});
+
 export default updateLog;

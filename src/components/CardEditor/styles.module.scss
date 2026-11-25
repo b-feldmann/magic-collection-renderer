@@ -507,6 +507,108 @@
   background: #e4e9e1;
 }
 
+// The power and toughness of an evolution card's step.
+.levelStats {
+  display: flex;
+  align-items: center;
+  height: 34px;
+  padding-inline: 4px;
+  border: 1px solid #cdd9ca;
+  border-radius: 8px;
+  background: #fff;
+  font-weight: 700;
+
+  &:focus-within {
+    border-color: #2e6347;
+  }
+
+  :global(.ant-input) {
+    width: 36px;
+    padding: 0;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+  }
+}
+
+.levelAbility {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 8px;
+}
+
+// The outline follows the arrow's shape, which clips its own.
+.levelArrowOutline:focus-within {
+  filter: drop-shadow(0 0 1px #2e6347) drop-shadow(0 0 2px #2e6347);
+}
+
+// The arrow of a level, as on the card.
+.levelArrow {
+  display: grid;
+  width: 64px;
+  height: 34px;
+  padding-inline: 4px 16px;
+  clip-path: polygon(0 0, 74% 0, 100% 50%, 74% 100%, 0 100%);
+  background: linear-gradient(135deg, #dfe8da, #b4c8ad);
+
+  :global(.ant-input) {
+    height: 100%;
+    padding: 0;
+    color: #24392c;
+    font-weight: 700;
+    text-align: center;
+
+    &::placeholder {
+      color: #5b6b5f;
+      opacity: 0.6;
+    }
+  }
+}
+
+.evolutionOptions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.levelSplit {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  color: #6f7b6d;
+  font-size: 12px;
+}
+
+.levelSplitOption {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+// The two bands of the text box.
+.levelSplitIcon {
+  display: grid;
+  width: 14px;
+  height: 20px;
+  gap: 2px;
+
+  &::before,
+  &::after {
+    border: 1px solid currentcolor;
+    border-radius: 2px;
+    content: '';
+  }
+
+  &::after {
+    background: currentcolor;
+  }
+}
+
 .stepAddButtons {
   display: flex;
   flex-wrap: wrap;

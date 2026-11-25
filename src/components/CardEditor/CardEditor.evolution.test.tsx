@@ -84,8 +84,29 @@ describe('CardEditor - Evolution fields', () => {
 
     expect(screen.queryByText('Level 1')).toBeNull();
     expect(screen.queryByText('Level 2')).toBeNull();
-    expect(screen.queryByText('Level 1 Power')).toBeNull();
     expect(screen.getByText('Power')).toBeVisible();
+  });
+
+  it('edits the P/T of the base and the levels with their text', () => {
+    renderEditor(makeCard([EVOLUTION, CardType.Creature]));
+
+    const steps = screen.getByRole('group', { name: 'Card text' });
+    expect(within(steps).getByRole('textbox', { name: 'Base: power' })).toHaveValue('1');
+    expect(within(steps).getByRole('textbox', { name: 'Level 1: power' })).toHaveValue('3');
+    expect(within(steps).getByRole('textbox', { name: 'Level 2: text' })).toHaveValue(
+      'Level 2 ability',
+    );
+    expect(screen.queryByRole('textbox', { name: 'Power' })).toBeNull();
+  });
+
+  it('moves the second level up when the first is removed', () => {
+    renderEditor(makeCard([EVOLUTION, CardType.Creature]));
+
+    fireEvent.click(screen.getByRole('button', { name: 'Level 1: remove' }));
+    expect(screen.getByRole('textbox', { name: 'Level 1: indicator' })).toHaveValue('LEVEL 4+');
+    expect(screen.getByRole('textbox', { name: 'Level 1: text' })).toHaveValue('Level 2 ability');
+    expect(screen.getByRole('textbox', { name: 'Level 1: power' })).toHaveValue('4');
+    expect(screen.queryByRole('textbox', { name: 'Level 2: text' })).toBeNull();
   });
 
   it('lists Evolution as a Card type and disables other exclusive types', () => {

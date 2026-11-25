@@ -38,6 +38,7 @@ const renderEvolution = (
     level2Text?: string[];
     level1Stats?: string;
     level2Stats?: string;
+    levelSplit?: string;
   } = {
     level1Indicator: 'LEVEL 2-3',
     level2Indicator: 'LEVEL 4+',
@@ -150,6 +151,30 @@ describe('TemplatingCardRender - Evolution colors on multicolor cards', () => {
     expect(has('pt/levelers/top/m')).toBe(true);
     expect(has('pt/levelers/mid/m')).toBe(true);
     expect(has('pt/levelers/bottom/m')).toBe(true);
+  });
+});
+
+describe('TemplatingCardRender - Evolution height split', () => {
+  const singleLevel = { level1Indicator: '2+', level2Text: [] };
+  const card = () => document.querySelector('[class*="cardRender"]')!;
+
+  it.each([
+    ['2/1', 'tallBase'],
+    ['1/2', 'tallLevel'],
+  ])('splits a single level %s', (levelSplit, className) => {
+    renderEvolution(true, { ...singleLevel, levelSplit });
+    expect(card().className).toContain(className);
+  });
+
+  // Without layout, the automatic split has nothing to measure.
+  it.each([undefined, 'Auto', '1/1'])('splits the heights evenly for %s', levelSplit => {
+    renderEvolution(true, { ...singleLevel, levelSplit });
+    expect(card().className).not.toMatch(/tallBase|tallLevel/);
+  });
+
+  it('ignores the split of a card with two levels', () => {
+    renderEvolution(true, { level1Indicator: '2-3', level2Indicator: '4+', levelSplit: '1/2' });
+    expect(card().className).not.toMatch(/tallBase|tallLevel/);
   });
 });
 

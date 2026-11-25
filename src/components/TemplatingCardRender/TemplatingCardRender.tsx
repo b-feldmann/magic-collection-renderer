@@ -17,6 +17,7 @@ import {
   CardType,
   ColorType,
   CoverFit,
+  EvolutionSplit,
   OmenType,
   PreparedType,
   RarityType,
@@ -25,6 +26,7 @@ import { MechanicsContext, TokenCardsContext } from '../../store';
 import { getColor } from '../../utils/cardToColor';
 import { expandFaceTokenReferences } from '../../utils/tokenReferences';
 import { formatTypeLine } from '../../utils/cardTypes';
+import { getEvolutionSplit, hasSecondLevel } from '../../utils/evolutionLevels';
 import CardFaceInterface from '../../interfaces/CardFaceInterface';
 import { CARD_HEIGHT, CARD_WIDTH } from '../../utils/constants';
 
@@ -43,7 +45,11 @@ import {
   printedRulesBoxFits,
   printedRulesInkFits,
 } from './printedTextFit';
-import { EVOLUTION_TEXT_ATTRIBUTE, fitEvolutionText } from './evolutionTextFit';
+import {
+  chooseEvolutionSplit,
+  EVOLUTION_TEXT_ATTRIBUTE,
+  fitEvolutionText,
+} from './evolutionTextFit';
 import { CARD_ZOOM_ATTRIBUTE, fitAtDesignSize, layOutAtDesignSize } from './designSizeLayout';
 import {
   getAdventureMainframe,
@@ -132,6 +138,7 @@ interface TemplatingCardRenderProps {
   level2Text?: string[];
   level1Stats?: string;
   level2Stats?: string;
+  levelSplit?: EvolutionSplit;
   tokenColors?: ColorType[];
   colorIdentity?: ColorType[];
   flavourText?: string;
@@ -171,6 +178,11 @@ interface TemplatingCardRenderProps {
 // Leading of the text in a Prepared frame's half-width boxes (Emeritus of
 // Truce, 2026: 52px line pitch at 52.8px).
 const HALF_BOX_LINE_HEIGHT = 0.985;
+
+const LEVEL_SPLIT_CLASSES: Partial<Record<EvolutionSplit, string>> = {
+  [EvolutionSplit.TallBase]: styles.tallBase,
+  [EvolutionSplit.TallLevel]: styles.tallLevel,
+};
 
 interface EvolutionTextProps {
   text: string[];
@@ -238,6 +250,7 @@ const TemplatingCardRender = (rawProps: TemplatingCardRenderProps) => {
   const { name, manaCost, cardStats, cover, creator } = cardRenderProps;
   const { level1Indicator, level2Indicator, level1Text, level2Text, level1Stats, level2Stats } =
     cardRenderProps;
+  const chosenSplit = getEvolutionSplit(cardRenderProps.levelSplit);
   const { cardText, flavourText = '', flavourAuthor, cardID } = cardRenderProps;
   const { adventureName, adventureCost, adventureText, adventureType } = cardRenderProps;
   const { omenName, omenCost, omenText, omenType } = cardRenderProps;
@@ -297,6 +310,8 @@ const TemplatingCardRender = (rawProps: TemplatingCardRenderProps) => {
   const cardRef = useRef<HTMLDivElement>(null);
   const evolutionFitKey = useRef<string | null>(null);
   const evolutionFitMechanics = useRef<typeof mechanics | null>(null);
+  const [autoSplit, setAutoSplit] = useState(EvolutionSplit.Even);
+  const levelSplit = chosenSplit === EvolutionSplit.Auto ? autoSplit : chosenSplit;
   const isEvolutionCard = cardTypes.includes(CardType.Evolution);
   const evolutionKey = isEvolutionCard
     ? JSON.stringify([
@@ -310,6 +325,7 @@ const TemplatingCardRender = (rawProps: TemplatingCardRenderProps) => {
         level2Text,
         level1Indicator,
         level2Indicator,
+        chosenSplit,
         // Line breaks are pinned per zoom (see designSizeLayout).
         containerWidth,
       ])
@@ -320,7 +336,18 @@ const TemplatingCardRender = (rawProps: TemplatingCardRenderProps) => {
     const card = cardRef.current;
     if (!card || evolutionKey === null) return;
     const boxes = Array.from(card.querySelectorAll<HTMLElement>(`[${EVOLUTION_TEXT_ATTRIBUTE}]`));
-    layOutAtDesignSize(boxes, () => fitEvolutionText(boxes));
+    layOutAtDesignSize(boxes, () => {
+      if (chosenSplit === EvolutionSplit.Auto && !hasSecondLevel({ level2Indicator, level2Text })) {
+        // Rendering applies the same classes once the state is updated.
+        const split = chooseEvolutionSplit(boxes, candidate => {
+          Object.entries(LEVEL_SPLIT_CLASSES).forEach(([key, className]) =>
+            card.classList.toggle(className, key === candidate),
+          );
+        });
+        setAutoSplit(split);
+      }
+      fitEvolutionText(boxes);
+    });
     evolutionFitKey.current = evolutionKey;
     evolutionFitMechanics.current = mechanics;
   });
@@ -721,9 +748,7 @@ const TemplatingCardRender = (rawProps: TemplatingCardRenderProps) => {
       ? getLevelerLevelPart('bottom', levelColors, isEnchantment)
       : null;
 
-  const hasSecondEvolution: boolean =
-    isEvolution &&
-    (!!level2Indicator || (!!level2Text && level2Text.length > 0 && level2Text[0] !== ''));
+  const hasSecondEvolution = isEvolution && hasSecondLevel({ level2Indicator, level2Text });
   // Evolution cards with stats always render the level P/T; an empty level P/T shows as 0/0.
   const showLevelSpecificPt = isEvolution && hasStats;
 
@@ -759,6 +784,7 @@ const TemplatingCardRender = (rawProps: TemplatingCardRenderProps) => {
             ${isSaga && styles.saga}
             ${isSagaCreature && styles.sagaCreature}
             ${!hasSecondEvolution && styles.hasNoSecondEvolution}
+            ${isEvolution && !hasSecondEvolution && LEVEL_SPLIT_CLASSES[levelSplit]}
             ${isLand && styles.land}
             ${isArtifact && styles.artifact}
             ${artStyle === CardArtStyles.Extended && styles.extended}

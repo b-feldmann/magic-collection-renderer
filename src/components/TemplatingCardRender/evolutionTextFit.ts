@@ -1,3 +1,4 @@
+import { EvolutionSplit } from '../../interfaces/enums';
 import { balancePrintedLines, resetPrintedLines } from './printedLineBreaks';
 import { PRINTED_RULES_SIZES } from './printedTextFit';
 
@@ -25,6 +26,42 @@ const applySize = (box: HTMLElement, size: number) => {
 const boxFits = (box: HTMLElement) =>
   box.scrollHeight <= box.clientHeight && box.scrollWidth <= box.clientWidth;
 
+/** The largest printed size above `min` at which all of the boxes fit, or null if there is none. */
+const findFittingSize = (boxes: HTMLElement[], min = 0): number | null =>
+  EVOLUTION_TEXT_SIZES.find(size => {
+    if (size <= min) return false;
+    boxes.forEach(box => applySize(box, size));
+    return boxes.every(boxFits);
+  }) ?? null;
+
+// The even split comes first, so a taller band needs to allow larger text.
+const FIXED_SPLITS = [EvolutionSplit.Even, EvolutionSplit.TallBase, EvolutionSplit.TallLevel];
+
+/**
+ * The height split that allows the largest text, the even one if several do or
+ * if the text fits none. `applySplit` lays the boxes out with a split; the
+ * chosen one stays applied.
+ */
+export const chooseEvolutionSplit = (
+  boxes: HTMLElement[],
+  applySplit: (split: EvolutionSplit) => void,
+): EvolutionSplit => {
+  boxes.forEach(resetPrintedLines);
+  let chosen = EvolutionSplit.Even;
+  let largest = 0;
+  for (const split of FIXED_SPLITS) {
+    applySplit(split);
+    const size = findFittingSize(boxes, largest);
+    if (size !== null) {
+      chosen = split;
+      largest = size;
+    }
+    if (largest >= EVOLUTION_TEXT_SIZES[0]) break;
+  }
+  applySplit(chosen);
+  return chosen;
+};
+
 /**
  * Sets every box to the largest printed size at which all of them fit (the
  * smallest size if none does), then re-breaks their lines like print.
@@ -32,14 +69,7 @@ const boxFits = (box: HTMLElement) =>
  */
 export const fitEvolutionText = (boxes: HTMLElement[]): number => {
   boxes.forEach(resetPrintedLines);
-  let chosen = EVOLUTION_TEXT_SIZES[EVOLUTION_TEXT_SIZES.length - 1];
-  for (const size of EVOLUTION_TEXT_SIZES) {
-    boxes.forEach(box => applySize(box, size));
-    if (boxes.every(boxFits)) {
-      chosen = size;
-      break;
-    }
-  }
+  const chosen = findFittingSize(boxes) ?? EVOLUTION_TEXT_SIZES[EVOLUTION_TEXT_SIZES.length - 1];
   // The boxes stay vertically centered at every size: a level box is a band
   // of its own, so shrunk text doesn't move to its top like M15 rules text.
   boxes.forEach(box => {

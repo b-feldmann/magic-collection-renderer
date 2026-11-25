@@ -260,48 +260,6 @@ const AFTERMATH_MECHANIC = 'Aftermath';
 const AFTERMATH_KEYWORD_LINE =
   'Aftermath _(Cast this spell only from your graveyard. Then exile it.)_';
 
-const getEvolutionSectionConfig = (includeStats: boolean): InputConfigInterface[] => {
-  const section1: InputConfigInterface[] = [
-    { key: 'evolutionSection1', type: 'divider', name: 'Level 1', width: 100 },
-    {
-      key: 'level1Indicator',
-      pairedFieldKey: 'level1Text',
-      type: 'paired-text',
-      name: 'Level / card text',
-      width: 100,
-    },
-  ];
-  if (includeStats) {
-    section1.push({
-      key: 'level1Stats',
-      type: 'split-input',
-      name: 'Power/Toughness',
-      width: 50,
-    });
-  }
-  const section2: InputConfigInterface[] = [
-    { key: 'evolutionSection2', type: 'divider', name: 'Level 2', width: 100 },
-    {
-      key: 'level2Indicator',
-      pairedFieldKey: 'level2Text',
-      type: 'paired-text',
-      name: 'Level / card text',
-      width: 100,
-    },
-  ];
-
-  if (includeStats) {
-    section2.push({
-      key: 'level2Stats',
-      type: 'split-input',
-      name: 'Power/Toughness',
-      width: 50,
-    });
-  }
-
-  return [...section1, ...section2];
-};
-
 const dummyCard: CardInterface = {
   name: '',
   uuid: NO_CARD,
@@ -328,7 +286,6 @@ interface InputConfigInterface {
   type:
     | 'input'
     | 'split-input'
-    | 'paired-text'
     | 'upload-input'
     | 'select'
     | 'multi-select'
@@ -340,7 +297,6 @@ interface InputConfigInterface {
   name: string;
   placeholder?: string;
   optional?: boolean;
-  pairedFieldKey?: string;
   data?: { key: string; value: string }[];
   disabledKeys?: string[];
   allowCreate?: boolean;
@@ -1065,7 +1021,8 @@ const CardEditor: React.FC<CardEditorInterface> = ({
       key: 'cardStats',
       type: isPlaneswalker() ? 'input' : 'split-input',
       name: isPlaneswalker() ? 'Loyalty' : 'Power/Toughness',
-      width: hasStats() ? 50 : 0,
+      // An evolution card's P/T is edited with its text.
+      width: hasStats() && !isEvolution() ? 50 : 0,
     },
     {
       key: 'creator',
@@ -1074,8 +1031,6 @@ const CardEditor: React.FC<CardEditorInterface> = ({
       data: user.filter(u => u.name !== 'ADMIN').map(o => ({ key: o.uuid, value: o.name })),
       width: 50,
     },
-    // Evolution is mutually exclusive with Creature, but still owns level-specific P/T fields.
-    ...(isEvolution() ? getEvolutionSectionConfig(hasStats()) : []),
     ...(isAdventure() ? adventureSectionConfig : []),
     ...(isOmen() ? omenSectionConfig : []),
     ...(isPrepared() ? prepareSectionConfig : []),
@@ -1221,6 +1176,25 @@ const CardEditor: React.FC<CardEditorInterface> = ({
       .catch(() => {})
       .finally(() => setCreatingTokenKey(undefined));
   };
+  const documentKey = `${tmpCard.uuid}-${editBack ? 'back' : 'front'}`;
+  const renderHints = (fields: string[]) =>
+    fields.map(field => (
+      <React.Fragment key={field}>
+        <RulesTextLint
+          issues={lintIssues.filter(issue => issue.field === field)}
+          onFix={fixLintIssue}
+          onCreateToken={createTokenCard}
+          creatingTokenKey={creatingTokenKey}
+        />
+        <TokenLinks
+          links={tokenLinks.filter(link => link.token.field === field)}
+          onOpenCard={onOpenCard}
+        />
+      </React.Fragment>
+    ));
+  // An evolution card's text is edited with its levels, whose hints are shown below each.
+  const isEvolutionText = (config: InputConfigInterface) =>
+    config.key === 'cardText' && isEvolution();
   const renderField = (config: InputConfigInterface) => (
     <div
       key={config.key}
@@ -1231,7 +1205,6 @@ const CardEditor: React.FC<CardEditorInterface> = ({
       <EditField
         fieldKey={config.key}
         type={config.type}
-        pairedFieldKey={config.pairedFieldKey}
         data={config.data}
         disabledKeys={config.disabledKeys}
         name={config.name}
@@ -1254,26 +1227,16 @@ const CardEditor: React.FC<CardEditorInterface> = ({
                 onEditorChange: changeStepEditor,
                 // A Vehicle has the rules box of a creature's frame, too.
                 isCreature: hasStats(),
-                documentKey: `${tmpCard.uuid}-${editBack ? 'back' : 'front'}`,
+                documentKey,
               }
             : undefined
         }
+        evolution={
+          isEvolutionText(config) ? { hasStats: hasStats(), documentKey, renderHints } : undefined
+        }
       />
-      {/* Hints sit below the field they're about; level text is the paired part of its field. */}
-      <RulesTextLint
-        issues={lintIssues.filter(
-          issue => issue.field === config.key || issue.field === config.pairedFieldKey,
-        )}
-        onFix={fixLintIssue}
-        onCreateToken={createTokenCard}
-        creatingTokenKey={creatingTokenKey}
-      />
-      <TokenLinks
-        links={tokenLinks.filter(
-          link => link.token.field === config.key || link.token.field === config.pairedFieldKey,
-        )}
-        onOpenCard={onOpenCard}
-      />
+      {/* Hints sit below the field they're about. */}
+      {!isEvolutionText(config) && renderHints([config.key])}
       {config.key === 'cardText' && <TokenSources sources={tokenSources} onOpenCard={onOpenCard} />}
     </div>
   );
