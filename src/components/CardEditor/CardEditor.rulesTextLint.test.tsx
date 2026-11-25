@@ -104,6 +104,11 @@ describe('CardEditor - templating hints', () => {
     expect(queryHints()).toBeNull();
   });
 
+  it('points out a common creature without rules text', () => {
+    renderEditor(makeCard([]));
+    expect(getHints().textContent).toContain('This creature has no rules text');
+  });
+
   it('lists hints with their line', () => {
     renderEditor(makeCard(['Flying', 'When ~ enters the battlefield, draw a card.']));
 

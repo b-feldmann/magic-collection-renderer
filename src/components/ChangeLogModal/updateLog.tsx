@@ -810,4 +810,23 @@ updateLog.push({
   ],
 });
 
+updateLog.push({
+  version: '5.3.1',
+  title: 'Complexity Hints',
+  content: [
+    {
+      type: ChangeLogFeatureType.Added,
+      feature: 'Hint for creatures without rules text',
+      description:
+        'The editor points out common and uncommon creatures without rules text, which current sets almost never have.',
+    },
+    {
+      type: ChangeLogFeatureType.Changed,
+      feature: 'Complexity hints follow current commons',
+      description:
+        'Enchant and Equip lines no longer count as abilities, and a list of modes counts as one. Static effects on a narrow group, such as one creature type or creatures with +1/+1 counters, get a milder hint than those on all creatures.',
+    },
+  ],
+});
+
 export default updateLog;

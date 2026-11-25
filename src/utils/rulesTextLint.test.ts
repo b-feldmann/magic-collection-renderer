@@ -789,15 +789,62 @@ describe('lintCardFace', () => {
       ).toEqual([expect.stringContaining('4 abilities')]);
     });
 
-    it('counts each mode but not the mode header as an ability', () => {
-      const modal = (extra: string[]) =>
-        common(['Choose one or both -', '* Target player draws a card.', ...extra], {
-          cardTypes: [CardType.Sorcery],
-        });
-      expect(modal(['* Create a Treasure token.', '* [Creation]'])).toEqual([]);
-      expect(modal(['* Create a Treasure token.', '* [Creation]', '* You gain 2 life.'])).toEqual([
+    it('counts a list of modes as one ability with the line above it', () => {
+      const modes = ['* Draw a card.', '* You gain 2 life.', '* Scry 1.', '* Surveil 1.'];
+      expect(common(['Choose one -', ...modes], { cardTypes: [CardType.Sorcery] })).toEqual([]);
+
+      const trigger = 'When this creature enters, choose one -';
+      expect(common(['Flying, vigilance', trigger, ...modes])).toEqual([]);
+      expect(common(['Flying, vigilance, lifelink', trigger, ...modes])).toEqual([
         expect.stringContaining('4 abilities'),
       ]);
+    });
+
+    it('does not count Enchant and Equip lines as abilities', () => {
+      const aura = (extra: string[] = []) =>
+        common(
+          [
+            'Flash',
+            'Enchant creature',
+            'When this Aura enters, tap enchanted creature.',
+            'Enchanted creature gets +1/+2.',
+            ...extra,
+          ],
+          { cardTypes: [CardType.Enchantment], cardSubTypes: 'Aura' },
+        );
+      expect(aura()).toEqual([]);
+      expect(aura(['Whenever enchanted creature attacks, scry 1.'])).toEqual([
+        expect.stringContaining('4 abilities'),
+      ]);
+      expect(
+        common(
+          [
+            'Flash',
+            'When this Equipment enters, attach it to target creature you control.',
+            'Equipped creature gets +1/+0.',
+            'Equip {3}',
+          ],
+          { cardTypes: [CardType.Artifact], cardSubTypes: 'Equipment' },
+        ),
+      ).toEqual([]);
+    });
+
+    it('is milder about static effects on a narrow group', () => {
+      [
+        'Rhinos you control have menace.',
+        'Other Warrior creatures you control have vigilance.',
+        'Each creature you control with a +1/+1 counter on it has trample.',
+        'Creatures you control with +1/+1 counters on them have trample.',
+      ].forEach(line =>
+        expect(common([line]), line).toEqual([expect.stringContaining('narrow group like this')]),
+      );
+      [
+        'Creatures you control get +0/+1.',
+        'Other creatures you control have haste.',
+        'Creatures your opponents control get -1/-0.',
+      ].forEach(line =>
+        expect(common([line]), line).toEqual([expect.stringContaining('almost never')]),
+      );
     });
 
     it('flags static effects on other creatures on commons', () => {
@@ -843,6 +890,44 @@ describe('lintCardFace', () => {
       expect(
         lintCardFace(face({ cardText: longText }), MECHANICS, { rarity: RarityType.Rare }),
       ).toEqual([]);
+    });
+  });
+
+  describe('creatures without rules text', () => {
+    const vanilla = (
+      overrides: Partial<CardFaceInterface> = {},
+      rarity: RarityType = RarityType.Common,
+    ) =>
+      lintCardFace(face(overrides), MECHANICS, { rarity, manaCost: '{1}{g}' })
+        .filter(issue => issue.rule === 'vanilla-creature')
+        .map(issue => issue.message);
+
+    it('points them out on commons and uncommons', () => {
+      expect(vanilla()).toEqual([expect.stringContaining('Current commons')]);
+      expect(vanilla({ cardText: ['', '(Just reminder text.)'] })).toHaveLength(1);
+      expect(vanilla({}, RarityType.Uncommon)).toEqual([
+        expect.stringContaining('Current uncommons'),
+      ]);
+      expect(vanilla({}, RarityType.Rare)).toEqual([]);
+    });
+
+    it('accepts creatures with text in any field', () => {
+      expect(vanilla({ cardText: ['Flying'] })).toEqual([]);
+      expect(
+        vanilla({
+          cardTypes: [CardType.Creature, CardType.Adventure],
+          adventureText: ['Draw a card.'],
+        }),
+      ).toEqual([]);
+    });
+
+    it('skips tokens, back faces, other cards and creatures without stats yet', () => {
+      expect(vanilla({ cardTypes: [CardType.Token, CardType.Creature] })).toEqual([]);
+      expect(vanilla({ cardTypes: [CardType.Artifact] })).toEqual([]);
+      expect(vanilla({ cardStats: '' })).toEqual([]);
+      expect(vanilla({ cardStats: '/' })).toEqual([]);
+      // A back face has no mana cost.
+      expect(lintCardFace(face(), MECHANICS, { rarity: RarityType.Common })).toEqual([]);
     });
   });
 

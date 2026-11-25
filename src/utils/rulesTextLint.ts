@@ -68,6 +68,7 @@ export type RulesTextLintRule =
   | 'duplicate-keyword'
   | 'common-complexity'
   | 'uncommon-complexity'
+  | 'vanilla-creature'
   | 'activated-ability'
   | 'keyword-placement'
   | 'token-card'
@@ -1425,7 +1426,9 @@ const missingStats = (face: CardFaceInterface): RulesTextLintIssue[] => {
 const isBullet = (line: string, { isPlaneswalker }: LineFormat) =>
   BULLET_PREFIX.test(isPlaneswalker ? parseLoyaltyLine(line).text : line);
 
-// New World Order: commons stay simple so a board of them is easy to read in Limited.
+// Commons stay simple so a board of them is easy to read in Limited (New World Order). The limits
+// are checked against printed cards from 2023 to 2026, after F.I.R.E. made commons more exciting:
+// about 98% of commons and 99% of uncommons stay within the words.
 export const COMMON_MAX_WORDS = 40;
 export const COMMON_MAX_ABILITIES = 3;
 // Uncommons may do more, but still have to be read across the table.
@@ -1448,7 +1451,7 @@ const COMPLEXITY_LIMITS: Partial<Record<RarityType, ComplexityLimits>> = {
     noun: 'common',
     words: COMMON_MAX_WORDS,
     abilities: COMMON_MAX_ABILITIES,
-    wordsReason: 'New World Order keeps commons short',
+    wordsReason: `Commons stay easy to read; about 98% of recent ones have ${COMMON_MAX_WORDS} words or fewer.`,
     boardEffects: true,
   },
   [RarityType.Uncommon]: {
@@ -1456,7 +1459,7 @@ const COMPLEXITY_LIMITS: Partial<Record<RarityType, ComplexityLimits>> = {
     noun: 'uncommon',
     words: UNCOMMON_MAX_WORDS,
     abilities: UNCOMMON_MAX_ABILITIES,
-    wordsReason: 'Uncommons stay readable across the table',
+    wordsReason: `Uncommons stay readable across the table; about 99% of recent ones have ${UNCOMMON_MAX_WORDS} words or fewer.`,
     boardEffects: false,
   },
 };
@@ -1473,10 +1476,19 @@ const countWords = (body: string) =>
 const BOARD_EFFECT =
   /^(?:other |each other |all |each )?[^.:,"]*?\b(?:creatures|you control|your opponents control|an opponent controls)\b[^.:,"]*?\b(?:get|gets|have|has|can't|cannot)\b/i;
 const NOT_STATIC = /^(?:when|whenever|at|if|enchanted|equipped|target|~|this)\b/i;
+// Only some of the creatures: those with a counter ("Creatures you control with +1/+1 counters on
+// them have trample") or of one kind ("Rhinos you control", "Other Warrior creatures you control").
+const COUNTER_GROUP = /\bcounters? on (?:it|them)\b/i;
+const KIND_GROUP =
+  /(?:^|[,—]\s*)(?:(?:each other|other|all|each)\s+)?(?!(?:creatures?|permanents?|tokens?|each|other|all)\b)[\p{L}-]+(?:\s+creatures?)?\s+you control\b/iu;
+const isNarrowBoardEffect = (text: string) => COUNTER_GROUP.test(text) || KIND_GROUP.test(text);
+
+// What every Aura and Equipment has, so it adds nothing to read.
+const FRAME_ABILITY = /^(?:enchant|equip)\b/i;
 
 const rarityComplexity = (
   face: CardFaceInterface,
-  fields: { field: TextField; bodies: string[] }[],
+  fields: { field: TextField; bodies: string[]; bullets: boolean[] }[],
   limits: ComplexityLimits,
 ): RulesTextLintIssue[] => {
   const types = face.cardTypes || [];
@@ -1500,15 +1512,16 @@ const rarityComplexity = (
     issues.push(
       issue(
         'words',
-        `This ${limits.noun} has ${words} words of rules text without reminder text. ${limits.wordsReason}, at about ${limits.words} words or fewer.`,
+        `This ${limits.noun} has ${words} words of rules text without reminder text. ${limits.wordsReason}`,
       ),
     );
   }
 
-  // A bare mode header ("Choose one or both —") isn't an ability; each mode below it is.
-  const bodies = (cardText?.bodies || []).filter(body => {
+  // A list of modes is one ability together with the line above it ("Choose one —").
+  const bullets = cardText?.bullets || [];
+  const bodies = (cardText?.bodies || []).filter((body, line) => {
     const text = body.trim();
-    return text && !(/^choose\b/i.test(text) && CHOOSE_MODES.test(text));
+    return text && !FRAME_ABILITY.test(text) && !(bullets[line] && line > 0);
   });
   // Each keyword in a keyword line ("Flying, vigilance") is an ability of its own.
   const abilities = bodies.reduce(
@@ -1519,7 +1532,7 @@ const rarityComplexity = (
     issues.push(
       issue(
         'abilities',
-        `This ${limits.noun} has ${abilities} abilities, counting each keyword. ${capitalize(limits.noun)}s usually have at most ${limits.abilities}.`,
+        `This ${limits.noun} has ${abilities} abilities, counting each keyword and a list of modes as one. ${capitalize(limits.noun)}s usually have at most ${limits.abilities}.`,
       ),
     );
   }
@@ -1539,13 +1552,51 @@ const rarityComplexity = (
       issues.push(
         issue(
           'board',
-          'Static effects on other creatures (lords, anthems, "can\'t block") make the board harder to read. New World Order keeps them rare at common.',
+          isNarrowBoardEffect(text)
+            ? 'Static effects on other creatures make the board harder to read. A narrow group like this one is fine on a few commons.'
+            : 'Static effects on other creatures (anthems, "can\'t block") make the board harder to read. Current commons almost never have them; a narrow group, such as one creature type or creatures with +1/+1 counters, is easier to follow.',
           line,
         ),
       );
     });
   }
   return issues;
+};
+
+const POWER_AND_TOUGHNESS = /[^\s/]\s*\/\s*[^\s/]/;
+
+// Creatures without rules text are all but gone: 1 of 815 common creatures from 2023 to 2026 has
+// none. A creature without stats is still being written.
+const vanillaCreature = (
+  face: CardFaceInterface,
+  textFields: TextField[],
+  { noun }: ComplexityLimits,
+): RulesTextLintIssue[] => {
+  const types = face.cardTypes || [];
+  if (
+    !types.includes(CardType.Creature) ||
+    types.includes(CardType.Token) ||
+    !POWER_AND_TOUGHNESS.test(face.cardStats || '')
+  ) {
+    return [];
+  }
+  const hasText = textFields.some(({ key }) => {
+    const lines = face[key];
+    return (
+      Array.isArray(lines) && lines.some(line => line.replace(/\([^)]*\)?/g, '').trim() !== '')
+    );
+  });
+  if (hasText) return [];
+  return [
+    {
+      key: 'cardText:field:vanilla-creature',
+      rule: 'vanilla-creature',
+      severity: 'suggestion',
+      field: 'cardText',
+      fieldName: 'Card text',
+      message: `This creature has no rules text. Current ${noun}s almost always have an ability or a tie to the set's theme.`,
+    },
+  ];
 };
 
 const cardNames = (matches: TokenCardMatch[]) =>
@@ -1712,7 +1763,7 @@ export interface LintOptions {
   // The card's mana cost, to check activated abilities for colors outside it. Leave it out
   // for faces without one of their own (back faces).
   manaCost?: string;
-  // The card's rarity; commons are checked for New World Order complexity.
+  // The card's rarity; commons and uncommons are checked for complexity and missing rules text.
   rarity?: RarityType;
   // The token cards of the collection, to check that every token the card creates has one.
   // Leave it out to skip the check.
@@ -1810,9 +1861,11 @@ export const lintCardFace = (
         textFields.map(field => {
           const lines = face[field.key];
           const format = getLineFormat(types, field);
+          const list = Array.isArray(lines) ? lines : [];
           return {
             field,
-            bodies: Array.isArray(lines) ? lines.map(line => splitLine(line, format).body) : [],
+            bodies: list.map(line => splitLine(line, format).body),
+            bullets: list.map(line => isBullet(line, format)),
           };
         }),
         limits,
@@ -1826,6 +1879,8 @@ export const lintCardFace = (
   };
   return [
     ...complexityIssues,
+    // Back faces, which have no mana cost of their own, may well be vanilla.
+    ...(limits && manaCost !== undefined ? vanillaCreature(face, textFields, limits) : []),
     ...textIssues,
     ...(tokenCards ? tokenCardIssues(face, tokenCards, mechanics) : []),
     ...missingStats(face),
