@@ -3,6 +3,8 @@ import { Button } from 'antd';
 import BulbOutlined from '@ant-design/icons/BulbOutlined';
 import WarningOutlined from '@ant-design/icons/WarningOutlined';
 import { RulesTextLintIssue } from '../../utils/rulesTextLint';
+import { getTrollMessage } from '../../utils/trollHints';
+import { useTrollMode } from '../../utils/useTrollMode';
 import styles from './RulesTextLint.module.scss';
 
 interface RulesTextLintProps {
@@ -26,6 +28,7 @@ const RulesTextLint = ({
   onCreateToken,
   creatingTokenKey,
 }: RulesTextLintProps): React.JSX.Element | null => {
+  const trollMode = useTrollMode();
   const idPrefix = useId();
   const summaryRef = useRef<HTMLElement>(null);
 
@@ -64,7 +67,7 @@ const RulesTextLint = ({
               </span>
               <div className={styles.body}>
                 <p id={messageId} className={styles.message}>
-                  {issue.message}
+                  {trollMode ? getTrollMessage(issue) : issue.message}
                 </p>
                 {/* Hints about the whole field (an Aura without Enchant line) have no line. */}
                 {issue.line !== undefined && (

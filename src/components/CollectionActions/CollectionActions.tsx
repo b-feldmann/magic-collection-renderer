@@ -11,8 +11,10 @@ import FilePdfOutlined from '@ant-design/icons/FilePdfOutlined';
 import ReloadOutlined from '@ant-design/icons/ReloadOutlined';
 import EllipsisOutlined from '@ant-design/icons/EllipsisOutlined';
 import GiftOutlined from '@ant-design/icons/GiftOutlined';
+import SmileOutlined from '@ant-design/icons/SmileOutlined';
 import SwapOutlined from '@ant-design/icons/SwapOutlined';
 import UserInterface from '../../interfaces/UserInterface';
+import { setTrollMode, useTrollMode } from '../../utils/useTrollMode';
 import styles from './styles.module.scss';
 import confirmationStyles from '../../confirmationModal.module.scss';
 
@@ -45,6 +47,7 @@ const CollectionActions = ({
   statsExpanded = false,
   mobile = false,
 }: CollectionActionsProps) => {
+  const trollMode = useTrollMode();
   const userId = useId();
   const availableUsers = users.filter(user => user.name !== 'ADMIN');
   const items = [
@@ -62,6 +65,12 @@ const CollectionActions = ({
         ]
       : []),
     { key: 'reload', label: 'Reload collection', icon: <ReloadOutlined />, onClick: onReload },
+    {
+      key: 'troll-mode',
+      label: trollMode ? 'Turn off troll mode' : 'Turn on troll mode',
+      icon: <SmileOutlined />,
+      onClick: () => setTrollMode(!trollMode),
+    },
   ];
 
   return (

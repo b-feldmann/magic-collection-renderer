@@ -7,6 +7,7 @@ import CardInterface from '../../interfaces/CardInterface';
 import { Store, StoreType } from '../../store';
 import { updateCard } from '../../actions/cardActions';
 import { CardType, CardState, RarityType } from '../../interfaces/enums';
+import { setTrollMode } from '../../utils/useTrollMode';
 import { EDIT_SAVE_OFFSET, EDIT_TIME_OFFSET, UNKNOWN_CREATOR } from '../../utils/constants';
 
 vi.mock('../../actions/cardActions', () => ({
@@ -95,6 +96,7 @@ describe('CardEditor - templating hints', () => {
   });
 
   afterEach(() => {
+    act(() => setTrollMode(false));
     vi.runOnlyPendingTimers();
     vi.useRealTimers();
   });
@@ -199,5 +201,24 @@ describe('CardEditor - templating hints', () => {
     const hints = getHints('Power/Toughness');
     expect(fieldOf(hints)).toBe('cardStats');
     expect(hints.textContent).toContain('no power and toughness');
+  });
+
+  it('rewords open hints when troll mode is switched, but keeps their advice and fixes', () => {
+    renderEditor(makeCard(['When ~ enters the battlefield, draw a card.']));
+    const messages = () =>
+      within(getHints())
+        .getAllByRole('listitem')
+        .map(item => item.querySelector('p')!.textContent!);
+    const plain = messages();
+
+    act(() => setTrollMode(true));
+    messages().forEach((message, index) => {
+      expect(message).not.toBe(plain[index]);
+      expect(message.endsWith(plain[index])).toBe(true);
+    });
+    expect(within(getHints()).getByRole('button', { name: 'Use "enters"' })).toBeDefined();
+
+    act(() => setTrollMode(false));
+    expect(messages()).toEqual(plain);
   });
 });

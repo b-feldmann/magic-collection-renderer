@@ -807,13 +807,6 @@ updateLog.push({
       description:
         'On an evolution card with a single level, choose how the base and the level share the text box: equally (1/1), with a taller base (2/1) or with a taller level (1/2). By default, the card uses whichever allows the largest text.',
     },
-  ],
-});
-
-updateLog.push({
-  version: '5.3.1',
-  title: 'Complexity Hints',
-  content: [
     {
       type: ChangeLogFeatureType.Added,
       feature: 'Hint for creatures without rules text',
@@ -825,6 +818,12 @@ updateLog.push({
       feature: 'Complexity hints follow current commons',
       description:
         'Enchant and Equip lines no longer count as abilities, and a list of modes counts as one. Static effects on a narrow group, such as one creature type or creatures with +1/+1 counters, get a milder hint than those on all creatures.',
+    },
+    {
+      type: ChangeLogFeatureType.Added,
+      feature: 'Troll mode',
+      description:
+        'Makes the templating hints passive-aggressive. Turn it on in the menu with more collection actions; it is remembered in this browser.',
     },
   ],
 });
